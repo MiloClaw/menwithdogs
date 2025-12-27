@@ -1,15 +1,19 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu, X } from "lucide-react";
 
 const Navbar = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container flex items-center justify-between h-16 md:h-18">
-        <a href="/" className="font-serif text-xl font-semibold text-primary">
+      <div className="container flex items-center justify-between h-14 md:h-16">
+        <a href="/" className="font-serif text-lg md:text-xl font-semibold text-primary">
           MainStreetIRL
         </a>
         
-        <div className="hidden md:flex items-center gap-8">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-6 lg:gap-8">
           <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
             Places
           </a>
@@ -25,10 +29,48 @@ const Navbar = () => {
           </Button>
         </div>
 
-        <Button variant="accent" size="sm" className="md:hidden">
-          Join Waitlist
-        </Button>
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 -mr-2 text-primary"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-border bg-background">
+          <div className="container py-4 space-y-3">
+            <a 
+              href="/places" 
+              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Places
+            </a>
+            <a 
+              href="/blog" 
+              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Blog
+            </a>
+            <a 
+              href="/#how-it-works" 
+              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              How It Works
+            </a>
+            <Button variant="accent" size="sm" className="w-full mt-2">
+              Join the Waitlist
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

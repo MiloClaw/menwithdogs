@@ -68,22 +68,22 @@ const Blog = () => {
         subtitle="Tips, stories, and inspiration for couples"
       />
       
-      <div className="container py-8">
+      <div className="container py-6 md:py-8">
         {/* Category Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 border-b border-border">
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-6 md:mb-8 border-b border-border -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
           {categories.map((category, index) => (
             <FilterChip key={category} label={category} active={index === 0} />
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Featured Post */}
             <BlogCard {...featuredPost} featured />
 
             {/* Post Grid */}
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               {posts.map((post) => (
                 <BlogCard key={post.title} {...post} />
               ))}
@@ -91,39 +91,39 @@ const Blog = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Newsletter Signup */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-accent" />
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center gap-3 mb-3 md:mb-4">
+                <div className="w-9 h-9 md:w-10 md:h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                  <Mail className="w-4 h-4 md:w-5 md:h-5 text-accent" />
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-primary">
+                <h3 className="font-serif text-base md:text-lg font-semibold text-primary">
                   Newsletter
                 </h3>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-3 md:mb-4">
                 Get weekly insights and stories delivered to your inbox.
               </p>
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="w-full px-4 py-2.5 bg-surface border border-border rounded-button text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent mb-3"
+                className="w-full px-3 md:px-4 py-2 md:py-2.5 bg-surface border border-border rounded-button text-sm text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent mb-3"
               />
-              <Button variant="accent" className="w-full">
+              <Button variant="accent" className="w-full" size="sm">
                 Subscribe
               </Button>
             </Card>
 
             {/* Popular Posts */}
-            <Card className="p-6">
-              <h3 className="font-serif text-lg font-semibold text-primary mb-4">
+            <Card className="p-4 md:p-6">
+              <h3 className="font-serif text-base md:text-lg font-semibold text-primary mb-3 md:mb-4">
                 Popular Posts
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-2 md:space-y-3">
                 {popularPosts.map((title, index) => (
-                  <li key={title} className="flex gap-3">
-                    <span className="text-accent font-semibold">{index + 1}.</span>
+                  <li key={title} className="flex gap-2 md:gap-3">
+                    <span className="text-accent font-semibold text-sm">{index + 1}.</span>
                     <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer">
                       {title}
                     </span>
