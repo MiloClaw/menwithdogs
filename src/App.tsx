@@ -14,6 +14,7 @@ import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
+import Invite from "./pages/Invite";
 import Dashboard from "./pages/Dashboard";
 import OnboardingEntry from "./pages/onboarding/OnboardingEntry";
 import CreateCouple from "./pages/onboarding/CreateCouple";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           {/* Auth & Onboarding */}
           <Route path="/auth" element={<Auth />} />
+          <Route path="/invite/:token" element={<Invite />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/onboarding" element={<OnboardingEntry />} />
           <Route path="/onboarding/create-couple" element={<CreateCouple />} />
