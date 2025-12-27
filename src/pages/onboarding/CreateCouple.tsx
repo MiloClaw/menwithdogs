@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -9,20 +9,32 @@ import { Button } from '@/components/ui/button';
 const CreateCouple = () => {
   const [isCreating, setIsCreating] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { createCouple, hasCouple } = useCouple();
+  const { createCouple, hasCouple, loading: coupleLoading } = useCouple();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already has couple
-  if (!authLoading && hasCouple) {
-    navigate('/onboarding/my-profile');
-    return null;
-  }
+  // Handle redirects in useEffect
+  useEffect(() => {
+    if (authLoading || coupleLoading) return;
 
-  // Redirect if not authenticated
-  if (!authLoading && !isAuthenticated) {
-    navigate('/auth');
-    return null;
+    if (!isAuthenticated) {
+      navigate('/auth');
+      return;
+    }
+
+    if (hasCouple) {
+      navigate('/onboarding/my-profile');
+      return;
+    }
+  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
+
+  // Show loading while auth or couple data is loading
+  if (authLoading || coupleLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
   }
 
   const handleCreateCouple = async () => {
