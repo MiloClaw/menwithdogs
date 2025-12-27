@@ -16,6 +16,8 @@ import About from "./pages/About";
 import Auth from "./pages/Auth";
 import Invite from "./pages/Invite";
 import Dashboard from "./pages/Dashboard";
+import Discover from "./pages/Discover";
+import DiscoverCoupleView from "./pages/DiscoverCoupleView";
 import OnboardingEntry from "./pages/onboarding/OnboardingEntry";
 import CreateCouple from "./pages/onboarding/CreateCouple";
 import MyProfile from "./pages/onboarding/MyProfile";
@@ -44,6 +46,8 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/invite/:token" element={<Invite />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/discover/:coupleId" element={<DiscoverCoupleView />} />
           <Route path="/onboarding" element={<OnboardingEntry />} />
           <Route path="/onboarding/create-couple" element={<CreateCouple />} />
           <Route path="/onboarding/my-profile" element={<MyProfile />} />

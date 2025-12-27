@@ -151,6 +151,7 @@ export type Database = {
           display_name: string | null
           id: string
           is_complete: boolean
+          is_discoverable: boolean
           preferred_meetup_times: string | null
           shared_interests: string[] | null
           updated_at: string
@@ -161,6 +162,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_complete?: boolean
+          is_discoverable?: boolean
           preferred_meetup_times?: string | null
           shared_interests?: string[] | null
           updated_at?: string
@@ -171,6 +173,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_complete?: boolean
+          is_discoverable?: boolean
           preferred_meetup_times?: string | null
           shared_interests?: string[] | null
           updated_at?: string
@@ -227,6 +230,35 @@ export type Database = {
           {
             foreignKeyName: "member_profiles_couple_id_fkey"
             columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_couples: {
+        Row: {
+          created_at: string
+          id: string
+          saved_couple_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          saved_couple_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          saved_couple_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_couples_saved_couple_id_fkey"
+            columns: ["saved_couple_id"]
             isOneToOne: false
             referencedRelation: "couples"
             referencedColumns: ["id"]
