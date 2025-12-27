@@ -1,58 +1,144 @@
+import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Share2, Bookmark } from "lucide-react";
+import { format } from "date-fns";
 import PageLayout from "@/components/PageLayout";
 import CategoryBadge from "@/components/CategoryBadge";
 import BlogCard from "@/components/BlogCard";
-
-const relatedPosts = [
-  {
-    title: "Weekend Getaways That Actually Bring You Closer",
-    excerpt: "The best destinations for couples looking to reconnect.",
-    category: "Travel",
-    date: "December 18, 2024",
-  },
-  {
-    title: "The Art of Shared Hobbies",
-    excerpt: "Finding activities you both love.",
-    category: "Lifestyle",
-    date: "December 15, 2024",
-  },
-  {
-    title: "Communication 101: What They Don't Teach You",
-    excerpt: "Essential communication skills every couple should master.",
-    category: "Relationships",
-    date: "December 12, 2024",
-  },
-];
-
-const tags = ["Relationships", "Communication", "Growth", "Couples"];
+import { useBlogPost, useRelatedPosts } from "@/hooks/useBlogPosts";
+import { Card } from "@/components/ui/card";
 
 const BlogPost = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const { data: post, isLoading, error } = useBlogPost(slug || "");
+  const { data: relatedPosts = [] } = useRelatedPosts(
+    slug || "",
+    post?.category || "",
+    3
+  );
+
+  const formatDate = (dateString: string) => {
+    return format(new Date(dateString), "MMMM d, yyyy");
+  };
+
+  // Parse content into sections for rendering
+  const renderContent = (content: string) => {
+    const sections = content.split("\n\n");
+    return sections.map((section, index) => {
+      const trimmed = section.trim();
+      
+      // Handle headers (lines starting with ##)
+      if (trimmed.startsWith("## ")) {
+        return (
+          <h2 key={index} className="font-serif text-xl md:text-2xl font-semibold text-primary mt-8 md:mt-10 mb-3 md:mb-4">
+            {trimmed.replace("## ", "")}
+          </h2>
+        );
+      }
+      
+      // Handle blockquotes (lines starting with >)
+      if (trimmed.startsWith("> ")) {
+        return (
+          <blockquote key={index} className="border-l-4 border-accent pl-4 md:pl-6 py-2 my-6 md:my-8">
+            <p className="font-serif text-lg md:text-xl text-primary italic">
+              {trimmed.replace("> ", "")}
+            </p>
+          </blockquote>
+        );
+      }
+      
+      // Handle lists (lines starting with -)
+      if (trimmed.includes("\n- ") || trimmed.startsWith("- ")) {
+        const items = trimmed.split("\n").filter(line => line.startsWith("- "));
+        return (
+          <ul key={index} className="list-disc list-inside text-sm md:text-base text-muted-foreground space-y-1.5 md:space-y-2 mb-5 md:mb-6 ml-2 md:ml-4">
+            {items.map((item, i) => (
+              <li key={i}>{item.replace("- ", "")}</li>
+            ))}
+          </ul>
+        );
+      }
+      
+      // Regular paragraphs
+      if (trimmed) {
+        return (
+          <p key={index} className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6">
+            {trimmed}
+          </p>
+        );
+      }
+      
+      return null;
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="container py-8 md:py-12">
+          <Card className="h-96 animate-pulse bg-muted" />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <PageLayout>
+        <div className="container py-8 md:py-12 text-center">
+          <h1 className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-4">
+            Post Not Found
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            The article you're looking for doesn't exist or has been removed.
+          </p>
+          <Link 
+            to="/blog" 
+            className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Blog
+          </Link>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout>
       {/* Hero Section */}
       <div className="border-b border-border">
         <div className="container py-6 md:py-8">
-          <a href="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-4 md:mb-6">
+          <Link 
+            to="/blog" 
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-4 md:mb-6"
+          >
             <ArrowLeft className="w-4 h-4" />
             Back to Blog
-          </a>
+          </Link>
           
-          <CategoryBadge label="Relationships" />
+          <CategoryBadge label={post.category} />
           
           <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-primary mt-3 md:mt-4 mb-4 md:mb-6 max-w-4xl">
-            Building Stronger Connections: A Guide for Modern Couples
+            {post.title}
           </h1>
           
           <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-muted-foreground mb-6 md:mb-8">
-            <span>By <span className="text-primary font-medium">Editorial Team</span></span>
+            <span>By <span className="text-primary font-medium">{post.author}</span></span>
             <span className="hidden md:inline">•</span>
-            <span>December 20, 2024</span>
+            <span>{formatDate(post.published_at)}</span>
             <span>•</span>
-            <span>8 min read</span>
+            <span>{post.reading_time} min read</span>
           </div>
 
           {/* Hero Image */}
-          <div className="aspect-[16/9] md:aspect-[21/9] bg-muted rounded-card" />
+          <div 
+            className="aspect-[16/9] md:aspect-[21/9] bg-muted rounded-card"
+            style={post.hero_image_url ? { 
+              backgroundImage: `url(${post.hero_image_url})`, 
+              backgroundSize: 'cover', 
+              backgroundPosition: 'center' 
+            } : undefined}
+          />
         </div>
       </div>
 
@@ -61,93 +147,48 @@ const BlogPost = () => {
         <div className="max-w-prose mx-auto px-0">
           {/* Body Content */}
           <div className="prose-custom">
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-5 md:mb-6">
-              In today's fast-paced world, maintaining meaningful connections with your partner requires intentionality and effort. This guide explores practical strategies for deepening your relationship while navigating the complexities of contemporary life together.
-            </p>
-
-            <h2 className="font-serif text-xl md:text-2xl font-semibold text-primary mt-8 md:mt-10 mb-3 md:mb-4">
-              The Foundation of Connection
-            </h2>
-            
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6">
-              Strong relationships are built on a foundation of trust, communication, and shared experiences. Understanding these fundamental elements is the first step toward creating a lasting bond with your partner.
-            </p>
-
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6">
-              Research consistently shows that couples who prioritize quality time together—even in small, everyday moments—report higher levels of satisfaction and longevity in their relationships.
-            </p>
-
-            {/* Pull Quote */}
-            <blockquote className="border-l-4 border-accent pl-4 md:pl-6 py-2 my-6 md:my-8">
-              <p className="font-serif text-lg md:text-xl text-primary italic">
-                "The greatest relationships are built not on grand gestures, but on consistent small acts of care and attention."
+            {post.excerpt && (
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-5 md:mb-6">
+                {post.excerpt}
               </p>
-            </blockquote>
-
-            <h2 className="font-serif text-xl md:text-2xl font-semibold text-primary mt-8 md:mt-10 mb-3 md:mb-4">
-              Practical Strategies for Daily Connection
-            </h2>
-
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6">
-              Implementing small rituals can transform your daily routine into opportunities for connection. Consider starting with these simple practices:
-            </p>
-
-            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground space-y-1.5 md:space-y-2 mb-5 md:mb-6 ml-2 md:ml-4">
-              <li>Morning check-ins before the day begins</li>
-              <li>Device-free dinner conversations</li>
-              <li>Weekly planning sessions together</li>
-              <li>Evening gratitude sharing</li>
-            </ul>
-
-            {/* Inline Image */}
-            <div className="aspect-[4/3] md:aspect-video bg-muted rounded-card my-6 md:my-8" />
-
-            <h2 className="font-serif text-xl md:text-2xl font-semibold text-primary mt-8 md:mt-10 mb-3 md:mb-4">
-              Navigating Challenges Together
-            </h2>
-
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6">
-              Every relationship faces obstacles. The key is not avoiding challenges but developing the skills and resilience to work through them as a team. This section explores common challenges couples face and offers evidence-based approaches for addressing them.
-            </p>
-
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6">
-              Remember that seeking support—whether from friends, family, or professionals—is a sign of strength, not weakness. Building a network of supportive relationships around your partnership can provide valuable perspective and encouragement.
-            </p>
+            )}
+            {renderContent(post.content)}
           </div>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-border">
-            {tags.map((tag) => (
-              <span key={tag} className="px-2.5 md:px-3 py-1 md:py-1.5 bg-surface text-primary text-xs md:text-sm rounded-button border border-border">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Share Actions */}
-          <div className="flex items-center gap-4 mt-4 md:mt-6">
-            <button className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground hover:text-primary transition-colors py-2">
+          {/* Share Actions - Visual only, no functionality */}
+          <div className="flex items-center gap-4 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-border">
+            <span className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground py-2">
               <Share2 className="w-4 h-4" />
               Share
-            </button>
-            <button className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground hover:text-primary transition-colors py-2">
+            </span>
+            <span className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground py-2">
               <Bookmark className="w-4 h-4" />
               Save
-            </button>
+            </span>
           </div>
         </div>
 
         {/* Related Posts */}
-        <div className="mt-12 md:mt-16 pt-8 md:pt-12 border-t border-border">
-          <h2 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-6 md:mb-8">
-            Related Articles
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {relatedPosts.map((post) => (
-              <BlogCard key={post.title} {...post} />
-            ))}
+        {relatedPosts.length > 0 && (
+          <div className="mt-12 md:mt-16 pt-8 md:pt-12 border-t border-border">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-6 md:mb-8">
+              Related Articles
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {relatedPosts.map((relatedPost) => (
+                <BlogCard 
+                  key={relatedPost.id}
+                  title={relatedPost.title}
+                  excerpt={relatedPost.excerpt || ""}
+                  category={relatedPost.category}
+                  date={formatDate(relatedPost.published_at)}
+                  slug={relatedPost.slug}
+                  heroImageUrl={relatedPost.hero_image_url || undefined}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </PageLayout>
   );
