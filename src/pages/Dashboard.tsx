@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DiscoveryToggle } from '@/components/discovery/DiscoveryToggle';
 import { getInterestLabels } from '@/lib/interests';
+import { Compass } from 'lucide-react';
 
 const Dashboard = () => {
   const { isAuthenticated, loading: authLoading, signOut, user } = useAuth();
@@ -66,9 +67,15 @@ const Dashboard = () => {
                 {isCoupleComplete ? 'Your couple profile is ready' : 'Waiting for your partner to join'}
               </p>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              Sign out
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/discover')}>
+                <Compass className="h-4 w-4 mr-1" />
+                Discover
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                Sign out
+              </Button>
+            </div>
           </div>
 
           {/* Status cards */}
@@ -187,11 +194,19 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Discovery toggle */}
+            {couple && isCoupleComplete && (
+              <DiscoveryToggle 
+                coupleId={couple.id} 
+                initialValue={(couple as any).is_discoverable ?? false}
+              />
+            )}
           </div>
 
           {/* Privacy note */}
           <p className="text-xs text-center text-muted-foreground">
-            Your profiles are private. Discovery features coming soon.
+            Your individual profiles are always private. Only your couple profile can be discoverable.
           </p>
         </div>
       </div>
