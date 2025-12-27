@@ -9,7 +9,7 @@ const PageLayout = ({ children }: PageLayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="pt-16 md:pt-18">
+      <main className="pt-14 md:pt-16">
         {children}
       </main>
       <Footer />
