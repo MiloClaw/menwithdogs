@@ -176,7 +176,7 @@ const CoupleProfileEdit = () => {
       currentStep={4}
       totalSteps={4}
       title="Your couple profile"
-      subtitle="This is what other couples will see. Make it yours."
+      subtitle="Build your shared profile. Discovery features coming soon."
     >
       <div className="space-y-6">
         {/* AI Draft Generator */}
@@ -187,6 +187,11 @@ const CoupleProfileEdit = () => {
               <p className="text-sm text-muted-foreground">
                 We can generate a draft based on your profiles.
               </p>
+              {!couple?.is_complete && (
+                <p className="text-xs text-amber-600 mt-1">
+                  For best results, wait until your partner completes their profile.
+                </p>
+              )}
             </div>
           </div>
           <div className="flex gap-2">
