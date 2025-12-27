@@ -13,6 +13,13 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import OnboardingEntry from "./pages/onboarding/OnboardingEntry";
+import CreateCouple from "./pages/onboarding/CreateCouple";
+import MyProfile from "./pages/onboarding/MyProfile";
+import InvitePartner from "./pages/onboarding/InvitePartner";
+import CoupleProfileEdit from "./pages/onboarding/CoupleProfileEdit";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +39,14 @@ const App = () => (
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<About />} />
+          {/* Auth & Onboarding */}
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/onboarding" element={<OnboardingEntry />} />
+          <Route path="/onboarding/create-couple" element={<CreateCouple />} />
+          <Route path="/onboarding/my-profile" element={<MyProfile />} />
+          <Route path="/onboarding/invite-partner" element={<InvitePartner />} />
+          <Route path="/onboarding/couple-profile" element={<CoupleProfileEdit />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
