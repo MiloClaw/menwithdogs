@@ -73,14 +73,14 @@ const DiscoverCoupleView = () => {
           return;
         }
 
-        // Get city from member profiles
-        const { data: memberProfiles } = await supabase
-          .from('member_profiles')
+        // Get city from couple_location_summary (Phase 5)
+        const { data: locationSummary } = await supabase
+          .from('couple_location_summary')
           .select('city')
           .eq('couple_id', coupleId)
-          .limit(1);
+          .maybeSingle();
 
-        const city = memberProfiles?.[0]?.city || null;
+        const city = locationSummary?.city || null;
 
         setViewedCouple({
           ...couple,

@@ -197,13 +197,25 @@ export function useCouple() {
 
     if (error) throw error;
 
+    // Sync city to couple_location_summary (Phase 5)
+    if (updates.city && state.couple) {
+      await supabase
+        .from('couple_location_summary')
+        .upsert({
+          couple_id: state.couple.id,
+          city: updates.city,
+          country: 'US',
+          last_updated: new Date().toISOString(),
+        }, { onConflict: 'couple_id' });
+    }
+
     setState(prev => ({
       ...prev,
       memberProfile: data as MemberProfile,
     }));
 
     return data;
-  }, [state.memberProfile]);
+  }, [state.memberProfile, state.couple]);
 
   const updateCoupleProfile = useCallback(async (updates: Partial<Couple>) => {
     if (!state.couple) throw new Error('No couple');

@@ -51,25 +51,25 @@ export function useDiscovery() {
 
       if (couplesError) throw couplesError;
 
-      // Get cities for these couples from member_profiles
+      // Get cities for these couples from couple_location_summary (Phase 5)
       const coupleIds = discoverableCouples?.map(c => c.id) || [];
       
       let couplesWithCity: DiscoverableCouple[] = [];
       
       if (coupleIds.length > 0) {
-        // Fetch member profiles to get city info for filtering
-        const { data: memberProfiles, error: membersError } = await supabase
-          .from('member_profiles')
+        // Fetch location summaries for city info
+        const { data: locationSummaries, error: locationError } = await supabase
+          .from('couple_location_summary')
           .select('couple_id, city')
           .in('couple_id', coupleIds);
 
-        if (membersError) throw membersError;
+        if (locationError) throw locationError;
 
-        // Create a map of couple_id to city (use first member's city)
+        // Create a map of couple_id to city
         const cityMap = new Map<string, string>();
-        memberProfiles?.forEach(mp => {
-          if (mp.city && !cityMap.has(mp.couple_id)) {
-            cityMap.set(mp.couple_id, mp.city);
+        locationSummaries?.forEach(ls => {
+          if (ls.city) {
+            cityMap.set(ls.couple_id, ls.city);
           }
         });
 
