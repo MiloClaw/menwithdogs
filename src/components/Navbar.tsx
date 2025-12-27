@@ -10,11 +10,14 @@ const Navbar = () => {
         </a>
         
         <div className="hidden md:flex items-center gap-8">
-          <a href="#how-it-works" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-            How It Works
+          <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+            Places
           </a>
-          <a href="#about" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-            About
+          <a href="/blog" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+            Blog
+          </a>
+          <a href="/#how-it-works" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+            How It Works
           </a>
           <Button variant="accent" size="sm">
             Join the Waitlist
