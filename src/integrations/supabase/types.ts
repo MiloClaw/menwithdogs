@@ -62,15 +62,213 @@ export type Database = {
         }
         Relationships: []
       }
+      couple_invites: {
+        Row: {
+          accepted_at: string | null
+          couple_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          invited_by: string
+          invited_email: string
+          token_hash: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          couple_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          invited_email: string
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          couple_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          invited_email?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_invites_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_profile_drafts: {
+        Row: {
+          couple_id: string
+          created_at: string
+          generated_about_us: string | null
+          generated_display_name: string | null
+          generated_shared_interests: string[] | null
+          id: string
+          is_applied: boolean
+          updated_at: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          generated_about_us?: string | null
+          generated_display_name?: string | null
+          generated_shared_interests?: string[] | null
+          id?: string
+          is_applied?: boolean
+          updated_at?: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          generated_about_us?: string | null
+          generated_display_name?: string | null
+          generated_shared_interests?: string[] | null
+          id?: string
+          is_applied?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_profile_drafts_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: true
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couples: {
+        Row: {
+          about_us: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          is_complete: boolean
+          preferred_meetup_times: string | null
+          shared_interests: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          about_us?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_complete?: boolean
+          preferred_meetup_times?: string | null
+          shared_interests?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          about_us?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_complete?: boolean
+          preferred_meetup_times?: string | null
+          shared_interests?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_profiles: {
+        Row: {
+          availability: string | null
+          city: string | null
+          couple_id: string
+          created_at: string
+          energy_style: string | null
+          first_name: string | null
+          id: string
+          interests: string[] | null
+          is_owner: boolean
+          is_profile_complete: boolean
+          social_settings: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          city?: string | null
+          couple_id: string
+          created_at?: string
+          energy_style?: string | null
+          first_name?: string | null
+          id?: string
+          interests?: string[] | null
+          is_owner?: boolean
+          is_profile_complete?: boolean
+          social_settings?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          city?: string | null
+          couple_id?: string
+          created_at?: string
+          energy_style?: string | null
+          first_name?: string | null
+          id?: string
+          interests?: string[] | null
+          is_owner?: boolean
+          is_profile_complete?: boolean
+          social_settings?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_profiles_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -197,6 +395,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
