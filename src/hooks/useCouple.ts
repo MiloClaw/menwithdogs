@@ -65,6 +65,9 @@ export function useCouple() {
       return;
     }
 
+    // Set loading true immediately when starting fetch
+    setState(prev => ({ ...prev, loading: true, error: null }));
+
     try {
       // Fetch member profile
       const { data: memberProfile, error: memberError } = await supabase
@@ -154,6 +157,19 @@ export function useCouple() {
   const createCouple = useCallback(async () => {
     if (!user) throw new Error('Not authenticated');
 
+    // Safety guard: check if user already has a profile/couple
+    const { data: existingProfile } = await supabase
+      .from('member_profiles')
+      .select('*, couples(*)')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (existingProfile) {
+      // User already has a couple - refetch and return existing data
+      await fetchCoupleData();
+      throw new Error('You already have a couple profile');
+    }
+
     // Create couple
     const { data: couple, error: coupleError } = await supabase
       .from('couples')
@@ -183,7 +199,7 @@ export function useCouple() {
     }));
 
     return { couple, memberProfile };
-  }, [user]);
+  }, [user, fetchCoupleData]);
 
   const updateMemberProfile = useCallback(async (updates: Partial<MemberProfile>) => {
     if (!state.memberProfile) throw new Error('No member profile');
