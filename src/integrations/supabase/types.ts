@@ -103,6 +103,80 @@ export type Database = {
           },
         ]
       }
+      couple_location_summary: {
+        Row: {
+          city: string
+          country: string
+          couple_id: string
+          last_updated: string
+          state: string | null
+        }
+        Insert: {
+          city: string
+          country?: string
+          couple_id: string
+          last_updated?: string
+          state?: string | null
+        }
+        Update: {
+          city?: string
+          country?: string
+          couple_id?: string
+          last_updated?: string
+          state?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_location_summary_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: true
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_place_signals: {
+        Row: {
+          couple_id: string
+          generated_at: string
+          id: string
+          place_id: string
+          shared_strength: string
+          visibility: string | null
+        }
+        Insert: {
+          couple_id: string
+          generated_at?: string
+          id?: string
+          place_id: string
+          shared_strength: string
+          visibility?: string | null
+        }
+        Update: {
+          couple_id?: string
+          generated_at?: string
+          id?: string
+          place_id?: string
+          shared_strength?: string
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_place_signals_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_place_signals_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       couple_profile_drafts: {
         Row: {
           couple_id: string
@@ -180,6 +254,44 @@ export type Database = {
         }
         Relationships: []
       }
+      member_place_affinities: {
+        Row: {
+          affinity_type: Database["public"]["Enums"]["affinity_type"]
+          cadence: Database["public"]["Enums"]["place_cadence"]
+          context: string | null
+          created_at: string
+          id: string
+          place_id: string
+          user_id: string
+        }
+        Insert: {
+          affinity_type: Database["public"]["Enums"]["affinity_type"]
+          cadence: Database["public"]["Enums"]["place_cadence"]
+          context?: string | null
+          created_at?: string
+          id?: string
+          place_id: string
+          user_id: string
+        }
+        Update: {
+          affinity_type?: Database["public"]["Enums"]["affinity_type"]
+          cadence?: Database["public"]["Enums"]["place_cadence"]
+          context?: string | null
+          created_at?: string
+          id?: string
+          place_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_place_affinities_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_profiles: {
         Row: {
           availability: string | null
@@ -235,6 +347,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      places: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          google_place_id: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          primary_category: string
+          secondary_categories: string[] | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          google_place_id: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          primary_category: string
+          secondary_categories?: string[] | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          google_place_id?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          primary_category?: string
+          secondary_categories?: string[] | null
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       saved_couples: {
         Row: {
@@ -300,7 +457,9 @@ export type Database = {
       }
     }
     Enums: {
+      affinity_type: "regular" | "occasional" | "aspirational"
       app_role: "admin" | "user"
+      place_cadence: "weekly" | "monthly" | "rare"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -428,7 +587,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      affinity_type: ["regular", "occasional", "aspirational"],
       app_role: ["admin", "user"],
+      place_cadence: ["weekly", "monthly", "rare"],
     },
   },
 } as const
