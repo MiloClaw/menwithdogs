@@ -23,6 +23,10 @@ import CreateCouple from "./pages/onboarding/CreateCouple";
 import MyProfile from "./pages/onboarding/MyProfile";
 import InvitePartner from "./pages/onboarding/InvitePartner";
 import CoupleProfileEdit from "./pages/onboarding/CoupleProfileEdit";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import BlogManagement from "./pages/admin/BlogManagement";
+import { RequireRole } from "./components/auth/RequireRole";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +57,10 @@ const App = () => (
           <Route path="/onboarding/my-profile" element={<MyProfile />} />
           <Route path="/onboarding/invite-partner" element={<InvitePartner />} />
           <Route path="/onboarding/couple-profile" element={<CoupleProfileEdit />} />
+          {/* Admin Routes */}
+          <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
+          <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
+          <Route path="/admin/blog" element={<RequireRole role="admin"><BlogManagement /></RequireRole>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
