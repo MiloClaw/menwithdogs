@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,7 +25,6 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const resend = new Resend(resendApiKey);
 
     // Get auth user
     const authHeader = req.headers.get("Authorization");
@@ -120,28 +118,41 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://mainstreetirl.com";
     const inviteLink = `${origin}/invite/${token}`;
 
-    // Send email
-    const emailResponse = await resend.emails.send({
-      from: "MainStreetIRL <invites@resend.dev>",
-      to: [invited_email],
-      subject: "You're invited to join MainStreetIRL",
-      html: `
-        <div style="font-family: system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
-          <h1 style="font-size: 24px; color: #1a1a1a;">You're invited!</h1>
-          <p style="color: #666; line-height: 1.6;">
-            Your partner has invited you to create a couple profile on MainStreetIRL.
-          </p>
-          <p style="margin: 24px 0;">
-            <a href="${inviteLink}" style="display: inline-block; background: #1e3a5f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
-              Accept Invitation
-            </a>
-          </p>
-          <p style="color: #999; font-size: 14px;">
-            This invitation expires in 7 days.
-          </p>
-        </div>
-      `,
+    // Send email via Resend API directly
+    const emailResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "MainStreetIRL <invites@resend.dev>",
+        to: [invited_email],
+        subject: "You're invited to join MainStreetIRL",
+        html: `
+          <div style="font-family: system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
+            <h1 style="font-size: 24px; color: #1a1a1a;">You're invited!</h1>
+            <p style="color: #666; line-height: 1.6;">
+              Your partner has invited you to create a couple profile on MainStreetIRL.
+            </p>
+            <p style="margin: 24px 0;">
+              <a href="${inviteLink}" style="display: inline-block; background: #1e3a5f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
+                Accept Invitation
+              </a>
+            </p>
+            <p style="color: #999; font-size: 14px;">
+              This invitation expires in 7 days.
+            </p>
+          </div>
+        `,
+      }),
     });
+
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.text();
+      console.error("Resend error:", errorData);
+      throw new Error("Failed to send invite email");
+    }
 
     console.log("Invite sent successfully:", { couple_id, invited_email });
 
@@ -149,9 +160,10 @@ serve(async (req) => {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in send-invite:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
