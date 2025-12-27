@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Users, Shield, UserCheck } from 'lucide-react';
+import { Shield, UserCheck, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import PageLayout from '@/components/PageLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AdminLayout from '@/components/admin/AdminLayout';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface UserWithRole {
   user_id: string;
@@ -19,7 +25,6 @@ const UserManagement = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      // Fetch all user roles (admins can see all via RLS bypass in has_role)
       const { data, error } = await supabase
         .from('user_roles')
         .select('user_id, role, created_at')
@@ -57,74 +62,80 @@ const UserManagement = () => {
   };
 
   return (
-    <PageLayout>
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/admin">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">View user accounts and roles</p>
-          </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">View and manage user accounts and roles</p>
         </div>
 
-        {loading ? (
-          <div className="text-center py-12 text-muted-foreground">
-            Loading users...
-          </div>
-        ) : users.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No users found</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {users.map((user) => {
-              const RoleIcon = getRoleIcon(user.role);
-              return (
-                <Card key={`${user.user_id}-${user.role}`}>
-                  <CardHeader className="py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-muted rounded-full">
-                          <RoleIcon className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-sm font-mono">
-                            {user.user_id.slice(0, 8)}...
-                          </CardTitle>
-                          <CardDescription className="text-xs">
-                            Joined {new Date(user.created_at).toLocaleDateString()}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {user.role}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+        {/* Users Table */}
+        <Card>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="text-center py-12 text-muted-foreground">
+                Loading users...
+              </div>
+            ) : users.length === 0 ? (
+              <div className="py-12 text-center">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No users found</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12"></TableHead>
+                    <TableHead>User ID</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => {
+                    const RoleIcon = getRoleIcon(user.role);
+                    return (
+                      <TableRow key={`${user.user_id}-${user.role}`}>
+                        <TableCell>
+                          <div className="p-2 bg-muted rounded-full w-fit">
+                            <RoleIcon className="h-4 w-4" />
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {user.user_id.slice(0, 8)}...{user.user_id.slice(-4)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getRoleBadgeVariant(user.role)}>
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground text-sm">
+                          —
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
 
-        <Card className="mt-8 border-dashed">
+        {/* Placeholder */}
+        <Card className="border-dashed">
           <CardContent className="py-6 text-center">
             <p className="text-sm text-muted-foreground">
               Role assignment UI coming in a future update.
-              <br />
-              For now, assign roles via database.
             </p>
           </CardContent>
         </Card>
       </div>
-    </PageLayout>
+    </AdminLayout>
   );
 };
 
