@@ -454,6 +454,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_couple_for_current_user: { Args: never; Returns: string }
       get_user_couple_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
