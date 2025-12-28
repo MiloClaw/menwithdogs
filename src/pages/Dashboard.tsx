@@ -36,7 +36,13 @@ const Dashboard = () => {
       navigate('/onboarding/create-couple');
       return;
     }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
+
+    // If couple is pending_match, redirect to holding state
+    if (couple?.status === 'pending_match') {
+      navigate('/pending-match');
+      return;
+    }
+  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, couple, navigate]);
 
   const handleSignOut = async () => {
     await signOut();

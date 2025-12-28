@@ -228,6 +228,7 @@ export type Database = {
           is_discoverable: boolean
           preferred_meetup_times: string | null
           shared_interests: string[] | null
+          status: Database["public"]["Enums"]["couple_status"]
           updated_at: string
         }
         Insert: {
@@ -239,6 +240,7 @@ export type Database = {
           is_discoverable?: boolean
           preferred_meetup_times?: string | null
           shared_interests?: string[] | null
+          status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
         Update: {
@@ -250,6 +252,7 @@ export type Database = {
           is_discoverable?: boolean
           preferred_meetup_times?: string | null
           shared_interests?: string[] | null
+          status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
         Relationships: []
@@ -304,6 +307,7 @@ export type Database = {
           interests: string[] | null
           is_owner: boolean
           is_profile_complete: boolean
+          onboarding_step: Database["public"]["Enums"]["member_onboarding_step"]
           social_settings: string | null
           updated_at: string
           user_id: string
@@ -319,6 +323,7 @@ export type Database = {
           interests?: string[] | null
           is_owner?: boolean
           is_profile_complete?: boolean
+          onboarding_step?: Database["public"]["Enums"]["member_onboarding_step"]
           social_settings?: string | null
           updated_at?: string
           user_id: string
@@ -334,6 +339,7 @@ export type Database = {
           interests?: string[] | null
           is_owner?: boolean
           is_profile_complete?: boolean
+          onboarding_step?: Database["public"]["Enums"]["member_onboarding_step"]
           social_settings?: string | null
           updated_at?: string
           user_id?: string
@@ -460,6 +466,8 @@ export type Database = {
     Enums: {
       affinity_type: "regular" | "occasional" | "aspirational"
       app_role: "admin" | "user"
+      couple_status: "onboarding" | "pending_match" | "active" | "paused"
+      member_onboarding_step: "profile_pending" | "profile_complete"
       place_cadence: "weekly" | "monthly" | "rare"
     }
     CompositeTypes: {
@@ -590,6 +598,8 @@ export const Constants = {
     Enums: {
       affinity_type: ["regular", "occasional", "aspirational"],
       app_role: ["admin", "user"],
+      couple_status: ["onboarding", "pending_match", "active", "paused"],
+      member_onboarding_step: ["profile_pending", "profile_complete"],
       place_cadence: ["weekly", "monthly", "rare"],
     },
   },

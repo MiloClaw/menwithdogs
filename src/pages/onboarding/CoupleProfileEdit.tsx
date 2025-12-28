@@ -132,11 +132,16 @@ const CoupleProfileEdit = () => {
 
     setIsSubmitting(true);
     try {
+      // Forward-only status transition: only advance from onboarding to pending_match
+      // Never auto-downgrade status on edits
+      const shouldAdvanceStatus = couple?.status === 'onboarding' && couple?.is_complete;
+      
       await updateCoupleProfile({
         display_name: displayName.trim(),
         about_us: aboutUs.trim() || null,
         shared_interests: sharedInterests.length > 0 ? sharedInterests : null,
         preferred_meetup_times: preferredTimes.trim() || null,
+        ...(shouldAdvanceStatus && { status: 'pending_match' as const }),
       });
 
       // Mark draft as applied if we had one
@@ -151,7 +156,13 @@ const CoupleProfileEdit = () => {
         title: 'Profile saved',
         description: 'Your couple profile is ready.',
       });
-      navigate('/dashboard');
+      
+      // Navigate based on new status
+      if (shouldAdvanceStatus) {
+        navigate('/pending-match');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       toast({
         title: 'Failed to save',

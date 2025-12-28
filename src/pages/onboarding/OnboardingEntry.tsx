@@ -5,11 +5,14 @@ import { useCouple } from '@/hooks/useCouple';
 
 /**
  * Onboarding entry point.
- * Routes user to appropriate step based on their state.
+ * Routes user to appropriate step based on their state using nextRoute.
+ * 
+ * Rule 2: No UX routing based on row existence.
+ * Only enums and explicit states.
  */
 const OnboardingEntry = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { hasCouple, isProfileComplete, isCoupleComplete, loading: coupleLoading } = useCouple();
+  const { nextRoute, loading: coupleLoading } = useCouple();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,27 +24,9 @@ const OnboardingEntry = () => {
       return;
     }
 
-    // No couple yet - create one
-    if (!hasCouple) {
-      navigate('/onboarding/create-couple');
-      return;
-    }
-
-    // Has couple but profile not complete - complete it
-    if (!isProfileComplete) {
-      navigate('/onboarding/my-profile');
-      return;
-    }
-
-    // Profile complete but couple not complete (waiting for partner)
-    if (!isCoupleComplete) {
-      navigate('/onboarding/invite-partner');
-      return;
-    }
-
-    // Everything complete - go to dashboard
-    navigate('/dashboard');
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, isProfileComplete, isCoupleComplete, navigate]);
+    // Use computed nextRoute from state machine
+    navigate(nextRoute);
+  }, [authLoading, coupleLoading, isAuthenticated, nextRoute, navigate]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
