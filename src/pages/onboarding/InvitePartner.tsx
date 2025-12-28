@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -15,8 +14,8 @@ const emailSchema = z.string().email('Please enter a valid email address');
 /**
  * InvitePartner - Step 3 of onboarding
  * 
- * This is now a "dumb" component - it only renders UI and handles invite sending.
- * Navigation is controlled by OnboardingGuard.
+ * This is a "dumb" component - it only renders UI and handles invite sending.
+ * Navigation is controlled by OnboardingGuard based on state changes.
  */
 const InvitePartner = () => {
   const [email, setEmail] = useState('');
@@ -25,8 +24,7 @@ const InvitePartner = () => {
   const [inviteSent, setInviteSent] = useState(false);
   
   const { user } = useAuth();
-  const { couple, pendingInvite, refetch } = useCouple();
-  const navigate = useNavigate();
+  const { couple, pendingInvite, refetch, updateMemberProfile } = useCouple();
   const { toast } = useToast();
 
   // Show pending invite status
@@ -82,8 +80,10 @@ const InvitePartner = () => {
     }
   };
 
-  const handleSkipForNow = () => {
-    navigate('/onboarding/couple-profile');
+  const handleSkipForNow = async () => {
+    // Refetch state - guard will handle navigation to couple-profile
+    // since memberProfile.onboarding_step is already 'profile_complete'
+    await refetch();
   };
 
   return (

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
@@ -8,13 +7,12 @@ import { Button } from '@/components/ui/button';
 /**
  * CreateCouple - Step 1 of onboarding
  * 
- * This is now a "dumb" component - it only renders UI and handles the create action.
- * Navigation is controlled by OnboardingGuard.
+ * This is a "dumb" component - it only renders UI and handles the create action.
+ * Navigation is controlled by OnboardingGuard based on state changes.
  */
 const CreateCouple = () => {
   const [isCreating, setIsCreating] = useState(false);
   const { createCouple } = useCouple();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleCreateCouple = async () => {
@@ -25,20 +23,18 @@ const CreateCouple = () => {
         title: 'Couple created',
         description: "Now let's set up your profile.",
       });
-      // Navigate forward explicitly
-      navigate('/onboarding/my-profile');
+      // Guard handles navigation based on updated state
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Please try again.';
       const isSessionIssue = message.includes('Session not ready');
       const isDuplicate = message.includes('already') || message.includes('duplicate');
       
       if (isDuplicate) {
-        // Silently redirect - this is expected on retry
+        // Silently show toast - guard will redirect based on state
         toast({
           title: 'Profile found',
           description: 'Taking you to the next step.',
         });
-        navigate('/onboarding/my-profile');
       } else {
         toast({
           title: isSessionIssue ? 'Almost ready' : 'Something went wrong',

@@ -55,7 +55,7 @@ interface CoupleContextValue {
   isOwner: boolean;
   isCoupleComplete: boolean;
   isProfileComplete: boolean;
-  createCouple: () => Promise<{ coupleId: string }>;
+  createCouple: () => Promise<void>;
   updateMemberProfile: (updates: Partial<MemberProfile>) => Promise<MemberProfile>;
   updateCoupleProfile: (updates: Partial<Couple>) => Promise<Couple>;
   refetch: () => Promise<void>;
@@ -71,16 +71,20 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
   const [partnerProfile, setPartnerProfile] = useState<MemberProfile | null>(null);
   const [pendingInvite, setPendingInvite] = useState<CoupleInvite | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCoupleData = useCallback(async () => {
     if (!user) {
       setLoading(false);
+      setInitialLoadComplete(true);
       return;
     }
 
-    // Only show loading if we have no data yet (prevents flicker on refetch)
-    setLoading(prev => couple === null ? true : prev);
+    // Only show loading on initial fetch (prevents flicker on refetch)
+    if (!initialLoadComplete) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
@@ -149,12 +153,14 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
       setPartnerProfile(fetchedPartnerProfile as MemberProfile | null);
       setPendingInvite(fetchedPendingInvite as CoupleInvite | null);
       setLoading(false);
+      setInitialLoadComplete(true);
     } catch (err) {
       console.error('[CoupleContext] Fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch couple data');
       setLoading(false);
+      setInitialLoadComplete(true);
     }
-  }, [user, couple]);
+  }, [user, initialLoadComplete]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -168,7 +174,7 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, fetchCoupleData]);
 
-  const createCouple = useCallback(async () => {
+  const createCouple = useCallback(async (): Promise<void> => {
     if (!user) throw new Error('Not authenticated');
 
     // Verify session is fully propagated
@@ -180,7 +186,7 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     console.debug('[CoupleContext] Creating couple...');
 
     // Call atomic backend function
-    const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user');
+    const { error } = await supabase.rpc('create_couple_for_current_user');
 
     if (error) {
       console.error('[CoupleContext] createCouple error:', { code: error.code, message: error.message });
@@ -191,8 +197,7 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
 
     // Refetch to get full state (membership now exists, RLS passes)
     await fetchCoupleData();
-
-    return { coupleId };
+    // No return - guard handles navigation based on updated state
   }, [user, fetchCoupleData]);
 
   const updateMemberProfile = useCallback(async (updates: Partial<MemberProfile>) => {

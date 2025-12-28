@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,8 +20,8 @@ interface CoupleProfileDraft {
 /**
  * CoupleProfileEdit - Step 4 of onboarding
  * 
- * This is now a "dumb" component - it only renders UI and handles profile updates.
- * Navigation is controlled by OnboardingGuard.
+ * This is a "dumb" component - it only renders UI and handles profile updates.
+ * Navigation is controlled by OnboardingGuard based on state changes.
  */
 const CoupleProfileEdit = () => {
   const [displayName, setDisplayName] = useState('');
@@ -33,8 +32,7 @@ const CoupleProfileEdit = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [draft, setDraft] = useState<CoupleProfileDraft | null>(null);
   
-  const { couple, updateCoupleProfile } = useCouple();
-  const navigate = useNavigate();
+  const { couple, updateCoupleProfile, refetch } = useCouple();
   const { toast } = useToast();
 
   // Load existing couple profile data
@@ -147,12 +145,8 @@ const CoupleProfileEdit = () => {
         description: 'Your couple profile is ready.',
       });
       
-      // Navigate based on new status
-      if (shouldAdvanceStatus) {
-        navigate('/pending-match');
-      } else {
-        navigate('/dashboard');
-      }
+      // Refetch state - guard will handle navigation based on new status
+      await refetch();
     } catch (err) {
       toast({
         title: 'Failed to save',

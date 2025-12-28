@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
@@ -8,13 +7,12 @@ import MemberProfileForm from '@/components/onboarding/MemberProfileForm';
 /**
  * MyProfile - Step 2 of onboarding
  * 
- * This is now a "dumb" component - it only renders UI and handles profile updates.
- * Navigation is controlled by OnboardingGuard.
+ * This is a "dumb" component - it only renders UI and handles profile updates.
+ * Navigation is controlled by OnboardingGuard based on state changes.
  */
 const MyProfile = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { memberProfile, updateMemberProfile } = useCouple();
-  const navigate = useNavigate();
+  const { memberProfile, updateMemberProfile, refetch } = useCouple();
   const { toast } = useToast();
 
   const handleSubmit = async (data: { first_name: string; city: string; interests: string[] }) => {
@@ -31,7 +29,8 @@ const MyProfile = () => {
         title: 'Profile saved',
         description: 'Now invite your partner to join.',
       });
-      navigate('/onboarding/invite-partner');
+      // Refetch to update context state, guard handles navigation
+      await refetch();
     } catch (err) {
       toast({
         title: 'Failed to save profile',
