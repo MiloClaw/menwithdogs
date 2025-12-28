@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { getRouteForState, CoupleStatus, MemberOnboardingStep } from '@/lib/routing/getRouteForState';
 
 interface Couple {
   id: string;
@@ -9,6 +10,8 @@ interface Couple {
   shared_interests: string[] | null;
   preferred_meetup_times: string | null;
   is_complete: boolean;
+  is_discoverable: boolean;
+  status: CoupleStatus;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +28,7 @@ interface MemberProfile {
   availability: string | null;
   energy_style: string | null;
   is_profile_complete: boolean;
+  onboarding_step: MemberOnboardingStep;
   created_at: string;
   updated_at: string;
 }
@@ -154,6 +158,12 @@ export function useCouple() {
     }
   }, [isAuthenticated, fetchCoupleData]);
 
+  /**
+   * CREATE COUPLE - INSERT → Link → SELECT Pattern
+   * 
+   * Rule 3: INSERTs are blind. SELECTs require earned visibility.
+   * Always establish the relationship first.
+   */
   const createCouple = useCallback(async () => {
     if (!user) throw new Error('Not authenticated');
 
@@ -163,40 +173,50 @@ export function useCouple() {
       throw new Error('Session not ready. Please try again in a moment.');
     }
 
-    // Safety guard: check if user already has a profile/couple
+    // Safety guard: check if user already has a profile
     const { data: existingProfile } = await supabase
       .from('member_profiles')
-      .select('*, couples(*)')
+      .select('couple_id')
       .eq('user_id', user.id)
       .maybeSingle();
 
     if (existingProfile) {
       // User already has a couple - refetch and return existing data
       await fetchCoupleData();
-      throw new Error('You already have a couple profile');
+      return;
     }
 
-    // Create couple
-    const { data: couple, error: coupleError } = await supabase
+    // STEP 1: INSERT couple (blind - get only ID)
+    const { data: insertedCouple, error: coupleError } = await supabase
       .from('couples')
-      .insert({})
-      .select()
+      .insert({ status: 'onboarding' })
+      .select('id')
       .single();
 
     if (coupleError) throw coupleError;
 
-    // Create member profile as owner
+    // STEP 2: CREATE member_profile (establishes RLS read rights)
     const { data: memberProfile, error: memberError } = await supabase
       .from('member_profiles')
       .insert({
         user_id: user.id,
-        couple_id: couple.id,
+        couple_id: insertedCouple.id,
         is_owner: true,
+        onboarding_step: 'profile_pending',
       })
       .select()
       .single();
 
     if (memberError) throw memberError;
+
+    // STEP 3: NOW we can SELECT the couple (RLS passes via member_profile link)
+    const { data: couple, error: selectError } = await supabase
+      .from('couples')
+      .select('*')
+      .eq('id', insertedCouple.id)
+      .single();
+
+    if (selectError) throw selectError;
 
     setState(prev => ({
       ...prev,
@@ -263,12 +283,21 @@ export function useCouple() {
     fetchCoupleData();
   }, [fetchCoupleData]);
 
+  // Compute next route using pure routing function
+  const nextRoute = getRouteForState({
+    hasCouple: !!state.couple,
+    coupleStatus: state.couple?.status ?? null,
+    memberStep: state.memberProfile?.onboarding_step ?? null,
+    coupleIsComplete: state.couple?.is_complete ?? false,
+  });
+
   return {
     ...state,
     createCouple,
     updateMemberProfile,
     updateCoupleProfile,
     refetch,
+    nextRoute,
     hasCouple: !!state.couple,
     isOwner: state.memberProfile?.is_owner ?? false,
     isCoupleComplete: state.couple?.is_complete ?? false,

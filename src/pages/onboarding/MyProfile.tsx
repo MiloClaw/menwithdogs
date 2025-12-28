@@ -35,6 +35,7 @@ const MyProfile = () => {
         city: data.city,
         interests: data.interests,
         is_profile_complete: true,
+        onboarding_step: 'profile_complete', // Explicit state transition
       });
       toast({
         title: 'Profile saved',
