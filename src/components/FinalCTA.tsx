@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 
 const FinalCTA = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="about" className="py-20 md:py-28 bg-background border-t border-border">
       <div className="container">
@@ -11,7 +14,7 @@ const FinalCTA = () => {
             Step into real connection.
           </h2>
           
-          <Button variant="accent" size="lg">
+          <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
             Join the Waitlist
             <ChevronRight className="w-4 h-4" />
           </Button>

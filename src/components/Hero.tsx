@@ -1,8 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import heroImage from "@/assets/hero-couples.jpg";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const scrollToHowItWorks = () => {
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section className="relative pt-16 md:pt-18">
       {/* Hero Image */}
@@ -28,11 +35,11 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <Button variant="accent" size="lg">
+            <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
               Join the Waitlist
               <ChevronRight className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="lg" className="bg-background/80 backdrop-blur-sm">
+            <Button variant="outline" size="lg" className="bg-background/80 backdrop-blur-sm" onClick={scrollToHowItWorks}>
               See How It Works
             </Button>
           </div>

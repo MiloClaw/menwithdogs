@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -23,7 +25,10 @@ const Navbar = () => {
           <a href="/#how-it-works" className="text-sm font-medium text-primary hover:text-accent transition-colors">
             How It Works
           </a>
-          <Button variant="accent" size="sm">
+          <a href="/auth" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+            Sign In
+          </a>
+          <Button variant="accent" size="sm" onClick={() => navigate('/auth?mode=signup')}>
             Join the Waitlist
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -64,7 +69,22 @@ const Navbar = () => {
             >
               How It Works
             </a>
-            <Button variant="accent" size="sm" className="w-full mt-2">
+            <a 
+              href="/auth" 
+              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign In
+            </a>
+            <Button 
+              variant="accent" 
+              size="sm" 
+              className="w-full mt-2"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate('/auth?mode=signup');
+              }}
+            >
               Join the Waitlist
               <ChevronRight className="w-4 h-4" />
             </Button>
