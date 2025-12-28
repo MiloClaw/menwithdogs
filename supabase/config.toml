@@ -1,10 +1,10 @@
 project_id = "pgaduiukijwoenibybvq"
 
 [functions.send-invite]
-verify_jwt = true
+verify_jwt = false
 
 [functions.validate-invite]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-couple-profile]
-verify_jwt = true
+verify_jwt = false
