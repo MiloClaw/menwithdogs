@@ -69,8 +69,8 @@ export function useCouple() {
       return;
     }
 
-    // Set loading true immediately when starting fetch
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    // Only show loading if we have no data yet (prevents flicker on refetch)
+    setState(prev => ({ ...prev, loading: prev.couple === null, error: null }));
 
     try {
       // Fetch member profile
