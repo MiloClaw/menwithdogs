@@ -27,10 +27,15 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - check for pending intent first
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      navigate('/onboarding');
+      const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
+      if (pendingInviteToken) {
+        navigate(`/invite/${pendingInviteToken}`);
+      } else {
+        navigate('/onboarding');
+      }
     }
   }, [isAuthenticated, loading, navigate]);
 
@@ -82,7 +87,13 @@ const Auth = () => {
           }
           return;
         }
-        navigate('/onboarding');
+        // Check for pending intent (invite flow)
+        const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
+        if (pendingInviteToken) {
+          navigate(`/invite/${pendingInviteToken}`);
+        } else {
+          navigate('/onboarding');
+        }
       } else {
         const { error } = await signUp(email, password);
         if (error) {
@@ -105,7 +116,13 @@ const Auth = () => {
           title: 'Welcome!',
           description: 'Your account has been created.',
         });
-        navigate('/onboarding');
+        // Check for pending intent (invite flow)
+        const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
+        if (pendingInviteToken) {
+          navigate(`/invite/${pendingInviteToken}`);
+        } else {
+          navigate('/onboarding');
+        }
       }
     } finally {
       setIsSubmitting(false);
