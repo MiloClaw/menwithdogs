@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/button';
 const CreateCouple = () => {
   const [isCreating, setIsCreating] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { createCouple, hasCouple, loading: coupleLoading } = useCouple();
+  const { createCouple, hasCouple, nextRoute, loading: coupleLoading } = useCouple();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
-  // Handle redirects in useEffect
+  // State-machine driven routing
   useEffect(() => {
     if (authLoading || coupleLoading) return;
 
@@ -22,13 +23,12 @@ const CreateCouple = () => {
       return;
     }
 
-    if (hasCouple) {
-      navigate('/onboarding/my-profile');
-      return;
+    // If user already has a couple, use nextRoute to go to correct step
+    if (hasCouple && nextRoute !== location.pathname) {
+      navigate(nextRoute);
     }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
+  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, nextRoute, navigate, location.pathname]);
 
-  // Show loading while auth or couple data is loading
   if (authLoading || coupleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -45,18 +45,27 @@ const CreateCouple = () => {
         title: 'Couple created',
         description: "Now let's set up your profile.",
       });
-      navigate('/onboarding/my-profile');
+      // Navigate will happen via useEffect when state updates
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Please try again.';
       const isSessionIssue = message.includes('Session not ready');
+      const isDuplicate = message.includes('already') || message.includes('duplicate');
       
-      toast({
-        title: isSessionIssue ? 'Almost ready' : 'Something went wrong',
-        description: isSessionIssue 
-          ? 'Your account is still setting up. Please try again.' 
-          : message,
-        variant: 'destructive',
-      });
+      if (isDuplicate) {
+        // Silently redirect - this is expected on retry
+        toast({
+          title: 'Profile found',
+          description: 'Taking you to the next step.',
+        });
+      } else {
+        toast({
+          title: isSessionIssue ? 'Almost ready' : 'Something went wrong',
+          description: isSessionIssue 
+            ? 'Your account is still setting up. Please try again.' 
+            : message,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsCreating(false);
     }

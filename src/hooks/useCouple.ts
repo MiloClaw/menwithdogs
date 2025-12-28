@@ -159,72 +159,32 @@ export function useCouple() {
   }, [isAuthenticated, fetchCoupleData]);
 
   /**
-   * CREATE COUPLE - INSERT → Link → SELECT Pattern
+   * CREATE COUPLE - Atomic backend function
    * 
-   * Rule 3: INSERTs are blind. SELECTs require earned visibility.
-   * Always establish the relationship first.
+   * Uses SECURITY DEFINER function to atomically create couple + member_profile
+   * This bypasses the INSERT+SELECT RLS timing issue entirely.
    */
   const createCouple = useCallback(async () => {
     if (!user) throw new Error('Not authenticated');
 
-    // Verify session is fully propagated before attempting database operations
+    // Verify session is fully propagated
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       throw new Error('Session not ready. Please try again in a moment.');
     }
 
-    // Safety guard: check if user already has a profile
-    const { data: existingProfile } = await supabase
-      .from('member_profiles')
-      .select('couple_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    // Call atomic backend function
+    const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user');
 
-    if (existingProfile) {
-      // User already has a couple - refetch and return existing data
-      await fetchCoupleData();
-      return;
+    if (error) {
+      console.error('createCouple error:', { code: error.code, message: error.message });
+      throw new Error(error.message || 'Failed to create couple');
     }
 
-    // STEP 1: INSERT couple (blind - get only ID)
-    const { data: insertedCouple, error: coupleError } = await supabase
-      .from('couples')
-      .insert({ status: 'onboarding' })
-      .select('id')
-      .single();
+    // Refetch to get full state (membership now exists, RLS passes)
+    await fetchCoupleData();
 
-    if (coupleError) throw coupleError;
-
-    // STEP 2: CREATE member_profile (establishes RLS read rights)
-    const { data: memberProfile, error: memberError } = await supabase
-      .from('member_profiles')
-      .insert({
-        user_id: user.id,
-        couple_id: insertedCouple.id,
-        is_owner: true,
-        onboarding_step: 'profile_pending',
-      })
-      .select()
-      .single();
-
-    if (memberError) throw memberError;
-
-    // STEP 3: NOW we can SELECT the couple (RLS passes via member_profile link)
-    const { data: couple, error: selectError } = await supabase
-      .from('couples')
-      .select('*')
-      .eq('id', insertedCouple.id)
-      .single();
-
-    if (selectError) throw selectError;
-
-    setState(prev => ({
-      ...prev,
-      couple: couple as Couple,
-      memberProfile: memberProfile as MemberProfile,
-    }));
-
-    return { couple, memberProfile };
+    return { coupleId };
   }, [user, fetchCoupleData]);
 
   const updateMemberProfile = useCallback(async (updates: Partial<MemberProfile>) => {
