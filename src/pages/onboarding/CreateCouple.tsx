@@ -1,41 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import { Button } from '@/components/ui/button';
 
+/**
+ * CreateCouple - Step 1 of onboarding
+ * 
+ * This is now a "dumb" component - it only renders UI and handles the create action.
+ * Navigation is controlled by OnboardingGuard.
+ */
 const CreateCouple = () => {
   const [isCreating, setIsCreating] = useState(false);
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { createCouple, hasCouple, nextRoute, loading: coupleLoading } = useCouple();
+  const { createCouple } = useCouple();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-
-  // State-machine driven routing
-  useEffect(() => {
-    if (authLoading || coupleLoading) return;
-
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
-    // If user already has a couple, use nextRoute to go to correct step
-    if (hasCouple && nextRoute !== location.pathname) {
-      navigate(nextRoute);
-    }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, nextRoute, navigate, location.pathname]);
-
-  if (authLoading || coupleLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   const handleCreateCouple = async () => {
     setIsCreating(true);
@@ -45,7 +25,7 @@ const CreateCouple = () => {
         title: 'Couple created',
         description: "Now let's set up your profile.",
       });
-      // Navigate directly - don't wait for state update to avoid loading race condition
+      // Navigate forward explicitly
       navigate('/onboarding/my-profile');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Please try again.';

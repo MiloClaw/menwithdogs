@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +18,12 @@ interface CoupleProfileDraft {
   is_applied: boolean;
 }
 
+/**
+ * CoupleProfileEdit - Step 4 of onboarding
+ * 
+ * This is now a "dumb" component - it only renders UI and handles profile updates.
+ * Navigation is controlled by OnboardingGuard.
+ */
 const CoupleProfileEdit = () => {
   const [displayName, setDisplayName] = useState('');
   const [aboutUs, setAboutUs] = useState('');
@@ -28,24 +33,9 @@ const CoupleProfileEdit = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [draft, setDraft] = useState<CoupleProfileDraft | null>(null);
   
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { couple, hasCouple, updateCoupleProfile, loading: coupleLoading } = useCouple();
+  const { couple, updateCoupleProfile } = useCouple();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (authLoading || coupleLoading) return;
-
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
-    if (!hasCouple) {
-      navigate('/onboarding/create-couple');
-      return;
-    }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
 
   // Load existing couple profile data
   useEffect(() => {
@@ -173,14 +163,6 @@ const CoupleProfileEdit = () => {
       setIsSubmitting(false);
     }
   };
-
-  if (authLoading || coupleLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <OnboardingLayout

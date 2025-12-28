@@ -19,7 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Discover from "./pages/Discover";
 import DiscoverCoupleView from "./pages/DiscoverCoupleView";
 import PendingMatch from "./pages/PendingMatch";
-import OnboardingEntry from "./pages/onboarding/OnboardingEntry";
+import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import CreateCouple from "./pages/onboarding/CreateCouple";
 import MyProfile from "./pages/onboarding/MyProfile";
 import InvitePartner from "./pages/onboarding/InvitePartner";
@@ -54,11 +54,12 @@ const App = () => (
           <Route path="/discover" element={<Discover />} />
           <Route path="/discover/:coupleId" element={<DiscoverCoupleView />} />
           <Route path="/pending-match" element={<PendingMatch />} />
-          <Route path="/onboarding" element={<OnboardingEntry />} />
-          <Route path="/onboarding/create-couple" element={<CreateCouple />} />
-          <Route path="/onboarding/my-profile" element={<MyProfile />} />
-          <Route path="/onboarding/invite-partner" element={<InvitePartner />} />
-          <Route path="/onboarding/couple-profile" element={<CoupleProfileEdit />} />
+          {/* Onboarding - all wrapped with OnboardingGuard */}
+          <Route path="/onboarding" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
+          <Route path="/onboarding/create-couple" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
+          <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
+          <Route path="/onboarding/invite-partner" element={<OnboardingGuard><InvitePartner /></OnboardingGuard>} />
+          <Route path="/onboarding/couple-profile" element={<OnboardingGuard><CoupleProfileEdit /></OnboardingGuard>} />
           {/* Admin Routes */}
           <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
           <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
