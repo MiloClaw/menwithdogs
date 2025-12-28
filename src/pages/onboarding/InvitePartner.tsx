@@ -12,42 +12,22 @@ import { Label } from '@/components/ui/label';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 
+/**
+ * InvitePartner - Step 3 of onboarding
+ * 
+ * This is now a "dumb" component - it only renders UI and handles invite sending.
+ * Navigation is controlled by OnboardingGuard.
+ */
 const InvitePartner = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inviteSent, setInviteSent] = useState(false);
   
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { 
-    couple, 
-    hasCouple, 
-    isCoupleComplete, 
-    pendingInvite,
-    loading: coupleLoading,
-    refetch 
-  } = useCouple();
+  const { user } = useAuth();
+  const { couple, pendingInvite, refetch } = useCouple();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (authLoading || coupleLoading) return;
-
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
-    if (!hasCouple) {
-      navigate('/onboarding/create-couple');
-      return;
-    }
-
-    if (isCoupleComplete) {
-      navigate('/onboarding/couple-profile');
-      return;
-    }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, isCoupleComplete, navigate]);
 
   // Show pending invite status
   useEffect(() => {
@@ -105,14 +85,6 @@ const InvitePartner = () => {
   const handleSkipForNow = () => {
     navigate('/onboarding/couple-profile');
   };
-
-  if (authLoading || coupleLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <OnboardingLayout

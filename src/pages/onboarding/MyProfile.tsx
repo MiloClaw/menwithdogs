@@ -1,31 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import MemberProfileForm from '@/components/onboarding/MemberProfileForm';
 
+/**
+ * MyProfile - Step 2 of onboarding
+ * 
+ * This is now a "dumb" component - it only renders UI and handles profile updates.
+ * Navigation is controlled by OnboardingGuard.
+ */
 const MyProfile = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { memberProfile, hasCouple, updateMemberProfile, loading: coupleLoading } = useCouple();
+  const { memberProfile, updateMemberProfile } = useCouple();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (authLoading || coupleLoading) return;
-
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
-
-    if (!hasCouple) {
-      navigate('/onboarding/create-couple');
-      return;
-    }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
 
   const handleSubmit = async (data: { first_name: string; city: string; interests: string[] }) => {
     setIsSubmitting(true);
@@ -52,14 +42,6 @@ const MyProfile = () => {
       setIsSubmitting(false);
     }
   };
-
-  if (authLoading || coupleLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <OnboardingLayout
