@@ -45,7 +45,8 @@ const CreateCouple = () => {
         title: 'Couple created',
         description: "Now let's set up your profile.",
       });
-      // Navigate will happen via useEffect when state updates
+      // Navigate directly - don't wait for state update to avoid loading race condition
+      navigate('/onboarding/my-profile');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Please try again.';
       const isSessionIssue = message.includes('Session not ready');
@@ -57,6 +58,7 @@ const CreateCouple = () => {
           title: 'Profile found',
           description: 'Taking you to the next step.',
         });
+        navigate('/onboarding/my-profile');
       } else {
         toast({
           title: isSessionIssue ? 'Almost ready' : 'Something went wrong',
