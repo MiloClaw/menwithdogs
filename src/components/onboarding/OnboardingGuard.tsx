@@ -26,6 +26,14 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.debug('[OnboardingGuard]', {
+      pathname: location.pathname,
+      nextRoute,
+      authLoading,
+      coupleLoading,
+      isAuthenticated,
+    });
+
     // Still loading - wait
     if (authLoading || coupleLoading) return;
 
@@ -36,8 +44,8 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
     }
 
     // On wrong route - redirect to correct one
-    // Use startsWith for sub-routes, but exact match for the route we're on
     if (location.pathname !== nextRoute) {
+      console.debug('[OnboardingGuard] Redirecting to:', nextRoute);
       navigate(nextRoute, { replace: true });
     }
   }, [authLoading, coupleLoading, isAuthenticated, nextRoute, navigate, location.pathname]);
