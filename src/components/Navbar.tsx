@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Menu, X } from "lucide-react";
+import { ChevronRight, Menu, X, LogOut } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, signOut, loading } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMobileMenuOpen(false);
+    navigate('/');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -16,22 +24,45 @@ const Navbar = () => {
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
-          <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-            Places
-          </a>
-          <a href="/blog" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-            Blog
-          </a>
-          <a href="/#how-it-works" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-            How It Works
-          </a>
-          <a href="/auth" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-            Sign In
-          </a>
-          <Button variant="accent" size="sm" onClick={() => navigate('/auth?mode=signup')}>
-            Join the Waitlist
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <a href="/dashboard" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                Dashboard
+              </a>
+              <a href="/discover" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                Discover
+              </a>
+              <a href="/onboarding/my-profile" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                My Profile
+              </a>
+              <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                Places
+              </a>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                Sign Out
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                Places
+              </a>
+              <a href="/blog" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                Blog
+              </a>
+              <a href="/#how-it-works" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                How It Works
+              </a>
+              <a href="/auth" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+                Sign In
+              </a>
+              <Button variant="accent" size="sm" onClick={() => navigate('/auth?mode=signup')}>
+                Join the Waitlist
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -48,46 +79,90 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="container py-4 space-y-3">
-            <a 
-              href="/places" 
-              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Places
-            </a>
-            <a 
-              href="/blog" 
-              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Blog
-            </a>
-            <a 
-              href="/#how-it-works" 
-              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              How It Works
-            </a>
-            <a 
-              href="/auth" 
-              className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Sign In
-            </a>
-            <Button 
-              variant="accent" 
-              size="sm" 
-              className="w-full mt-2"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate('/auth?mode=signup');
-              }}
-            >
-              Join the Waitlist
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <a 
+                  href="/dashboard" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </a>
+                <a 
+                  href="/discover" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Discover
+                </a>
+                <a 
+                  href="/onboarding/my-profile" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  My Profile
+                </a>
+                <a 
+                  href="/places" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Places
+                </a>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mt-2"
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <a 
+                  href="/places" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Places
+                </a>
+                <a 
+                  href="/blog" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
+                </a>
+                <a 
+                  href="/#how-it-works" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  How It Works
+                </a>
+                <a 
+                  href="/auth" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </a>
+                <Button 
+                  variant="accent" 
+                  size="sm" 
+                  className="w-full mt-2"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/auth?mode=signup');
+                  }}
+                >
+                  Join the Waitlist
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
