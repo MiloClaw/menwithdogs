@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { CoupleProvider } from "@/contexts/CoupleContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Places from "./pages/Places";
@@ -37,36 +39,40 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/places" element={<Places />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/profile/:id" element={<CoupleProfile />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/about" element={<About />} />
-          {/* Auth & Onboarding */}
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/invite/:token" element={<Invite />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/discover" element={<Discover />} />
-          <Route path="/discover/:coupleId" element={<DiscoverCoupleView />} />
-          <Route path="/pending-match" element={<PendingMatch />} />
-          {/* Onboarding - all wrapped with OnboardingGuard */}
-          <Route path="/onboarding" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
-          <Route path="/onboarding/create-couple" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
-          <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
-          <Route path="/onboarding/invite-partner" element={<OnboardingGuard><InvitePartner /></OnboardingGuard>} />
-          <Route path="/onboarding/couple-profile" element={<OnboardingGuard><CoupleProfileEdit /></OnboardingGuard>} />
-          {/* Admin Routes */}
-          <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
-          <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
-          <Route path="/admin/blog" element={<RequireRole role="admin"><BlogManagement /></RequireRole>} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <CoupleProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/places" element={<Places />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/profile/:id" element={<CoupleProfile />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/about" element={<About />} />
+              {/* Auth & Onboarding */}
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/invite/:token" element={<Invite />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/discover" element={<Discover />} />
+              <Route path="/discover/:coupleId" element={<DiscoverCoupleView />} />
+              <Route path="/pending-match" element={<PendingMatch />} />
+              {/* Onboarding - all wrapped with OnboardingGuard */}
+              <Route path="/onboarding" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
+              <Route path="/onboarding/create-couple" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
+              <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
+              <Route path="/onboarding/invite-partner" element={<OnboardingGuard><InvitePartner /></OnboardingGuard>} />
+              <Route path="/onboarding/couple-profile" element={<OnboardingGuard><CoupleProfileEdit /></OnboardingGuard>} />
+              {/* Admin Routes */}
+              <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
+              <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
+              <Route path="/admin/blog" element={<RequireRole role="admin"><BlogManagement /></RequireRole>} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CoupleProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

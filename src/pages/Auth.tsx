@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -124,9 +124,9 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="p-4 md:p-6">
-        <a href="/" className="text-xl font-serif font-semibold text-primary">
+        <Link to="/" className="text-xl font-serif font-semibold text-primary">
           MainStreetIRL
-        </a>
+        </Link>
       </header>
 
       {/* Main content */}
