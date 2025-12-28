@@ -157,6 +157,12 @@ export function useCouple() {
   const createCouple = useCallback(async () => {
     if (!user) throw new Error('Not authenticated');
 
+    // Verify session is fully propagated before attempting database operations
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('Session not ready. Please try again in a moment.');
+    }
+
     // Safety guard: check if user already has a profile/couple
     const { data: existingProfile } = await supabase
       .from('member_profiles')

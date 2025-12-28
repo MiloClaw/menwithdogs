@@ -47,9 +47,14 @@ const CreateCouple = () => {
       });
       navigate('/onboarding/my-profile');
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Please try again.';
+      const isSessionIssue = message.includes('Session not ready');
+      
       toast({
-        title: 'Something went wrong',
-        description: err instanceof Error ? err.message : 'Please try again.',
+        title: isSessionIssue ? 'Almost ready' : 'Something went wrong',
+        description: isSessionIssue 
+          ? 'Your account is still setting up. Please try again.' 
+          : message,
         variant: 'destructive',
       });
     } finally {
