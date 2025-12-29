@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useDiscovery } from '@/hooks/useDiscovery';
@@ -21,11 +21,15 @@ interface DiscoverableCouple {
 
 const DiscoverCoupleView = () => {
   const { coupleId } = useParams<{ coupleId: string }>();
+  const location = useLocation();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { hasCouple, loading: coupleLoading } = useCouple();
   const { isSaved, saveCouple, unsaveCouple } = useDiscovery();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if navigated from suggestions
+  const fromSuggestions = (location.state as { from?: string })?.from === 'suggestions';
 
   const [viewedCouple, setViewedCouple] = useState<DiscoverableCouple | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,9 +142,9 @@ const DiscoverCoupleView = () => {
         <div className="container py-8 md:py-12">
           <div className="max-w-2xl mx-auto text-center space-y-4">
             <p className="text-muted-foreground">{error || 'Couple not found'}</p>
-            <Button variant="outline" onClick={() => navigate('/discover')}>
+            <Button variant="outline" onClick={() => navigate(fromSuggestions ? '/pending-match' : '/discover')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to discovery
+              {fromSuggestions ? 'Back to your suggestions' : 'Back to discovery'}
             </Button>
           </div>
         </div>
@@ -161,11 +165,11 @@ const DiscoverCoupleView = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate('/discover')}
+            onClick={() => navigate(fromSuggestions ? '/pending-match' : '/discover')}
             className="-ml-2"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to discovery
+            {fromSuggestions ? 'Back to your suggestions' : 'Back to discovery'}
           </Button>
 
           {/* Couple header */}
