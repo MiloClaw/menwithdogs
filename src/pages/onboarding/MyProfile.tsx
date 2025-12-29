@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
-import MemberProfileForm from '@/components/onboarding/MemberProfileForm';
+import MemberProfileForm, { MemberProfileFormData } from '@/components/onboarding/MemberProfileForm';
 
 /**
  * MyProfile - Step 2 of onboarding
@@ -15,13 +15,17 @@ const MyProfile = () => {
   const { memberProfile, updateMemberProfile, refetch } = useCouple();
   const { toast } = useToast();
 
-  const handleSubmit = async (data: { first_name: string; city: string; interests: string[] }) => {
+  const handleSubmit = async (data: MemberProfileFormData) => {
     setIsSubmitting(true);
     try {
       await updateMemberProfile({
         first_name: data.first_name,
         city: data.city,
         interests: data.interests,
+        city_place_id: data.city_place_id,
+        city_lat: data.city_lat,
+        city_lng: data.city_lng,
+        state: data.state,
         is_profile_complete: true,
         onboarding_step: 'profile_complete', // Explicit state transition
       });
@@ -54,6 +58,10 @@ const MyProfile = () => {
           first_name: memberProfile?.first_name,
           city: memberProfile?.city,
           interests: memberProfile?.interests,
+          city_place_id: memberProfile?.city_place_id,
+          city_lat: memberProfile?.city_lat,
+          city_lng: memberProfile?.city_lng,
+          state: memberProfile?.state,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
