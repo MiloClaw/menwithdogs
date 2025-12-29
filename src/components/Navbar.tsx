@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Menu, X, LogOut } from "lucide-react";
+import { ChevronRight, Menu, X, LogOut, Shield } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, signOut, loading } = useAuth();
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,6 +39,12 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           {isAuthenticated ? (
             <>
+              {isAdmin && (
+                <a href="/admin" className={`${navLinkClasses} flex items-center gap-1`}>
+                  <Shield className="w-4 h-4" />
+                  Admin
+                </a>
+              )}
               <a href="/dashboard" className={navLinkClasses}>
                 Dashboard
               </a>
@@ -92,6 +100,16 @@ const Navbar = () => {
           <div className="container py-4 space-y-3">
             {isAuthenticated ? (
               <>
+                {isAdmin && (
+                  <a 
+                    href="/admin" 
+                    className="flex items-center gap-2 py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </a>
+                )}
                 <a 
                   href="/dashboard" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
