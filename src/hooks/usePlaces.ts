@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Json } from '@/integrations/supabase/types';
+
+export interface PhotoReference {
+  name: string;
+  widthPx: number;
+  heightPx: number;
+}
 
 export interface Place {
   id: string;
@@ -17,6 +24,18 @@ export interface Place {
   status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   updated_at: string;
+  // GBP enrichment fields
+  rating: number | null;
+  user_ratings_total: number | null;
+  price_level: number | null;
+  website_url: string | null;
+  phone_number: string | null;
+  google_maps_url: string | null;
+  formatted_address: string | null;
+  opening_hours: Json | null;
+  photos: Json | null;
+  google_primary_type: string | null;
+  google_primary_type_display: string | null;
 }
 
 export interface CreatePlaceInput {
@@ -31,7 +50,36 @@ export interface CreatePlaceInput {
   lng?: number;
   source?: 'google_places' | 'admin';
   status?: 'approved' | 'pending' | 'rejected';
+  // GBP enrichment fields
+  rating?: number | null;
+  user_ratings_total?: number | null;
+  price_level?: number | null;
+  website_url?: string | null;
+  phone_number?: string | null;
+  google_maps_url?: string | null;
+  formatted_address?: string | null;
+  opening_hours?: Json | null;
+  photos?: Json | null;
+  google_primary_type?: string | null;
+  google_primary_type_display?: string | null;
 }
+
+// Helper to extract weekday_text from opening_hours JSON
+export const getOpeningHoursText = (openingHours: Json | null): string[] => {
+  if (!openingHours || typeof openingHours !== 'object' || Array.isArray(openingHours)) {
+    return [];
+  }
+  const hours = openingHours as { weekday_text?: string[] };
+  return hours.weekday_text || [];
+};
+
+// Helper to extract photos array from JSON
+export const getPhotos = (photos: Json | null): PhotoReference[] => {
+  if (!photos || !Array.isArray(photos)) {
+    return [];
+  }
+  return photos as unknown as PhotoReference[];
+};
 
 export const usePlaces = () => {
   const queryClient = useQueryClient();
@@ -59,13 +107,34 @@ export const usePlaces = () => {
   // Create place
   const createPlace = useMutation({
     mutationFn: async (input: CreatePlaceInput) => {
+      const insertData = {
+        google_place_id: input.google_place_id,
+        name: input.name,
+        primary_category: input.primary_category,
+        secondary_categories: input.secondary_categories,
+        city: input.city,
+        state: input.state,
+        country: input.country,
+        lat: input.lat,
+        lng: input.lng,
+        source: input.source || 'admin',
+        status: input.status || 'approved',
+        rating: input.rating,
+        user_ratings_total: input.user_ratings_total,
+        price_level: input.price_level,
+        website_url: input.website_url,
+        phone_number: input.phone_number,
+        google_maps_url: input.google_maps_url,
+        formatted_address: input.formatted_address,
+        opening_hours: input.opening_hours,
+        photos: input.photos,
+        google_primary_type: input.google_primary_type,
+        google_primary_type_display: input.google_primary_type_display,
+      };
+
       const { data, error } = await supabase
         .from('places')
-        .insert({
-          ...input,
-          source: input.source || 'admin',
-          status: input.status || 'approved',
-        })
+        .insert(insertData)
         .select()
         .single();
 
