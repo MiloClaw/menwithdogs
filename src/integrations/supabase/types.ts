@@ -62,6 +62,35 @@ export type Database = {
         }
         Relationships: []
       }
+      couple_event_likes: {
+        Row: {
+          couple_id: string
+          created_at: string
+          event_id: string
+          id: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_event_likes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       couple_invites: {
         Row: {
           accepted_at: string | null
@@ -131,6 +160,35 @@ export type Database = {
             columns: ["couple_id"]
             isOneToOne: true
             referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_place_likes: {
+        Row: {
+          couple_id: string
+          created_at: string
+          id: string
+          place_id: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          id?: string
+          place_id: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          id?: string
+          place_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_place_likes_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
             referencedColumns: ["id"]
           },
         ]
@@ -257,6 +315,65 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category_tags: string[] | null
+          created_at: string
+          description: string | null
+          end_at: string | null
+          id: string
+          name: string
+          source: Database["public"]["Enums"]["place_source"]
+          start_at: string
+          status: Database["public"]["Enums"]["event_status"]
+          submitted_by: string | null
+          updated_at: string
+          venue_place_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_tags?: string[] | null
+          created_at?: string
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          name: string
+          source?: Database["public"]["Enums"]["place_source"]
+          start_at: string
+          status?: Database["public"]["Enums"]["event_status"]
+          submitted_by?: string | null
+          updated_at?: string
+          venue_place_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category_tags?: string[] | null
+          created_at?: string
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          name?: string
+          source?: Database["public"]["Enums"]["place_source"]
+          start_at?: string
+          status?: Database["public"]["Enums"]["event_status"]
+          submitted_by?: string | null
+          updated_at?: string
+          venue_place_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_venue_place_id_fkey"
+            columns: ["venue_place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_place_affinities: {
         Row: {
           affinity_type: Database["public"]["Enums"]["affinity_type"]
@@ -299,6 +416,9 @@ export type Database = {
         Row: {
           availability: string | null
           city: string | null
+          city_lat: number | null
+          city_lng: number | null
+          city_place_id: string | null
           couple_id: string
           created_at: string
           energy_style: string | null
@@ -309,12 +429,16 @@ export type Database = {
           is_profile_complete: boolean
           onboarding_step: Database["public"]["Enums"]["member_onboarding_step"]
           social_settings: string | null
+          state: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           availability?: string | null
           city?: string | null
+          city_lat?: number | null
+          city_lng?: number | null
+          city_place_id?: string | null
           couple_id: string
           created_at?: string
           energy_style?: string | null
@@ -325,12 +449,16 @@ export type Database = {
           is_profile_complete?: boolean
           onboarding_step?: Database["public"]["Enums"]["member_onboarding_step"]
           social_settings?: string | null
+          state?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           availability?: string | null
           city?: string | null
+          city_lat?: number | null
+          city_lng?: number | null
+          city_place_id?: string | null
           couple_id?: string
           created_at?: string
           energy_style?: string | null
@@ -341,6 +469,7 @@ export type Database = {
           is_profile_complete?: boolean
           onboarding_step?: Database["public"]["Enums"]["member_onboarding_step"]
           social_settings?: string | null
+          state?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -356,6 +485,8 @@ export type Database = {
       }
       places: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           city: string | null
           country: string | null
           created_at: string
@@ -366,10 +497,15 @@ export type Database = {
           name: string
           primary_category: string
           secondary_categories: string[] | null
+          source: Database["public"]["Enums"]["place_source"]
           state: string | null
+          status: Database["public"]["Enums"]["place_status"]
+          submitted_by: string | null
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -380,10 +516,15 @@ export type Database = {
           name: string
           primary_category: string
           secondary_categories?: string[] | null
+          source?: Database["public"]["Enums"]["place_source"]
           state?: string | null
+          status?: Database["public"]["Enums"]["place_status"]
+          submitted_by?: string | null
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -394,7 +535,10 @@ export type Database = {
           name?: string
           primary_category?: string
           secondary_categories?: string[] | null
+          source?: Database["public"]["Enums"]["place_source"]
           state?: string | null
+          status?: Database["public"]["Enums"]["place_status"]
+          submitted_by?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -528,8 +672,11 @@ export type Database = {
       affinity_type: "regular" | "occasional" | "aspirational"
       app_role: "admin" | "user"
       couple_status: "onboarding" | "pending_match" | "active" | "paused"
+      event_status: "approved" | "pending" | "rejected"
       member_onboarding_step: "profile_pending" | "profile_complete"
       place_cadence: "weekly" | "monthly" | "rare"
+      place_source: "google_places" | "admin"
+      place_status: "approved" | "pending" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -660,8 +807,11 @@ export const Constants = {
       affinity_type: ["regular", "occasional", "aspirational"],
       app_role: ["admin", "user"],
       couple_status: ["onboarding", "pending_match", "active", "paused"],
+      event_status: ["approved", "pending", "rejected"],
       member_onboarding_step: ["profile_pending", "profile_complete"],
       place_cadence: ["weekly", "monthly", "rare"],
+      place_source: ["google_places", "admin"],
+      place_status: ["approved", "pending", "rejected"],
     },
   },
 } as const
