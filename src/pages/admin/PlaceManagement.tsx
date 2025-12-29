@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Search, Trash2, Star, ExternalLink, Phone, Globe } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Trash2, Star, ExternalLink, Phone, Globe, Eye } from 'lucide-react';
 import { usePlaces, CreatePlaceInput, getPhotos } from '@/hooks/usePlaces';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
@@ -129,16 +129,23 @@ const PlaceManagement = () => {
               Manage venues and locations in the directory
             </p>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={(open) => {
-            setIsCreateOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Place
+          <div className="flex gap-2">
+            <Link to="/directory" target="_blank">
+              <Button variant="outline">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Directory
               </Button>
-            </DialogTrigger>
+            </Link>
+            <Dialog open={isCreateOpen} onOpenChange={(open) => {
+              setIsCreateOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Place
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Place</DialogTitle>
@@ -271,7 +278,8 @@ const PlaceManagement = () => {
                 )}
               </div>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
 
         {/* Search */}
