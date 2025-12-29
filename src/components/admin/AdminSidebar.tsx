@@ -1,11 +1,12 @@
 import { useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { title: 'Users', href: '/admin/users', icon: Users },
+  { title: 'Interests', href: '/admin/interests', icon: Tags },
   { title: 'Directory', href: '/admin/directory', icon: MapPin },
   { title: 'Blog', href: '/admin/blog', icon: FileText },
 ];
