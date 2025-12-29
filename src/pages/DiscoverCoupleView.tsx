@@ -11,14 +11,13 @@ import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import InterestTag from '@/components/InterestTag';
 import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Loader2 } from 'lucide-react';
-import { getInterestLabels } from '@/lib/interests';
 
 interface DiscoverableCouple {
   id: string;
   display_name: string | null;
   about_us: string | null;
-  shared_interests: string[] | null;
   city: string | null;
+  interestLabels: string[];
 }
 
 const DiscoverCoupleView = () => {
@@ -77,7 +76,7 @@ const DiscoverCoupleView = () => {
         // Fetch the couple (RLS ensures only discoverable ones are visible)
         const { data: couple, error: coupleError } = await supabase
           .from('couples')
-          .select('id, display_name, about_us, shared_interests')
+          .select('id, display_name, about_us')
           .eq('id', coupleId)
           .eq('is_discoverable', true)
           .eq('is_complete', true)
@@ -91,18 +90,36 @@ const DiscoverCoupleView = () => {
           return;
         }
 
-        // Get city from couple_location_summary (Phase 5)
+        // Get city from couple_location_summary
         const { data: locationSummary } = await supabase
           .from('couple_location_summary')
           .select('city')
           .eq('couple_id', coupleId)
           .maybeSingle();
 
-        const city = locationSummary?.city || null;
+        // Get interests from couple_interests join table
+        const { data: coupleInterests } = await supabase
+          .from('couple_interests')
+          .select('interest_id')
+          .eq('couple_id', coupleId);
+
+        let interestLabels: string[] = [];
+        if (coupleInterests && coupleInterests.length > 0) {
+          const interestIds = coupleInterests.map(ci => ci.interest_id);
+          const { data: interests } = await supabase
+            .from('interests')
+            .select('label')
+            .in('id', interestIds);
+          
+          interestLabels = interests?.map(i => i.label) || [];
+        }
 
         setViewedCouple({
-          ...couple,
-          city,
+          id: couple.id,
+          display_name: couple.display_name,
+          about_us: couple.about_us,
+          city: locationSummary?.city || null,
+          interestLabels,
         });
         setLoading(false);
       } catch (err) {
@@ -167,9 +184,6 @@ const DiscoverCoupleView = () => {
   }
 
   const saved = coupleId ? isSaved(coupleId) : false;
-  const interestLabels = viewedCouple.shared_interests?.length
-    ? getInterestLabels(viewedCouple.shared_interests)
-    : [];
 
   return (
     <PageLayout>
@@ -232,15 +246,15 @@ const DiscoverCoupleView = () => {
           )}
 
           {/* Shared interests */}
-          {interestLabels.length > 0 && (
+          {viewedCouple.interestLabels.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 Shared interests
               </h2>
               <div className="flex flex-wrap gap-2">
-                {interestLabels.map((label, index) => (
+                {viewedCouple.interestLabels.map((label, index) => (
                   <InterestTag 
-                    key={viewedCouple.shared_interests?.[index] || index} 
+                    key={index} 
                     label={label} 
                   />
                 ))}
