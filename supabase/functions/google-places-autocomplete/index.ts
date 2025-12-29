@@ -16,17 +16,10 @@ interface AutocompleteRequest {
   };
 }
 
-// Map legacy type strings to new API format
+// Map legacy type strings to new API format (max 5 types per API limitation)
 const TYPE_MAPPINGS: Record<string, string[]> = {
   "(cities)": ["locality", "administrative_area_level_3", "postal_town", "sublocality_level_1"],
-  "establishment": [
-    "restaurant", "bar", "cafe", "bakery", "night_club",
-    "spa", "gym", "park", "museum", "art_gallery",
-    "movie_theater", "bowling_alley", "amusement_park",
-    "book_store", "clothing_store", "shopping_mall",
-    "tourist_attraction", "zoo", "aquarium", "stadium",
-    "casino", "campground", "rv_park", "lodging"
-  ],
+  // For "establishment", we don't restrict types - allows searching all venue types
 };
 
 serve(async (req) => {
