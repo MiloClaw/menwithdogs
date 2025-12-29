@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const linkClasses = "text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary-foreground after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left";
+
   return (
-    <footer className="py-8 md:py-12 bg-primary">
+    <footer className="py-12 md:py-16 bg-primary">
       <div className="container">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
@@ -21,16 +23,10 @@ const Footer = () => {
               Explore
             </h4>
             <nav className="flex flex-col gap-2">
-              <Link 
-                to="/places" 
-                className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-              >
+              <Link to="/places" className={linkClasses}>
                 Places
               </Link>
-              <Link 
-                to="/blog" 
-                className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-              >
+              <Link to="/blog" className={linkClasses}>
                 Blog
               </Link>
             </nav>
@@ -42,16 +38,10 @@ const Footer = () => {
               Company
             </h4>
             <nav className="flex flex-col gap-2">
-              <Link 
-                to="/about" 
-                className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-              >
+              <Link to="/about" className={linkClasses}>
                 About
               </Link>
-              <Link 
-                to="/pricing" 
-                className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-              >
+              <Link to="/pricing" className={linkClasses}>
                 Pricing
               </Link>
             </nav>
@@ -63,16 +53,10 @@ const Footer = () => {
               Legal
             </h4>
             <nav className="flex flex-col gap-2">
-              <Link 
-                to="/terms" 
-                className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-              >
+              <Link to="/terms" className={linkClasses}>
                 Terms of Service
               </Link>
-              <Link 
-                to="/privacy" 
-                className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-              >
+              <Link to="/privacy" className={linkClasses}>
                 Privacy Policy
               </Link>
             </nav>
@@ -80,7 +64,7 @@ const Footer = () => {
         </div>
         
         {/* Bottom */}
-        <div className="pt-8 border-t border-primary-foreground/20">
+        <div className="pt-10 border-t border-primary-foreground/20">
           <p className="text-sm text-primary-foreground/70 text-center">
             © {new Date().getFullYear()} MainStreetIRL. All rights reserved.
           </p>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,17 @@ import { ChevronRight, Menu, X, LogOut } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, signOut, loading } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -15,9 +24,11 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const navLinkClasses = "text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide";
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container flex items-center justify-between h-14 md:h-16">
+    <nav className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-shadow duration-200 ${isScrolled ? 'shadow-sm' : ''}`}>
+      <div className="container flex items-center justify-between h-16 md:h-18">
         <a href="/" className="font-serif text-lg md:text-xl font-semibold text-primary">
           MainStreetIRL
         </a>
@@ -26,16 +37,16 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           {isAuthenticated ? (
             <>
-              <a href="/dashboard" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/dashboard" className={navLinkClasses}>
                 Dashboard
               </a>
-              <a href="/discover" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/discover" className={navLinkClasses}>
                 Discover
               </a>
-              <a href="/onboarding/my-profile" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/onboarding/my-profile" className={navLinkClasses}>
                 My Profile
               </a>
-              <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/places" className={navLinkClasses}>
                 Places
               </a>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
@@ -45,16 +56,16 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <a href="/places" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/places" className={navLinkClasses}>
                 Places
               </a>
-              <a href="/blog" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/blog" className={navLinkClasses}>
                 Blog
               </a>
-              <a href="/#how-it-works" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/#how-it-works" className={navLinkClasses}>
                 How It Works
               </a>
-              <a href="/auth" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              <a href="/auth" className={navLinkClasses}>
                 Sign In
               </a>
               <Button variant="accent" size="sm" onClick={() => navigate('/auth?mode=signup')}>
@@ -83,28 +94,28 @@ const Navbar = () => {
               <>
                 <a 
                   href="/dashboard" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
                 </a>
                 <a 
                   href="/discover" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Discover
                 </a>
                 <a 
                   href="/onboarding/my-profile" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   My Profile
                 </a>
                 <a 
                   href="/places" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Places
@@ -123,28 +134,28 @@ const Navbar = () => {
               <>
                 <a 
                   href="/places" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Places
                 </a>
                 <a 
                   href="/blog" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Blog
                 </a>
                 <a 
                   href="/#how-it-works" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   How It Works
                 </a>
                 <a 
                   href="/auth" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors"
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sign In
