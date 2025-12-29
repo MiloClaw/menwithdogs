@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface PlacePrediction {
@@ -21,16 +21,38 @@ export interface PlaceDetails {
   lng: number | null;
 }
 
+// Generate a UUID v4 for session tokens
+const generateSessionToken = (): string => {
+  return crypto.randomUUID();
+};
+
 export const useGooglePlaces = () => {
   const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Session token for billing optimization
+  const sessionTokenRef = useRef<string | null>(null);
+
+  // Get or create session token
+  const getSessionToken = useCallback((): string => {
+    if (!sessionTokenRef.current) {
+      sessionTokenRef.current = generateSessionToken();
+    }
+    return sessionTokenRef.current;
+  }, []);
+
+  // Reset session token (call after place selection)
+  const resetSessionToken = useCallback(() => {
+    sessionTokenRef.current = null;
+  }, []);
 
   const fetchAutocomplete = useCallback(async (
     input: string,
-    types: string = '(cities)'
+    types: string = '(cities)',
+    locationBias?: { lat: number; lng: number; radius?: number }
   ): Promise<PlacePrediction[]> => {
-    if (!input || input.trim().length < 2) {
+    if (!input || input.trim().length < 1) {
       setPredictions([]);
       return [];
     }
@@ -42,7 +64,12 @@ export const useGooglePlaces = () => {
       const { data, error: fnError } = await supabase.functions.invoke(
         'google-places-autocomplete',
         {
-          body: { input: input.trim(), types },
+          body: { 
+            input: input.trim(), 
+            types,
+            sessionToken: getSessionToken(),
+            locationBias,
+          },
         }
       );
 
@@ -65,7 +92,7 @@ export const useGooglePlaces = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getSessionToken]);
 
   const fetchDetails = useCallback(async (
     place_id: string
@@ -81,7 +108,10 @@ export const useGooglePlaces = () => {
       const { data, error: fnError } = await supabase.functions.invoke(
         'google-places-details',
         {
-          body: { place_id },
+          body: { 
+            place_id,
+            sessionToken: sessionTokenRef.current, // Use current token to complete session
+          },
         }
       );
 
@@ -93,6 +123,9 @@ export const useGooglePlaces = () => {
         throw new Error(data.error);
       }
 
+      // Reset session token after successful details fetch (billing session complete)
+      resetSessionToken();
+
       return data.details || null;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch place details';
@@ -101,7 +134,7 @@ export const useGooglePlaces = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [resetSessionToken]);
 
   const clearPredictions = useCallback(() => {
     setPredictions([]);
@@ -115,5 +148,6 @@ export const useGooglePlaces = () => {
     fetchAutocomplete,
     fetchDetails,
     clearPredictions,
+    resetSessionToken,
   };
 };
