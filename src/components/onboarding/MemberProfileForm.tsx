@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import InterestPicker from './InterestPicker';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
+import { useMemberInterests } from '@/hooks/useInterests';
 
 const profileSchema = z.object({
   first_name: z.string().min(1, 'Please enter your first name or nickname').max(50),
@@ -27,7 +28,6 @@ interface MemberProfileFormProps {
   initialData?: {
     first_name?: string | null;
     city?: string | null;
-    interests?: string[] | null;
     city_place_id?: string | null;
     city_lat?: number | null;
     city_lng?: number | null;
@@ -48,8 +48,18 @@ const MemberProfileForm = ({
   const [cityLat, setCityLat] = useState<number | undefined>(initialData?.city_lat ?? undefined);
   const [cityLng, setCityLng] = useState<number | undefined>(initialData?.city_lng ?? undefined);
   const [state, setState] = useState(initialData?.state ?? '');
-  const [interests, setInterests] = useState<string[]>(initialData?.interests ?? []);
+  const [interests, setInterests] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ first_name?: string; city?: string; interests?: string }>({});
+
+  // Load saved interests from database
+  const { interests: savedInterests, isLoading: interestsLoading } = useMemberInterests();
+
+  // Initialize interests from saved data
+  useEffect(() => {
+    if (savedInterests.length > 0 && interests.length === 0) {
+      setInterests(savedInterests);
+    }
+  }, [savedInterests]);
 
   const handlePlaceSelect = (details: PlaceDetails) => {
     setCity(details.city || details.name);
