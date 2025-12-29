@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -31,10 +32,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useAdminInterests, useInterestUsageCounts, InterestWithCategory } from '@/hooks/useAdminInterests';
+import { useAdminInterests, useInterestUsageCounts, InterestWithCategory, GoogleMapping } from '@/hooks/useAdminInterests';
+import { GoogleMappingEditor } from '@/components/admin/GoogleMappingEditor';
+import { MappingCountBadge } from '@/components/admin/MappingPreview';
 
 type FilterCategory = 'all' | string;
 type FilterStatus = 'all' | 'active' | 'inactive';
+
+interface EditFormState {
+  label: string;
+  category_id: string;
+  sort_order: number;
+  google_mappings: GoogleMapping[];
+}
 
 const InterestManagement = () => {
   const { interests, categories, isLoading, updateInterest, isUpdating } = useAdminInterests();
@@ -44,7 +54,12 @@ const InterestManagement = () => {
   const [filterCategory, setFilterCategory] = useState<FilterCategory>('all');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [editingInterest, setEditingInterest] = useState<InterestWithCategory | null>(null);
-  const [editForm, setEditForm] = useState({ label: '', category_id: '', sort_order: 0 });
+  const [editForm, setEditForm] = useState<EditFormState>({ 
+    label: '', 
+    category_id: '', 
+    sort_order: 0,
+    google_mappings: [],
+  });
 
   // Filter interests
   const filteredInterests = useMemo(() => {
@@ -89,11 +104,15 @@ const InterestManagement = () => {
       label: interest.label,
       category_id: interest.category_id,
       sort_order: interest.sort_order ?? 0,
+      google_mappings: interest.google_mappings ?? [],
     });
   };
 
   const handleSaveEdit = async () => {
     if (!editingInterest) return;
+
+    // Validate mappings - remove any with empty type
+    const validMappings = editForm.google_mappings.filter(m => m.type);
 
     try {
       await updateInterest({
@@ -101,6 +120,7 @@ const InterestManagement = () => {
         label: editForm.label,
         category_id: editForm.category_id,
         sort_order: editForm.sort_order,
+        google_mappings: validMappings,
       });
       toast({
         title: 'Interest updated',
@@ -126,12 +146,12 @@ const InterestManagement = () => {
         <div>
           <h1 className="text-2xl font-bold">Interest Management</h1>
           <p className="text-muted-foreground">
-            Manage interests, toggle availability, and assign categories
+            Manage interests, toggle availability, and configure Google Places mappings
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -248,9 +268,10 @@ const InterestManagement = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Interest</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-center">Usage</TableHead>
-                    <TableHead className="text-center">Order</TableHead>
+                    <TableHead className="hidden sm:table-cell">Category</TableHead>
+                    <TableHead className="hidden md:table-cell">Mappings</TableHead>
+                    <TableHead className="text-center hidden lg:table-cell">Usage</TableHead>
+                    <TableHead className="text-center hidden sm:table-cell">Order</TableHead>
                     <TableHead className="text-center">Active</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -259,17 +280,28 @@ const InterestManagement = () => {
                   {filteredInterests.map((interest) => (
                     <TableRow key={interest.id}>
                       <TableCell className="font-medium">
-                        {interest.label}
-                        <span className="ml-2 text-xs text-muted-foreground font-mono">
-                          {interest.id}
-                        </span>
+                        <div>
+                          {interest.label}
+                          <span className="ml-2 text-xs text-muted-foreground font-mono hidden sm:inline">
+                            {interest.id}
+                          </span>
+                        </div>
+                        {/* Mobile-only: show category below name */}
+                        <div className="sm:hidden mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {interest.category?.label ?? interest.category_id}
+                          </Badge>
+                        </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant="outline">
                           {interest.category?.label ?? interest.category_id}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <MappingCountBadge count={interest.google_mappings?.length ?? 0} />
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1" title="Members">
                             <Users className="h-3 w-3" />
@@ -281,7 +313,7 @@ const InterestManagement = () => {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center text-muted-foreground">
+                      <TableCell className="text-center text-muted-foreground hidden sm:table-cell">
                         {interest.sort_order ?? 0}
                       </TableCell>
                       <TableCell className="text-center">
@@ -311,60 +343,77 @@ const InterestManagement = () => {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingInterest} onOpenChange={(open) => !open && setEditingInterest(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-lg max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit Interest</DialogTitle>
             <DialogDescription>
-              Update the display name, category, or sort order. The ID remains stable.
+              Update display settings and Google Places mappings
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="edit-id">ID (read-only)</Label>
-              <Input
-                id="edit-id"
-                value={editingInterest?.id ?? ''}
-                disabled
-                className="font-mono text-muted-foreground"
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-6 py-4">
+              {/* Basic Info Section */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-id">ID (read-only)</Label>
+                  <Input
+                    id="edit-id"
+                    value={editingInterest?.id ?? ''}
+                    disabled
+                    className="font-mono text-muted-foreground"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-label">Display Name</Label>
+                  <Input
+                    id="edit-label"
+                    value={editForm.label}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, label: e.target.value }))}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-category">Category</Label>
+                    <Select
+                      value={editForm.category_id}
+                      onValueChange={(v) => setEditForm(prev => ({ ...prev, category_id: v }))}
+                    >
+                      <SelectTrigger id="edit-category">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-order">Sort Order</Label>
+                    <Input
+                      id="edit-order"
+                      type="number"
+                      value={editForm.sort_order}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t" />
+
+              {/* Google Mappings Section */}
+              <GoogleMappingEditor
+                mappings={editForm.google_mappings}
+                onChange={(mappings) => setEditForm(prev => ({ ...prev, google_mappings: mappings }))}
+                disabled={isUpdating}
               />
             </div>
-            <div>
-              <Label htmlFor="edit-label">Display Name</Label>
-              <Input
-                id="edit-label"
-                value={editForm.label}
-                onChange={(e) => setEditForm(prev => ({ ...prev, label: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-category">Category</Label>
-              <Select
-                value={editForm.category_id}
-                onValueChange={(v) => setEditForm(prev => ({ ...prev, category_id: v }))}
-              >
-                <SelectTrigger id="edit-category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(cat => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="edit-order">Sort Order</Label>
-              <Input
-                id="edit-order"
-                type="number"
-                value={editForm.sort_order}
-                onChange={(e) => setEditForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-              />
-            </div>
-          </div>
-          <DialogFooter>
+          </ScrollArea>
+          <DialogFooter className="border-t pt-4">
             <Button variant="outline" onClick={() => setEditingInterest(null)}>
               Cancel
             </Button>
