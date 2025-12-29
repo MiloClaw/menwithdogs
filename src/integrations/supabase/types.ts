@@ -428,6 +428,66 @@ export type Database = {
           },
         ]
       }
+      suggested_connections: {
+        Row: {
+          candidate_couple_id: string
+          candidate_opt_in_at: string | null
+          expires_at: string
+          generated_at: string
+          id: string
+          recipient_couple_id: string
+          recipient_opt_in_at: string | null
+          resolved_at: string | null
+          status: string
+          surfaced_rank: number | null
+          surfaced_reason: string | null
+          surfaced_source: string | null
+        }
+        Insert: {
+          candidate_couple_id: string
+          candidate_opt_in_at?: string | null
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          recipient_couple_id: string
+          recipient_opt_in_at?: string | null
+          resolved_at?: string | null
+          status?: string
+          surfaced_rank?: number | null
+          surfaced_reason?: string | null
+          surfaced_source?: string | null
+        }
+        Update: {
+          candidate_couple_id?: string
+          candidate_opt_in_at?: string | null
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          recipient_couple_id?: string
+          recipient_opt_in_at?: string | null
+          resolved_at?: string | null
+          status?: string
+          surfaced_rank?: number | null
+          surfaced_reason?: string | null
+          surfaced_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggested_connections_candidate_couple_id_fkey"
+            columns: ["candidate_couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_connections_recipient_couple_id_fkey"
+            columns: ["recipient_couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
