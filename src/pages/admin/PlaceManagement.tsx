@@ -290,6 +290,7 @@ const PlaceManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[60px]">Photo</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Location</TableHead>
@@ -301,23 +302,43 @@ const PlaceManagement = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredPlaces.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No places found
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredPlaces.map((place) => (
-                  <TableRow key={place.id}>
-                    <TableCell className="font-medium">{place.name}</TableCell>
-                    <TableCell>{place.primary_category}</TableCell>
-                    <TableCell>
-                      {[place.city, place.state].filter(Boolean).join(', ')}
+                filteredPlaces.map((place) => {
+                  const photos = getPhotos(place.photos);
+                  const photoUrl = photos.length > 0 ? getFirstPhotoUrl(photos, 100, 100) : null;
+                  
+                  return (
+                    <TableRow key={place.id}>
+                      <TableCell>
+                        {photoUrl ? (
+                          <img 
+                            src={photoUrl}
+                            alt={place.name}
+                            className="w-10 h-10 rounded-md object-cover bg-muted"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                            <span className="text-xs text-muted-foreground">—</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">{place.name}</TableCell>
+                      <TableCell>{place.primary_category}</TableCell>
+                      <TableCell>
+                        {[place.city, place.state].filter(Boolean).join(', ')}
                     </TableCell>
                     <TableCell>
                       {place.rating ? (
@@ -363,7 +384,8 @@ const PlaceManagement = () => {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))
+                  );
+                })
               )}
             </TableBody>
           </Table>
