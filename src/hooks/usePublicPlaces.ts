@@ -17,12 +17,15 @@ export const usePublicPlaces = () => {
           primary_category,
           city,
           state,
+          formatted_address,
           rating,
           user_ratings_total,
           price_level,
           photos,
           website_url,
           google_maps_url,
+          phone_number,
+          opening_hours,
           lat,
           lng
         `)

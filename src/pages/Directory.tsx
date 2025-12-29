@@ -3,7 +3,8 @@ import { Search, MapPinOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import PageLayout from '@/components/PageLayout';
-import DirectoryPlaceCard from '@/components/directory/DirectoryPlaceCard';
+import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
+import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useCoupleContext } from '@/contexts/CoupleContext';
 import { calculateDistanceMiles } from '@/lib/distance';
@@ -22,6 +23,8 @@ const Directory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // User location from profile
   const userLat = memberProfile?.city_lat;
@@ -82,6 +85,11 @@ const Directory = () => {
       return a.name.localeCompare(b.name);
     });
   }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
+
+  const handlePlaceClick = (place: DirectoryPlace) => {
+    setSelectedPlace(place);
+    setModalOpen(true);
+  };
 
   return (
     <PageLayout>
@@ -186,11 +194,22 @@ const Directory = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {processedPlaces.map(place => (
-              <DirectoryPlaceCard key={place.id} place={place} />
+              <DirectoryPlaceCard 
+                key={place.id} 
+                place={place} 
+                onClick={() => handlePlaceClick(place)}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {/* Place Detail Modal */}
+      <PlaceDetailModal 
+        place={selectedPlace}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </PageLayout>
   );
 };
