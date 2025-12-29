@@ -28,9 +28,10 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Plus, Search, Trash2, Star, ExternalLink, Phone, Globe } from 'lucide-react';
-import { usePlaces, CreatePlaceInput } from '@/hooks/usePlaces';
+import { usePlaces, CreatePlaceInput, getPhotos } from '@/hooks/usePlaces';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
+import { getFirstPhotoUrl } from '@/lib/google-places-photos';
 
 const PlaceManagement = () => {
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
@@ -111,10 +112,6 @@ const PlaceManagement = () => {
     rejected: 'bg-red-500/10 text-red-700 border-red-500/20',
   };
 
-  // Get first photo URL (requires API key, so we show placeholder for now)
-  const getPhotoPlaceholder = () => {
-    return 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop';
-  };
 
   return (
     <AdminLayout>
@@ -164,15 +161,18 @@ const PlaceManagement = () => {
                     <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
                       <div className="flex gap-3">
                         {formData.photos && Array.isArray(formData.photos) && formData.photos.length > 0 ? (
-                          <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                            Photo
-                          </div>
-                        ) : (
                           <img 
-                            src={getPhotoPlaceholder()} 
-                            alt="" 
-                            className="w-16 h-16 rounded-md object-cover"
+                            src={getFirstPhotoUrl(formData.photos as any, 200, 200) || ''}
+                            alt={formData.name}
+                            className="w-16 h-16 rounded-md object-cover bg-muted"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop';
+                            }}
                           />
+                        ) : (
+                          <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                            No photo
+                          </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium truncate">{formData.name}</h3>
