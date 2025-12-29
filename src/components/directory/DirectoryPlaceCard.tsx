@@ -1,7 +1,8 @@
-import { Star, MapPin, DollarSign, ExternalLink } from 'lucide-react';
+import { Star, MapPin, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getFirstPhotoUrl, PhotoReference } from '@/lib/google-places-photos';
+import { formatDistance } from '@/lib/distance';
 import type { Json } from '@/integrations/supabase/types';
 
 export interface DirectoryPlace {
@@ -16,6 +17,9 @@ export interface DirectoryPlace {
   photos: Json | null;
   website_url: string | null;
   google_maps_url: string | null;
+  lat: number | null;
+  lng: number | null;
+  distance?: number; // Calculated client-side, in miles
 }
 
 interface DirectoryPlaceCardProps {
@@ -67,6 +71,16 @@ const DirectoryPlaceCard = ({ place }: DirectoryPlaceCardProps) => {
         >
           {place.primary_category}
         </Badge>
+
+        {/* Distance Badge */}
+        {place.distance !== undefined && (
+          <Badge 
+            variant="outline" 
+            className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm text-xs font-medium"
+          >
+            {formatDistance(place.distance)}
+          </Badge>
+        )}
       </div>
 
       <CardContent className="p-4 space-y-2">

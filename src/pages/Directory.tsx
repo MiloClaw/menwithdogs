@@ -1,16 +1,32 @@
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, MapPinOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import PageLayout from '@/components/PageLayout';
 import DirectoryPlaceCard from '@/components/directory/DirectoryPlaceCard';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
+import { useCoupleContext } from '@/contexts/CoupleContext';
+import { calculateDistanceMiles } from '@/lib/distance';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const RADIUS_OPTIONS = [
+  { label: 'All', value: null },
+  { label: '10 mi', value: 10 },
+  { label: '25 mi', value: 25 },
+  { label: '50 mi', value: 50 },
+];
 
 const Directory = () => {
   const { data: places, isLoading } = usePublicPlaces();
+  const { memberProfile } = useCoupleContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
+
+  // User location from profile
+  const userLat = memberProfile?.city_lat;
+  const userLng = memberProfile?.city_lng;
+  const hasUserLocation = userLat != null && userLng != null;
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -19,11 +35,23 @@ const Directory = () => {
     return cats.sort();
   }, [places]);
 
-  // Filter places
-  const filteredPlaces = useMemo(() => {
+  // Calculate distances and filter/sort places
+  const processedPlaces = useMemo(() => {
     if (!places) return [];
-    
-    return places.filter(place => {
+
+    // Add distance to each place
+    const placesWithDistance = places.map(place => {
+      let distance: number | undefined;
+      
+      if (hasUserLocation && place.lat != null && place.lng != null) {
+        distance = calculateDistanceMiles(userLat, userLng, place.lat, place.lng);
+      }
+      
+      return { ...place, distance };
+    });
+
+    // Filter by search and category
+    let filtered = placesWithDistance.filter(place => {
       const matchesSearch = !searchTerm || 
         place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         place.city?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -33,7 +61,27 @@ const Directory = () => {
       
       return matchesSearch && matchesCategory;
     });
-  }, [places, searchTerm, selectedCategory]);
+
+    // Filter by radius (only if user has location)
+    if (radiusFilter !== null && hasUserLocation) {
+      filtered = filtered.filter(place => 
+        place.distance !== undefined && place.distance <= radiusFilter
+      );
+    }
+
+    // Sort: by distance if available, otherwise by name
+    return filtered.sort((a, b) => {
+      // Places with distance come first, sorted by distance
+      if (a.distance !== undefined && b.distance !== undefined) {
+        return a.distance - b.distance;
+      }
+      // Places without distance go to the end
+      if (a.distance !== undefined) return -1;
+      if (b.distance !== undefined) return 1;
+      // Fallback to alphabetical
+      return a.name.localeCompare(b.name);
+    });
+  }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
 
   return (
     <PageLayout>
@@ -57,35 +105,62 @@ const Directory = () => {
           />
         </div>
 
+        {/* Distance Filter */}
+        {hasUserLocation ? (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Distance</p>
+            <div className="flex flex-wrap gap-2">
+              {RADIUS_OPTIONS.map(option => (
+                <Badge
+                  key={option.label}
+                  variant={radiusFilter === option.value ? 'default' : 'outline'}
+                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                  onClick={() => setRadiusFilter(option.value)}
+                >
+                  {option.label}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-3 rounded-lg">
+            <MapPinOff className="h-4 w-4 flex-shrink-0" />
+            <span>Add your city in your profile to see places near you</span>
+          </div>
+        )}
+
         {/* Category Filters */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            <Badge
-              variant={selectedCategory === null ? 'default' : 'outline'}
-              className="cursor-pointer hover:bg-primary/90"
-              onClick={() => setSelectedCategory(null)}
-            >
-              All
-            </Badge>
-            {categories.map(category => (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Category</p>
+            <div className="flex flex-wrap gap-2">
               <Badge
-                key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-primary/90"
-                onClick={() => setSelectedCategory(
-                  selectedCategory === category ? null : category
-                )}
+                variant={selectedCategory === null ? 'default' : 'outline'}
+                className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                onClick={() => setSelectedCategory(null)}
               >
-                {category}
+                All
               </Badge>
-            ))}
+              {categories.map(category => (
+                <Badge
+                  key={category}
+                  variant={selectedCategory === category ? 'default' : 'outline'}
+                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                  onClick={() => setSelectedCategory(
+                    selectedCategory === category ? null : category
+                  )}
+                >
+                  {category}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Results Count */}
         {!isLoading && (
           <p className="text-sm text-muted-foreground">
-            {filteredPlaces.length} {filteredPlaces.length === 1 ? 'place' : 'places'} found
+            {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
           </p>
         )}
 
@@ -100,17 +175,17 @@ const Directory = () => {
               </div>
             ))}
           </div>
-        ) : filteredPlaces.length === 0 ? (
+        ) : processedPlaces.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground">
-              {searchTerm || selectedCategory 
+              {searchTerm || selectedCategory || radiusFilter
                 ? 'No places match your search criteria'
                 : 'No places in the directory yet'}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPlaces.map(place => (
+            {processedPlaces.map(place => (
               <DirectoryPlaceCard key={place.id} place={place} />
             ))}
           </div>
