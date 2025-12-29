@@ -22,7 +22,9 @@ export const usePublicPlaces = () => {
           price_level,
           photos,
           website_url,
-          google_maps_url
+          google_maps_url,
+          lat,
+          lng
         `)
         .eq('status', 'approved')
         .order('name');
