@@ -23,6 +23,10 @@ interface MemberProfile {
   is_owner: boolean;
   first_name: string | null;
   city: string | null;
+  city_place_id: string | null;
+  city_lat: number | null;
+  city_lng: number | null;
+  state: string | null;
   interests: string[] | null;
   social_settings: string | null;
   availability: string | null;
@@ -212,13 +216,14 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
 
     if (error) throw error;
 
-    // Sync city to couple_location_summary
+    // Sync city/state to couple_location_summary
     if (updates.city && couple) {
       await supabase
         .from('couple_location_summary')
         .upsert({
           couple_id: couple.id,
           city: updates.city,
+          state: updates.state || null,
           country: 'US',
           last_updated: new Date().toISOString(),
         }, { onConflict: 'couple_id' });

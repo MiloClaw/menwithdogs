@@ -4,20 +4,36 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InterestPicker from './InterestPicker';
+import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
+import { PlaceDetails } from '@/hooks/useGooglePlaces';
 
 const profileSchema = z.object({
   first_name: z.string().min(1, 'Please enter your first name or nickname').max(50),
-  city: z.string().min(1, 'Please enter your city or neighborhood').max(100),
+  city: z.string().min(1, 'Please select your city').max(100),
   interests: z.array(z.string()).length(3, 'Please select exactly 3 interests'),
 });
+
+export interface MemberProfileFormData {
+  first_name: string;
+  city: string;
+  interests: string[];
+  city_place_id?: string;
+  city_lat?: number;
+  city_lng?: number;
+  state?: string;
+}
 
 interface MemberProfileFormProps {
   initialData?: {
     first_name?: string | null;
     city?: string | null;
     interests?: string[] | null;
+    city_place_id?: string | null;
+    city_lat?: number | null;
+    city_lng?: number | null;
+    state?: string | null;
   };
-  onSubmit: (data: { first_name: string; city: string; interests: string[] }) => Promise<void>;
+  onSubmit: (data: MemberProfileFormData) => Promise<void>;
   isSubmitting?: boolean;
 }
 
@@ -28,8 +44,24 @@ const MemberProfileForm = ({
 }: MemberProfileFormProps) => {
   const [firstName, setFirstName] = useState(initialData?.first_name ?? '');
   const [city, setCity] = useState(initialData?.city ?? '');
+  const [cityPlaceId, setCityPlaceId] = useState(initialData?.city_place_id ?? '');
+  const [cityLat, setCityLat] = useState<number | undefined>(initialData?.city_lat ?? undefined);
+  const [cityLng, setCityLng] = useState<number | undefined>(initialData?.city_lng ?? undefined);
+  const [state, setState] = useState(initialData?.state ?? '');
   const [interests, setInterests] = useState<string[]>(initialData?.interests ?? []);
   const [errors, setErrors] = useState<{ first_name?: string; city?: string; interests?: string }>({});
+
+  const handlePlaceSelect = (details: PlaceDetails) => {
+    setCity(details.city || details.name);
+    setCityPlaceId(details.place_id);
+    setCityLat(details.lat ?? undefined);
+    setCityLng(details.lng ?? undefined);
+    setState(details.state || '');
+    // Clear city error when a valid place is selected
+    if (errors.city) {
+      setErrors(prev => ({ ...prev, city: undefined }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +89,10 @@ const MemberProfileForm = ({
       first_name: formData.first_name,
       city: formData.city,
       interests: formData.interests,
+      city_place_id: cityPlaceId || undefined,
+      city_lat: cityLat,
+      city_lng: cityLng,
+      state: state || undefined,
     });
   };
 
@@ -79,18 +115,21 @@ const MemberProfileForm = ({
         )}
       </div>
 
-      {/* City */}
+      {/* City - Google Places Autocomplete */}
       <div className="space-y-2">
         <Label htmlFor="city">City or neighborhood</Label>
-        <Input
-          id="city"
-          type="text"
+        <GooglePlacesAutocomplete
           value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Where you're based"
-          className="h-12"
-          maxLength={100}
+          onChange={setCity}
+          onPlaceSelect={handlePlaceSelect}
+          placeholder="Search for your city"
+          types="(cities)"
         />
+        {state && city && (
+          <p className="text-sm text-muted-foreground">
+            {city}, {state}
+          </p>
+        )}
         {errors.city && (
           <p className="text-sm text-destructive">{errors.city}</p>
         )}
