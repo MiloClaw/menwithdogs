@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from './AuthContext';
 import { getRouteForState, CoupleStatus, MemberOnboardingStep } from '@/lib/routing/getRouteForState';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface Couple {
   id: string;
@@ -67,6 +68,7 @@ const CoupleContext = createContext<CoupleContextValue | null>(null);
 
 export function CoupleProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuthContext();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   
   const [couple, setCouple] = useState<Couple | null>(null);
   const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
@@ -252,14 +254,17 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
   }, [fetchCoupleData]);
 
   // Compute next route using pure routing function
-  const nextRoute = getRouteForState({
-    hasCouple: !!couple,
-    coupleStatus: couple?.status ?? null,
-    memberStep: memberProfile?.onboarding_step ?? null,
-    coupleIsComplete: couple?.is_complete ?? false,
-  });
+  // Admin users without a couple bypass onboarding and go to /admin
+  const nextRoute = isAdmin && !couple
+    ? '/admin'
+    : getRouteForState({
+        hasCouple: !!couple,
+        coupleStatus: couple?.status ?? null,
+        memberStep: memberProfile?.onboarding_step ?? null,
+        coupleIsComplete: couple?.is_complete ?? false,
+      });
 
-  console.debug('[CoupleContext] Computed nextRoute:', nextRoute, { loading, hasCouple: !!couple });
+  console.debug('[CoupleContext] Computed nextRoute:', nextRoute, { loading, hasCouple: !!couple, isAdmin });
 
   const value: CoupleContextValue = {
     couple,

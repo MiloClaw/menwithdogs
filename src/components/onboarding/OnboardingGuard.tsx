@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface OnboardingGuardProps {
   children: React.ReactNode;
@@ -22,8 +23,11 @@ interface OnboardingGuardProps {
 const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { nextRoute, loading: coupleLoading } = useCouple();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isLoading = authLoading || coupleLoading || roleLoading;
 
   useEffect(() => {
     console.debug('[OnboardingGuard]', {
@@ -31,15 +35,24 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
       nextRoute,
       authLoading,
       coupleLoading,
+      roleLoading,
       isAuthenticated,
+      isAdmin,
     });
 
     // Still loading - wait
-    if (authLoading || coupleLoading) return;
+    if (isLoading) return;
 
     // Not authenticated - redirect to auth
     if (!isAuthenticated) {
       navigate('/auth', { replace: true });
+      return;
+    }
+
+    // Admin users bypass onboarding - redirect to admin
+    if (isAdmin) {
+      console.debug('[OnboardingGuard] Admin user detected, redirecting to /admin');
+      navigate('/admin', { replace: true });
       return;
     }
 
@@ -48,10 +61,10 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
       console.debug('[OnboardingGuard] Redirecting to:', nextRoute);
       navigate(nextRoute, { replace: true });
     }
-  }, [authLoading, coupleLoading, isAuthenticated, nextRoute, navigate, location.pathname]);
+  }, [isLoading, isAuthenticated, isAdmin, nextRoute, navigate, location.pathname]);
 
   // Still loading - show loading state
-  if (authLoading || coupleLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
@@ -62,6 +75,15 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
   // Not authenticated - will redirect
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Admin users - will redirect to /admin
+  if (isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
   }
 
   // On wrong route - will redirect
