@@ -42,10 +42,16 @@ const CoupleProfileEdit = () => {
     if (couple) {
       setDisplayName(couple.display_name ?? '');
       setAboutUs(couple.about_us ?? '');
-      setSharedInterests(couple.shared_interests ?? []);
       setPreferredTimes(couple.preferred_meetup_times ?? '');
     }
   }, [couple]);
+
+  // Load saved interests from join table
+  useEffect(() => {
+    if (savedCoupleInterests.length > 0 && sharedInterests.length === 0) {
+      setSharedInterests(savedCoupleInterests);
+    }
+  }, [savedCoupleInterests]);
 
   // Fetch existing draft
   useEffect(() => {
@@ -110,6 +116,12 @@ const CoupleProfileEdit = () => {
     });
   };
 
+  // Get interest labels for draft preview
+  const getDraftInterestLabels = (ids: string[]): string[] => {
+    if (!catalog) return ids;
+    return getInterestLabelsFromCatalog(catalog, ids);
+  };
+
   const handleSave = async () => {
     if (!displayName.trim()) {
       toast({
@@ -126,13 +138,16 @@ const CoupleProfileEdit = () => {
       // Never auto-downgrade status on edits
       const shouldAdvanceStatus = couple?.status === 'onboarding' && couple?.is_complete;
       
+      // Update couple profile (without shared_interests - now in join table)
       await updateCoupleProfile({
         display_name: displayName.trim(),
         about_us: aboutUs.trim() || null,
-        shared_interests: sharedInterests.length > 0 ? sharedInterests : null,
         preferred_meetup_times: preferredTimes.trim() || null,
         ...(shouldAdvanceStatus && { status: 'pending_match' as const }),
       });
+
+      // Sync interests to couple_interests join table
+      await syncInterests(sharedInterests);
 
       // Mark draft as applied if we had one
       if (draft && couple?.id) {
@@ -223,7 +238,7 @@ const CoupleProfileEdit = () => {
               <p className="mt-1">"{draft.generated_display_name}"</p>
               {draft.generated_shared_interests && (
                 <p className="mt-1">
-                  Interests: {getInterestLabels(draft.generated_shared_interests).join(', ')}
+                  Interests: {getDraftInterestLabels(draft.generated_shared_interests).join(', ')}
                 </p>
               )}
             </div>

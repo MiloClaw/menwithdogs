@@ -7,7 +7,6 @@ interface Couple {
   id: string;
   display_name: string | null;
   about_us: string | null;
-  shared_interests: string[] | null;
   preferred_meetup_times: string | null;
   is_complete: boolean;
   is_discoverable: boolean;
@@ -27,7 +26,6 @@ interface MemberProfile {
   city_lat: number | null;
   city_lng: number | null;
   state: string | null;
-  interests: string[] | null;
   social_settings: string | null;
   availability: string | null;
   energy_style: string | null;

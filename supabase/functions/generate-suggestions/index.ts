@@ -5,13 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface CoupleWithLocation {
-  id: string;
-  display_name: string | null;
-  shared_interests: string[] | null;
-  city: string;
-}
-
 interface ScoredCandidate {
   coupleId: string;
   score: number;
@@ -94,7 +87,7 @@ Deno.serve(async (req) => {
     // Use service role to bypass RLS for reading and writing
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 1. Fetch the recipient couple's location and interests
+    // 1. Fetch the recipient couple's location
     const { data: recipientLocation, error: locError } = await supabase
       .from('couple_location_summary')
       .select('city, state, country')
@@ -118,21 +111,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { data: recipientCouple, error: coupleError } = await supabase
-      .from('couples')
-      .select('shared_interests')
-      .eq('id', couple_id)
-      .single();
+    // 2. Fetch recipient couple's interests from join table
+    const { data: recipientInterestsData, error: recipientIntError } = await supabase
+      .from('couple_interests')
+      .select('interest_id')
+      .eq('couple_id', couple_id);
 
-    if (coupleError) {
-      console.error('[generate-suggestions] Error fetching recipient couple:', coupleError);
-      throw new Error('Failed to fetch couple data');
+    if (recipientIntError) {
+      console.error('[generate-suggestions] Error fetching recipient interests:', recipientIntError);
+      throw new Error('Failed to fetch couple interests');
     }
 
-    const recipientInterests: string[] = recipientCouple?.shared_interests || [];
+    const recipientInterests: string[] = recipientInterestsData?.map(i => i.interest_id) || [];
     console.log(`[generate-suggestions] Recipient city: ${recipientLocation.city}, interests: ${recipientInterests.length}`);
 
-    // 2. Find all discoverable, complete couples in the same city (excluding self)
+    // 3. Find all discoverable, complete couples in the same city (excluding self)
     const { data: candidateLocations, error: candLocError } = await supabase
       .from('couple_location_summary')
       .select('couple_id, city')
@@ -158,10 +151,10 @@ Deno.serve(async (req) => {
 
     const candidateCoupleIds = candidateLocations.map(loc => loc.couple_id);
 
-    // 3. Fetch candidate couples that are discoverable and complete
+    // 4. Fetch candidate couples that are discoverable and complete
     const { data: candidateCouples, error: candCoupleError } = await supabase
       .from('couples')
-      .select('id, display_name, shared_interests')
+      .select('id, display_name')
       .in('id', candidateCoupleIds)
       .eq('is_discoverable', true)
       .eq('is_complete', true);
@@ -185,7 +178,26 @@ Deno.serve(async (req) => {
 
     console.log(`[generate-suggestions] Found ${candidateCouples.length} candidate couples`);
 
-    // 4. Check for existing suggestions to avoid duplicates
+    // 5. Fetch interests for all candidate couples from join table
+    const { data: allCandidateInterests, error: candIntError } = await supabase
+      .from('couple_interests')
+      .select('couple_id, interest_id')
+      .in('couple_id', candidateCouples.map(c => c.id));
+
+    if (candIntError) {
+      console.error('[generate-suggestions] Error fetching candidate interests:', candIntError);
+      throw new Error('Failed to fetch candidate interests');
+    }
+
+    // Build a map of couple_id -> interest_ids
+    const candidateInterestsMap = new Map<string, string[]>();
+    allCandidateInterests?.forEach(ci => {
+      const existing = candidateInterestsMap.get(ci.couple_id) || [];
+      existing.push(ci.interest_id);
+      candidateInterestsMap.set(ci.couple_id, existing);
+    });
+
+    // 6. Check for existing suggestions to avoid duplicates
     const { data: existingSuggestions, error: existingError } = await supabase
       .from('suggested_connections')
       .select('candidate_couple_id')
@@ -200,11 +212,11 @@ Deno.serve(async (req) => {
     const existingCandidateIds = new Set(existingSuggestions?.map(s => s.candidate_couple_id) || []);
     console.log(`[generate-suggestions] Already have ${existingCandidateIds.size} existing suggestions`);
 
-    // 5. Score each candidate and filter out existing ones
+    // 7. Score each candidate and filter out existing ones
     const scoredCandidates: ScoredCandidate[] = candidateCouples
       .filter(c => !existingCandidateIds.has(c.id))
       .map(candidate => {
-        const candidateInterests: string[] = candidate.shared_interests || [];
+        const candidateInterests: string[] = candidateInterestsMap.get(candidate.id) || [];
         const { score, overlapping, totalUnique } = calculateInterestScore(
           recipientInterests,
           candidateInterests
@@ -220,7 +232,7 @@ Deno.serve(async (req) => {
       // Sort by score descending
       .sort((a, b) => b.score - a.score);
 
-    // 6. Take top 5 candidates
+    // 8. Take top 5 candidates
     const topCandidates = scoredCandidates.slice(0, 5);
 
     if (topCandidates.length === 0) {
@@ -235,7 +247,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 7. Insert suggestions
+    // 9. Insert suggestions
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
 

@@ -6,6 +6,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Valid interest IDs from the interests table
+const VALID_INTEREST_IDS = [
+  'double-dates', 'dinner-parties', 'game-nights', 'happy-hours', 'book-clubs', 'potlucks',
+  'hiking', 'camping', 'beach-days', 'biking', 'kayaking', 'picnics',
+  'trying-restaurants', 'cooking-together', 'wine-tasting', 'craft-beer', 'craft-coffee', 'farmers-markets',
+  'live-music', 'live-comedy', 'theater', 'museums', 'movies', 'trivia-nights',
+  'yoga', 'spa-days', 'meditation',
+  'board-games', 'bowling', 'escape-rooms'
+];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -69,7 +79,7 @@ serve(async (req) => {
     // Fetch both member profiles
     const { data: profiles } = await supabase
       .from("member_profiles")
-      .select("first_name, city, interests")
+      .select("user_id, first_name, city")
       .eq("couple_id", couple_id);
 
     if (!profiles || profiles.length === 0) {
@@ -79,10 +89,42 @@ serve(async (req) => {
       });
     }
 
+    // Fetch member interests from join table
+    const userIds = profiles.map(p => p.user_id);
+    const { data: memberInterests } = await supabase
+      .from("member_interests")
+      .select("user_id, interest_id")
+      .in("user_id", userIds);
+
+    // Fetch interest labels
+    const interestIds = [...new Set(memberInterests?.map(mi => mi.interest_id) || [])];
+    let interestLabelsMap = new Map<string, string>();
+    
+    if (interestIds.length > 0) {
+      const { data: interests } = await supabase
+        .from("interests")
+        .select("id, label")
+        .in("id", interestIds);
+      
+      interests?.forEach(i => interestLabelsMap.set(i.id, i.label));
+    }
+
+    // Build member interests map
+    const memberInterestsMap = new Map<string, string[]>();
+    memberInterests?.forEach(mi => {
+      const existing = memberInterestsMap.get(mi.user_id) || [];
+      const label = interestLabelsMap.get(mi.interest_id);
+      if (label) {
+        existing.push(label);
+      }
+      memberInterestsMap.set(mi.user_id, existing);
+    });
+
     // Build context for AI
-    const profileSummaries = profiles.map((p, i) => 
-      `Partner ${i + 1}: ${p.first_name || 'Unknown'}, based in ${p.city || 'unknown location'}, interests: ${(p.interests || []).join(', ') || 'none specified'}`
-    ).join('\n');
+    const profileSummaries = profiles.map((p, i) => {
+      const interests = memberInterestsMap.get(p.user_id) || [];
+      return `Partner ${i + 1}: ${p.first_name || 'Unknown'}, based in ${p.city || 'unknown location'}, interests: ${interests.join(', ') || 'none specified'}`;
+    }).join('\n');
 
     // Call Lovable AI
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -113,7 +155,7 @@ Output JSON only:
   "shared_interests": ["interest-id-1", "interest-id-2", ...]
 }
 
-Available interest IDs: dinner-parties, game-nights, double-dates, happy-hours, book-clubs, hiking, biking, camping, beach-days, picnics, trying-restaurants, cooking-together, wine-tasting, brewery-hopping, coffee-exploring, concerts, museums, theater, art-galleries, live-comedy, yoga, fitness-classes, spa-days, meditation, board-games, trivia-nights, escape-rooms, bowling, mini-golf`
+Available interest IDs (you MUST use only these exact IDs): ${VALID_INTEREST_IDS.join(', ')}`
           },
           {
             role: "user",
@@ -157,6 +199,13 @@ Available interest IDs: dinner-parties, game-nights, double-dates, happy-hours, 
     } catch (parseError) {
       console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse AI response");
+    }
+
+    // Validate that generated interests are valid IDs
+    if (generated.shared_interests) {
+      generated.shared_interests = generated.shared_interests.filter(
+        (id: string) => VALID_INTEREST_IDS.includes(id)
+      );
     }
 
     // Upsert draft
