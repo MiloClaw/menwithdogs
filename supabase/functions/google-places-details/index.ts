@@ -7,6 +7,7 @@ const corsHeaders = {
 
 interface DetailsRequest {
   place_id: string;
+  sessionToken?: string;
 }
 
 interface PlaceDetails {
@@ -36,7 +37,7 @@ serve(async (req) => {
       );
     }
 
-    const { place_id }: DetailsRequest = await req.json();
+    const { place_id, sessionToken }: DetailsRequest = await req.json();
 
     if (!place_id) {
       return new Response(
@@ -47,65 +48,69 @@ serve(async (req) => {
 
     console.log(`Fetching details for place_id: ${place_id}`);
 
-    const params = new URLSearchParams({
-      place_id,
-      key: apiKey,
-      fields: "place_id,name,formatted_address,address_components,geometry",
-      language: "en",
-    });
+    // Build URL with field mask
+    const fieldMask = "id,displayName,formattedAddress,addressComponents,location";
+    let url = `https://places.googleapis.com/v1/places/${place_id}?languageCode=en`;
+    
+    // Add session token if provided (completes the billing session)
+    if (sessionToken) {
+      url += `&sessionToken=${sessionToken}`;
+    }
 
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?${params}`
-    );
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": fieldMask,
+      },
+    });
 
     const data = await response.json();
 
-    if (data.status !== "OK") {
-      console.error("Google Places API error:", data.status, data.error_message);
+    if (data.error) {
+      console.error("Google Places API error:", data.error.message);
       return new Response(
-        JSON.stringify({ error: data.error_message || "Place not found" }),
+        JSON.stringify({ error: data.error.message || "Place not found" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const result = data.result;
-    
-    // Parse address components
+    // Parse address components (new API format)
     let city: string | null = null;
     let state: string | null = null;
     let country: string | null = null;
 
-    for (const component of result.address_components || []) {
+    for (const component of data.addressComponents || []) {
       const types = component.types || [];
       if (types.includes("locality")) {
-        city = component.long_name;
+        city = component.longText;
       } else if (types.includes("administrative_area_level_1")) {
-        state = component.short_name;
+        state = component.shortText;
       } else if (types.includes("country")) {
-        country = component.short_name;
+        country = component.shortText;
       }
     }
 
-    // If no locality, try sublocality or administrative_area_level_2
+    // Fallback for city if no locality found
     if (!city) {
-      for (const component of result.address_components || []) {
+      for (const component of data.addressComponents || []) {
         const types = component.types || [];
-        if (types.includes("sublocality_level_1") || types.includes("administrative_area_level_2")) {
-          city = component.long_name;
+        if (types.includes("sublocality_level_1") || types.includes("administrative_area_level_2") || types.includes("postal_town")) {
+          city = component.longText;
           break;
         }
       }
     }
 
     const details: PlaceDetails = {
-      place_id: result.place_id,
-      name: result.name,
-      formatted_address: result.formatted_address,
+      place_id: data.id || place_id,
+      name: data.displayName?.text || "",
+      formatted_address: data.formattedAddress || "",
       city,
       state,
       country,
-      lat: result.geometry?.location?.lat ?? null,
-      lng: result.geometry?.location?.lng ?? null,
+      lat: data.location?.latitude ?? null,
+      lng: data.location?.longitude ?? null,
     };
 
     console.log(`Returning details for: ${details.name}`);

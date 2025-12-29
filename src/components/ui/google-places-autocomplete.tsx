@@ -61,16 +61,17 @@ const GooglePlacesAutocomplete = ({
     onChange(newValue);
     setSelectedIndex(-1);
 
-    // Debounce API calls
+    // Debounce API calls - reduced to 200ms for snappier UX
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
 
-    if (newValue.length >= 2) {
+    // Start showing predictions after just 1 character
+    if (newValue.length >= 1) {
       debounceRef.current = setTimeout(() => {
         fetchAutocomplete(newValue, types);
         setShowDropdown(true);
-      }, 300);
+      }, 200);
     } else {
       clearPredictions();
       setShowDropdown(false);
@@ -119,10 +120,15 @@ const GooglePlacesAutocomplete = ({
   }, [showDropdown, predictions, selectedIndex, handleSelectPrediction]);
 
   const handleFocus = useCallback(() => {
+    // Show dropdown on focus if we have predictions or user has typed something
     if (predictions.length > 0) {
       setShowDropdown(true);
+    } else if (inputValue.length >= 1) {
+      // Re-fetch if user focuses back on input with content
+      fetchAutocomplete(inputValue, types);
+      setShowDropdown(true);
     }
-  }, [predictions.length]);
+  }, [predictions.length, inputValue, fetchAutocomplete, types]);
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
@@ -146,38 +152,44 @@ const GooglePlacesAutocomplete = ({
 
       {/* Dropdown */}
       {showDropdown && predictions.length > 0 && (
-        <ul
-          className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-60 overflow-auto"
-          role="listbox"
-        >
-          {predictions.map((prediction, index) => (
-            <li
-              key={prediction.place_id}
-              role="option"
-              aria-selected={index === selectedIndex}
-              className={cn(
-                'flex items-start gap-3 px-3 py-3 cursor-pointer transition-colors',
-                'min-h-[44px]', // Touch target
-                index === selectedIndex
-                  ? 'bg-accent text-accent-foreground'
-                  : 'hover:bg-muted'
-              )}
-              onClick={() => handleSelectPrediction(prediction)}
-            >
-              <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-              <div className="flex flex-col min-w-0">
-                <span className="font-medium truncate">
-                  {prediction.structured_formatting?.main_text || prediction.description}
-                </span>
-                {prediction.structured_formatting?.secondary_text && (
-                  <span className="text-sm text-muted-foreground truncate">
-                    {prediction.structured_formatting.secondary_text}
-                  </span>
+        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+          <ul
+            className="max-h-60 overflow-auto"
+            role="listbox"
+          >
+            {predictions.map((prediction, index) => (
+              <li
+                key={prediction.place_id}
+                role="option"
+                aria-selected={index === selectedIndex}
+                className={cn(
+                  'flex items-start gap-3 px-3 py-3 cursor-pointer transition-colors',
+                  'min-h-[44px]', // Touch target
+                  index === selectedIndex
+                    ? 'bg-accent text-accent-foreground'
+                    : 'hover:bg-muted'
                 )}
-              </div>
-            </li>
-          ))}
-        </ul>
+                onClick={() => handleSelectPrediction(prediction)}
+              >
+                <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <span className="font-medium truncate">
+                    {prediction.structured_formatting?.main_text || prediction.description}
+                  </span>
+                  {prediction.structured_formatting?.secondary_text && (
+                    <span className="text-sm text-muted-foreground truncate">
+                      {prediction.structured_formatting.secondary_text}
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Google Attribution - Required by TOS */}
+          <div className="px-3 py-2 border-t border-border bg-muted/50">
+            <span className="text-xs text-muted-foreground">Powered by Google</span>
+          </div>
+        </div>
       )}
     </div>
   );

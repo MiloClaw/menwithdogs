@@ -7,8 +7,27 @@ const corsHeaders = {
 
 interface AutocompleteRequest {
   input: string;
-  types?: string; // e.g., "(cities)" for city search, "establishment" for venues
+  types?: string; // Legacy format: "(cities)" or "establishment"
+  sessionToken?: string;
+  locationBias?: {
+    lat: number;
+    lng: number;
+    radius?: number;
+  };
 }
+
+// Map legacy type strings to new API format
+const TYPE_MAPPINGS: Record<string, string[]> = {
+  "(cities)": ["locality", "administrative_area_level_3", "postal_town", "sublocality_level_1"],
+  "establishment": [
+    "restaurant", "bar", "cafe", "bakery", "night_club",
+    "spa", "gym", "park", "museum", "art_gallery",
+    "movie_theater", "bowling_alley", "amusement_park",
+    "book_store", "clothing_store", "shopping_mall",
+    "tourist_attraction", "zoo", "aquarium", "stadium",
+    "casino", "campground", "rv_park", "lodging"
+  ],
+};
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -26,44 +45,90 @@ serve(async (req) => {
       );
     }
 
-    const { input, types = "(cities)" }: AutocompleteRequest = await req.json();
+    const { input, types = "(cities)", sessionToken, locationBias }: AutocompleteRequest = await req.json();
 
-    if (!input || input.trim().length < 2) {
+    if (!input || input.trim().length < 1) {
       return new Response(
         JSON.stringify({ predictions: [] }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Autocomplete request: input="${input}", types="${types}"`);
+    console.log(`Autocomplete request: input="${input}", types="${types}", sessionToken=${sessionToken ? "present" : "absent"}`);
 
-    const params = new URLSearchParams({
+    // Build request body for new API
+    const requestBody: Record<string, unknown> = {
       input: input.trim(),
-      types,
-      key: apiKey,
-      language: "en",
-    });
+      languageCode: "en",
+    };
+
+    // Map legacy types to new format
+    const includedTypes = TYPE_MAPPINGS[types];
+    if (includedTypes) {
+      requestBody.includedPrimaryTypes = includedTypes;
+    }
+
+    // Add session token if provided
+    if (sessionToken) {
+      requestBody.sessionToken = sessionToken;
+    }
+
+    // Add location bias if provided
+    if (locationBias) {
+      requestBody.locationBias = {
+        circle: {
+          center: {
+            latitude: locationBias.lat,
+            longitude: locationBias.lng,
+          },
+          radius: locationBias.radius || 50000, // Default 50km
+        },
+      };
+    }
 
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params}`
+      "https://places.googleapis.com/v1/places:autocomplete",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+        },
+        body: JSON.stringify(requestBody),
+      }
     );
 
     const data = await response.json();
 
-    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-      console.error("Google Places API error:", data.status, data.error_message);
+    if (data.error) {
+      console.error("Google Places API error:", data.error.message);
       return new Response(
-        JSON.stringify({ error: data.error_message || "Google API error" }),
+        JSON.stringify({ error: data.error.message || "Google API error" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Map to simplified predictions
-    const predictions = (data.predictions || []).map((p: any) => ({
-      place_id: p.place_id,
-      description: p.description,
-      structured_formatting: p.structured_formatting,
-    }));
+    // Transform new API response to match legacy format
+    const predictions = (data.suggestions || [])
+      .filter((s: { placePrediction?: unknown }) => s.placePrediction)
+      .map((s: { placePrediction: {
+        placeId: string;
+        text?: { text: string };
+        structuredFormat?: {
+          mainText?: { text: string };
+          secondaryText?: { text: string };
+        };
+      }}) => {
+        const p = s.placePrediction;
+        return {
+          place_id: p.placeId,
+          description: p.text?.text || "",
+          structured_formatting: p.structuredFormat ? {
+            main_text: p.structuredFormat.mainText?.text || "",
+            secondary_text: p.structuredFormat.secondaryText?.text || "",
+          } : undefined,
+        };
+      });
 
     console.log(`Returning ${predictions.length} predictions`);
 
