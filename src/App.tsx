@@ -33,6 +33,7 @@ import DirectoryManagement from "./pages/admin/DirectoryManagement";
 import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import InterestManagement from "./pages/admin/InterestManagement";
+import Directory from "./pages/Directory";
 import { RequireRole } from "./components/auth/RequireRole";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/places" element={<Places />} />
+              <Route path="/directory" element={<Directory />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/profile/:id" element={<CoupleProfile />} />
