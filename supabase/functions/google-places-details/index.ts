@@ -10,6 +10,12 @@ interface DetailsRequest {
   sessionToken?: string;
 }
 
+interface PhotoReference {
+  name: string;
+  widthPx: number;
+  heightPx: number;
+}
+
 interface PlaceDetails {
   place_id: string;
   name: string;
@@ -19,6 +25,17 @@ interface PlaceDetails {
   country: string | null;
   lat: number | null;
   lng: number | null;
+  // GBP enrichment fields
+  rating: number | null;
+  user_ratings_total: number | null;
+  price_level: number | null;
+  website_url: string | null;
+  phone_number: string | null;
+  google_maps_url: string | null;
+  opening_hours: { weekday_text: string[] } | null;
+  photos: PhotoReference[] | null;
+  google_primary_type: string | null;
+  google_primary_type_display: string | null;
 }
 
 serve(async (req) => {
@@ -48,8 +65,25 @@ serve(async (req) => {
 
     console.log(`Fetching details for place_id: ${place_id}`);
 
-    // Build URL with field mask
-    const fieldMask = "id,displayName,formattedAddress,addressComponents,location";
+    // Expanded field mask to include all GBP data
+    const fieldMask = [
+      "id",
+      "displayName",
+      "formattedAddress",
+      "addressComponents",
+      "location",
+      "rating",
+      "userRatingCount",
+      "priceLevel",
+      "websiteUri",
+      "internationalPhoneNumber",
+      "googleMapsUri",
+      "regularOpeningHours",
+      "photos",
+      "primaryType",
+      "primaryTypeDisplayName",
+    ].join(",");
+
     let url = `https://places.googleapis.com/v1/places/${place_id}?languageCode=en`;
     
     // Add session token if provided (completes the billing session)
@@ -102,6 +136,37 @@ serve(async (req) => {
       }
     }
 
+    // Parse photos - extract up to 5 photo references
+    let photos: PhotoReference[] | null = null;
+    if (data.photos && Array.isArray(data.photos) && data.photos.length > 0) {
+      photos = data.photos.slice(0, 5).map((photo: any) => ({
+        name: photo.name,
+        widthPx: photo.widthPx || 0,
+        heightPx: photo.heightPx || 0,
+      }));
+    }
+
+    // Parse opening hours
+    let opening_hours: { weekday_text: string[] } | null = null;
+    if (data.regularOpeningHours?.weekdayDescriptions) {
+      opening_hours = {
+        weekday_text: data.regularOpeningHours.weekdayDescriptions,
+      };
+    }
+
+    // Map price level from string to number
+    let price_level: number | null = null;
+    if (data.priceLevel) {
+      const priceLevelMap: Record<string, number> = {
+        "PRICE_LEVEL_FREE": 0,
+        "PRICE_LEVEL_INEXPENSIVE": 1,
+        "PRICE_LEVEL_MODERATE": 2,
+        "PRICE_LEVEL_EXPENSIVE": 3,
+        "PRICE_LEVEL_VERY_EXPENSIVE": 4,
+      };
+      price_level = priceLevelMap[data.priceLevel] ?? null;
+    }
+
     const details: PlaceDetails = {
       place_id: data.id || place_id,
       name: data.displayName?.text || "",
@@ -111,9 +176,20 @@ serve(async (req) => {
       country,
       lat: data.location?.latitude ?? null,
       lng: data.location?.longitude ?? null,
+      // GBP fields
+      rating: data.rating ?? null,
+      user_ratings_total: data.userRatingCount ?? null,
+      price_level,
+      website_url: data.websiteUri ?? null,
+      phone_number: data.internationalPhoneNumber ?? null,
+      google_maps_url: data.googleMapsUri ?? null,
+      opening_hours,
+      photos,
+      google_primary_type: data.primaryType ?? null,
+      google_primary_type_display: data.primaryTypeDisplayName?.text ?? null,
     };
 
-    console.log(`Returning details for: ${details.name}`);
+    console.log(`Returning enriched details for: ${details.name} (rating: ${details.rating}, photos: ${photos?.length || 0})`);
 
     return new Response(
       JSON.stringify({ details }),

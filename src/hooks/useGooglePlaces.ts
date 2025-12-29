@@ -10,6 +10,12 @@ export interface PlacePrediction {
   };
 }
 
+export interface PhotoReference {
+  name: string;
+  widthPx: number;
+  heightPx: number;
+}
+
 export interface PlaceDetails {
   place_id: string;
   name: string;
@@ -19,6 +25,17 @@ export interface PlaceDetails {
   country: string | null;
   lat: number | null;
   lng: number | null;
+  // GBP enrichment fields
+  rating: number | null;
+  user_ratings_total: number | null;
+  price_level: number | null;
+  website_url: string | null;
+  phone_number: string | null;
+  google_maps_url: string | null;
+  opening_hours: { weekday_text: string[] } | null;
+  photos: PhotoReference[] | null;
+  google_primary_type: string | null;
+  google_primary_type_display: string | null;
 }
 
 // Generate a UUID v4 for session tokens

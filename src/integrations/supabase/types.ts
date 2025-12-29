@@ -608,18 +608,29 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          formatted_address: string | null
+          google_maps_url: string | null
           google_place_id: string
+          google_primary_type: string | null
+          google_primary_type_display: string | null
           id: string
           lat: number | null
           lng: number | null
           name: string
+          opening_hours: Json | null
+          phone_number: string | null
+          photos: Json | null
+          price_level: number | null
           primary_category: string
+          rating: number | null
           secondary_categories: string[] | null
           source: Database["public"]["Enums"]["place_source"]
           state: string | null
           status: Database["public"]["Enums"]["place_status"]
           submitted_by: string | null
           updated_at: string
+          user_ratings_total: number | null
+          website_url: string | null
         }
         Insert: {
           approved_at?: string | null
@@ -627,18 +638,29 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          formatted_address?: string | null
+          google_maps_url?: string | null
           google_place_id: string
+          google_primary_type?: string | null
+          google_primary_type_display?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
           name: string
+          opening_hours?: Json | null
+          phone_number?: string | null
+          photos?: Json | null
+          price_level?: number | null
           primary_category: string
+          rating?: number | null
           secondary_categories?: string[] | null
           source?: Database["public"]["Enums"]["place_source"]
           state?: string | null
           status?: Database["public"]["Enums"]["place_status"]
           submitted_by?: string | null
           updated_at?: string
+          user_ratings_total?: number | null
+          website_url?: string | null
         }
         Update: {
           approved_at?: string | null
@@ -646,18 +668,29 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          formatted_address?: string | null
+          google_maps_url?: string | null
           google_place_id?: string
+          google_primary_type?: string | null
+          google_primary_type_display?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
           name?: string
+          opening_hours?: Json | null
+          phone_number?: string | null
+          photos?: Json | null
+          price_level?: number | null
           primary_category?: string
+          rating?: number | null
           secondary_categories?: string[] | null
           source?: Database["public"]["Enums"]["place_source"]
           state?: string | null
           status?: Database["public"]["Enums"]["place_status"]
           submitted_by?: string | null
           updated_at?: string
+          user_ratings_total?: number | null
+          website_url?: string | null
         }
         Relationships: []
       }

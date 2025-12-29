@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Search, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Trash2, Star, ExternalLink, Phone, Globe } from 'lucide-react';
 import { usePlaces, CreatePlaceInput } from '@/hooks/usePlaces';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
@@ -36,9 +36,8 @@ const PlaceManagement = () => {
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingPlace, setEditingPlace] = useState<string | null>(null);
 
-  // Form state
+  // Form state with all GBP fields
   const [formData, setFormData] = useState<CreatePlaceInput>({
     google_place_id: '',
     name: '',
@@ -50,22 +49,29 @@ const PlaceManagement = () => {
 
   const handlePlaceSelect = (details: PlaceDetails) => {
     setFormData({
-      ...formData,
       google_place_id: details.place_id,
       name: details.name,
+      primary_category: details.google_primary_type_display || '',
       city: details.city || '',
       state: details.state || '',
       country: details.country || '',
       lat: details.lat || undefined,
       lng: details.lng || undefined,
+      formatted_address: details.formatted_address || undefined,
+      rating: details.rating,
+      user_ratings_total: details.user_ratings_total,
+      price_level: details.price_level,
+      website_url: details.website_url,
+      phone_number: details.phone_number,
+      google_maps_url: details.google_maps_url,
+      opening_hours: details.opening_hours as unknown as CreatePlaceInput['opening_hours'],
+      photos: details.photos as unknown as CreatePlaceInput['photos'],
+      google_primary_type: details.google_primary_type,
+      google_primary_type_display: details.google_primary_type_display,
     });
   };
 
-  const handleCreate = async () => {
-    if (!formData.google_place_id || !formData.name || !formData.primary_category) return;
-    
-    await createPlace.mutateAsync(formData);
-    setIsCreateOpen(false);
+  const resetForm = () => {
     setFormData({
       google_place_id: '',
       name: '',
@@ -74,6 +80,14 @@ const PlaceManagement = () => {
       state: '',
       country: '',
     });
+  };
+
+  const handleCreate = async () => {
+    if (!formData.google_place_id || !formData.name || !formData.primary_category) return;
+    
+    await createPlace.mutateAsync(formData);
+    setIsCreateOpen(false);
+    resetForm();
   };
 
   const handleStatusChange = async (id: string, status: 'approved' | 'pending' | 'rejected') => {
@@ -97,6 +111,11 @@ const PlaceManagement = () => {
     rejected: 'bg-red-500/10 text-red-700 border-red-500/20',
   };
 
+  // Get first photo URL (requires API key, so we show placeholder for now)
+  const getPhotoPlaceholder = () => {
+    return 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop';
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -113,14 +132,17 @@ const PlaceManagement = () => {
               Manage venues and locations in the directory
             </p>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Dialog open={isCreateOpen} onOpenChange={(open) => {
+            setIsCreateOpen(open);
+            if (!open) resetForm();
+          }}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Place
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Place</DialogTitle>
               </DialogHeader>
@@ -138,6 +160,75 @@ const PlaceManagement = () => {
 
                 {formData.google_place_id && (
                   <>
+                    {/* Preview Card */}
+                    <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
+                      <div className="flex gap-3">
+                        {formData.photos && Array.isArray(formData.photos) && formData.photos.length > 0 ? (
+                          <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                            Photo
+                          </div>
+                        ) : (
+                          <img 
+                            src={getPhotoPlaceholder()} 
+                            alt="" 
+                            className="w-16 h-16 rounded-md object-cover"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium truncate">{formData.name}</h3>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {formData.formatted_address || [formData.city, formData.state].filter(Boolean).join(', ')}
+                          </p>
+                          {formData.rating && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                              <span className="text-sm font-medium">{formData.rating}</span>
+                              {formData.user_ratings_total && (
+                                <span className="text-sm text-muted-foreground">
+                                  ({formData.user_ratings_total.toLocaleString()} reviews)
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Links */}
+                      <div className="flex flex-wrap gap-2 text-sm">
+                        {formData.website_url && (
+                          <a 
+                            href={formData.website_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-primary hover:underline"
+                          >
+                            <Globe className="h-3.5 w-3.5" />
+                            Website
+                          </a>
+                        )}
+                        {formData.phone_number && (
+                          <a 
+                            href={`tel:${formData.phone_number}`}
+                            className="flex items-center gap-1 text-primary hover:underline"
+                          >
+                            <Phone className="h-3.5 w-3.5" />
+                            {formData.phone_number}
+                          </a>
+                        )}
+                        {formData.google_maps_url && (
+                          <a 
+                            href={formData.google_maps_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-primary hover:underline"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            Google Maps
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <Label>Category</Label>
                       <Input
@@ -145,6 +236,11 @@ const PlaceManagement = () => {
                         onChange={(e) => setFormData({ ...formData, primary_category: e.target.value })}
                         placeholder="e.g., Restaurant, Bar, Coffee Shop"
                       />
+                      {formData.google_primary_type_display && formData.primary_category !== formData.google_primary_type_display && (
+                        <p className="text-xs text-muted-foreground">
+                          Suggested: {formData.google_primary_type_display}
+                        </p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -152,7 +248,6 @@ const PlaceManagement = () => {
                         <Label>City</Label>
                         <Input
                           value={formData.city}
-                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                           disabled
                         />
                       </div>
@@ -160,7 +255,6 @@ const PlaceManagement = () => {
                         <Label>State</Label>
                         <Input
                           value={formData.state}
-                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                           disabled
                         />
                       </div>
@@ -199,6 +293,7 @@ const PlaceManagement = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Location</TableHead>
+                <TableHead>Rating</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -206,13 +301,13 @@ const PlaceManagement = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredPlaces.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No places found
                   </TableCell>
                 </TableRow>
@@ -223,6 +318,21 @@ const PlaceManagement = () => {
                     <TableCell>{place.primary_category}</TableCell>
                     <TableCell>
                       {[place.city, place.state].filter(Boolean).join(', ')}
+                    </TableCell>
+                    <TableCell>
+                      {place.rating ? (
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          <span className="text-sm">{place.rating}</span>
+                          {place.user_ratings_total && (
+                            <span className="text-xs text-muted-foreground">
+                              ({place.user_ratings_total})
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Select
