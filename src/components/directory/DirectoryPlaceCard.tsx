@@ -11,19 +11,23 @@ export interface DirectoryPlace {
   primary_category: string;
   city: string | null;
   state: string | null;
+  formatted_address: string | null;
   rating: number | null;
   user_ratings_total: number | null;
   price_level: number | null;
   photos: Json | null;
   website_url: string | null;
   google_maps_url: string | null;
+  phone_number: string | null;
+  opening_hours: Json | null;
   lat: number | null;
   lng: number | null;
-  distance?: number; // Calculated client-side, in miles
+  distance?: number;
 }
 
 interface DirectoryPlaceCardProps {
   place: DirectoryPlace;
+  onClick?: () => void;
 }
 
 const getPhotos = (photos: Json | null): PhotoReference[] => {
@@ -38,14 +42,17 @@ const getPriceIndicator = (priceLevel: number | null): string => {
   return '$'.repeat(priceLevel);
 };
 
-const DirectoryPlaceCard = ({ place }: DirectoryPlaceCardProps) => {
+const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
   const photos = getPhotos(place.photos);
   const photoUrl = getFirstPhotoUrl(photos, 600, 400);
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
 
   return (
-    <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-200">
+    <Card 
+      className="overflow-hidden group hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      onClick={onClick}
+    >
       {/* Photo Section */}
       <div className="aspect-[4/3] relative bg-muted overflow-hidden">
         {photoUrl ? (
