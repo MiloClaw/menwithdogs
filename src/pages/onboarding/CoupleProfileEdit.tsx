@@ -140,6 +140,20 @@ const CoupleProfileEdit = () => {
           .eq('couple_id', couple.id);
       }
 
+      // Generate suggestions when advancing to pending_match
+      if (shouldAdvanceStatus && couple?.id) {
+        console.log('[CoupleProfileEdit] Triggering suggestion generation');
+        supabase.functions.invoke('generate-suggestions', {
+          body: { couple_id: couple.id },
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error('[CoupleProfileEdit] Suggestion generation failed:', error);
+          } else {
+            console.log('[CoupleProfileEdit] Suggestions generated:', data);
+          }
+        });
+      }
+
       toast({
         title: 'Profile saved',
         description: 'Your couple profile is ready.',

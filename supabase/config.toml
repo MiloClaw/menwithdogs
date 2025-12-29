@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.generate-couple-profile]
 verify_jwt = false
+
+[functions.generate-suggestions]
+verify_jwt = false
