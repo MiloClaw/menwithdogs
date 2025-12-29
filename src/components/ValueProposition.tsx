@@ -9,12 +9,13 @@ const activities = [
 
 const ValueProposition = () => {
   return (
-    <section className="py-16 md:py-24 bg-background border-t border-border">
+    <section className="py-20 md:py-28 bg-background border-t border-border">
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-semibold text-foreground mb-4">
             Built for couples who already have their relationship dialed in.
           </h2>
+          <div className="w-16 h-px bg-border mx-auto mt-6 mb-4" />
           <p className="text-muted-foreground text-base md:text-lg">
             Expand your social circle with couples who share your vibe.
           </p>
@@ -26,8 +27,8 @@ const ValueProposition = () => {
               key={label}
               className="flex flex-col items-center gap-3 p-4"
             >
-              <div className="w-16 h-16 flex items-center justify-center">
-                <Icon className="w-10 h-10 text-primary" strokeWidth={1.5} />
+              <div className="w-16 h-16 flex items-center justify-center bg-surface rounded-full">
+                <Icon className="w-8 h-8 text-primary" strokeWidth={1.75} />
               </div>
               <span className="text-sm font-medium text-foreground text-center">
                 {label}
