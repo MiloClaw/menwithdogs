@@ -6,9 +6,9 @@ interface DiscoverableCouple {
   id: string;
   display_name: string | null;
   about_us: string | null;
-  shared_interests: string[] | null;
   updated_at: string;
-  city: string | null; // Derived from member profiles
+  city: string | null;
+  interestLabels: string[]; // Pre-resolved interest labels
 }
 
 interface DiscoveryState {
@@ -39,10 +39,9 @@ export function useDiscovery() {
       setState(prev => ({ ...prev, loading: true }));
 
       // Fetch discoverable couples (RLS handles is_discoverable and is_complete)
-      // We need to join with member_profiles to get city info
       const { data: discoverableCouples, error: couplesError } = await supabase
         .from('couples')
-        .select('id, display_name, about_us, shared_interests, updated_at')
+        .select('id, display_name, about_us, updated_at')
         .eq('is_discoverable', true)
         .eq('is_complete', true)
         .neq('id', couple.id)
@@ -51,7 +50,6 @@ export function useDiscovery() {
 
       if (couplesError) throw couplesError;
 
-      // Get cities for these couples from couple_location_summary (Phase 5)
       const coupleIds = discoverableCouples?.map(c => c.id) || [];
       
       let couplesWithCity: DiscoverableCouple[] = [];
@@ -65,7 +63,28 @@ export function useDiscovery() {
 
         if (locationError) throw locationError;
 
-        // Create a map of couple_id to city
+        // Fetch couple interests from join table
+        const { data: coupleInterests, error: interestsError } = await supabase
+          .from('couple_interests')
+          .select('couple_id, interest_id')
+          .in('couple_id', coupleIds);
+
+        if (interestsError) throw interestsError;
+
+        // Fetch interest labels
+        const interestIds = [...new Set(coupleInterests?.map(ci => ci.interest_id) || [])];
+        let interestLabelsMap = new Map<string, string>();
+        
+        if (interestIds.length > 0) {
+          const { data: interests } = await supabase
+            .from('interests')
+            .select('id, label')
+            .in('id', interestIds);
+          
+          interests?.forEach(i => interestLabelsMap.set(i.id, i.label));
+        }
+
+        // Create maps
         const cityMap = new Map<string, string>();
         locationSummaries?.forEach(ls => {
           if (ls.city) {
@@ -73,12 +92,26 @@ export function useDiscovery() {
           }
         });
 
-        // Filter to same city and add city to couples
+        const coupleInterestsMap = new Map<string, string[]>();
+        coupleInterests?.forEach(ci => {
+          const existing = coupleInterestsMap.get(ci.couple_id) || [];
+          const label = interestLabelsMap.get(ci.interest_id);
+          if (label) {
+            existing.push(label);
+          }
+          coupleInterestsMap.set(ci.couple_id, existing);
+        });
+
+        // Filter to same city and add city + interests to couples
         const userCity = memberProfile.city.toLowerCase().trim();
         couplesWithCity = (discoverableCouples || [])
           .map(c => ({
-            ...c,
+            id: c.id,
+            display_name: c.display_name,
+            about_us: c.about_us,
+            updated_at: c.updated_at,
             city: cityMap.get(c.id) || null,
+            interestLabels: coupleInterestsMap.get(c.id) || [],
           }))
           .filter(c => c.city?.toLowerCase().trim() === userCity);
       }

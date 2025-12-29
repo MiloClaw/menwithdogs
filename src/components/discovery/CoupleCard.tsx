@@ -1,12 +1,11 @@
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getInterestLabels } from '@/lib/interests';
 
 interface CoupleCardProps {
   id: string;
   displayName: string | null;
   city: string | null;
-  sharedInterests: string[] | null;
+  sharedInterestLabels: string[];
   isSaved: boolean;
   onSave: () => void;
   onUnsave: () => void;
@@ -17,19 +16,17 @@ export function CoupleCard({
   id,
   displayName,
   city,
-  sharedInterests,
+  sharedInterestLabels,
   isSaved,
   onSave,
   onUnsave,
   onClick,
 }: CoupleCardProps) {
   // Generate behavioral sentence from interests
-  const interestLabels = sharedInterests?.length 
-    ? getInterestLabels(sharedInterests.slice(0, 3)) 
-    : [];
+  const displayInterests = sharedInterestLabels.slice(0, 3);
   
-  const behavioralSentence = interestLabels.length > 0
-    ? `We usually enjoy ${interestLabels.join(', ').toLowerCase()}.`
+  const behavioralSentence = displayInterests.length > 0
+    ? `We usually enjoy ${displayInterests.join(', ').toLowerCase()}.`
     : null;
 
   const handleSaveClick = (e: React.MouseEvent) => {

@@ -1,5 +1,6 @@
-import { INTEREST_OPTIONS, INTEREST_CATEGORIES, type Interest } from '@/lib/interests';
+import { useInterestsCatalog, type Interest } from '@/hooks/useInterests';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface InterestPickerProps {
   selected: string[];
@@ -14,6 +15,8 @@ const InterestPicker = ({
   max = 3, 
   min = 3 
 }: InterestPickerProps) => {
+  const { data: catalog, isLoading, error } = useInterestsCatalog();
+
   const handleToggle = (interest: Interest) => {
     if (selected.includes(interest.id)) {
       onChange(selected.filter(id => id !== interest.id));
@@ -22,9 +25,34 @@ const InterestPicker = ({
     }
   };
 
-  const getInterestsByCategory = (categoryId: string) => {
-    return INTEREST_OPTIONS.filter(i => i.category === categoryId);
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        {[1, 2, 3].map(i => (
+          <div key={i} className="space-y-3">
+            <Skeleton className="h-4 w-24" />
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4].map(j => (
+                <Skeleton key={j} className="h-11 w-24 rounded-button" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error || !catalog) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        Failed to load interests. Please refresh the page.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -42,13 +70,13 @@ const InterestPicker = ({
       </div>
 
       {/* Categories */}
-      {INTEREST_CATEGORIES.map(category => (
+      {catalog.map(({ category, interests }) => (
         <div key={category.id} className="space-y-3">
           <h3 className="text-sm font-medium text-foreground">
             {category.label}
           </h3>
           <div className="flex flex-wrap gap-2">
-            {getInterestsByCategory(category.id).map(interest => {
+            {interests.map(interest => {
               const isSelected = selected.includes(interest.id);
               const isDisabled = !isSelected && selected.length >= max;
               

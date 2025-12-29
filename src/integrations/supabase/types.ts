@@ -91,6 +91,42 @@ export type Database = {
           },
         ]
       }
+      couple_interests: {
+        Row: {
+          couple_id: string
+          created_at: string | null
+          id: string
+          interest_id: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string | null
+          id?: string
+          interest_id: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string | null
+          id?: string
+          interest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_interests_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_interests_interest_id_fkey"
+            columns: ["interest_id"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       couple_invites: {
         Row: {
           accepted_at: string | null
@@ -285,7 +321,6 @@ export type Database = {
           is_complete: boolean
           is_discoverable: boolean
           preferred_meetup_times: string | null
-          shared_interests: string[] | null
           status: Database["public"]["Enums"]["couple_status"]
           updated_at: string
         }
@@ -297,7 +332,6 @@ export type Database = {
           is_complete?: boolean
           is_discoverable?: boolean
           preferred_meetup_times?: string | null
-          shared_interests?: string[] | null
           status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
@@ -309,7 +343,6 @@ export type Database = {
           is_complete?: boolean
           is_discoverable?: boolean
           preferred_meetup_times?: string | null
-          shared_interests?: string[] | null
           status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
@@ -374,6 +407,94 @@ export type Database = {
           },
         ]
       }
+      interest_categories: {
+        Row: {
+          icon: string | null
+          id: string
+          label: string
+          sort_order: number | null
+        }
+        Insert: {
+          icon?: string | null
+          id: string
+          label: string
+          sort_order?: number | null
+        }
+        Update: {
+          icon?: string | null
+          id?: string
+          label?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      interests: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          google_mappings: Json | null
+          id: string
+          is_active: boolean | null
+          label: string
+          sort_order: number | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          google_mappings?: Json | null
+          id: string
+          is_active?: boolean | null
+          label: string
+          sort_order?: number | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          google_mappings?: Json | null
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interests_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "interest_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_interests: {
+        Row: {
+          created_at: string | null
+          id: string
+          interest_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          interest_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          interest_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_interests_interest_id_fkey"
+            columns: ["interest_id"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_place_affinities: {
         Row: {
           affinity_type: Database["public"]["Enums"]["affinity_type"]
@@ -424,7 +545,6 @@ export type Database = {
           energy_style: string | null
           first_name: string | null
           id: string
-          interests: string[] | null
           is_owner: boolean
           is_profile_complete: boolean
           onboarding_step: Database["public"]["Enums"]["member_onboarding_step"]
@@ -444,7 +564,6 @@ export type Database = {
           energy_style?: string | null
           first_name?: string | null
           id?: string
-          interests?: string[] | null
           is_owner?: boolean
           is_profile_complete?: boolean
           onboarding_step?: Database["public"]["Enums"]["member_onboarding_step"]
@@ -464,7 +583,6 @@ export type Database = {
           energy_style?: string | null
           first_name?: string | null
           id?: string
-          interests?: string[] | null
           is_owner?: boolean
           is_profile_complete?: boolean
           onboarding_step?: Database["public"]["Enums"]["member_onboarding_step"]

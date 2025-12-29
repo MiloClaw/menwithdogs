@@ -2,12 +2,11 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
-import { useToast } from '@/hooks/use-toast';
+import { useMemberInterests, useCoupleInterests, useInterestsCatalog, getInterestLabelsFromCatalog } from '@/hooks/useInterests';
 import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DiscoveryToggle } from '@/components/discovery/DiscoveryToggle';
-import { getInterestLabels } from '@/lib/interests';
 import { Compass } from 'lucide-react';
 
 const Dashboard = () => {
@@ -22,7 +21,19 @@ const Dashboard = () => {
     loading: coupleLoading 
   } = useCouple();
   const navigate = useNavigate();
-  const { toast } = useToast();
+
+  // Fetch interests from database
+  const { data: catalog } = useInterestsCatalog();
+  const { interests: memberInterestIds } = useMemberInterests();
+  const { interests: coupleInterestIds } = useCoupleInterests(couple?.id);
+
+  // Convert interest IDs to labels
+  const memberInterestLabels = catalog 
+    ? getInterestLabelsFromCatalog(catalog, memberInterestIds) 
+    : [];
+  const coupleInterestLabels = catalog 
+    ? getInterestLabelsFromCatalog(catalog, coupleInterestIds) 
+    : [];
 
   useEffect(() => {
     if (authLoading || coupleLoading) return;
@@ -126,8 +137,8 @@ const Dashboard = () => {
                 <p className="text-sm">
                   <span className="text-muted-foreground">Interests:</span>{' '}
                   <span className="font-medium">
-                    {memberProfile?.interests?.length 
-                      ? getInterestLabels(memberProfile.interests).join(', ')
+                    {memberInterestLabels.length > 0 
+                      ? memberInterestLabels.join(', ')
                       : 'Not set'}
                   </span>
                 </p>
@@ -156,14 +167,7 @@ const Dashboard = () => {
                     <span className="text-muted-foreground">Location:</span>{' '}
                     <span className="font-medium">{partnerProfile.city || 'Not set'}</span>
                   </p>
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">Interests:</span>{' '}
-                    <span className="font-medium">
-                      {partnerProfile.interests?.length 
-                        ? getInterestLabels(partnerProfile.interests).join(', ')
-                        : 'Not set'}
-                    </span>
-                  </p>
+                  {/* Partner interests would need separate fetch - omit for now */}
                 </CardContent>
               </Card>
             )}
@@ -186,8 +190,8 @@ const Dashboard = () => {
                 <p className="text-sm">
                   <span className="text-muted-foreground">Shared interests:</span>{' '}
                   <span className="font-medium">
-                    {couple?.shared_interests?.length 
-                      ? getInterestLabels(couple.shared_interests).join(', ')
+                    {coupleInterestLabels.length > 0 
+                      ? coupleInterestLabels.join(', ')
                       : 'Not set'}
                   </span>
                 </p>

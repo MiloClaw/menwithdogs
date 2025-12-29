@@ -169,7 +169,7 @@ const Discover = () => {
                   id={c.id}
                   displayName={c.display_name}
                   city={c.city}
-                  sharedInterests={c.shared_interests}
+                  sharedInterestLabels={c.interestLabels}
                   isSaved={isSaved(c.id)}
                   onSave={() => handleSave(c.id)}
                   onUnsave={() => handleUnsave(c.id)}

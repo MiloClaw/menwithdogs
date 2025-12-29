@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
+import { useCoupleInterests, useInterestsCatalog, getInterestLabelsFromCatalog } from '@/hooks/useInterests';
 import { supabase } from '@/integrations/supabase/client';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import InterestPicker from '@/components/onboarding/InterestPicker';
-import { getInterestLabels } from '@/lib/interests';
 
 interface CoupleProfileDraft {
   generated_display_name: string | null;
@@ -34,6 +34,8 @@ const CoupleProfileEdit = () => {
   
   const { couple, updateCoupleProfile, refetch } = useCouple();
   const { toast } = useToast();
+  const { data: catalog } = useInterestsCatalog();
+  const { interests: savedCoupleInterests, syncInterests } = useCoupleInterests(couple?.id);
 
   // Load existing couple profile data
   useEffect(() => {
