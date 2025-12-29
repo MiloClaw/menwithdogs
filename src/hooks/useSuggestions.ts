@@ -8,6 +8,10 @@ export interface Suggestion {
   displayName: string | null;
   city: string | null;
   surfacedReason: string | null;
+  recipientOptInAt: string | null;
+  candidateOptInAt: string | null;
+  hasUserOptedIn: boolean;
+  isMutual: boolean;
 }
 
 /**
@@ -30,12 +34,12 @@ export const useSuggestions = () => {
     setError(null);
 
     try {
-      // Fetch pending suggestions where this couple is the recipient
+      // Fetch pending/opted_in suggestions where this couple is the recipient
       const { data: suggestionsData, error: suggestionsError } = await supabase
         .from('suggested_connections')
-        .select('id, candidate_couple_id, surfaced_reason, surfaced_rank, generated_at')
+        .select('id, candidate_couple_id, surfaced_reason, surfaced_rank, generated_at, recipient_opt_in_at, candidate_opt_in_at, status')
         .eq('recipient_couple_id', couple.id)
-        .eq('status', 'pending')
+        .in('status', ['pending', 'opted_in'])
         .order('surfaced_rank', { ascending: true, nullsFirst: false })
         .order('generated_at', { ascending: false })
         .limit(5);
@@ -74,6 +78,10 @@ export const useSuggestions = () => {
       const combined: Suggestion[] = suggestionsData.map(s => {
         const coupleData = couplesMap.get(s.candidate_couple_id);
         const locationData = locationsMap.get(s.candidate_couple_id);
+        
+        // User is always recipient in this query
+        const hasUserOptedIn = s.recipient_opt_in_at !== null;
+        const isMutual = s.status === 'mutual';
 
         return {
           id: s.id,
@@ -81,6 +89,10 @@ export const useSuggestions = () => {
           displayName: coupleData?.display_name || null,
           city: locationData?.city || null,
           surfacedReason: s.surfaced_reason || null,
+          recipientOptInAt: s.recipient_opt_in_at,
+          candidateOptInAt: s.candidate_opt_in_at,
+          hasUserOptedIn,
+          isMutual,
         };
       });
 

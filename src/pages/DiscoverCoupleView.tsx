@@ -4,11 +4,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useDiscovery } from '@/hooks/useDiscovery';
 import { useToast } from '@/hooks/use-toast';
+import { useSuggestionState } from '@/hooks/useSuggestionState';
+import { useOptIn } from '@/hooks/useOptIn';
 import { supabase } from '@/integrations/supabase/client';
 import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import InterestTag from '@/components/InterestTag';
-import { ArrowLeft, Bookmark, BookmarkCheck, MapPin } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Loader2 } from 'lucide-react';
 import { getInterestLabels } from '@/lib/interests';
 
 interface DiscoverableCouple {
@@ -30,6 +32,18 @@ const DiscoverCoupleView = () => {
 
   // Check if navigated from suggestions
   const fromSuggestions = (location.state as { from?: string })?.from === 'suggestions';
+
+  // Suggestion state for opt-in (only relevant when from suggestions)
+  const { state: suggestionState, loading: suggestionLoading, refetch: refetchSuggestion } = useSuggestionState(
+    fromSuggestions ? coupleId : undefined
+  );
+
+  // Opt-in hook
+  const { optIn, loading: optInLoading } = useOptIn(
+    suggestionState?.id || '',
+    coupleId || '',
+    { hasUserOptedIn: suggestionState?.hasUserOptedIn || false, isMutual: suggestionState?.isMutual || false }
+  );
 
   const [viewedCouple, setViewedCouple] = useState<DiscoverableCouple | null>(null);
   const [loading, setLoading] = useState(true);
@@ -234,9 +248,39 @@ const DiscoverCoupleView = () => {
             </div>
           )}
 
+          {/* Opt-in section (only when from suggestions) */}
+          {fromSuggestions && suggestionState && !suggestionLoading && (
+            <div className="pt-4 space-y-3">
+              {suggestionState.isMutual ? (
+                <p className="text-center text-sm text-primary font-medium">
+                  You're both interested in meeting
+                </p>
+              ) : suggestionState.hasUserOptedIn ? (
+                <p className="text-center text-sm text-muted-foreground">
+                  You've expressed interest
+                </p>
+              ) : (
+                <div className="flex justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      await optIn();
+                      refetchSuggestion();
+                    }}
+                    disabled={optInLoading}
+                    className="min-h-[44px]"
+                  >
+                    {optInLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    We'd be open to meeting them
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Privacy note */}
           <p className="text-xs text-center text-muted-foreground pt-8">
-            This is a read-only view. Saving notifies no one.
+            This is a read-only view. {fromSuggestions ? 'Expressing interest is private until mutual.' : 'Saving notifies no one.'}
           </p>
         </div>
       </div>
