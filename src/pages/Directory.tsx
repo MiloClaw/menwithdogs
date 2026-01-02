@@ -1,14 +1,18 @@
 import { useState, useMemo } from 'react';
-import { Search, MapPinOff } from 'lucide-react';
+import { Search, MapPinOff, Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import PageLayout from '@/components/PageLayout';
 import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
+import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
+import EventDetailModal from '@/components/directory/EventDetailModal';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
+import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
 import { useCoupleContext } from '@/contexts/CoupleContext';
 import { calculateDistanceMiles } from '@/lib/distance';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const RADIUS_OPTIONS = [
   { label: 'All', value: null },
@@ -17,43 +21,63 @@ const RADIUS_OPTIONS = [
   { label: '50 mi', value: 50 },
 ];
 
-const Directory = () => {
-  const { data: places, isLoading } = usePublicPlaces();
-  const { memberProfile } = useCoupleContext();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+const DATE_FILTER_OPTIONS: { label: string; value: DateFilter }[] = [
+  { label: 'Today', value: 'today' },
+  { label: 'This week', value: 'this_week' },
+  { label: 'This month', value: 'this_month' },
+  { label: 'Upcoming', value: 'upcoming' },
+];
 
-  // User location from profile
+const Directory = () => {
+  const { memberProfile } = useCoupleContext();
+  
+  // Shared state
+  const [activeTab, setActiveTab] = useState<'places' | 'events'>('places');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
+  
+  // Places state
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
+  const [placeModalOpen, setPlaceModalOpen] = useState(false);
+  
+  // Events state
+  const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
+  const [selectedEvent, setSelectedEvent] = useState<PublicEvent | null>(null);
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+
+  // User location
   const userLat = memberProfile?.city_lat;
   const userLng = memberProfile?.city_lng;
   const hasUserLocation = userLat != null && userLng != null;
 
-  // Get unique categories
-  const categories = useMemo(() => {
+  // Data fetching
+  const { data: places, isLoading: placesLoading } = usePublicPlaces();
+  const { data: events, isLoading: eventsLoading } = useEventsPublic({
+    dateFilter,
+    radiusFilter,
+    searchTerm: activeTab === 'events' ? searchTerm : '',
+  });
+
+  // Get unique place categories
+  const placeCategories = useMemo(() => {
     if (!places) return [];
     const cats = [...new Set(places.map(p => p.primary_category))].filter(Boolean);
     return cats.sort();
   }, [places]);
 
-  // Calculate distances and filter/sort places
+  // Process places with distance and filters
   const processedPlaces = useMemo(() => {
     if (!places) return [];
 
-    // Add distance to each place
     const placesWithDistance = places.map(place => {
       let distance: number | undefined;
-      
       if (hasUserLocation && place.lat != null && place.lng != null) {
         distance = calculateDistanceMiles(userLat, userLng, place.lat, place.lng);
       }
-      
       return { ...place, distance };
     });
 
-    // Filter by search and category
     let filtered = placesWithDistance.filter(place => {
       const matchesSearch = !searchTerm || 
         place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,30 +89,30 @@ const Directory = () => {
       return matchesSearch && matchesCategory;
     });
 
-    // Filter by radius (only if user has location)
     if (radiusFilter !== null && hasUserLocation) {
       filtered = filtered.filter(place => 
         place.distance !== undefined && place.distance <= radiusFilter
       );
     }
 
-    // Sort: by distance if available, otherwise by name
     return filtered.sort((a, b) => {
-      // Places with distance come first, sorted by distance
       if (a.distance !== undefined && b.distance !== undefined) {
         return a.distance - b.distance;
       }
-      // Places without distance go to the end
       if (a.distance !== undefined) return -1;
       if (b.distance !== undefined) return 1;
-      // Fallback to alphabetical
       return a.name.localeCompare(b.name);
     });
   }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
 
   const handlePlaceClick = (place: DirectoryPlace) => {
     setSelectedPlace(place);
-    setModalOpen(true);
+    setPlaceModalOpen(true);
+  };
+
+  const handleEventClick = (event: PublicEvent) => {
+    setSelectedEvent(event);
+    setEventModalOpen(true);
   };
 
   return (
@@ -98,117 +122,196 @@ const Directory = () => {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Directory</h1>
           <p className="text-muted-foreground">
-            Discover great places for your next date
+            Discover great places and events for your next date
           </p>
         </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search places..."
-            className="pl-9"
-          />
-        </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'places' | 'events')}>
+          <TabsList className="grid w-full max-w-xs grid-cols-2">
+            <TabsTrigger value="places" className="min-h-[44px]">Places</TabsTrigger>
+            <TabsTrigger value="events" className="min-h-[44px]">
+              <Calendar className="h-4 w-4 mr-2" />
+              Events
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Distance Filter */}
-        {hasUserLocation ? (
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Distance</p>
-            <div className="flex flex-wrap gap-2">
-              {RADIUS_OPTIONS.map(option => (
-                <Badge
-                  key={option.label}
-                  variant={radiusFilter === option.value ? 'default' : 'outline'}
-                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                  onClick={() => setRadiusFilter(option.value)}
-                >
-                  {option.label}
-                </Badge>
-              ))}
+          {/* Search */}
+          <div className="relative max-w-md mt-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={activeTab === 'places' ? 'Search places...' : 'Search events...'}
+              className="pl-9"
+            />
+          </div>
+
+          {/* Location Notice */}
+          {!hasUserLocation && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-3 rounded-lg mt-4">
+              <MapPinOff className="h-4 w-4 flex-shrink-0" />
+              <span>Add your city in your profile to see distance and filter by radius</span>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-3 rounded-lg">
-            <MapPinOff className="h-4 w-4 flex-shrink-0" />
-            <span>Add your city in your profile to see places near you</span>
-          </div>
-        )}
+          )}
 
-        {/* Category Filters */}
-        {categories.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Category</p>
-            <div className="flex flex-wrap gap-2">
-              <Badge
-                variant={selectedCategory === null ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                onClick={() => setSelectedCategory(null)}
-              >
-                All
-              </Badge>
-              {categories.map(category => (
-                <Badge
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                  onClick={() => setSelectedCategory(
-                    selectedCategory === category ? null : category
-                  )}
-                >
-                  {category}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Results Count */}
-        {!isLoading && (
-          <p className="text-sm text-muted-foreground">
-            {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
-          </p>
-        )}
-
-        {/* Places Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="aspect-[4/3] w-full" />
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+          {/* Distance Filter (shared) */}
+          {hasUserLocation && (
+            <div className="space-y-2 mt-4">
+              <p className="text-sm text-muted-foreground">Distance</p>
+              <div className="flex flex-wrap gap-2">
+                {RADIUS_OPTIONS.map(option => (
+                  <Badge
+                    key={option.label}
+                    variant={radiusFilter === option.value ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setRadiusFilter(option.value)}
+                  >
+                    {option.label}
+                  </Badge>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : processedPlaces.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground">
-              {searchTerm || selectedCategory || radiusFilter
-                ? 'No places match your search criteria'
-                : 'No places in the directory yet'}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {processedPlaces.map(place => (
-              <DirectoryPlaceCard 
-                key={place.id} 
-                place={place} 
-                onClick={() => handlePlaceClick(place)}
-              />
-            ))}
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* Places Tab */}
+          <TabsContent value="places" className="space-y-6 mt-6">
+            {/* Category Filters */}
+            {placeCategories.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Category</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    variant={selectedCategory === null ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setSelectedCategory(null)}
+                  >
+                    All
+                  </Badge>
+                  {placeCategories.map(category => (
+                    <Badge
+                      key={category}
+                      variant={selectedCategory === category ? 'default' : 'outline'}
+                      className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                      onClick={() => setSelectedCategory(
+                        selectedCategory === category ? null : category
+                      )}
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Results Count */}
+            {!placesLoading && (
+              <p className="text-sm text-muted-foreground">
+                {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
+              </p>
+            )}
+
+            {/* Places Grid */}
+            {placesLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="aspect-[4/3] w-full" />
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : processedPlaces.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">
+                  {searchTerm || selectedCategory || radiusFilter
+                    ? 'No places match your search criteria'
+                    : 'No places in the directory yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {processedPlaces.map(place => (
+                  <DirectoryPlaceCard 
+                    key={place.id} 
+                    place={place} 
+                    onClick={() => handlePlaceClick(place)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Events Tab */}
+          <TabsContent value="events" className="space-y-6 mt-6">
+            {/* Date Filters */}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">When</p>
+              <div className="flex flex-wrap gap-2">
+                {DATE_FILTER_OPTIONS.map(option => (
+                  <Badge
+                    key={option.value}
+                    variant={dateFilter === option.value ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setDateFilter(option.value)}
+                  >
+                    {option.label}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Results Count */}
+            {!eventsLoading && (
+              <p className="text-sm text-muted-foreground">
+                {events?.length || 0} {(events?.length || 0) === 1 ? 'event' : 'events'} found
+              </p>
+            )}
+
+            {/* Events Grid */}
+            {eventsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="h-40 w-full rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            ) : !events?.length ? (
+              <div className="text-center py-16">
+                <Calendar className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
+                <p className="text-muted-foreground">
+                  {searchTerm || radiusFilter
+                    ? 'No events match your search criteria'
+                    : 'No upcoming events in the directory yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {events.map(event => (
+                  <DirectoryEventCard 
+                    key={event.id} 
+                    event={event} 
+                    onClick={() => handleEventClick(event)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Place Detail Modal */}
+      {/* Modals */}
       <PlaceDetailModal 
         place={selectedPlace}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
+        open={placeModalOpen}
+        onOpenChange={setPlaceModalOpen}
+      />
+      <EventDetailModal 
+        event={selectedEvent}
+        open={eventModalOpen}
+        onOpenChange={setEventModalOpen}
       />
     </PageLayout>
   );
