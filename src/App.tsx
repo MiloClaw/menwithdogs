@@ -26,6 +26,7 @@ import CreateCouple from "./pages/onboarding/CreateCouple";
 import MyProfile from "./pages/onboarding/MyProfile";
 import InvitePartner from "./pages/onboarding/InvitePartner";
 import CoupleProfileEdit from "./pages/onboarding/CoupleProfileEdit";
+import ConfirmIntent from "./pages/onboarding/ConfirmIntent";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
               <Route path="/onboarding/invite-partner" element={<OnboardingGuard><InvitePartner /></OnboardingGuard>} />
               <Route path="/onboarding/couple-profile" element={<OnboardingGuard><CoupleProfileEdit /></OnboardingGuard>} />
+              <Route path="/onboarding/confirm" element={<OnboardingGuard><ConfirmIntent /></OnboardingGuard>} />
               {/* Admin Routes */}
               <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
               <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />

@@ -9,9 +9,11 @@ interface Couple {
   display_name: string | null;
   about_us: string | null;
   preferred_meetup_times: string | null;
+  partner_first_name: string | null;
   is_complete: boolean;
   is_discoverable: boolean;
   status: CoupleStatus;
+  confirmed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +60,7 @@ interface CoupleContextValue {
   isOwner: boolean;
   isCoupleComplete: boolean;
   isProfileComplete: boolean;
-  createCouple: () => Promise<void>;
+  createCouple: (partnerFirstName?: string) => Promise<void>;
   updateMemberProfile: (updates: Partial<MemberProfile>) => Promise<MemberProfile>;
   updateCoupleProfile: (updates: Partial<Couple>) => Promise<Couple>;
   refetch: () => Promise<void>;
@@ -178,7 +180,7 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, fetchCoupleData]);
 
-  const createCouple = useCallback(async (): Promise<void> => {
+  const createCouple = useCallback(async (partnerFirstName?: string): Promise<void> => {
     if (!user) throw new Error('Not authenticated');
 
     // Verify session is fully propagated
@@ -190,11 +192,19 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     console.debug('[CoupleContext] Creating couple...');
 
     // Call atomic backend function
-    const { error } = await supabase.rpc('create_couple_for_current_user');
+    const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user');
 
     if (error) {
       console.error('[CoupleContext] createCouple error:', { code: error.code, message: error.message });
       throw new Error(error.message || 'Failed to create couple');
+    }
+
+    // Update partner_first_name if provided
+    if (partnerFirstName && coupleId) {
+      await supabase
+        .from('couples')
+        .update({ partner_first_name: partnerFirstName })
+        .eq('id', coupleId);
     }
 
     console.debug('[CoupleContext] Couple created, refetching...');
@@ -262,6 +272,7 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
         coupleStatus: couple?.status ?? null,
         memberStep: memberProfile?.onboarding_step ?? null,
         coupleIsComplete: couple?.is_complete ?? false,
+        coupleIsConfirmed: !!couple?.confirmed_at,
       });
 
   console.debug('[CoupleContext] Computed nextRoute:', nextRoute, { loading, hasCouple: !!couple, isAdmin });

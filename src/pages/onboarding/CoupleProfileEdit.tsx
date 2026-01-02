@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCoupleInterests, useInterestsCatalog, getInterestLabelsFromCatalog } from '@/hooks/useInterests';
 import { supabase } from '@/integrations/supabase/client';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
+import DraftBanner from '@/components/onboarding/DraftBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -193,10 +194,12 @@ const CoupleProfileEdit = () => {
     <OnboardingLayout
       currentStep={4}
       totalSteps={4}
-      title="Your couple profile"
-      subtitle="Build your shared profile. Discovery features coming soon."
+      title="Build your couple profile"
+      subtitle="This is what other couples will see. Edit anytime."
     >
       <div className="space-y-6">
+        {/* Draft banner */}
+        <DraftBanner message="Everything here is a draft. You can always update it later." />
         {/* AI Draft Generator */}
         <div className="p-4 bg-surface rounded-card border border-border space-y-3">
           <div className="flex items-center justify-between">

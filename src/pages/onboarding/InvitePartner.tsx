@@ -92,8 +92,8 @@ const InvitePartner = () => {
       totalSteps={4}
       title={inviteSent ? 'Invite sent!' : 'Invite your partner'}
       subtitle={inviteSent 
-        ? `We sent an invitation to ${pendingInvite?.invited_email || email}. They have 7 days to join.`
-        : "They'll receive an email to create their account and join your couple profile."}
+        ? `We sent an invitation to ${pendingInvite?.invited_email || email}.`
+        : "Nothing becomes visible until both of you join."}
     >
       <div className="space-y-6">
         {!inviteSent ? (
@@ -136,26 +136,33 @@ const InvitePartner = () => {
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Your partner will receive an email with a link to join. The invite expires in 7 days.
+              The invite expires in 7 days. You can resend it from your dashboard.
             </p>
           </div>
         )}
 
-        <div className="pt-4 space-y-3">
+        {/* Privacy reassurance */}
+        <div className="p-3 bg-muted/50 rounded-lg">
+          <p className="text-xs text-muted-foreground">
+            Your profile stays private until you both join and confirm together.
+          </p>
+        </div>
+
+        <div className="pt-2 space-y-3">
           <Button
             type="button"
             variant="outline"
             onClick={handleSkipForNow}
             className="w-full h-12 text-base"
           >
-            {inviteSent ? 'Continue to couple profile' : 'Skip for now'}
+            {inviteSent ? 'Continue' : "I'll do this later"}
           </Button>
           
-          <p className="text-xs text-center text-muted-foreground">
-            {inviteSent 
-              ? "You can continue while waiting for your partner to join."
-              : "You can always invite your partner later from your dashboard."}
-          </p>
+          {!inviteSent && (
+            <p className="text-xs text-center text-muted-foreground">
+              You can invite your partner from your dashboard anytime.
+            </p>
+          )}
         </div>
       </div>
     </OnboardingLayout>

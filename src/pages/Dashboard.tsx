@@ -207,10 +207,22 @@ const Dashboard = () => {
 
             {/* Discovery toggle */}
             {couple && isCoupleComplete && (
-              <DiscoveryToggle 
-                coupleId={couple.id} 
-                initialValue={(couple as any).is_discoverable ?? false}
-              />
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-medium">Discovery</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {!couple.is_discoverable && (
+                    <p className="text-sm text-muted-foreground">
+                      When you're ready, we'll surface couples and places based on shared interests — no browsing, no pressure.
+                    </p>
+                  )}
+                  <DiscoveryToggle 
+                    coupleId={couple.id} 
+                    initialValue={(couple as any).is_discoverable ?? false}
+                  />
+                </CardContent>
+              </Card>
             )}
           </div>
 

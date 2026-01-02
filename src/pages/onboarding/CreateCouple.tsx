@@ -3,14 +3,17 @@ import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 /**
- * CreateCouple - Step 1 of onboarding
+ * CreateCouple - First step of setup
  * 
- * This is a "dumb" component - it only renders UI and handles the create action.
+ * Lightweight entry: just partner's first name (optional) and a CTA.
  * Navigation is controlled by OnboardingGuard based on state changes.
  */
 const CreateCouple = () => {
+  const [partnerName, setPartnerName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const { createCouple } = useCouple();
   const { toast } = useToast();
@@ -18,9 +21,9 @@ const CreateCouple = () => {
   const handleCreateCouple = async () => {
     setIsCreating(true);
     try {
-      await createCouple();
+      await createCouple(partnerName.trim() || undefined);
       toast({
-        title: 'Couple created',
+        title: 'Great!',
         description: "Now let's set up your profile.",
       });
       // Guard handles navigation based on updated state
@@ -30,7 +33,6 @@ const CreateCouple = () => {
       const isDuplicate = message.includes('already') || message.includes('duplicate');
       
       if (isDuplicate) {
-        // Silently show toast - guard will redirect based on state
         toast({
           title: 'Profile found',
           description: 'Taking you to the next step.',
@@ -53,31 +55,47 @@ const CreateCouple = () => {
     <OnboardingLayout
       currentStep={1}
       totalSteps={4}
-      title="Start your couple profile"
-      subtitle="You'll invite your partner after setting up your profile."
+      title="Start your couple"
+      subtitle="You'll each fill out a short profile, then build your shared couple page together."
     >
       <div className="space-y-8">
+        {/* Partner name (optional) */}
+        <div className="space-y-2">
+          <Label htmlFor="partnerName">Your partner's first name (optional)</Label>
+          <Input
+            id="partnerName"
+            type="text"
+            value={partnerName}
+            onChange={(e) => setPartnerName(e.target.value)}
+            placeholder="e.g., Alex"
+            className="h-12"
+            maxLength={50}
+          />
+          <p className="text-xs text-muted-foreground">
+            We'll use this to personalize the invite email.
+          </p>
+        </div>
+
         {/* Info card */}
         <div className="p-4 bg-surface rounded-card border border-border space-y-3">
-          <h3 className="font-medium text-foreground">What happens next?</h3>
+          <h3 className="font-medium text-foreground">How it works</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
-              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-              <span>Create your couple profile container</span>
+              <span className="text-primary font-medium">1.</span>
+              <span>You fill out a short profile about yourself</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-              <span>Fill in your personal details</span>
+              <span className="text-primary font-medium">2.</span>
+              <span>Invite your partner to do the same</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-              <span>Invite your partner to join</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-              <span>Build your shared couple profile</span>
+              <span className="text-primary font-medium">3.</span>
+              <span>Together, build your shared couple profile</span>
             </li>
           </ul>
+          <p className="text-xs text-muted-foreground pt-2 border-t border-border">
+            Nothing is visible to others until you both confirm.
+          </p>
         </div>
 
         {/* CTA */}
@@ -88,10 +106,6 @@ const CreateCouple = () => {
         >
           {isCreating ? 'Creating...' : 'Get started'}
         </Button>
-
-        <p className="text-xs text-center text-muted-foreground">
-          Your profile will be private by default. Only your partner can see your details.
-        </p>
       </div>
     </OnboardingLayout>
   );

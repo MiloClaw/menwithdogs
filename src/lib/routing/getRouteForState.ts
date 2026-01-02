@@ -14,10 +14,11 @@ interface RouteState {
   coupleStatus: CoupleStatus | null;
   memberStep: MemberOnboardingStep | null;
   coupleIsComplete: boolean;
+  coupleIsConfirmed: boolean;
 }
 
 export function getRouteForState(state: RouteState): string {
-  const { hasCouple, memberStep, coupleStatus, coupleIsComplete } = state;
+  const { hasCouple, memberStep, coupleStatus, coupleIsComplete, coupleIsConfirmed } = state;
 
   // No couple yet - create one
   if (!hasCouple) {
@@ -35,7 +36,11 @@ export function getRouteForState(state: RouteState): string {
     if (!coupleIsComplete) {
       return '/onboarding/invite-partner';
     }
-    // Both joined, complete couple profile
+    // Both joined but not confirmed - show confirmation
+    if (!coupleIsConfirmed) {
+      return '/onboarding/confirm';
+    }
+    // Both confirmed, complete couple profile
     return '/onboarding/couple-profile';
   }
 
