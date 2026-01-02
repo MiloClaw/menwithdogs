@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
@@ -31,32 +31,32 @@ const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-shadow duration-200 ${isScrolled ? 'shadow-sm' : ''}`}>
       <div className="container flex items-center justify-between h-16 md:h-18">
-        <a href="/" className="font-serif text-lg md:text-xl font-semibold text-primary">
+        <Link to="/" className="font-serif text-lg md:text-xl font-semibold text-primary">
           MainStreetIRL
-        </a>
+        </Link>
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           {isAuthenticated ? (
             <>
               {isAdmin && (
-                <a href="/admin" className={`${navLinkClasses} flex items-center gap-1`}>
+                <Link to="/admin" className={`${navLinkClasses} flex items-center gap-1`}>
                   <Shield className="w-4 h-4" />
                   Admin
-                </a>
+                </Link>
               )}
-              <a href="/dashboard" className={navLinkClasses}>
+              <Link to="/dashboard" className={navLinkClasses}>
                 Dashboard
-              </a>
-              <a href="/discover" className={navLinkClasses}>
+              </Link>
+              <Link to="/discover" className={navLinkClasses}>
                 Discover
-              </a>
-              <a href="/onboarding/my-profile" className={navLinkClasses}>
+              </Link>
+              <Link to="/onboarding/my-profile" className={navLinkClasses}>
                 My Profile
-              </a>
-              <a href="/places" className={navLinkClasses}>
+              </Link>
+              <Link to="/places" className={navLinkClasses}>
                 Places
-              </a>
+              </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 Sign Out
                 <LogOut className="w-4 h-4" />
@@ -64,18 +64,18 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <a href="/places" className={navLinkClasses}>
+              <Link to="/places" className={navLinkClasses}>
                 Places
-              </a>
-              <a href="/blog" className={navLinkClasses}>
+              </Link>
+              <Link to="/blog" className={navLinkClasses}>
                 Blog
-              </a>
-              <a href="/#how-it-works" className={navLinkClasses}>
+              </Link>
+              <Link to="/#how-it-works" className={navLinkClasses}>
                 How It Works
-              </a>
-              <a href="/auth" className={navLinkClasses}>
+              </Link>
+              <Link to="/auth" className={navLinkClasses}>
                 Sign In
-              </a>
+              </Link>
             </>
           )}
         </div>
@@ -97,43 +97,43 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 {isAdmin && (
-                  <a 
-                    href="/admin" 
+                  <Link 
+                    to="/admin" 
                     className="flex items-center gap-2 py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Shield className="w-4 h-4" />
                     Admin
-                  </a>
+                  </Link>
                 )}
-                <a 
-                  href="/dashboard" 
+                <Link 
+                  to="/dashboard" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
-                </a>
-                <a 
-                  href="/discover" 
+                </Link>
+                <Link 
+                  to="/discover" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Discover
-                </a>
-                <a 
-                  href="/onboarding/my-profile" 
+                </Link>
+                <Link 
+                  to="/onboarding/my-profile" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   My Profile
-                </a>
-                <a 
-                  href="/places" 
+                </Link>
+                <Link 
+                  to="/places" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Places
-                </a>
+                </Link>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -146,34 +146,34 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <a 
-                  href="/places" 
+                <Link 
+                  to="/places" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Places
-                </a>
-                <a 
-                  href="/blog" 
+                </Link>
+                <Link 
+                  to="/blog" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Blog
-                </a>
-                <a 
-                  href="/#how-it-works" 
+                </Link>
+                <Link 
+                  to="/#how-it-works" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   How It Works
-                </a>
-                <a 
-                  href="/auth" 
+                </Link>
+                <Link 
+                  to="/auth" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sign In
-                </a>
+                </Link>
               </>
             )}
           </div>
