@@ -108,7 +108,7 @@ const PresenceControl = ({ placeId, eventId, eventEndTime, className }: Presence
           className="flex items-center gap-2 min-h-[44px] px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
         >
           <Heart className="h-4 w-4" />
-          <span>Interested</span>
+          <span>We're Interested</span>
         </ToggleGroupItem>
         
         <ToggleGroupItem
@@ -116,7 +116,7 @@ const PresenceControl = ({ placeId, eventId, eventEndTime, className }: Presence
           className="flex items-center gap-2 min-h-[44px] px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
         >
           <Calendar className="h-4 w-4" />
-          <span>Planning</span>
+          <span>We're Going</span>
         </ToggleGroupItem>
 
         {FEATURE_FLAGS.OPEN_TO_HELLO_ENABLED && (
@@ -125,7 +125,7 @@ const PresenceControl = ({ placeId, eventId, eventEndTime, className }: Presence
             className="flex items-center gap-2 min-h-[44px] px-4 data-[state=on]:bg-secondary data-[state=on]:text-secondary-foreground"
           >
             <Sparkles className="h-4 w-4" />
-            <span>Open to hello</span>
+            <span>We're Open to Saying Hello</span>
           </ToggleGroupItem>
         )}
       </ToggleGroup>
@@ -170,7 +170,7 @@ const PresenceControl = ({ placeId, eventId, eventEndTime, className }: Presence
       {/* Helper text */}
       {effectiveStatus === 'open_to_hello' && (
         <p className="text-xs text-muted-foreground">
-          Other couples who are also "open to hello" here will see your photo.
+          Other couples who are also open to saying hello here will see your profile.
         </p>
       )}
     </div>

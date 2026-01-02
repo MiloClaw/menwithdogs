@@ -54,13 +54,13 @@ const PresenceCountStrip = ({ aggregate, className, compact = false }: PresenceC
       {planning_count > 0 && (
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          <span>{planning_count} planning</span>
+          <span>{planning_count} going</span>
         </div>
       )}
       {open_count > 0 && (
         <div className="flex items-center gap-1.5 text-secondary font-medium">
           <Sparkles className="h-4 w-4" />
-          <span>{open_count} open now</span>
+          <span>{open_count} open to hello</span>
         </div>
       )}
     </div>
