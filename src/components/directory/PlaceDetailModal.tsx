@@ -16,6 +16,7 @@ import { getAllPhotoUrls, PhotoReference } from '@/lib/google-places-photos';
 import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
+import CoupleTileGrid from './CoupleTileGrid';
 import { usePlacePresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { Json } from '@/integrations/supabase/types';
@@ -259,6 +260,14 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                 <span className="font-medium">Your status</span>
                 <PresenceControl placeId={place.id} />
               </div>
+            </>
+          )}
+
+          {/* Couple Tiles */}
+          {FEATURE_FLAGS.PRESENCE_ENABLED && (
+            <>
+              <Separator />
+              <CoupleTileGrid placeId={place.id} />
             </>
           )}
 

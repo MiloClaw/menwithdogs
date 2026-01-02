@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
+import CoupleTileGrid from './CoupleTileGrid';
 import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { PublicEvent } from '@/hooks/useEventsPublic';
@@ -130,6 +131,14 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
                   eventEndTime={eventEndTime}
                 />
               </div>
+            </>
+          )}
+
+          {/* Couple Tiles */}
+          {FEATURE_FLAGS.PRESENCE_ENABLED && (
+            <>
+              <Separator />
+              <CoupleTileGrid eventId={event.id} />
             </>
           )}
 
