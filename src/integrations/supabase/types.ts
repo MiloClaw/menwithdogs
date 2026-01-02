@@ -315,33 +315,42 @@ export type Database = {
       couples: {
         Row: {
           about_us: string | null
+          confirmation_text: string | null
+          confirmed_at: string | null
           created_at: string
           display_name: string | null
           id: string
           is_complete: boolean
           is_discoverable: boolean
+          partner_first_name: string | null
           preferred_meetup_times: string | null
           status: Database["public"]["Enums"]["couple_status"]
           updated_at: string
         }
         Insert: {
           about_us?: string | null
+          confirmation_text?: string | null
+          confirmed_at?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
           is_complete?: boolean
           is_discoverable?: boolean
+          partner_first_name?: string | null
           preferred_meetup_times?: string | null
           status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
         Update: {
           about_us?: string | null
+          confirmation_text?: string | null
+          confirmed_at?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
           is_complete?: boolean
           is_discoverable?: boolean
+          partner_first_name?: string | null
           preferred_meetup_times?: string | null
           status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
@@ -809,6 +818,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirm_couple_intent: { Args: { p_couple_id: string }; Returns: boolean }
       create_couple_for_current_user: { Args: never; Returns: string }
       get_user_couple_id: { Args: { _user_id: string }; Returns: string }
       has_role: {

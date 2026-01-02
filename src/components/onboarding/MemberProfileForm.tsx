@@ -11,7 +11,7 @@ import { useMemberInterests } from '@/hooks/useInterests';
 const profileSchema = z.object({
   first_name: z.string().min(1, 'Please enter your first name or nickname').max(50),
   city: z.string().min(1, 'Please select your city').max(100),
-  interests: z.array(z.string()).length(3, 'Please select exactly 3 interests'),
+  interests: z.array(z.string()).max(3).optional().default([]),
 });
 
 export interface MemberProfileFormData {
@@ -147,11 +147,12 @@ const MemberProfileForm = ({
 
       {/* Interests */}
       <div className="space-y-2">
-        <Label>Your interests</Label>
+        <Label>Your interests (optional)</Label>
+        <p className="text-xs text-muted-foreground">Select up to 3 things you enjoy. You can always update these later.</p>
         <InterestPicker
           selected={interests}
           onChange={setInterests}
-          min={3}
+          min={0}
           max={3}
         />
         {errors.interests && (
@@ -163,7 +164,7 @@ const MemberProfileForm = ({
       <Button
         type="submit"
         className="w-full h-12 text-base"
-        disabled={isSubmitting || interests.length !== 3}
+        disabled={isSubmitting}
       >
         {isSubmitting ? 'Saving...' : 'Continue'}
       </Button>

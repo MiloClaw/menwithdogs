@@ -13,7 +13,7 @@ const InterestPicker = ({
   selected, 
   onChange, 
   max = 3, 
-  min = 3 
+  min = 0 
 }: InterestPickerProps) => {
   const { data: catalog, isLoading, error } = useInterestsCatalog();
 
@@ -59,7 +59,7 @@ const InterestPicker = ({
       {/* Selection count */}
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">
-          Select {min === max ? min : `${min}-${max}`} interests
+          {min > 0 ? `Select ${min === max ? min : `${min}-${max}`} interests` : `Select up to ${max} interests`}
         </span>
         <span className={cn(
           "font-medium",

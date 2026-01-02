@@ -18,13 +18,10 @@ const OnboardingLayout = ({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="p-4 md:p-6 flex items-center justify-between">
+      <header className="p-4 md:p-6 flex items-center justify-center">
         <a href="/" className="text-xl font-serif font-semibold text-primary">
           MainStreetIRL
         </a>
-        <div className="text-sm text-muted-foreground">
-          Step {currentStep} of {totalSteps}
-        </div>
       </header>
 
       {/* Progress bar */}
