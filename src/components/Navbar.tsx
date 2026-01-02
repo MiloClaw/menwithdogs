@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -76,10 +76,6 @@ const Navbar = () => {
               <a href="/auth" className={navLinkClasses}>
                 Sign In
               </a>
-              <Button variant="accent" size="sm" onClick={() => navigate('/auth?mode=signup')}>
-                Join the Waitlist
-                <ChevronRight className="w-4 h-4" />
-              </Button>
             </>
           )}
         </div>
@@ -178,18 +174,6 @@ const Navbar = () => {
                 >
                   Sign In
                 </a>
-                <Button 
-                  variant="accent" 
-                  size="sm" 
-                  className="w-full mt-2"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/auth?mode=signup');
-                  }}
-                >
-                  Join the Waitlist
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
               </>
             )}
           </div>
