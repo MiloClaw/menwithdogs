@@ -77,8 +77,8 @@ const CoupleTile = ({ couple, className, onClick }: CoupleTileProps) => {
           <p className="text-sm font-medium truncate">{display_name}</p>
         ) : (
           <p className="text-xs text-muted-foreground">
-            {status === 'open_to_hello' ? 'Open now' : 
-             status === 'planning_to_attend' ? 'Planning' : 'Interested'}
+            {status === 'open_to_hello' ? 'Open to hello' : 
+             status === 'planning_to_attend' ? 'Going' : 'Interested'}
           </p>
         )}
       </div>
