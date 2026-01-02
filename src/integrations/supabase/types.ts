@@ -62,35 +62,6 @@ export type Database = {
         }
         Relationships: []
       }
-      couple_event_likes: {
-        Row: {
-          couple_id: string
-          created_at: string
-          event_id: string
-          id: string
-        }
-        Insert: {
-          couple_id: string
-          created_at?: string
-          event_id: string
-          id?: string
-        }
-        Update: {
-          couple_id?: string
-          created_at?: string
-          event_id?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_event_likes_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       couple_interests: {
         Row: {
           couple_id: string
@@ -200,70 +171,57 @@ export type Database = {
           },
         ]
       }
-      couple_place_likes: {
+      couple_presence: {
         Row: {
           couple_id: string
-          created_at: string
+          created_at: string | null
+          ends_at: string
+          event_id: string | null
           id: string
-          place_id: string
+          place_id: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["presence_status"]
+          updated_at: string | null
         }
         Insert: {
           couple_id: string
-          created_at?: string
+          created_at?: string | null
+          ends_at: string
+          event_id?: string | null
           id?: string
-          place_id: string
+          place_id?: string | null
+          starts_at?: string | null
+          status: Database["public"]["Enums"]["presence_status"]
+          updated_at?: string | null
         }
         Update: {
           couple_id?: string
-          created_at?: string
+          created_at?: string | null
+          ends_at?: string
+          event_id?: string | null
           id?: string
-          place_id?: string
+          place_id?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["presence_status"]
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "couple_place_likes_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      couple_place_signals: {
-        Row: {
-          couple_id: string
-          generated_at: string
-          id: string
-          place_id: string
-          shared_strength: string
-          visibility: string | null
-        }
-        Insert: {
-          couple_id: string
-          generated_at?: string
-          id?: string
-          place_id: string
-          shared_strength: string
-          visibility?: string | null
-        }
-        Update: {
-          couple_id?: string
-          generated_at?: string
-          id?: string
-          place_id?: string
-          shared_strength?: string
-          visibility?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_place_signals_couple_id_fkey"
+            foreignKeyName: "couple_presence_couple_id_fkey"
             columns: ["couple_id"]
             isOneToOne: false
             referencedRelation: "couples"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "couple_place_signals_place_id_fkey"
+            foreignKeyName: "couple_presence_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_presence_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
             referencedRelation: "places"
@@ -312,6 +270,71 @@ export type Database = {
           },
         ]
       }
+      couple_reveals: {
+        Row: {
+          context_type: Database["public"]["Enums"]["reveal_context"]
+          couple_a_id: string
+          couple_b_id: string
+          created_at: string | null
+          event_id: string | null
+          expires_at: string
+          id: string
+          place_id: string | null
+          state: Database["public"]["Enums"]["reveal_state"]
+        }
+        Insert: {
+          context_type: Database["public"]["Enums"]["reveal_context"]
+          couple_a_id: string
+          couple_b_id: string
+          created_at?: string | null
+          event_id?: string | null
+          expires_at: string
+          id?: string
+          place_id?: string | null
+          state?: Database["public"]["Enums"]["reveal_state"]
+        }
+        Update: {
+          context_type?: Database["public"]["Enums"]["reveal_context"]
+          couple_a_id?: string
+          couple_b_id?: string
+          created_at?: string | null
+          event_id?: string | null
+          expires_at?: string
+          id?: string
+          place_id?: string | null
+          state?: Database["public"]["Enums"]["reveal_state"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_reveals_couple_a_id_fkey"
+            columns: ["couple_a_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_reveals_couple_b_id_fkey"
+            columns: ["couple_b_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_reveals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_reveals_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       couples: {
         Row: {
           about_us: string | null
@@ -324,6 +347,7 @@ export type Database = {
           is_discoverable: boolean
           partner_first_name: string | null
           preferred_meetup_times: string | null
+          profile_photo_url: string | null
           status: Database["public"]["Enums"]["couple_status"]
           updated_at: string
         }
@@ -338,6 +362,7 @@ export type Database = {
           is_discoverable?: boolean
           partner_first_name?: string | null
           preferred_meetup_times?: string | null
+          profile_photo_url?: string | null
           status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
@@ -352,6 +377,7 @@ export type Database = {
           is_discoverable?: boolean
           partner_first_name?: string | null
           preferred_meetup_times?: string | null
+          profile_photo_url?: string | null
           status?: Database["public"]["Enums"]["couple_status"]
           updated_at?: string
         }
@@ -500,44 +526,6 @@ export type Database = {
             columns: ["interest_id"]
             isOneToOne: false
             referencedRelation: "interests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      member_place_affinities: {
-        Row: {
-          affinity_type: Database["public"]["Enums"]["affinity_type"]
-          cadence: Database["public"]["Enums"]["place_cadence"]
-          context: string | null
-          created_at: string
-          id: string
-          place_id: string
-          user_id: string
-        }
-        Insert: {
-          affinity_type: Database["public"]["Enums"]["affinity_type"]
-          cadence: Database["public"]["Enums"]["place_cadence"]
-          context?: string | null
-          created_at?: string
-          id?: string
-          place_id: string
-          user_id: string
-        }
-        Update: {
-          affinity_type?: Database["public"]["Enums"]["affinity_type"]
-          cadence?: Database["public"]["Enums"]["place_cadence"]
-          context?: string | null
-          created_at?: string
-          id?: string
-          place_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "member_place_affinities_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
             referencedColumns: ["id"]
           },
         ]
@@ -815,7 +803,85 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      event_presence_agg: {
+        Row: {
+          event_id: string | null
+          interested_count: number | null
+          open_count: number | null
+          planning_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_presence_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      place_presence_agg: {
+        Row: {
+          interested_count: number | null
+          open_count: number | null
+          place_id: string | null
+          planning_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_presence_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      revealed_couples_view: {
+        Row: {
+          context_type: Database["public"]["Enums"]["reveal_context"] | null
+          couple_a_display_name: string | null
+          couple_a_id: string | null
+          couple_a_photo: string | null
+          couple_b_display_name: string | null
+          couple_b_id: string | null
+          couple_b_photo: string | null
+          event_id: string | null
+          expires_at: string | null
+          id: string | null
+          place_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_reveals_couple_a_id_fkey"
+            columns: ["couple_a_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_reveals_couple_b_id_fkey"
+            columns: ["couple_b_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_reveals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_reveals_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       confirm_couple_intent: { Args: { p_couple_id: string }; Returns: boolean }
@@ -838,6 +904,9 @@ export type Database = {
       place_cadence: "weekly" | "monthly" | "rare"
       place_source: "google_places" | "admin"
       place_status: "approved" | "pending" | "rejected"
+      presence_status: "interested" | "planning_to_attend" | "open_to_hello"
+      reveal_context: "place" | "event"
+      reveal_state: "eligible" | "revealed" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -973,6 +1042,9 @@ export const Constants = {
       place_cadence: ["weekly", "monthly", "rare"],
       place_source: ["google_places", "admin"],
       place_status: ["approved", "pending", "rejected"],
+      presence_status: ["interested", "planning_to_attend", "open_to_hello"],
+      reveal_context: ["place", "event"],
+      reveal_state: ["eligible", "revealed", "expired"],
     },
   },
 } as const
