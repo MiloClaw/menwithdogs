@@ -14,6 +14,10 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { getAllPhotoUrls, PhotoReference } from '@/lib/google-places-photos';
 import { formatDistance } from '@/lib/distance';
+import PresenceCountStrip from './PresenceCountStrip';
+import PresenceControl from './PresenceControl';
+import { usePlacePresenceAggregate } from '@/hooks/usePresenceAggregates';
+import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { Json } from '@/integrations/supabase/types';
 
 export interface PlaceDetail {
@@ -63,6 +67,7 @@ const getOpeningHours = (hours: Json | null): string[] => {
 
 const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const { data: presenceAgg } = usePlacePresenceAggregate(place?.id);
 
   if (!place) return null;
 
@@ -169,6 +174,11 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
             </div>
           </DialogHeader>
 
+          {/* Presence Counts */}
+          {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
+            <PresenceCountStrip aggregate={presenceAgg} className="pt-2" />
+          )}
+
           <Separator />
 
           {/* Contact & Location Info */}
@@ -237,6 +247,17 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                     </div>
                   ))}
                 </div>
+              </div>
+            </>
+          )}
+
+          {/* Presence Control */}
+          {FEATURE_FLAGS.PRESENCE_ENABLED && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <span className="font-medium">Your status</span>
+                <PresenceControl placeId={place.id} />
               </div>
             </>
           )}
