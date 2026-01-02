@@ -57,30 +57,32 @@ const Hero = () => {
         
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-primary leading-tight mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-primary leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
             Real friends.<br />
             Real couples.<br />
             Real life.
           </h1>
           
-          <p className="text-foreground/80 text-base md:text-lg max-w-md mb-8 font-medium">
+          <p className="text-foreground/80 text-base md:text-lg max-w-md font-medium">
             For couples to meet other couples— dinners, workouts, travel, and more.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
-              Join the Waitlist
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="bg-background/80 backdrop-blur-sm border-2" 
-              onClick={scrollToHowItWorks}
-            >
-              See How It Works
-            </Button>
-          </div>
+        </div>
+      </div>
+      
+      {/* CTA Section */}
+      <div className="py-8 bg-background border-t border-border">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center px-6">
+          <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
+            Join the Waitlist
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            onClick={scrollToHowItWorks}
+          >
+            See How It Works
+          </Button>
         </div>
       </div>
       
