@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import heroImage from "@/assets/hero-couples.jpg";
@@ -47,20 +46,15 @@ const Hero = () => {
         
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-6 pb-12 md:pb-16">
-          <div className="backdrop-blur-sm bg-background/5 rounded-xl px-8 py-6">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-            className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-primary leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
-          >
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-primary leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
             Real friends.<br />
             Real couples.<br />
             Real life.
-          </motion.h1>
+          </h1>
+          
+          
         </div>
       </div>
-    </div>
       
       {/* CTA Section */}
       <div className="py-8 bg-background border-t border-border">
