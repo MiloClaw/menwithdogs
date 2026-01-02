@@ -5,6 +5,7 @@ import { useCoupleInterests, useInterestsCatalog, getInterestLabelsFromCatalog }
 import { supabase } from '@/integrations/supabase/client';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import DraftBanner from '@/components/onboarding/DraftBanner';
+import CouplePhotoUpload from '@/components/onboarding/CouplePhotoUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -261,6 +262,12 @@ const CoupleProfileEdit = () => {
               className="h-12"
               maxLength={100}
             />
+          </div>
+
+          {/* Couple Photo */}
+          <div className="space-y-2">
+            <Label>Couple photo</Label>
+            <CouplePhotoUpload />
           </div>
 
           <div className="space-y-2">
