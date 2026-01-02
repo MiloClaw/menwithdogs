@@ -1,77 +1,318 @@
-import { Search, MapPin } from "lucide-react";
-import PageLayout from "@/components/PageLayout";
-import PageHeader from "@/components/PageHeader";
-import FilterChip from "@/components/FilterChip";
-import PlaceCard from "@/components/PlaceCard";
+import { useState, useMemo } from 'react';
+import { Search, MapPinOff, Calendar } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import PageLayout from '@/components/PageLayout';
+import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
+import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
+import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
+import EventDetailModal from '@/components/directory/EventDetailModal';
+import { usePublicPlaces } from '@/hooks/usePublicPlaces';
+import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
+import { useCoupleContext } from '@/contexts/CoupleContext';
+import { calculateDistanceMiles } from '@/lib/distance';
 
-const filters = ["All", "Restaurants", "Gyms", "Coffee Shops", "Outdoors", "Events"];
+const RADIUS_OPTIONS = [
+  { label: 'All', value: null },
+  { label: '10 mi', value: 10 },
+  { label: '25 mi', value: 25 },
+  { label: '50 mi', value: 50 },
+];
 
-const places = [
-  { name: "The Ivy Kitchen", category: "Restaurant", location: "Downtown", rating: 4 },
-  { name: "Iron Temple Gym", category: "Gym", location: "Midtown", rating: 5 },
-  { name: "Ritual Coffee", category: "Coffee Shop", location: "East Village", rating: 4 },
-  { name: "Sunset Trail", category: "Outdoors", location: "Westside", rating: 5 },
-  { name: "The Social Club", category: "Events", location: "Arts District", rating: 4 },
+const DATE_FILTER_OPTIONS: { label: string; value: DateFilter }[] = [
+  { label: 'Today', value: 'today' },
+  { label: 'This week', value: 'this_week' },
+  { label: 'This month', value: 'this_month' },
+  { label: 'Upcoming', value: 'upcoming' },
 ];
 
 const Places = () => {
+  const { memberProfile } = useCoupleContext();
+  
+  // Shared state
+  const [activeTab, setActiveTab] = useState<'places' | 'events'>('places');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
+  
+  // Places state
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
+  const [placeModalOpen, setPlaceModalOpen] = useState(false);
+  
+  // Events state
+  const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
+  const [selectedEvent, setSelectedEvent] = useState<PublicEvent | null>(null);
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+
+  // User location
+  const userLat = memberProfile?.city_lat;
+  const userLng = memberProfile?.city_lng;
+  const hasUserLocation = userLat != null && userLng != null;
+
+  // Data fetching
+  const { data: places, isLoading: placesLoading } = usePublicPlaces();
+  const { data: events, isLoading: eventsLoading } = useEventsPublic({
+    dateFilter,
+    radiusFilter,
+    searchTerm: activeTab === 'events' ? searchTerm : '',
+  });
+
+  // Get unique place categories
+  const placeCategories = useMemo(() => {
+    if (!places) return [];
+    const cats = [...new Set(places.map(p => p.primary_category))].filter(Boolean);
+    return cats.sort();
+  }, [places]);
+
+  // Process places with distance and filters
+  const processedPlaces = useMemo(() => {
+    if (!places) return [];
+
+    const placesWithDistance = places.map(place => {
+      let distance: number | undefined;
+      if (hasUserLocation && place.lat != null && place.lng != null) {
+        distance = calculateDistanceMiles(userLat, userLng, place.lat, place.lng);
+      }
+      return { ...place, distance };
+    });
+
+    let filtered = placesWithDistance.filter(place => {
+      const matchesSearch = !searchTerm || 
+        place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        place.city?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = !selectedCategory || 
+        place.primary_category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+
+    if (radiusFilter !== null && hasUserLocation) {
+      filtered = filtered.filter(place => 
+        place.distance !== undefined && place.distance <= radiusFilter
+      );
+    }
+
+    return filtered.sort((a, b) => {
+      if (a.distance !== undefined && b.distance !== undefined) {
+        return a.distance - b.distance;
+      }
+      if (a.distance !== undefined) return -1;
+      if (b.distance !== undefined) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
+
+  const handlePlaceClick = (place: DirectoryPlace) => {
+    setSelectedPlace(place);
+    setPlaceModalOpen(true);
+  };
+
+  const handleEventClick = (event: PublicEvent) => {
+    setSelectedEvent(event);
+    setEventModalOpen(true);
+  };
+
   return (
     <PageLayout>
-      <PageHeader 
-        title="Discover Places" 
-        subtitle="Find couple-friendly spots in your area"
-      />
-      
-      <div className="container py-6 md:py-8">
-        {/* Search Bar */}
-        <div className="relative w-full md:max-w-md mb-4 md:mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search places..."
-            className="w-full pl-9 md:pl-10 pr-4 py-2.5 md:py-3 bg-surface border border-border rounded-button text-sm md:text-base text-primary placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
-          />
-        </div>
-
-        {/* Filter Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-6 md:mb-8 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-          {filters.map((filter, index) => (
-            <FilterChip key={filter} label={filter} active={index === 0} />
-          ))}
-        </div>
-
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-5 gap-6 md:gap-8">
-          {/* Map Placeholder */}
-          <div className="lg:col-span-3 aspect-[3/2] md:aspect-[4/3] lg:aspect-auto lg:min-h-[500px] bg-muted rounded-card flex items-center justify-center border border-border order-2 lg:order-1">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 opacity-50" />
-              <p className="text-base md:text-lg font-medium">Map View</p>
-              <p className="text-xs md:text-sm">Interactive map coming soon</p>
-            </div>
-          </div>
-
-          {/* Places List */}
-          <div className="lg:col-span-2 space-y-3 md:space-y-4 order-1 lg:order-2">
-            {places.map((place) => (
-              <PlaceCard key={place.name} {...place} />
-            ))}
-          </div>
-        </div>
-
-        {/* Empty State (hidden by default, shown when no results) */}
-        <div className="hidden py-12 md:py-16 text-center">
-          <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-full mx-auto mb-4 md:mb-6 flex items-center justify-center">
-            <MapPin className="w-8 h-8 md:w-10 md:h-10 text-muted-foreground" />
-          </div>
-          <h3 className="font-serif text-lg md:text-xl font-semibold text-primary mb-2">
-            No places found
-          </h3>
-          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto">
-            Try adjusting your filters or search terms to find couple-friendly spots in your area.
+      <div className="container py-8 space-y-6">
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold">Discover Places</h1>
+          <p className="text-muted-foreground">
+            Find great spots and events for your next date
           </p>
         </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'places' | 'events')}>
+          <TabsList className="grid w-full max-w-xs grid-cols-2">
+            <TabsTrigger value="places" className="min-h-[44px]">Places</TabsTrigger>
+            <TabsTrigger value="events" className="min-h-[44px]">
+              <Calendar className="h-4 w-4 mr-2" />
+              Events
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Search */}
+          <div className="relative max-w-md mt-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={activeTab === 'places' ? 'Search places...' : 'Search events...'}
+              className="pl-9"
+            />
+          </div>
+
+          {/* Location Notice */}
+          {!hasUserLocation && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-3 rounded-lg mt-4">
+              <MapPinOff className="h-4 w-4 flex-shrink-0" />
+              <span>Add your city in your profile to see distance and filter by radius</span>
+            </div>
+          )}
+
+          {/* Distance Filter (shared) */}
+          {hasUserLocation && (
+            <div className="space-y-2 mt-4">
+              <p className="text-sm text-muted-foreground">Distance</p>
+              <div className="flex flex-wrap gap-2">
+                {RADIUS_OPTIONS.map(option => (
+                  <Badge
+                    key={option.label}
+                    variant={radiusFilter === option.value ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setRadiusFilter(option.value)}
+                  >
+                    {option.label}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Places Tab */}
+          <TabsContent value="places" className="space-y-6 mt-6">
+            {/* Category Filters */}
+            {placeCategories.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Category</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    variant={selectedCategory === null ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setSelectedCategory(null)}
+                  >
+                    All
+                  </Badge>
+                  {placeCategories.map(category => (
+                    <Badge
+                      key={category}
+                      variant={selectedCategory === category ? 'default' : 'outline'}
+                      className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                      onClick={() => setSelectedCategory(
+                        selectedCategory === category ? null : category
+                      )}
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Results Count */}
+            {!placesLoading && (
+              <p className="text-sm text-muted-foreground">
+                {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
+              </p>
+            )}
+
+            {/* Places Grid */}
+            {placesLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="aspect-[4/3] w-full" />
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : processedPlaces.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">
+                  {searchTerm || selectedCategory || radiusFilter
+                    ? 'No places match your search criteria'
+                    : 'No places in the directory yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {processedPlaces.map(place => (
+                  <DirectoryPlaceCard 
+                    key={place.id} 
+                    place={place} 
+                    onClick={() => handlePlaceClick(place)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Events Tab */}
+          <TabsContent value="events" className="space-y-6 mt-6">
+            {/* Date Filters */}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">When</p>
+              <div className="flex flex-wrap gap-2">
+                {DATE_FILTER_OPTIONS.map(option => (
+                  <Badge
+                    key={option.value}
+                    variant={dateFilter === option.value ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setDateFilter(option.value)}
+                  >
+                    {option.label}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Results Count */}
+            {!eventsLoading && (
+              <p className="text-sm text-muted-foreground">
+                {events?.length || 0} {(events?.length || 0) === 1 ? 'event' : 'events'} found
+              </p>
+            )}
+
+            {/* Events Grid */}
+            {eventsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="h-40 w-full rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            ) : !events?.length ? (
+              <div className="text-center py-16">
+                <Calendar className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
+                <p className="text-muted-foreground">
+                  {searchTerm || radiusFilter
+                    ? 'No events match your search criteria'
+                    : 'No upcoming events in the directory yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {events.map(event => (
+                  <DirectoryEventCard 
+                    key={event.id} 
+                    event={event} 
+                    onClick={() => handleEventClick(event)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
+
+      {/* Modals */}
+      <PlaceDetailModal 
+        place={selectedPlace}
+        open={placeModalOpen}
+        onOpenChange={setPlaceModalOpen}
+      />
+      <EventDetailModal 
+        event={selectedEvent}
+        open={eventModalOpen}
+        onOpenChange={setEventModalOpen}
+      />
     </PageLayout>
   );
 };
