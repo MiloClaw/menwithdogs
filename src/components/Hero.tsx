@@ -42,7 +42,7 @@ const Hero = () => {
         <img src={heroImage} alt="Two couples enjoying coffee and conversation together outdoors" className="w-full h-[120%] object-cover object-top will-change-transform" style={{
         transform: parallaxTransform
       }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/85" />
         
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-6 pb-12 md:pb-16">
