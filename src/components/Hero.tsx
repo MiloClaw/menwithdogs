@@ -45,7 +45,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/70" />
         
         {/* Hero Content Overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+        <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-6 pb-12 md:pb-16">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-primary leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
             Real friends.<br />
             Real couples.<br />
