@@ -1,10 +1,10 @@
 import { Coffee, Dumbbell, Plane, Wine } from "lucide-react";
 
 const activities = [
-  { icon: Coffee, label: "Morning Coffee" },
-  { icon: Dumbbell, label: "Gym Sessions" },
-  { icon: Plane, label: "Weekend Trips" },
-  { icon: Wine, label: "Game Nights" },
+  { icon: Coffee, label: "Coffee Dates" },
+  { icon: Dumbbell, label: "Local Finds" },
+  { icon: Plane, label: "Double Dates" },
+  { icon: Wine, label: "New Friends" },
 ];
 
 const ValueProposition = () => {
@@ -13,11 +13,11 @@ const ValueProposition = () => {
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-semibold text-foreground mb-4">
-            Built for couples who already have their relationship dialed in.
+            For couples who want to do more together—with people who get it.
           </h2>
           <div className="w-16 h-px bg-border mx-auto mt-6 mb-4" />
           <p className="text-muted-foreground text-base md:text-lg">
-            Expand your social circle with couples who share your vibe.
+            Discover great places. Meet like-minded couples. Make it happen IRL.
           </p>
         </div>
         
