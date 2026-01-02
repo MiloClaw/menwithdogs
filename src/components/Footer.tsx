@@ -13,7 +13,7 @@ const Footer = () => {
               MainStreetIRL
             </span>
             <p className="text-sm text-primary-foreground/70 mt-2">
-              Discover local experiences together.
+              Discover your city. Meet your people.
             </p>
           </div>
           

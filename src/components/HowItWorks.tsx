@@ -7,19 +7,19 @@ const steps = [
     number: "01",
     image: step1Image,
     title: "Create Your Couple Profile",
-    description: "Show up together. Always.",
+    description: "Share who you are as a couple.",
   },
   {
     number: "02",
     image: step2Image,
-    title: "Discover Like-Minded Couples",
-    description: "Browse by interests & location.",
+    title: "Explore Places & People",
+    description: "Find local spots and couples nearby.",
   },
   {
     number: "03",
     image: step3Image,
     title: "Meet Up In Real Life",
-    description: "Suggest a casual meet-up.",
+    description: "Grab coffee. Try a new spot. Make it real.",
   },
 ];
 
