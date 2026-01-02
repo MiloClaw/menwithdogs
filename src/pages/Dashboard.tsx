@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -6,8 +6,9 @@ import { useMemberInterests, useCoupleInterests, useInterestsCatalog, getInteres
 import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { DiscoveryToggle } from '@/components/discovery/DiscoveryToggle';
-import { Compass } from 'lucide-react';
+import { Compass, Check } from 'lucide-react';
 
 const Dashboard = () => {
   const { isAuthenticated, loading: authLoading, signOut, user } = useAuth();
@@ -18,9 +19,22 @@ const Dashboard = () => {
     hasCouple, 
     isCoupleComplete,
     pendingInvite,
-    loading: coupleLoading 
+    loading: coupleLoading,
+    updateCoupleProfile,
   } = useCouple();
   const navigate = useNavigate();
+  
+  // Partner name editing state
+  const [partnerName, setPartnerName] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
+
+  // Sync partner name from couple data
+  useEffect(() => {
+    if (couple?.partner_first_name) {
+      setPartnerName(couple.partner_first_name);
+    }
+  }, [couple?.partner_first_name]);
 
   // Fetch interests from database
   const { data: catalog } = useInterestsCatalog();
@@ -54,6 +68,20 @@ const Dashboard = () => {
       return;
     }
   }, [authLoading, coupleLoading, isAuthenticated, hasCouple, couple, navigate]);
+
+  const handleSavePartnerName = async () => {
+    if (!partnerName.trim()) return;
+    setIsSavingName(true);
+    try {
+      await updateCoupleProfile({ partner_first_name: partnerName.trim() });
+      setNameSaved(true);
+      setTimeout(() => setNameSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save partner name:', err);
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -103,11 +131,37 @@ const Dashboard = () => {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-medium">Partner invitation pending</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="space-y-4">
+                  {/* Editable partner name */}
+                  <div className="space-y-2">
+                    <label className="text-xs text-muted-foreground">Partner's first name</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={partnerName}
+                        onChange={(e) => setPartnerName(e.target.value)}
+                        placeholder="Your partner's name"
+                        className="h-10"
+                        maxLength={50}
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleSavePartnerName}
+                        disabled={isSavingName || !partnerName.trim()}
+                        className="h-10 px-3"
+                      >
+                        {nameSaved ? <Check className="h-4 w-4 text-secondary" /> : 'Save'}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      We'll use this to personalize their invite.
+                    </p>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground">
                     {pendingInvite 
-                      ? `Waiting for ${pendingInvite.invited_email} to accept your invitation.`
-                      : 'Invite your partner to complete your couple profile.'}
+                      ? `Waiting for ${pendingInvite.invited_email} to accept.`
+                      : 'Send an invite to complete your couple profile.'}
                   </p>
                   <Button 
                     variant="outline" 
