@@ -130,10 +130,10 @@ const PlaceManagement = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Link to="/directory" target="_blank">
+            <Link to="/places" target="_blank">
               <Button variant="outline">
                 <Eye className="h-4 w-4 mr-2" />
-                Preview Directory
+                Preview Places
               </Button>
             </Link>
             <Dialog open={isCreateOpen} onOpenChange={(open) => {
