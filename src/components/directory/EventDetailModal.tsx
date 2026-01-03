@@ -15,10 +15,11 @@ import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
 import CoupleTileGrid from './CoupleTileGrid';
+import EventPhotoGallery from './EventPhotoGallery';
 import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
-import type { PublicEvent } from '@/hooks/useEventsPublic';
+import type { PublicEvent, VenuePhoto } from '@/hooks/useEventsPublic';
 
 interface EventDetailModalProps {
   event: PublicEvent | null;
@@ -49,6 +50,9 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
   const eventEndTime = event.end_at ? new Date(event.end_at) : undefined;
   const saved = isFavorited(event.id);
   
+  // Get venue photos (safely cast from JSON)
+  const venuePhotos = event.venue?.photos as VenuePhoto[] | null | undefined;
+  
   // Build Google Maps URL for venue
   const mapsUrl = event.venue?.formatted_address 
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.venue.formatted_address)}`
@@ -57,6 +61,14 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Venue Photo Gallery */}
+        <EventPhotoGallery 
+          photos={venuePhotos} 
+          venueName={event.venue?.name}
+          maxPhotos={3}
+          className="-mx-6 -mt-6 mb-2 rounded-t-lg rounded-b-none"
+        />
+        
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 space-y-4">
@@ -90,9 +102,6 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
         </DialogHeader>
 
         <div className="space-y-6 pt-2">
-          {/* Future: AI-generated relevance text */}
-          {/* <p className="text-sm text-muted-foreground italic">Why this may be relevant to you...</p> */}
-
           {/* Presence Counts */}
           {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
             <PresenceCountStrip aggregate={presenceAgg} />

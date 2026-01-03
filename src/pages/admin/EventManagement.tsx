@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -31,9 +31,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Search, Trash2, Calendar, MapPin, Zap, DollarSign, Eye } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Trash2, Calendar, MapPin, Zap, DollarSign, Eye, Sparkles, AlertCircle } from 'lucide-react';
 import { useEvents, CreateEventInput } from '@/hooks/useEvents';
 import { usePlaces } from '@/hooks/usePlaces';
+import VenuePicker from '@/components/admin/events/VenuePicker';
 import {
   EVENT_TYPES,
   EVENT_FORMATS,
@@ -44,8 +45,15 @@ import {
   getSocialEnergyLabel,
   getCostTypeLabel,
 } from '@/lib/event-taxonomy';
+import { getVenueTaxonomySuggestions, isFieldAtDefault } from '@/lib/venue-taxonomy-mapping';
 import StatusFilterTabs, { StatusFilter } from '@/components/admin/StatusFilterTabs';
 import SourceBadge from '@/components/admin/SourceBadge';
+
+// Default form values for detecting if fields should receive suggestions
+const DEFAULT_FORM_VALUES = {
+  social_energy_level: 3,
+  cost_type: 'unknown',
+};
 
 const EventManagement = () => {
   const { events, isLoading, createEvent, updateEvent, deleteEvent } = useEvents();
@@ -53,6 +61,7 @@ const EventManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [taxonomySuggested, setTaxonomySuggested] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<CreateEventInput>({
@@ -64,14 +73,13 @@ const EventManagement = () => {
     category_tags: [],
     event_type: null,
     event_format: null,
-    social_energy_level: 3,
+    social_energy_level: DEFAULT_FORM_VALUES.social_energy_level,
     commitment_level: 2,
-    cost_type: 'unknown',
+    cost_type: DEFAULT_FORM_VALUES.cost_type,
     is_recurring: false,
   });
   const [tagInput, setTagInput] = useState('');
-
-  const approvedPlaces = places.filter(p => p.status === 'approved');
+  const [selectedVenueStatus, setSelectedVenueStatus] = useState<string | null>(null);
 
   const statusCounts = useMemo(() => ({
     all: events.length,
@@ -90,18 +98,70 @@ const EventManagement = () => {
       category_tags: [],
       event_type: null,
       event_format: null,
-      social_energy_level: 3,
+      social_energy_level: DEFAULT_FORM_VALUES.social_energy_level,
       commitment_level: 2,
-      cost_type: 'unknown',
+      cost_type: DEFAULT_FORM_VALUES.cost_type,
       is_recurring: false,
     });
     setTagInput('');
+    setSelectedVenueStatus(null);
+    setTaxonomySuggested(false);
   };
+
+  // Handle venue type change for taxonomy suggestions
+  const handleVenueTypeChange = useCallback((googlePrimaryType: string | null) => {
+    const suggestions = getVenueTaxonomySuggestions(googlePrimaryType);
+    
+    if (!suggestions) {
+      setTaxonomySuggested(false);
+      return;
+    }
+
+    // Only apply suggestions to fields that are still at defaults
+    const updates: Partial<CreateEventInput> = {};
+    let hasUpdates = false;
+
+    if (suggestions.event_type && isFieldAtDefault('event_type', formData.event_type, DEFAULT_FORM_VALUES)) {
+      updates.event_type = suggestions.event_type;
+      hasUpdates = true;
+    }
+
+    if (suggestions.social_energy_level && isFieldAtDefault('social_energy_level', formData.social_energy_level, DEFAULT_FORM_VALUES)) {
+      updates.social_energy_level = suggestions.social_energy_level;
+      hasUpdates = true;
+    }
+
+    if (suggestions.cost_type && isFieldAtDefault('cost_type', formData.cost_type, DEFAULT_FORM_VALUES)) {
+      updates.cost_type = suggestions.cost_type;
+      hasUpdates = true;
+    }
+
+    if (hasUpdates) {
+      setFormData(prev => ({ ...prev, ...updates }));
+      setTaxonomySuggested(true);
+    }
+  }, [formData.event_type, formData.social_energy_level, formData.cost_type]);
+
+  // Handle venue selection from VenuePicker
+  const handleVenueChange = useCallback((placeId: string, place?: { status: 'approved' | 'pending' | 'rejected'; google_primary_type: string | null }) => {
+    setFormData(prev => ({ ...prev, venue_place_id: placeId }));
+    setSelectedVenueStatus(place?.status || null);
+    
+    if (place?.google_primary_type) {
+      handleVenueTypeChange(place.google_primary_type);
+    }
+  }, [handleVenueTypeChange]);
 
   const handleCreate = async () => {
     if (!formData.venue_place_id || !formData.name || !formData.start_at) return;
     
-    await createEvent.mutateAsync(formData);
+    // If venue is pending, event should also be pending (Option A enforcement)
+    const status = selectedVenueStatus === 'pending' ? 'pending' : 'approved';
+    
+    await createEvent.mutateAsync({
+      ...formData,
+      status,
+    });
     setIsCreateOpen(false);
     resetForm();
   };
@@ -124,6 +184,15 @@ const EventManagement = () => {
   };
 
   const handleStatusChange = async (id: string, status: 'approved' | 'pending' | 'rejected') => {
+    // Check if venue is approved before allowing event approval
+    const event = events.find(e => e.id === id);
+    if (status === 'approved' && event?.venue) {
+      const venue = places.find(p => p.id === event.venue?.id);
+      if (venue?.status !== 'approved') {
+        alert('Cannot approve event: The venue must be approved first.');
+        return;
+      }
+    }
     await updateEvent.mutateAsync({ id, status });
   };
 
@@ -169,7 +238,10 @@ const EventManagement = () => {
                 Preview Events
               </Button>
             </Link>
-            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Dialog open={isCreateOpen} onOpenChange={(open) => {
+              setIsCreateOpen(open);
+              if (!open) resetForm();
+            }}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
@@ -190,32 +262,12 @@ const EventManagement = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Venue</Label>
-                  <Select
-                    value={formData.venue_place_id}
-                    onValueChange={(value) => setFormData({ ...formData, venue_place_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a venue" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {approvedPlaces.map((place) => (
-                        <SelectItem key={place.id} value={place.id}>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-3 w-3" />
-                            {place.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {approvedPlaces.length === 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      No approved places. <Link to="/admin/directory/places" className="text-primary underline">Add a place first</Link>.
-                    </p>
-                  )}
-                </div>
+                {/* Venue Picker with inline creation */}
+                <VenuePicker
+                  value={formData.venue_place_id}
+                  onChange={handleVenueChange}
+                  onVenueTypeChange={handleVenueTypeChange}
+                />
 
                 <div className="space-y-2">
                   <Label>Description</Label>
@@ -248,14 +300,25 @@ const EventManagement = () => {
 
                 {/* Taxonomy Section */}
                 <div className="border-t pt-4 mt-4">
-                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">Event Classification</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-medium text-muted-foreground">Event Classification</h4>
+                    {taxonomySuggested && (
+                      <div className="flex items-center gap-1 text-xs text-primary">
+                        <Sparkles className="h-3 w-3" />
+                        <span>Suggested from venue type</span>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>What kind of event?</Label>
                       <Select
                         value={formData.event_type || ''}
-                        onValueChange={(value) => setFormData({ ...formData, event_type: value || null })}
+                        onValueChange={(value) => {
+                          setFormData({ ...formData, event_type: value || null });
+                          setTaxonomySuggested(false);
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
@@ -303,7 +366,10 @@ const EventManagement = () => {
                       </div>
                       <Slider
                         value={[formData.social_energy_level || 3]}
-                        onValueChange={([value]) => setFormData({ ...formData, social_energy_level: value })}
+                        onValueChange={([value]) => {
+                          setFormData({ ...formData, social_energy_level: value });
+                          setTaxonomySuggested(false);
+                        }}
                         min={1}
                         max={5}
                         step={1}
@@ -345,7 +411,10 @@ const EventManagement = () => {
                       </Label>
                       <Select
                         value={formData.cost_type || 'unknown'}
-                        onValueChange={(value) => setFormData({ ...formData, cost_type: value })}
+                        onValueChange={(value) => {
+                          setFormData({ ...formData, cost_type: value });
+                          setTaxonomySuggested(false);
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select cost type" />
@@ -405,6 +474,16 @@ const EventManagement = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Status enforcement warning */}
+                {selectedVenueStatus === 'pending' && (
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-amber-700">
+                      This event will be created as <strong>pending</strong> because the venue is pending approval.
+                    </p>
+                  </div>
+                )}
 
                 <Button 
                   onClick={handleCreate} 
