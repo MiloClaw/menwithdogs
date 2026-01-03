@@ -24,6 +24,9 @@ export interface Place {
   status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   updated_at: string;
+  // Audit trail
+  approved_at: string | null;
+  approved_by: string | null;
   // GBP enrichment fields
   rating: number | null;
   user_ratings_total: number | null;
@@ -158,9 +161,21 @@ export const usePlaces = () => {
   // Update place
   const updatePlace = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Place> & { id: string }) => {
+      // Check if status is changing to approved and add audit trail
+      let finalUpdates = { ...updates };
+      
+      if (updates.status === 'approved') {
+        const { data: { user } } = await supabase.auth.getUser();
+        finalUpdates = {
+          ...finalUpdates,
+          approved_at: new Date().toISOString(),
+          approved_by: user?.id ?? null,
+        };
+      }
+
       const { data, error } = await supabase
         .from('places')
-        .update(updates)
+        .update(finalUpdates)
         .eq('id', id)
         .select()
         .single();

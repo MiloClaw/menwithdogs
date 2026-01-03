@@ -50,14 +50,14 @@ const AdminDashboard = () => {
     {
       title: 'Manage Places',
       description: 'Curate and review venue directory',
-      href: '/admin/directory?tab=places',
+      href: '/admin/directory/places',
       icon: MapPin,
       pendingCount: stats?.places.pending,
     },
     {
       title: 'Manage Events',
       description: 'Curate and review event listings',
-      href: '/admin/directory?tab=events',
+      href: '/admin/directory/events',
       icon: Calendar,
       pendingCount: stats?.events.pending,
     },
@@ -86,14 +86,14 @@ const AdminDashboard = () => {
     needsAttention.push({
       type: 'warning',
       message: `${stats.places.pending} place${stats.places.pending > 1 ? 's' : ''} pending review`,
-      href: '/admin/directory?tab=places&status=pending',
+      href: '/admin/directory/places?status=pending',
     });
   }
   if (stats?.events.pending && stats.events.pending > 0) {
     needsAttention.push({
       type: 'warning',
       message: `${stats.events.pending} event${stats.events.pending > 1 ? 's' : ''} pending review`,
-      href: '/admin/directory?tab=events&status=pending',
+      href: '/admin/directory/events?status=pending',
     });
   }
   if (stats && stats.events.approved === 0 && stats.events.pending === 0) {

@@ -12,8 +12,8 @@ const navItems = [
 ];
 
 const directoryItems = [
-  { title: 'Places', href: '/admin/directory?tab=places', icon: MapPin },
-  { title: 'Events', href: '/admin/directory?tab=events', icon: Calendar },
+  { title: 'Places', href: '/admin/directory/places', icon: MapPin },
+  { title: 'Events', href: '/admin/directory/events', icon: Calendar },
   { title: 'Discover', href: '/admin/directory/events/discover', icon: Sparkles, highlight: true },
 ];
 
@@ -31,17 +31,10 @@ const AdminSidebar = () => {
   const [directoryOpen, setDirectoryOpen] = useState<boolean>(true);
 
   const isActive = (href: string) => {
-    // Handle routes with query params
-    if (href.includes('?')) {
-      const [path, query] = href.split('?');
-      return currentPath === path && currentSearch.includes(query.split('=')[1]);
-    }
     if (href === '/admin') {
       return currentPath === '/admin';
     }
-    if (href === '/admin/directory') {
-      return currentPath === '/admin/directory' && !currentSearch;
-    }
+    // Exact match or nested routes
     return currentPath === href || currentPath.startsWith(href + '/');
   };
 
