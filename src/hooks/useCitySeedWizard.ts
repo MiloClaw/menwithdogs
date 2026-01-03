@@ -42,44 +42,61 @@ export const FOCUSED_VENUE_TYPES = [
   'art_gallery',     // Culture
 ] as const;
 
+// Interest-Aligned: Types that map directly to user interests
+export const INTEREST_ALIGNED_TYPES = [
+  'restaurant', 'bar', 'cafe', 'brewery', 'winery',
+  'museum', 'art_gallery', 'performing_arts_theater', 'movie_theater',
+  'gym', 'yoga_studio', 'spa',
+  'hiking_area', 'beach', 'park', 'marina',
+  'bowling_alley', 'escape_room', 'comedy_club', 'live_music_venue',
+] as const;
+
 // Curated anchor venue types for seeding
 export const ANCHOR_VENUE_TYPES = [
   'restaurant', 'cafe', 'bakery',
   'bar', 'wine_bar', 'brewery',
-  'movie_theater', 'bowling_alley',
+  'movie_theater', 'bowling_alley', 'gym',
   'museum', 'art_gallery',
-  'park',
+  'park', 'hiking_area',
 ] as const;
 
 export const EXTENDED_VENUE_TYPES = [
   ...ANCHOR_VENUE_TYPES,
-  'coffee_shop', 'ice_cream_shop',
-  'night_club',
-  'amusement_park',
+  'coffee_shop', 'ice_cream_shop', 'winery', 'cooking_class', 'farmers_market',
+  'night_club', 'live_music_venue', 'comedy_club',
+  'performing_arts_theater', 'escape_room', 'amusement_park',
+  'spa', 'yoga_studio', 'beach', 'campground', 'marina',
   'library', 'tourist_attraction',
-  'spa', 'yoga_studio',
 ] as const;
 
 export const VENUE_CATEGORY_GROUPS = [
   {
-    label: 'Dining',
-    types: ['restaurant', 'cafe', 'bakery', 'coffee_shop', 'ice_cream_shop'],
+    label: 'Dining & Food',
+    types: ['restaurant', 'cafe', 'bakery', 'coffee_shop', 'ice_cream_shop', 'winery', 'farmers_market', 'cooking_class'],
   },
   {
-    label: 'Nightlife',
-    types: ['bar', 'wine_bar', 'brewery', 'night_club'],
+    label: 'Nightlife & Bars',
+    types: ['bar', 'wine_bar', 'brewery', 'night_club', 'live_music_venue'],
   },
   {
-    label: 'Entertainment',
-    types: ['movie_theater', 'bowling_alley', 'amusement_park'],
+    label: 'Live Performance',
+    types: ['performing_arts_theater', 'comedy_club', 'movie_theater'],
+  },
+  {
+    label: 'Games & Activities',
+    types: ['bowling_alley', 'escape_room', 'amusement_park'],
   },
   {
     label: 'Culture',
     types: ['museum', 'art_gallery', 'library', 'tourist_attraction'],
   },
   {
-    label: 'Wellness & Outdoors',
-    types: ['park', 'spa', 'yoga_studio'],
+    label: 'Fitness & Wellness',
+    types: ['gym', 'yoga_studio', 'spa'],
+  },
+  {
+    label: 'Outdoor & Adventure',
+    types: ['park', 'hiking_area', 'beach', 'campground', 'marina'],
   },
 ];
 
