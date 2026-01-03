@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -32,11 +32,14 @@ import { usePlaces, CreatePlaceInput, getPhotos } from '@/hooks/usePlaces';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { getFirstPhotoUrl } from '@/lib/google-places-photos';
+import StatusFilterTabs, { StatusFilter } from '@/components/admin/StatusFilterTabs';
+import SourceBadge from '@/components/admin/SourceBadge';
 
 const PlaceManagement = () => {
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   // Form state with all GBP fields
   const [formData, setFormData] = useState<CreatePlaceInput>({
@@ -47,6 +50,13 @@ const PlaceManagement = () => {
     state: '',
     country: '',
   });
+
+  const statusCounts = useMemo(() => ({
+    all: places.length,
+    approved: places.filter(p => p.status === 'approved').length,
+    pending: places.filter(p => p.status === 'pending').length,
+    rejected: places.filter(p => p.status === 'rejected').length,
+  }), [places]);
 
   const handlePlaceSelect = (details: PlaceDetails) => {
     setFormData({
@@ -101,10 +111,12 @@ const PlaceManagement = () => {
     }
   };
 
-  const filteredPlaces = places.filter(place =>
-    place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    place.city?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPlaces = places
+    .filter(place => statusFilter === 'all' || place.status === statusFilter)
+    .filter(place =>
+      place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      place.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const statusColors = {
     approved: 'bg-green-500/10 text-green-700 border-green-500/20',
@@ -282,6 +294,13 @@ const PlaceManagement = () => {
           </div>
         </div>
 
+        {/* Status Filters */}
+        <StatusFilterTabs
+          activeStatus={statusFilter}
+          onStatusChange={setStatusFilter}
+          counts={statusCounts}
+        />
+
         {/* Search */}
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -301,6 +320,7 @@ const PlaceManagement = () => {
                 <TableHead className="w-[60px]">Photo</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Rating</TableHead>
                 <TableHead>Status</TableHead>
@@ -310,13 +330,13 @@ const PlaceManagement = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredPlaces.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No places found
                   </TableCell>
                 </TableRow>
@@ -346,8 +366,11 @@ const PlaceManagement = () => {
                       <TableCell className="font-medium">{place.name}</TableCell>
                       <TableCell>{place.primary_category}</TableCell>
                       <TableCell>
+                        <SourceBadge source={place.source} />
+                      </TableCell>
+                      <TableCell>
                         {[place.city, place.state].filter(Boolean).join(', ')}
-                    </TableCell>
+                      </TableCell>
                     <TableCell>
                       {place.rating ? (
                         <div className="flex items-center gap-1">
