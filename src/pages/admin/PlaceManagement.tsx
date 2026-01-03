@@ -27,19 +27,35 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Search, Trash2, Star, ExternalLink, Phone, Globe, Eye } from 'lucide-react';
-import { usePlaces, CreatePlaceInput, getPhotos } from '@/hooks/usePlaces';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ArrowLeft, Plus, Search, Trash2, Star, ExternalLink, Phone, Globe, Eye, Pencil, AlertTriangle } from 'lucide-react';
+import { usePlaces, CreatePlaceInput, getPhotos, Place } from '@/hooks/usePlaces';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { getFirstPhotoUrl } from '@/lib/google-places-photos';
 import StatusFilterTabs, { StatusFilter } from '@/components/admin/StatusFilterTabs';
 import SourceBadge from '@/components/admin/SourceBadge';
+import PlaceEditModal from '@/components/admin/PlaceEditModal';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+type EntryMode = 'google' | 'manual';
 
 const PlaceManagement = () => {
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [entryMode, setEntryMode] = useState<EntryMode>('google');
+  
+  // Edit modal state
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Duplicate detection state
+  const [duplicateWarning, setDuplicateWarning] = useState<{
+    type: 'exact' | 'similar';
+    existingPlace: Place;
+  } | null>(null);
 
   // Form state with all GBP fields
   const [formData, setFormData] = useState<CreatePlaceInput>({
@@ -58,8 +74,29 @@ const PlaceManagement = () => {
     rejected: places.filter(p => p.status === 'rejected').length,
   }), [places]);
 
+  const checkForDuplicates = (googlePlaceId: string, name: string, city: string) => {
+    // Check for exact google_place_id match
+    const exactMatch = places.find(p => p.google_place_id === googlePlaceId);
+    if (exactMatch) {
+      setDuplicateWarning({ type: 'exact', existingPlace: exactMatch });
+      return;
+    }
+
+    // Check for similar name + city match
+    const similarMatch = places.find(p => 
+      p.name.toLowerCase() === name.toLowerCase() && 
+      p.city?.toLowerCase() === city.toLowerCase()
+    );
+    if (similarMatch) {
+      setDuplicateWarning({ type: 'similar', existingPlace: similarMatch });
+      return;
+    }
+
+    setDuplicateWarning(null);
+  };
+
   const handlePlaceSelect = (details: PlaceDetails) => {
-    setFormData({
+    const newFormData = {
       google_place_id: details.place_id,
       name: details.name,
       primary_category: details.google_primary_type_display || '',
@@ -79,7 +116,31 @@ const PlaceManagement = () => {
       photos: details.photos as unknown as CreatePlaceInput['photos'],
       google_primary_type: details.google_primary_type,
       google_primary_type_display: details.google_primary_type_display,
-    });
+    };
+    setFormData(newFormData);
+    checkForDuplicates(details.place_id, details.name, details.city || '');
+  };
+
+  const handleManualFieldChange = (field: keyof CreatePlaceInput, value: string) => {
+    const newFormData = { ...formData, [field]: value };
+    setFormData(newFormData);
+    
+    // Check for duplicates when name or city changes
+    if (field === 'name' || field === 'city') {
+      const name = field === 'name' ? value : (formData.name || '');
+      const city = field === 'city' ? value : (formData.city || '');
+      if (name && city) {
+        const similarMatch = places.find(p => 
+          p.name.toLowerCase() === name.toLowerCase() && 
+          p.city?.toLowerCase() === city.toLowerCase()
+        );
+        if (similarMatch) {
+          setDuplicateWarning({ type: 'similar', existingPlace: similarMatch });
+        } else {
+          setDuplicateWarning(null);
+        }
+      }
+    }
   };
 
   const resetForm = () => {
@@ -91,18 +152,41 @@ const PlaceManagement = () => {
       state: '',
       country: '',
     });
+    setDuplicateWarning(null);
+    setEntryMode('google');
   };
 
   const handleCreate = async () => {
-    if (!formData.google_place_id || !formData.name || !formData.primary_category) return;
+    // For Google Places, require google_place_id
+    if (entryMode === 'google' && !formData.google_place_id) return;
     
-    await createPlace.mutateAsync(formData);
+    // For manual, require name and category
+    if (entryMode === 'manual' && (!formData.name || !formData.primary_category)) return;
+    
+    const dataToSubmit = { ...formData };
+    
+    // For manual entry, generate a placeholder google_place_id
+    if (entryMode === 'manual') {
+      dataToSubmit.google_place_id = `manual_${crypto.randomUUID()}`;
+      dataToSubmit.source = 'admin';
+    }
+    
+    await createPlace.mutateAsync(dataToSubmit);
     setIsCreateOpen(false);
     resetForm();
   };
 
   const handleStatusChange = async (id: string, status: 'approved' | 'pending' | 'rejected') => {
     await updatePlace.mutateAsync({ id, status });
+  };
+
+  const handleEdit = (place: Place) => {
+    setSelectedPlace(place);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveEdit = async (id: string, updates: Partial<Place>) => {
+    await updatePlace.mutateAsync({ id, ...updates });
   };
 
   const handleDelete = async (id: string) => {
@@ -124,6 +208,9 @@ const PlaceManagement = () => {
     rejected: 'bg-red-500/10 text-red-700 border-red-500/20',
   };
 
+  const canCreate = entryMode === 'google' 
+    ? formData.google_place_id && formData.name && formData.primary_category
+    : formData.name && formData.primary_category;
 
   return (
     <AdminLayout>
@@ -163,103 +250,200 @@ const PlaceManagement = () => {
                 <DialogTitle>Add New Place</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label>Search Google Places</Label>
-                  <GooglePlacesAutocomplete
-                    value={formData.name}
-                    onChange={(value) => setFormData({ ...formData, name: value })}
-                    onPlaceSelect={handlePlaceSelect}
-                    types="establishment"
-                    placeholder="Search for a venue..."
-                  />
+                {/* Entry Mode Toggle */}
+                <div className="space-y-3">
+                  <Label>Entry Mode</Label>
+                  <RadioGroup
+                    value={entryMode}
+                    onValueChange={(value: EntryMode) => {
+                      setEntryMode(value);
+                      resetForm();
+                      setEntryMode(value); // Keep the selected mode
+                    }}
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="google" id="google" />
+                      <Label htmlFor="google" className="font-normal cursor-pointer">
+                        Search Google Places
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="manual" id="manual" />
+                      <Label htmlFor="manual" className="font-normal cursor-pointer">
+                        Manual Entry
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
 
-                {formData.google_place_id && (
+                {/* Google Places Mode */}
+                {entryMode === 'google' && (
                   <>
-                    {/* Preview Card */}
-                    <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
-                      <div className="flex gap-3">
-                        {formData.photos && Array.isArray(formData.photos) && formData.photos.length > 0 ? (
-                          <img 
-                            src={getFirstPhotoUrl(formData.photos as any, 200, 200) || ''}
-                            alt={formData.name}
-                            className="w-16 h-16 rounded-md object-cover bg-muted"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                            No photo
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium truncate">{formData.name}</h3>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {formData.formatted_address || [formData.city, formData.state].filter(Boolean).join(', ')}
-                          </p>
-                          {formData.rating && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                              <span className="text-sm font-medium">{formData.rating}</span>
-                              {formData.user_ratings_total && (
-                                <span className="text-sm text-muted-foreground">
-                                  ({formData.user_ratings_total.toLocaleString()} reviews)
+                    <div className="space-y-2">
+                      <Label>Search Google Places</Label>
+                      <GooglePlacesAutocomplete
+                        value={formData.name}
+                        onChange={(value) => setFormData({ ...formData, name: value })}
+                        onPlaceSelect={handlePlaceSelect}
+                        types="establishment"
+                        placeholder="Search for a venue..."
+                      />
+                    </div>
+
+                    {formData.google_place_id && (
+                      <>
+                        {/* Duplicate Warning */}
+                        {duplicateWarning && (
+                          <Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10 text-amber-700">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription>
+                              {duplicateWarning.type === 'exact' ? (
+                                <span>
+                                  <strong>Exact match:</strong> This place already exists as "{duplicateWarning.existingPlace.name}" 
+                                  ({duplicateWarning.existingPlace.status})
+                                </span>
+                              ) : (
+                                <span>
+                                  <strong>Possible duplicate:</strong> "{duplicateWarning.existingPlace.name}" in {duplicateWarning.existingPlace.city} 
+                                  ({duplicateWarning.existingPlace.status})
                                 </span>
                               )}
+                            </AlertDescription>
+                          </Alert>
+                        )}
+
+                        {/* Preview Card */}
+                        <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
+                          <div className="flex gap-3">
+                            {formData.photos && Array.isArray(formData.photos) && formData.photos.length > 0 ? (
+                              <img 
+                                src={getFirstPhotoUrl(formData.photos as any, 200, 200) || ''}
+                                alt={formData.name}
+                                className="w-16 h-16 rounded-md object-cover bg-muted"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100&h=100&fit=crop';
+                                }}
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                                No photo
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium truncate">{formData.name}</h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {formData.formatted_address || [formData.city, formData.state].filter(Boolean).join(', ')}
+                              </p>
+                              {formData.rating && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                                  <span className="text-sm font-medium">{formData.rating}</span>
+                                  {formData.user_ratings_total && (
+                                    <span className="text-sm text-muted-foreground">
+                                      ({formData.user_ratings_total.toLocaleString()} reviews)
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                             </div>
+                          </div>
+
+                          {/* Links */}
+                          <div className="flex flex-wrap gap-2 text-sm">
+                            {formData.website_url && (
+                              <a 
+                                href={formData.website_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                <Globe className="h-3.5 w-3.5" />
+                                Website
+                              </a>
+                            )}
+                            {formData.phone_number && (
+                              <a 
+                                href={`tel:${formData.phone_number}`}
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                <Phone className="h-3.5 w-3.5" />
+                                {formData.phone_number}
+                              </a>
+                            )}
+                            {formData.google_maps_url && (
+                              <a 
+                                href={formData.google_maps_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                                Google Maps
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Category</Label>
+                          <Input
+                            value={formData.primary_category}
+                            onChange={(e) => setFormData({ ...formData, primary_category: e.target.value })}
+                            placeholder="e.g., Restaurant, Bar, Coffee Shop"
+                          />
+                          {formData.google_primary_type_display && formData.primary_category !== formData.google_primary_type_display && (
+                            <p className="text-xs text-muted-foreground">
+                              Suggested: {formData.google_primary_type_display}
+                            </p>
                           )}
                         </div>
-                      </div>
 
-                      {/* Links */}
-                      <div className="flex flex-wrap gap-2 text-sm">
-                        {formData.website_url && (
-                          <a 
-                            href={formData.website_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-primary hover:underline"
-                          >
-                            <Globe className="h-3.5 w-3.5" />
-                            Website
-                          </a>
-                        )}
-                        {formData.phone_number && (
-                          <a 
-                            href={`tel:${formData.phone_number}`}
-                            className="flex items-center gap-1 text-primary hover:underline"
-                          >
-                            <Phone className="h-3.5 w-3.5" />
-                            {formData.phone_number}
-                          </a>
-                        )}
-                        {formData.google_maps_url && (
-                          <a 
-                            href={formData.google_maps_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-primary hover:underline"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            Google Maps
-                          </a>
-                        )}
-                      </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>City</Label>
+                            <Input value={formData.city} disabled />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>State</Label>
+                            <Input value={formData.state} disabled />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Manual Entry Mode */}
+                {entryMode === 'manual' && (
+                  <>
+                    {/* Duplicate Warning */}
+                    {duplicateWarning && (
+                      <Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10 text-amber-700">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          <strong>Possible duplicate:</strong> "{duplicateWarning.existingPlace.name}" in {duplicateWarning.existingPlace.city} 
+                          ({duplicateWarning.existingPlace.status})
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label>Name *</Label>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => handleManualFieldChange('name', e.target.value)}
+                        placeholder="Venue name"
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Category</Label>
+                      <Label>Category *</Label>
                       <Input
                         value={formData.primary_category}
-                        onChange={(e) => setFormData({ ...formData, primary_category: e.target.value })}
+                        onChange={(e) => handleManualFieldChange('primary_category', e.target.value)}
                         placeholder="e.g., Restaurant, Bar, Coffee Shop"
                       />
-                      {formData.google_primary_type_display && formData.primary_category !== formData.google_primary_type_display && (
-                        <p className="text-xs text-muted-foreground">
-                          Suggested: {formData.google_primary_type_display}
-                        </p>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -267,26 +451,67 @@ const PlaceManagement = () => {
                         <Label>City</Label>
                         <Input
                           value={formData.city}
-                          disabled
+                          onChange={(e) => handleManualFieldChange('city', e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>State</Label>
                         <Input
                           value={formData.state}
-                          disabled
+                          onChange={(e) => handleManualFieldChange('state', e.target.value)}
                         />
                       </div>
                     </div>
 
-                    <Button 
-                      onClick={handleCreate} 
-                      className="w-full"
-                      disabled={createPlace.isPending}
-                    >
-                      {createPlace.isPending ? 'Creating...' : 'Create Place'}
-                    </Button>
+                    <div className="space-y-2">
+                      <Label>Country</Label>
+                      <Input
+                        value={formData.country}
+                        onChange={(e) => handleManualFieldChange('country', e.target.value)}
+                        placeholder="e.g., United States"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Address</Label>
+                      <Input
+                        value={formData.formatted_address || ''}
+                        onChange={(e) => setFormData({ ...formData, formatted_address: e.target.value })}
+                        placeholder="Full address"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Website</Label>
+                        <Input
+                          type="url"
+                          value={formData.website_url || ''}
+                          onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                          placeholder="https://"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Phone</Label>
+                        <Input
+                          type="tel"
+                          value={formData.phone_number || ''}
+                          onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                        />
+                      </div>
+                    </div>
                   </>
+                )}
+
+                {/* Create Button */}
+                {(entryMode === 'manual' || formData.google_place_id) && (
+                  <Button 
+                    onClick={handleCreate} 
+                    className="w-full"
+                    disabled={createPlace.isPending || !canCreate}
+                  >
+                    {createPlace.isPending ? 'Creating...' : 'Create Place'}
+                  </Button>
                 )}
               </div>
             </DialogContent>
@@ -324,7 +549,7 @@ const PlaceManagement = () => {
                 <TableHead>Location</TableHead>
                 <TableHead>Rating</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -406,13 +631,22 @@ const PlaceManagement = () => {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(place.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(place)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(place.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                   );
@@ -422,6 +656,14 @@ const PlaceManagement = () => {
           </Table>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <PlaceEditModal
+        place={selectedPlace}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onSave={handleSaveEdit}
+      />
     </AdminLayout>
   );
 };
