@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus, Calendar } from 'lucide-react';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Place, getOpeningHoursText, getPhotos } from '@/hooks/usePlaces';
+import { useEvents } from '@/hooks/useEvents';
 import SourceBadge from '../SourceBadge';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
 import PlacePhotoGallery from './PlacePhotoGallery';
 import PlaceEventForm from './PlaceEventForm';
-
 interface PlaceDetailViewProps {
   place: Place;
   onEdit: () => void;
@@ -24,10 +25,13 @@ const statusColors: Record<Place['status'], string> = {
 
 const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDetailViewProps) => {
   const [showEventForm, setShowEventForm] = useState(false);
+  const { events } = useEvents();
   const photos = getPhotos(place.photos);
   const openingHours = getOpeningHoursText(place.opening_hours);
   const isManualEntry = place.google_place_id.startsWith('manual_');
-
+  
+  // Filter events for this venue
+  const venueEvents = events.filter(e => e.venue_place_id === place.id);
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -96,6 +100,39 @@ const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDet
               Reject
             </Button>
           </div>
+        </div>
+
+        {/* Venue Events */}
+        <div>
+          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Events at this Venue ({venueEvents.length})
+          </h3>
+          {venueEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No events scheduled.</p>
+          ) : (
+            <div className="space-y-2">
+              {venueEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between p-2 rounded-md border bg-background"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">{event.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(event.start_at), 'MMM d, yyyy h:mm a')}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={event.status === 'approved' ? 'default' : 'secondary'}
+                    className="ml-2 shrink-0"
+                  >
+                    {event.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <Separator />
