@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import {
   Table,
   TableBody,
@@ -29,9 +31,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Search, Trash2, Calendar, MapPin } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Trash2, Calendar, MapPin, Zap, DollarSign } from 'lucide-react';
 import { useEvents, CreateEventInput } from '@/hooks/useEvents';
 import { usePlaces } from '@/hooks/usePlaces';
+import {
+  EVENT_TYPES,
+  EVENT_FORMATS,
+  COST_TYPES,
+  SOCIAL_ENERGY_LABELS,
+  COMMITMENT_LABELS,
+  getEventTypeLabel,
+  getSocialEnergyLabel,
+  getCostTypeLabel,
+} from '@/lib/event-taxonomy';
 
 const EventManagement = () => {
   const { events, isLoading, createEvent, updateEvent, deleteEvent } = useEvents();
@@ -47,16 +59,18 @@ const EventManagement = () => {
     start_at: '',
     end_at: '',
     category_tags: [],
+    event_type: null,
+    event_format: null,
+    social_energy_level: 3,
+    commitment_level: 2,
+    cost_type: 'unknown',
+    is_recurring: false,
   });
   const [tagInput, setTagInput] = useState('');
 
   const approvedPlaces = places.filter(p => p.status === 'approved');
 
-  const handleCreate = async () => {
-    if (!formData.venue_place_id || !formData.name || !formData.start_at) return;
-    
-    await createEvent.mutateAsync(formData);
-    setIsCreateOpen(false);
+  const resetForm = () => {
     setFormData({
       venue_place_id: '',
       name: '',
@@ -64,7 +78,22 @@ const EventManagement = () => {
       start_at: '',
       end_at: '',
       category_tags: [],
+      event_type: null,
+      event_format: null,
+      social_energy_level: 3,
+      commitment_level: 2,
+      cost_type: 'unknown',
+      is_recurring: false,
     });
+    setTagInput('');
+  };
+
+  const handleCreate = async () => {
+    if (!formData.venue_place_id || !formData.name || !formData.start_at) return;
+    
+    await createEvent.mutateAsync(formData);
+    setIsCreateOpen(false);
+    resetForm();
   };
 
   const handleAddTag = () => {
@@ -198,6 +227,137 @@ const EventManagement = () => {
                   </div>
                 </div>
 
+                {/* Taxonomy Section */}
+                <div className="border-t pt-4 mt-4">
+                  <h4 className="text-sm font-medium mb-4 text-muted-foreground">Event Classification</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>What kind of event?</Label>
+                      <Select
+                        value={formData.event_type || ''}
+                        onValueChange={(value) => setFormData({ ...formData, event_type: value || null })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EVENT_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>How does it work?</Label>
+                      <Select
+                        value={formData.event_format || ''}
+                        onValueChange={(value) => setFormData({ ...formData, event_format: value || null })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select format" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EVENT_FORMATS.map((format) => (
+                            <SelectItem key={format.value} value={format.value}>
+                              {format.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 mt-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          How social does it feel?
+                        </Label>
+                        <span className="text-sm text-muted-foreground">
+                          {SOCIAL_ENERGY_LABELS.find(s => s.value === formData.social_energy_level)?.label || 'Balanced'}
+                        </span>
+                      </div>
+                      <Slider
+                        value={[formData.social_energy_level || 3]}
+                        onValueChange={([value]) => setFormData({ ...formData, social_energy_level: value })}
+                        min={1}
+                        max={5}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Quiet</span>
+                        <span>High energy</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label>Is this casual or planned?</Label>
+                        <span className="text-sm text-muted-foreground">
+                          {COMMITMENT_LABELS.find(c => c.value === formData.commitment_level)?.label || 'Light'}
+                        </span>
+                      </div>
+                      <Slider
+                        value={[formData.commitment_level || 2]}
+                        onValueChange={([value]) => setFormData({ ...formData, commitment_level: value })}
+                        min={1}
+                        max={5}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Drop-in</span>
+                        <span>High commitment</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        Cost
+                      </Label>
+                      <Select
+                        value={formData.cost_type || 'unknown'}
+                        onValueChange={(value) => setFormData({ ...formData, cost_type: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select cost type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COST_TYPES.map((cost) => (
+                            <SelectItem key={cost.value} value={cost.value}>
+                              {cost.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Recurring?</Label>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Checkbox
+                          id="is_recurring"
+                          checked={formData.is_recurring || false}
+                          onCheckedChange={(checked) => setFormData({ ...formData, is_recurring: !!checked })}
+                        />
+                        <label htmlFor="is_recurring" className="text-sm text-muted-foreground">
+                          This event repeats regularly
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tags Section */}
                 <div className="space-y-2">
                   <Label>Tags</Label>
                   <div className="flex gap-2">
@@ -256,6 +416,7 @@ const EventManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Event</TableHead>
+                <TableHead>Type / Energy</TableHead>
                 <TableHead>Venue</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
@@ -265,13 +426,13 @@ const EventManagement = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredEvents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No events found
                   </TableCell>
                 </TableRow>
@@ -281,13 +442,31 @@ const EventManagement = () => {
                     <TableCell>
                       <div>
                         <p className="font-medium">{event.name}</p>
-                        {event.category_tags && event.category_tags.length > 0 && (
-                          <div className="flex gap-1 mt-1">
-                            {event.category_tags.slice(0, 2).map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {event.cost_type && event.cost_type !== 'unknown' && (
+                            <Badge variant="outline" className="text-xs">
+                              {getCostTypeLabel(event.cost_type)}
+                            </Badge>
+                          )}
+                          {event.is_recurring && (
+                            <Badge variant="outline" className="text-xs">
+                              Recurring
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {event.event_type && (
+                          <Badge variant="secondary" className="text-xs">
+                            {getEventTypeLabel(event.event_type)}
+                          </Badge>
+                        )}
+                        {event.social_energy_level && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Zap className="h-3 w-3" />
+                            {getSocialEnergyLabel(event.social_energy_level)}
                           </div>
                         )}
                       </div>

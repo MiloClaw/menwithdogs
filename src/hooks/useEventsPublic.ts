@@ -11,6 +11,13 @@ export interface PublicEvent {
   start_at: string;
   end_at: string | null;
   category_tags: string[];
+  // Taxonomy fields
+  event_type: string | null;
+  event_format: string | null;
+  social_energy_level: number | null;
+  commitment_level: number | null;
+  cost_type: string | null;
+  is_recurring: boolean;
   venue: {
     id: string;
     name: string;
@@ -80,6 +87,12 @@ export function useEventsPublic(options: UseEventsPublicOptions = {}) {
           start_at,
           end_at,
           category_tags,
+          event_type,
+          event_format,
+          social_energy_level,
+          commitment_level,
+          cost_type,
+          is_recurring,
           venue:places!venue_place_id (
             id,
             name,

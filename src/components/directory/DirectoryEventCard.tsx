@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Clock, Heart } from 'lucide-react';
+import { Calendar, MapPin, Clock, Heart, Zap, DollarSign } from 'lucide-react';
 import { format, isSameDay, isPast } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import PresenceCountStrip from './PresenceCountStrip';
 import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
+import { getEventTypeLabel, getCostTypeLabel } from '@/lib/event-taxonomy';
 import type { PublicEvent } from '@/hooks/useEventsPublic';
 
 interface DirectoryEventCardProps {
@@ -50,15 +51,27 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
       onClick={onClick}
     >
       <CardContent className="p-4 space-y-3">
-        {/* Header: Tags + Save Button */}
+        {/* Header: Type Badge + Energy + Save Button */}
         <div className="flex items-start justify-between gap-2">
-          {/* Category Tags */}
-          <div className="flex flex-wrap gap-1 flex-1">
-            {event.category_tags?.slice(0, 3).map(tag => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
+          {/* Event Type & Energy */}
+          <div className="flex flex-wrap gap-1.5 flex-1 items-center">
+            {event.event_type && (
+              <Badge variant="secondary" className="text-xs">
+                {getEventTypeLabel(event.event_type)}
               </Badge>
-            ))}
+            )}
+            {event.social_energy_level && (
+              <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                <Zap className="h-3 w-3" />
+                <span>{event.social_energy_level}/5</span>
+              </div>
+            )}
+            {event.cost_type && event.cost_type !== 'unknown' && (
+              <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                <DollarSign className="h-3 w-3" />
+                <span>{getCostTypeLabel(event.cost_type)}</span>
+              </div>
+            )}
           </div>
           
           {/* Save Button */}

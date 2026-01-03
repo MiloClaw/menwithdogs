@@ -460,11 +460,20 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           category_tags: string[] | null
+          commitment_level: number | null
+          cost_type: string | null
           created_at: string
+          created_by_role: string | null
           description: string | null
           end_at: string | null
+          event_format: string | null
+          event_type: string | null
           id: string
+          inference_confidence: number | null
+          is_recurring: boolean | null
           name: string
+          normalized_by_ai: boolean | null
+          social_energy_level: number | null
           source: Database["public"]["Enums"]["place_source"]
           start_at: string
           status: Database["public"]["Enums"]["event_status"]
@@ -476,11 +485,20 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           category_tags?: string[] | null
+          commitment_level?: number | null
+          cost_type?: string | null
           created_at?: string
+          created_by_role?: string | null
           description?: string | null
           end_at?: string | null
+          event_format?: string | null
+          event_type?: string | null
           id?: string
+          inference_confidence?: number | null
+          is_recurring?: boolean | null
           name: string
+          normalized_by_ai?: boolean | null
+          social_energy_level?: number | null
           source?: Database["public"]["Enums"]["place_source"]
           start_at: string
           status?: Database["public"]["Enums"]["event_status"]
@@ -492,11 +510,20 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           category_tags?: string[] | null
+          commitment_level?: number | null
+          cost_type?: string | null
           created_at?: string
+          created_by_role?: string | null
           description?: string | null
           end_at?: string | null
+          event_format?: string | null
+          event_type?: string | null
           id?: string
+          inference_confidence?: number | null
+          is_recurring?: boolean | null
           name?: string
+          normalized_by_ai?: boolean | null
+          social_energy_level?: number | null
           source?: Database["public"]["Enums"]["place_source"]
           start_at?: string
           status?: Database["public"]["Enums"]["event_status"]

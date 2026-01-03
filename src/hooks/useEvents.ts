@@ -10,10 +10,20 @@ export interface Event {
   start_at: string;
   end_at: string | null;
   category_tags: string[];
-  source: 'google_places' | 'admin';
+  source: 'google_places' | 'admin' | 'partner' | 'user_submitted' | 'inferred';
   status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   updated_at: string;
+  // Taxonomy fields
+  event_type: string | null;
+  event_format: string | null;
+  social_energy_level: number | null;
+  commitment_level: number | null;
+  cost_type: string | null;
+  is_recurring: boolean;
+  created_by_role: string | null;
+  inference_confidence: number | null;
+  normalized_by_ai: boolean;
 }
 
 export interface EventWithVenue extends Event {
@@ -33,6 +43,13 @@ export interface CreateEventInput {
   end_at?: string;
   category_tags?: string[];
   status?: 'approved' | 'pending' | 'rejected';
+  // Taxonomy fields
+  event_type?: string | null;
+  event_format?: string | null;
+  social_energy_level?: number | null;
+  commitment_level?: number | null;
+  cost_type?: string | null;
+  is_recurring?: boolean;
 }
 
 export const useEvents = () => {
@@ -99,9 +116,12 @@ export const useEvents = () => {
   // Update event
   const updateEvent = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Event> & { id: string }) => {
+      // Remove source from updates to avoid ENUM type mismatch with generated types
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { source, ...safeUpdates } = updates;
       const { data, error } = await supabase
         .from('events')
-        .update(updates)
+        .update(safeUpdates as any)
         .eq('id', id)
         .select()
         .single();
