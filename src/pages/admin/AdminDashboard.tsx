@@ -1,30 +1,108 @@
 import { Link } from 'react-router-dom';
-import { Users, FileText, TrendingUp, Calendar } from 'lucide-react';
+import { Users, FileText, MapPin, Calendar, Sparkles, Tags, AlertTriangle, Info } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAdminStats } from '@/hooks/useAdminStats';
 
 const AdminDashboard = () => {
-  const stats = [
-    { label: 'Total Users', value: '—', icon: Users, change: null },
-    { label: 'Blog Posts', value: '—', icon: FileText, change: null },
-    { label: 'Active Couples', value: '—', icon: TrendingUp, change: null },
-    { label: 'This Month', value: '—', icon: Calendar, change: null },
+  const { data: stats, isLoading } = useAdminStats();
+
+  const statCards = [
+    {
+      label: 'Active Couples',
+      value: stats?.couples.discoverable ?? 0,
+      subtext: `of ${stats?.couples.total ?? 0} total`,
+      icon: Users,
+    },
+    {
+      label: 'Places',
+      value: stats?.places.approved ?? 0,
+      subtext: stats?.places.pending ? `${stats.places.pending} pending review` : 'All reviewed',
+      icon: MapPin,
+      pendingCount: stats?.places.pending,
+    },
+    {
+      label: 'Events',
+      value: stats?.events.approved ?? 0,
+      subtext: stats?.events.pending ? `${stats.events.pending} pending review` : 'All reviewed',
+      icon: Calendar,
+      pendingCount: stats?.events.pending,
+    },
+    {
+      label: 'Blog Posts',
+      value: stats?.blogPosts ?? 0,
+      subtext: 'Published articles',
+      icon: FileText,
+    },
   ];
 
-  const quickLinks = [
+  const quickActions = [
     {
-      title: 'User Management',
-      description: 'View and manage user accounts and roles',
+      title: 'Discover Events',
+      description: 'AI-powered event research for your city',
+      href: '/admin/directory/events/discover',
+      icon: Sparkles,
+      isNew: true,
+      accentColor: true,
+    },
+    {
+      title: 'Manage Places',
+      description: 'Curate and review venue directory',
+      href: '/admin/directory?tab=places',
+      icon: MapPin,
+      pendingCount: stats?.places.pending,
+    },
+    {
+      title: 'Manage Events',
+      description: 'Curate and review event listings',
+      href: '/admin/directory?tab=events',
+      icon: Calendar,
+      pendingCount: stats?.events.pending,
+    },
+    {
+      title: 'Manage Users',
+      description: 'View accounts and assign roles',
       href: '/admin/users',
       icon: Users,
     },
     {
-      title: 'Blog Management',
-      description: 'Create, edit, and delete blog posts',
+      title: 'Manage Interests',
+      description: 'Configure interest taxonomy and mappings',
+      href: '/admin/interests',
+      icon: Tags,
+    },
+    {
+      title: 'Manage Blog',
+      description: 'Create and edit blog posts',
       href: '/admin/blog',
       icon: FileText,
     },
   ];
+
+  const needsAttention = [];
+  if (stats?.places.pending && stats.places.pending > 0) {
+    needsAttention.push({
+      type: 'warning',
+      message: `${stats.places.pending} place${stats.places.pending > 1 ? 's' : ''} pending review`,
+      href: '/admin/directory?tab=places&status=pending',
+    });
+  }
+  if (stats?.events.pending && stats.events.pending > 0) {
+    needsAttention.push({
+      type: 'warning',
+      message: `${stats.events.pending} event${stats.events.pending > 1 ? 's' : ''} pending review`,
+      href: '/admin/directory?tab=events&status=pending',
+    });
+  }
+  if (stats && stats.events.approved === 0 && stats.events.pending === 0) {
+    needsAttention.push({
+      type: 'info',
+      message: 'No events yet — use AI Discovery to find local events',
+      href: '/admin/directory/events/discover',
+    });
+  }
 
   return (
     <AdminLayout>
@@ -32,12 +110,12 @@ const AdminDashboard = () => {
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your application</p>
+          <p className="text-muted-foreground">MainStreet IRL admin command center</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
+          {statCards.map((stat) => (
             <Card key={stat.label}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -46,29 +124,85 @@ const AdminDashboard = () => {
                 <stat.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                {stat.change && (
-                  <p className="text-xs text-muted-foreground">{stat.change}</p>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-16" />
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold">{stat.value}</span>
+                      {stat.pendingCount && stat.pendingCount > 0 && (
+                        <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                          {stat.pendingCount} pending
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{stat.subtext}</p>
+                  </>
                 )}
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Quick Links */}
+        {/* Needs Attention Queue */}
+        {needsAttention.length > 0 && (
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold">Needs Attention</h2>
+            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+              {needsAttention.map((item, index) => (
+                <Link key={index} to={item.href}>
+                  <Card className={`hover:bg-accent/50 transition-colors cursor-pointer border-l-4 ${
+                    item.type === 'warning' 
+                      ? 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' 
+                      : 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+                  }`}>
+                    <CardContent className="py-3 flex items-center gap-3">
+                      {item.type === 'warning' ? (
+                        <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                      ) : (
+                        <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                      )}
+                      <span className="text-sm font-medium">{item.message}</span>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
         <div>
           <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {quickLinks.map((link) => (
-              <Link key={link.href} to={link.href}>
-                <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer">
+            {quickActions.map((action) => (
+              <Link key={action.href} to={action.href}>
+                <Card className={`h-full hover:bg-accent/50 transition-colors cursor-pointer ${
+                  action.accentColor ? 'ring-1 ring-primary/30 bg-primary/5' : ''
+                }`}>
                   <CardHeader className="flex flex-row items-center gap-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <link.icon className="h-6 w-6 text-primary" />
+                    <div className={`p-2 rounded-lg ${
+                      action.accentColor 
+                        ? 'bg-primary/20 text-primary' 
+                        : 'bg-muted'
+                    }`}>
+                      <action.icon className={`h-6 w-6 ${
+                        action.accentColor ? 'text-primary' : 'text-muted-foreground'
+                      }`} />
                     </div>
-                    <div>
-                      <CardTitle className="text-base">{link.title}</CardTitle>
-                      <CardDescription className="text-sm">{link.description}</CardDescription>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-base">{action.title}</CardTitle>
+                        {action.isNew && (
+                          <Badge className="bg-primary text-primary-foreground text-xs">NEW</Badge>
+                        )}
+                        {action.pendingCount && action.pendingCount > 0 && (
+                          <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                            {action.pendingCount}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="text-sm">{action.description}</CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
@@ -76,15 +210,6 @@ const AdminDashboard = () => {
             ))}
           </div>
         </div>
-
-        {/* Placeholder for future stats */}
-        <Card className="border-dashed">
-          <CardContent className="py-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              Real-time statistics will be available in a future update.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </AdminLayout>
   );
