@@ -30,6 +30,7 @@ const GooglePlacesAutocomplete = ({
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
@@ -78,7 +79,11 @@ const GooglePlacesAutocomplete = ({
   // Handle clicks outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isOutsideContainer = containerRef.current && !containerRef.current.contains(target);
+      const isOutsideDropdown = !dropdownRef.current || !dropdownRef.current.contains(target);
+      
+      if (isOutsideContainer && isOutsideDropdown) {
         setShowDropdown(false);
         setSelectedIndex(-1);
       }
@@ -192,6 +197,7 @@ const GooglePlacesAutocomplete = ({
       {/* Dropdown - rendered via Portal to escape dialog clipping */}
       {showDropdown && predictions.length > 0 && createPortal(
         <div 
+          ref={dropdownRef}
           style={dropdownStyle}
           className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
         >
