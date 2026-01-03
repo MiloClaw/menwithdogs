@@ -43,6 +43,7 @@ export interface CreateEventInput {
   end_at?: string;
   category_tags?: string[];
   status?: 'approved' | 'pending' | 'rejected';
+  source?: 'google_places' | 'admin';
   // Taxonomy fields
   event_type?: string | null;
   event_format?: string | null;
@@ -50,6 +51,10 @@ export interface CreateEventInput {
   commitment_level?: number | null;
   cost_type?: string | null;
   is_recurring?: boolean;
+  // AI metadata
+  normalized_by_ai?: boolean;
+  inference_confidence?: number | null;
+  created_by_role?: string | null;
 }
 
 export const useEvents = () => {
@@ -89,10 +94,23 @@ export const useEvents = () => {
       const { data, error } = await supabase
         .from('events')
         .insert({
-          ...input,
-          source: 'admin',
-          status: input.status || 'approved',
+          venue_place_id: input.venue_place_id,
+          name: input.name,
+          description: input.description,
+          start_at: input.start_at,
+          end_at: input.end_at,
           category_tags: input.category_tags || [],
+          status: input.status || 'approved',
+          source: input.source || 'admin',
+          event_type: input.event_type,
+          event_format: input.event_format,
+          social_energy_level: input.social_energy_level,
+          commitment_level: input.commitment_level,
+          cost_type: input.cost_type,
+          is_recurring: input.is_recurring,
+          normalized_by_ai: input.normalized_by_ai,
+          inference_confidence: input.inference_confidence,
+          created_by_role: input.created_by_role,
         })
         .select()
         .single();
