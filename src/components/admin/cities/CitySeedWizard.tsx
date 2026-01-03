@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -42,8 +41,8 @@ export function CitySeedWizard({
     newCandidateCount,
     isSearching,
     isImporting,
+    isScanningReviews,
     searchKeywords,
-    scanReviews,
     minRating,
     minReviewCount,
     setSelectedTypes,
@@ -55,9 +54,10 @@ export function CitySeedWizard({
     reset,
     setStep,
     setSearchKeywords,
-    setScanReviews,
     setMinRating,
     setMinReviewCount,
+    scanCandidateReviews,
+    scanAllReviews,
   } = useCitySeedWizard(cityId, cityName);
 
   const handleClose = () => {
@@ -72,6 +72,9 @@ export function CitySeedWizard({
       setStep('configure');
     }
   };
+
+  const stepLabels = ['Configure', 'Discover', 'Review & Scan', 'Import'];
+  const stepKeys = ['configure', 'discovering', 'review', 'importing'];
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -88,8 +91,8 @@ export function CitySeedWizard({
 
         {/* Step Indicator */}
         <div className="flex items-center gap-2 mb-4">
-          {['Configure', 'Discover', 'Review', 'Import'].map((label, i) => {
-            const stepIndex = ['configure', 'discovering', 'review', 'importing'].indexOf(step);
+          {stepLabels.map((label, i) => {
+            const stepIndex = stepKeys.indexOf(step);
             const isActive = i === stepIndex || (step === 'complete' && i === 3);
             const isPast = i < stepIndex || step === 'complete';
             
@@ -97,12 +100,12 @@ export function CitySeedWizard({
               <div key={label} className="flex items-center">
                 <Badge
                   variant={isActive || isPast ? 'default' : 'outline'}
-                  className={`${isPast ? 'bg-green-600' : ''}`}
+                  className={`${isPast ? 'bg-green-600' : ''} whitespace-nowrap`}
                 >
                   {isPast ? <CheckCircle2 className="h-3 w-3 mr-1" /> : null}
                   {label}
                 </Badge>
-                {i < 3 && <div className="w-8 h-px bg-border mx-1" />}
+                {i < 3 && <div className="w-6 h-px bg-border mx-1" />}
               </div>
             );
           })}
@@ -116,8 +119,6 @@ export function CitySeedWizard({
               onTypesChange={setSelectedTypes}
               radius={radius}
               onRadiusChange={setRadius}
-              scanReviews={scanReviews}
-              onScanReviewsChange={setScanReviews}
               searchKeywords={searchKeywords}
               onKeywordsChange={setSearchKeywords}
               minRating={minRating}
@@ -148,6 +149,10 @@ export function CitySeedWizard({
                   onSelectAll={selectAll}
                   selectedCount={selectedCount}
                   newCandidateCount={newCandidateCount}
+                  searchKeywords={searchKeywords}
+                  onScanReviews={scanCandidateReviews}
+                  onScanAllReviews={scanAllReviews}
+                  isScanningReviews={isScanningReviews}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 space-y-4">
@@ -214,7 +219,7 @@ export function CitySeedWizard({
               </Button>
               <Button
                 onClick={startImport}
-                disabled={selectedCount === 0 || isImporting}
+                disabled={selectedCount === 0 || isImporting || isScanningReviews}
               >
                 Import {selectedCount} Places
               </Button>

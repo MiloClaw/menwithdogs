@@ -3,7 +3,6 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Heart, Info, Zap, DollarSign } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,8 +13,6 @@ interface SeedCategoryPickerProps {
   onTypesChange: (types: string[]) => void;
   radius: number;
   onRadiusChange: (radius: number) => void;
-  scanReviews?: boolean;
-  onScanReviewsChange?: (scan: boolean) => void;
   searchKeywords?: string[];
   onKeywordsChange?: (keywords: string[]) => void;
   minRating?: number;
@@ -29,8 +26,6 @@ export function SeedCategoryPicker({
   onTypesChange,
   radius,
   onRadiusChange,
-  scanReviews = false,
-  onScanReviewsChange,
   searchKeywords = [],
   onKeywordsChange,
   minRating = 4.0,
@@ -83,8 +78,7 @@ export function SeedCategoryPicker({
   const estimatedPlaces = Math.min(discoveryCalls * 15, 60); // Rough estimate
   const discoveryCost = discoveryCalls * 0.04;
   const importCost = estimatedPlaces * 0.017;
-  const reviewCost = scanReviews ? estimatedPlaces * 0.008 : 0;
-  const totalEstimate = discoveryCost + importCost + reviewCost;
+  const totalEstimate = discoveryCost + importCost;
 
   return (
     <div className="space-y-6">
@@ -129,65 +123,6 @@ export function SeedCategoryPicker({
           </Button>
         </div>
       </div>
-
-      {/* Quality Thresholds */}
-      {onMinRatingChange && onMinReviewCountChange && (
-        <div className="space-y-4 p-3 border rounded-lg bg-muted/30">
-          <div className="flex items-center gap-2">
-            <Label className="text-sm font-medium">Quality Threshold</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p className="text-xs">
-                    Filter out low-quality venues before importing. Reduces API costs by skipping places that don't meet your standards.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Min Rating</Label>
-              <div className="flex gap-1">
-                {ratingOptions.map((r) => (
-                  <Button
-                    key={r}
-                    type="button"
-                    size="sm"
-                    variant={minRating === r ? 'default' : 'outline'}
-                    onClick={() => onMinRatingChange(r)}
-                    className="flex-1 text-xs px-2"
-                  >
-                    {r}★
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Min Reviews</Label>
-              <div className="flex gap-1">
-                {[25, 50, 100, 200].map((count) => (
-                  <Button
-                    key={count}
-                    type="button"
-                    size="sm"
-                    variant={minReviewCount === count ? 'default' : 'outline'}
-                    onClick={() => onMinReviewCountChange(count)}
-                    className="flex-1 text-xs px-2"
-                  >
-                    {count}+
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Category Groups */}
       <div className="space-y-4">
@@ -246,53 +181,96 @@ export function SeedCategoryPicker({
         </div>
       </div>
 
-      {/* Keyword Scanning */}
-      {onScanReviewsChange && onKeywordsChange && (
-        <div className="space-y-3 p-3 border border-dashed rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 text-pink-500" />
-              <Label htmlFor="scan-reviews" className="text-sm font-medium cursor-pointer">
-                Scan Reviews for Keywords
-              </Label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-xs">
-                      During import, scan Google reviews for keywords to help identify affirming venues. 
-                      Additional API cost applies (~$0.008/place).
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Switch
-              id="scan-reviews"
-              checked={scanReviews}
-              onCheckedChange={onScanReviewsChange}
-            />
+      {/* Quality Thresholds */}
+      {onMinRatingChange && onMinReviewCountChange && (
+        <div className="space-y-4 p-3 border rounded-lg bg-muted/30">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Quality Threshold</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-xs">
+                    Filter out low-quality venues before review. Reduces clutter by hiding places that don't meet your standards.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           
-          {scanReviews && (
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="keywords" className="text-sm text-muted-foreground">
-                Keywords (comma-separated)
-              </Label>
-              <Input
-                id="keywords"
-                placeholder="gay, LGBT, LGBTQ, affirming, queer, pride, inclusive"
-                defaultValue={searchKeywords.join(', ')}
-                onChange={(e) => handleKeywordsChange(e.target.value)}
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                Up to 5 reviews per place will be scanned for these terms.
-              </p>
+              <Label className="text-xs text-muted-foreground">Min Rating</Label>
+              <div className="flex gap-1">
+                {ratingOptions.map((r) => (
+                  <Button
+                    key={r}
+                    type="button"
+                    size="sm"
+                    variant={minRating === r ? 'default' : 'outline'}
+                    onClick={() => onMinRatingChange(r)}
+                    className="flex-1 text-xs px-2"
+                  >
+                    {r}★
+                  </Button>
+                ))}
+              </div>
             </div>
-          )}
+            
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Min Reviews</Label>
+              <div className="flex gap-1">
+                {[25, 50, 100, 200].map((count) => (
+                  <Button
+                    key={count}
+                    type="button"
+                    size="sm"
+                    variant={minReviewCount === count ? 'default' : 'outline'}
+                    onClick={() => onMinReviewCountChange(count)}
+                    className="flex-1 text-xs px-2"
+                  >
+                    {count}+
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Keyword Configuration */}
+      {onKeywordsChange && (
+        <div className="space-y-3 p-3 border border-dashed rounded-lg">
+          <div className="flex items-center gap-2">
+            <Heart className="h-4 w-4 text-pink-500" />
+            <Label className="text-sm font-medium">Review Keywords (Optional)</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-xs">
+                    Configure keywords to scan for during the review step. You can scan individual places on-demand to find affirming venues.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          
+          <div className="space-y-2">
+            <Input
+              placeholder="gay, LGBT, LGBTQ, affirming, queer, pride, inclusive"
+              defaultValue={searchKeywords.join(', ')}
+              onChange={(e) => handleKeywordsChange(e.target.value)}
+              className="text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Comma-separated. Scan reviews on-demand during review step (~$0.008/place).
+            </p>
+          </div>
         </div>
       )}
 
@@ -301,8 +279,8 @@ export function SeedCategoryPicker({
         <p className="text-sm text-muted-foreground">
           Will search for <span className="font-medium text-foreground">{selectedTypes.length}</span> venue types
           within <span className="font-medium text-foreground">{radiusMiles} mi</span> of the city center.
-          {scanReviews && searchKeywords.length > 0 && (
-            <span> Reviews will be scanned for <span className="font-medium text-foreground">{searchKeywords.length}</span> keywords.</span>
+          {searchKeywords.length > 0 && (
+            <span> <span className="font-medium text-foreground">{searchKeywords.length}</span> keywords ready for scanning.</span>
           )}
         </p>
         
@@ -310,8 +288,8 @@ export function SeedCategoryPicker({
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1 border-t border-border/50">
           <DollarSign className="h-3 w-3" />
           <span>
-            Est. cost: ~${totalEstimate.toFixed(2)}
-            <span className="text-muted-foreground/70"> ({discoveryCalls} discovery + ~{estimatedPlaces} imports{scanReviews ? ' + reviews' : ''})</span>
+            Est. discovery: ~${totalEstimate.toFixed(2)}
+            <span className="text-muted-foreground/70"> ({discoveryCalls} search + ~{estimatedPlaces} imports)</span>
           </span>
         </div>
         
