@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus, Calendar } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus, Calendar, Sun, Moon, MessageCircle, Zap, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import SourceBadge from '../SourceBadge';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
 import PlacePhotoGallery from './PlacePhotoGallery';
 import PlaceEventForm from './PlaceEventForm';
+import { getVibeEnergyLabel, getVibeFormalityLabel, hasVibeData } from '@/lib/place-taxonomy';
 interface PlaceDetailViewProps {
   place: Place;
   onEdit: () => void;
@@ -139,6 +140,59 @@ const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDet
                 </div>
               ))}
             </div>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Editorial Vibe Tags */}
+        <div>
+          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            Editorial Vibe Tags
+          </h3>
+          {hasVibeData(place) ? (
+            <div className="space-y-3">
+              {/* Energy & Formality */}
+              <div className="flex flex-wrap gap-2">
+                {place.vibe_energy !== null && (
+                  <Badge variant="outline" className="gap-1">
+                    <Zap className="h-3 w-3" />
+                    Energy: {getVibeEnergyLabel(place.vibe_energy)}
+                  </Badge>
+                )}
+                {place.vibe_formality !== null && (
+                  <Badge variant="outline" className="gap-1">
+                    Formality: {getVibeFormalityLabel(place.vibe_formality)}
+                  </Badge>
+                )}
+              </div>
+              {/* Boolean vibes */}
+              <div className="flex flex-wrap gap-2">
+                {place.vibe_conversation && (
+                  <Badge variant="secondary" className="gap-1">
+                    <MessageCircle className="h-3 w-3" />
+                    Conversation-friendly
+                  </Badge>
+                )}
+                {place.vibe_daytime && (
+                  <Badge variant="secondary" className="gap-1">
+                    <Sun className="h-3 w-3" />
+                    Daytime
+                  </Badge>
+                )}
+                {place.vibe_evening && (
+                  <Badge variant="secondary" className="gap-1">
+                    <Moon className="h-3 w-3" />
+                    Evening
+                  </Badge>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No vibe tags set. Edit to add editorial curation.
+            </p>
           )}
         </div>
 

@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { Sparkles } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Place } from '@/hooks/usePlaces';
 import SourceBadge from '../SourceBadge';
+import { hasVibeData } from '@/lib/place-taxonomy';
 
 interface PlaceListPaneProps {
   places: Place[];
@@ -78,6 +80,11 @@ const PlaceListPane = ({
             
             <div className="flex items-center gap-2 mt-2">
               <SourceBadge source={place.source} />
+              {hasVibeData(place) && (
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" title="Vibe tags set">
+                  <Sparkles className="h-3 w-3" />
+                </span>
+              )}
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(place.updated_at), { addSuffix: true })}
               </span>
