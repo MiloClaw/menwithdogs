@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PhotoReference } from '@/hooks/usePlaces';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -21,10 +21,12 @@ const PlacePhotoGallery = ({ photos, placeName }: PlacePhotoGalleryProps) => {
 
     try {
       const { data, error } = await supabase.functions.invoke('google-places-photo', {
-        body: { photoName: photo.name, maxWidth: 400 },
+        body: { name: photo.name, maxWidth: 400 },
       });
 
-      if (!error && data?.url) {
+      if (error) {
+        console.error('Photo fetch error:', error);
+      } else if (data?.url) {
         setLoadedPhotos(prev => ({ ...prev, [key]: data.url }));
       }
     } catch (err) {
@@ -34,12 +36,14 @@ const PlacePhotoGallery = ({ photos, placeName }: PlacePhotoGalleryProps) => {
     }
   };
 
-  // Load photos on mount
-  useState(() => {
+  // Load photos when component mounts or photos change
+  useEffect(() => {
+    setLoadedPhotos({});
+    setLoadingPhotos({});
     displayPhotos.forEach((photo, index) => {
       loadPhoto(photo, index);
     });
-  });
+  }, [photos]);
 
   if (displayPhotos.length === 0) return null;
 
