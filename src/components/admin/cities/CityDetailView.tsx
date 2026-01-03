@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { 
   Rocket, Pause, Play, Pencil, MapPin, Building2, 
-  CheckCircle2, Clock, Sparkles, AlertCircle 
+  CheckCircle2, Clock, Sparkles, AlertCircle, Plus 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CityWithProgress } from '@/hooks/useCities';
@@ -229,6 +229,15 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
           <Link to={`/admin/directory/places?city=${encodeURIComponent(city.name)}`}>
             <MapPin className="h-4 w-4 mr-2" />
             View Places
+          </Link>
+        </Button>
+
+        <Button asChild>
+          <Link 
+            to={`/admin/directory/places?city=${encodeURIComponent(city.name)}&action=create${city.lat && city.lng ? `&lat=${city.lat}&lng=${city.lng}` : ''}`}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Place
           </Link>
         </Button>
       </div>

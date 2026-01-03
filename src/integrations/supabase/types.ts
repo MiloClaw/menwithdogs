@@ -66,9 +66,12 @@ export type Database = {
         Row: {
           country: string
           created_at: string
+          google_place_id: string | null
           id: string
+          lat: number | null
           launched_at: string | null
           launched_by: string | null
+          lng: number | null
           name: string
           state: string | null
           status: Database["public"]["Enums"]["city_status"]
@@ -79,9 +82,12 @@ export type Database = {
         Insert: {
           country?: string
           created_at?: string
+          google_place_id?: string | null
           id?: string
+          lat?: number | null
           launched_at?: string | null
           launched_by?: string | null
+          lng?: number | null
           name: string
           state?: string | null
           status?: Database["public"]["Enums"]["city_status"]
@@ -92,9 +98,12 @@ export type Database = {
         Update: {
           country?: string
           created_at?: string
+          google_place_id?: string | null
           id?: string
+          lat?: number | null
           launched_at?: string | null
           launched_by?: string | null
+          lng?: number | null
           name?: string
           state?: string | null
           status?: Database["public"]["Enums"]["city_status"]

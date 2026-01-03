@@ -17,6 +17,7 @@ interface PlaceDetailPaneProps {
   onCreate: (input: CreatePlaceInput) => Promise<void>;
   isUpdating?: boolean;
   isCreating?: boolean;
+  locationBias?: { lat: number; lng: number };
 }
 
 const PlaceDetailPane = ({
@@ -27,6 +28,7 @@ const PlaceDetailPane = ({
   onCreate,
   isUpdating,
   isCreating,
+  locationBias,
 }: PlaceDetailPaneProps) => {
   const selectedPlace = mode.type === 'viewing' || mode.type === 'editing'
     ? places.find(p => p.id === mode.placeId)
@@ -55,6 +57,7 @@ const PlaceDetailPane = ({
         }}
         existingPlaces={places}
         isCreating={isCreating}
+        locationBias={locationBias}
       />
     );
   }
