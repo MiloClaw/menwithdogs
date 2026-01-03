@@ -187,9 +187,9 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
     setDiscoveryPoints(prev => [...prev, { ...point, id }]);
   }, []);
 
-  // Remove a discovery point
+  // Remove a discovery point (including city center)
   const removeDiscoveryPoint = useCallback((pointId: string) => {
-    setDiscoveryPoints(prev => prev.filter(p => p.id !== pointId || p.isDefault));
+    setDiscoveryPoints(prev => prev.filter(p => p.id !== pointId));
   }, []);
 
   // Search nearby places from ALL discovery points
