@@ -182,6 +182,7 @@ export function CandidateReviewModal({
             <VenuePicker
               value={selectedVenueId}
               onChange={handleVenueChange}
+              defaultSearch={candidate.venue_name}
             />
             {venueStatus === 'pending' && (
               <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-2 rounded">
