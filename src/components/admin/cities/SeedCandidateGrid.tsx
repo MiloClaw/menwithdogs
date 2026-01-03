@@ -290,6 +290,12 @@ function CandidateCard({ candidate, onToggle, onScanReviews, hasKeywords }: Cand
           </p>
 
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            {candidate.discoveredFrom && (
+              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                <MapPin className="h-2.5 w-2.5 mr-1" />
+                {candidate.discoveredFrom.replace(/ \(City Center\)$/i, '')}
+              </Badge>
+            )}
             {candidate.rating && (
               <div className="flex items-center gap-1 text-xs">
                 <Star className="h-3 w-3 fill-amber-400 text-amber-400" />

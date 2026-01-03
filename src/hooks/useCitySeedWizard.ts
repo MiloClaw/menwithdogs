@@ -24,6 +24,7 @@ export interface SeedCandidate extends NearbyPlace {
   reviewSnippets?: string[];
   reviewsScanned?: boolean;
   isScanning?: boolean;
+  discoveredFrom?: string;
 }
 
 interface NearbySearchParams {
