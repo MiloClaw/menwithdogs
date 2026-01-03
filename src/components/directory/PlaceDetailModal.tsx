@@ -191,6 +191,9 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
             </div>
           </DialogHeader>
 
+          {/* Future: AI-generated relevance text */}
+          {/* <p className="text-sm text-muted-foreground italic">Why this may be relevant to you...</p> */}
+
           {/* Presence Counts */}
           {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
             <PresenceCountStrip aggregate={presenceAgg} className="pt-2" />
