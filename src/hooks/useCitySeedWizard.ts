@@ -100,6 +100,11 @@ export const VENUE_CATEGORY_GROUPS = [
   },
 ];
 
+// Default LGBTQ-friendly keywords for review scanning
+export const DEFAULT_REVIEW_KEYWORDS = [
+  'gay', 'LGBT', 'LGBTQ', 'queer', 'inclusive', 'affirming', 'pride', 'welcoming'
+] as const;
+
 export type WizardStep = 'configure' | 'discovering' | 'review' | 'importing' | 'complete';
 
 export function useCitySeedWizard(cityId: string, cityName: string) {
@@ -110,7 +115,7 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
   const [radius, setRadius] = useState<number>(8047); // ~5 miles default (optimized)
   const [candidates, setCandidates] = useState<SeedCandidate[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
-  const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([...DEFAULT_REVIEW_KEYWORDS]);
   const [minRating, setMinRating] = useState<number>(4.0);
   const [minReviewCount, setMinReviewCount] = useState<number>(50);
 
