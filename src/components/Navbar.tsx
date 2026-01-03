@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield, Heart } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -56,6 +56,10 @@ const Navbar = () => {
               </Link>
               <Link to="/places" className={navLinkClasses}>
                 Places
+              </Link>
+              <Link to="/saved" className={`${navLinkClasses} flex items-center gap-1`}>
+                <Heart className="w-4 h-4" />
+                Saved
               </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 Sign Out
@@ -134,7 +138,15 @@ const Navbar = () => {
                 >
                   Places
                 </Link>
-                <Button 
+                <Link 
+                  to="/saved" 
+                  className="flex items-center gap-2 py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Heart className="w-4 h-4" />
+                  Saved
+                </Link>
+                <Button
                   variant="outline" 
                   size="sm" 
                   className="w-full mt-2"

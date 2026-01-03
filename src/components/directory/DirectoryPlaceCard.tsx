@@ -1,8 +1,9 @@
-import { Star, MapPin, ExternalLink } from 'lucide-react';
+import { Star, MapPin, ExternalLink, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getFirstPhotoUrl, PhotoReference } from '@/lib/google-places-photos';
 import { formatDistance } from '@/lib/distance';
+import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import type { Json } from '@/integrations/supabase/types';
 
 export interface DirectoryPlace {
@@ -43,10 +44,17 @@ const getPriceIndicator = (priceLevel: number | null): string => {
 };
 
 const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
+  const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
   const photos = getPhotos(place.photos);
   const photoUrl = getFirstPhotoUrl(photos, 600, 400);
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
+  const saved = isFavorited(place.id);
+
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(place.id);
+  };
 
   return (
     <Card 
@@ -79,15 +87,27 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
           {place.primary_category}
         </Badge>
 
-        {/* Distance Badge */}
-        {place.distance !== undefined && (
-          <Badge 
-            variant="outline" 
-            className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm text-xs font-medium"
+        {/* Save & Distance Badges */}
+        <div className="absolute top-3 right-3 flex items-center gap-2">
+          <button
+            onClick={handleSaveClick}
+            disabled={isUpdating}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-background/90 backdrop-blur-sm hover:bg-background transition-colors"
+            aria-label={saved ? 'Remove from saved' : 'Save place'}
           >
-            {formatDistance(place.distance)}
-          </Badge>
-        )}
+            <Heart 
+              className={`h-4 w-4 transition-colors ${saved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
+            />
+          </button>
+          {place.distance !== undefined && (
+            <Badge 
+              variant="outline" 
+              className="bg-background/90 backdrop-blur-sm text-xs font-medium"
+            >
+              {formatDistance(place.distance)}
+            </Badge>
+          )}
+        </div>
       </div>
 
       <CardContent className="p-4 space-y-2">
