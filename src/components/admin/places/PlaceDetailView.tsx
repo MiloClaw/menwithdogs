@@ -1,4 +1,5 @@
-import { Star, MapPin, Phone, Globe, Clock, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -6,6 +7,7 @@ import { Place, getOpeningHoursText, getPhotos } from '@/hooks/usePlaces';
 import SourceBadge from '../SourceBadge';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
 import PlacePhotoGallery from './PlacePhotoGallery';
+import PlaceEventForm from './PlaceEventForm';
 
 interface PlaceDetailViewProps {
   place: Place;
@@ -21,6 +23,7 @@ const statusColors: Record<Place['status'], string> = {
 };
 
 const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDetailViewProps) => {
+  const [showEventForm, setShowEventForm] = useState(false);
   const photos = getPhotos(place.photos);
   const openingHours = getOpeningHoursText(place.opening_hours);
   const isManualEntry = place.google_place_id.startsWith('manual_');
@@ -44,10 +47,18 @@ const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDet
             )}
           </div>
         </div>
-        <Button onClick={onEdit} variant="outline" size="sm">
-          Edit
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setShowEventForm(true)} variant="outline" size="sm">
+            <CalendarPlus className="h-4 w-4 mr-1" />
+            Add Event
+          </Button>
+          <Button onClick={onEdit} variant="outline" size="sm">
+            Edit
+          </Button>
+        </div>
       </div>
+
+      <PlaceEventForm place={place} open={showEventForm} onOpenChange={setShowEventForm} />
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-4 space-y-6">
