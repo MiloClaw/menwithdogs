@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -12,10 +13,16 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MapPin, AlertCircle } from 'lucide-react';
+import { Star, MapPin, AlertCircle, Sparkles, Zap, MessageCircle, Sun, Moon } from 'lucide-react';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { CreatePlaceInput, Place } from '@/hooks/usePlaces';
 import GooglePlaceSearch from './GooglePlaceSearch';
+import { 
+  getVibeSuggestionFromGoogleType, 
+  VibeSuggestion,
+  getVibeEnergyLabel,
+  getVibeFormalityLabel
+} from '@/lib/place-taxonomy';
 
 interface PlaceCreateFormProps {
   onCancel: () => void;
@@ -37,6 +44,11 @@ const PlaceCreateForm = ({
   const [googleCategory, setGoogleCategory] = useState('');
   const [googleStatus, setGoogleStatus] = useState<Place['status']>('approved');
   
+  // Vibe suggestion state
+  const [vibeSuggestion, setVibeSuggestion] = useState<VibeSuggestion | null>(null);
+  const [vibeData, setVibeData] = useState<VibeSuggestion>({});
+  const [useSuggestedVibes, setUseSuggestedVibes] = useState(true);
+  
   // Manual flow state
   const [manualData, setManualData] = useState({
     name: '',
@@ -55,10 +67,29 @@ const PlaceCreateForm = ({
   const handlePlaceSelected = (details: PlaceDetails) => {
     setSelectedPlace(details);
     setGoogleCategory(details.google_primary_type_display || details.google_primary_type || '');
+    
+    // Get vibe suggestion from Google type
+    const suggestion = getVibeSuggestionFromGoogleType(details.google_primary_type);
+    setVibeSuggestion(suggestion);
+    if (suggestion) {
+      setVibeData(suggestion);
+      setUseSuggestedVibes(true);
+    } else {
+      setVibeData({});
+    }
   };
+
+  // Update vibes when toggling suggestion use
+  useEffect(() => {
+    if (useSuggestedVibes && vibeSuggestion) {
+      setVibeData(vibeSuggestion);
+    }
+  }, [useSuggestedVibes, vibeSuggestion]);
 
   const handleCreateFromGoogle = async () => {
     if (!selectedPlace) return;
+
+    const finalVibes = useSuggestedVibes ? vibeData : {};
 
     await onCreate({
       google_place_id: selectedPlace.place_id,
@@ -84,6 +115,12 @@ const PlaceCreateForm = ({
       photos: selectedPlace.photos as unknown as import('@/integrations/supabase/types').Json,
       google_primary_type: selectedPlace.google_primary_type,
       google_primary_type_display: selectedPlace.google_primary_type_display,
+      // Include vibe suggestions
+      vibe_energy: finalVibes.energy ?? null,
+      vibe_formality: finalVibes.formality ?? null,
+      vibe_conversation: finalVibes.conversation ?? null,
+      vibe_daytime: finalVibes.daytime ?? null,
+      vibe_evening: finalVibes.evening ?? null,
     });
   };
 
@@ -186,6 +223,58 @@ const PlaceCreateForm = ({
                       Override the category for your taxonomy (Google: {selectedPlace.google_primary_type_display})
                     </p>
                   </div>
+
+                  {/* Vibe Suggestions */}
+                  {vibeSuggestion && (
+                    <div className="space-y-3 p-3 rounded-lg bg-muted/50 border">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium">Suggested Vibe Tags</span>
+                        </div>
+                        <Switch
+                          checked={useSuggestedVibes}
+                          onCheckedChange={setUseSuggestedVibes}
+                        />
+                      </div>
+                      {useSuggestedVibes && (
+                        <div className="flex flex-wrap gap-2">
+                          {vibeData.energy !== undefined && (
+                            <Badge variant="outline" className="gap-1">
+                              <Zap className="h-3 w-3" />
+                              {getVibeEnergyLabel(vibeData.energy)}
+                            </Badge>
+                          )}
+                          {vibeData.formality !== undefined && (
+                            <Badge variant="outline">
+                              {getVibeFormalityLabel(vibeData.formality)}
+                            </Badge>
+                          )}
+                          {vibeData.conversation && (
+                            <Badge variant="secondary" className="gap-1">
+                              <MessageCircle className="h-3 w-3" />
+                              Conversation
+                            </Badge>
+                          )}
+                          {vibeData.daytime && (
+                            <Badge variant="secondary" className="gap-1">
+                              <Sun className="h-3 w-3" />
+                              Daytime
+                            </Badge>
+                          )}
+                          {vibeData.evening && (
+                            <Badge variant="secondary" className="gap-1">
+                              <Moon className="h-3 w-3" />
+                              Evening
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Based on Google type: {selectedPlace.google_primary_type}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Status */}
                   <div className="space-y-2">
