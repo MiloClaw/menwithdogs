@@ -170,15 +170,15 @@ export function SeedCategoryPicker({
               >
                 <MapPin className="h-3 w-3" />
                 {point.label}
-                {!point.isDefault && (
-                  <button
-                    type="button"
-                    onClick={() => onRemoveDiscoveryPoint(point.id)}
-                    className="ml-1 p-0.5 rounded-full hover:bg-destructive/20 transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                )}
+                {point.isDefault && <span className="text-xs opacity-70">(center)</span>}
+                <button
+                  type="button"
+                  onClick={() => onRemoveDiscoveryPoint(point.id)}
+                  className="ml-1 p-0.5 rounded-full hover:bg-destructive/20 transition-colors"
+                  title={`Remove ${point.label}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </Badge>
             ))}
           </div>
