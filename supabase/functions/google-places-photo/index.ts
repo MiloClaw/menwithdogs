@@ -88,15 +88,26 @@ serve(async (req) => {
 
     console.log(`Returning photo: ${contentType}, ${imageData.byteLength} bytes`);
 
-    // Return the image with caching headers
-    return new Response(imageData, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=86400, s-maxage=604800", // 1 day browser, 1 week CDN
-        "Vary": "Accept",
-      },
-    });
+    // Convert to base64 data URL for JSON response
+    const uint8Array = new Uint8Array(imageData);
+    let binary = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    const base64 = btoa(binary);
+    const dataUrl = `data:${contentType};base64,${base64}`;
+
+    // Return JSON with data URL
+    return new Response(
+      JSON.stringify({ url: dataUrl }),
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=86400, s-maxage=604800",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error in google-places-photo:", error);
     return new Response(
