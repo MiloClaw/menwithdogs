@@ -232,6 +232,12 @@ const EventManagement = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            <Link to="/admin/directory/events/discover">
+              <Button variant="outline">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Discover Events
+              </Button>
+            </Link>
             <Link to="/places?tab=events" target="_blank">
               <Button variant="outline">
                 <Eye className="h-4 w-4 mr-2" />

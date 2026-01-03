@@ -34,6 +34,7 @@ import BlogManagement from "./pages/admin/BlogManagement";
 import DirectoryManagement from "./pages/admin/DirectoryManagement";
 import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
+import EventDiscovery from "./pages/admin/EventDiscovery";
 import InterestManagement from "./pages/admin/InterestManagement";
 import { RequireRole } from "./components/auth/RequireRole";
 
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="/admin/directory" element={<RequireRole role="admin"><DirectoryManagement /></RequireRole>} />
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
+              <Route path="/admin/directory/events/discover" element={<RequireRole role="admin"><EventDiscovery /></RequireRole>} />
               <Route path="/admin/blog" element={<RequireRole role="admin"><BlogManagement /></RequireRole>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
