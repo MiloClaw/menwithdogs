@@ -36,6 +36,7 @@ import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import EventDiscovery from "./pages/admin/EventDiscovery";
 import InterestManagement from "./pages/admin/InterestManagement";
+import CityManagement from "./pages/admin/CityManagement";
 import { RequireRole } from "./components/auth/RequireRole";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
               <Route path="/admin/interests" element={<RequireRole role="admin"><InterestManagement /></RequireRole>} />
               <Route path="/admin/directory" element={<RequireRole role="admin"><DirectoryManagement /></RequireRole>} />
+              <Route path="/admin/directory/cities" element={<RequireRole role="admin"><CityManagement /></RequireRole>} />
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
               <Route path="/admin/directory/events/discover" element={<RequireRole role="admin"><EventDiscovery /></RequireRole>} />

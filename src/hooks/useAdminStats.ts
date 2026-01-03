@@ -14,6 +14,13 @@ interface AdminStats {
     approved: number;
     pending: number;
   };
+  cities: {
+    total: number;
+    draft: number;
+    launched: number;
+    paused: number;
+    readyToLaunch: number;
+  };
   blogPosts: number;
   members: number;
 }
@@ -31,6 +38,7 @@ export const useAdminStats = () => {
         pendingEventsResult,
         blogPostsResult,
         membersResult,
+        citiesResult,
       ] = await Promise.all([
         supabase.from('couples').select('id', { count: 'exact', head: true }),
         supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_discoverable', true).eq('is_complete', true),
@@ -40,7 +48,18 @@ export const useAdminStats = () => {
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
         supabase.from('member_profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('city_seeding_progress').select('*'),
       ]);
+
+      // Calculate city stats from the view data
+      const cities = citiesResult.data || [];
+      const cityStats = {
+        total: cities.length,
+        draft: cities.filter(c => c.status === 'draft').length,
+        launched: cities.filter(c => c.status === 'launched').length,
+        paused: cities.filter(c => c.status === 'paused').length,
+        readyToLaunch: cities.filter(c => c.status === 'draft' && c.is_ready_to_launch).length,
+      };
 
       return {
         couples: {
@@ -55,6 +74,7 @@ export const useAdminStats = () => {
           approved: approvedEventsResult.count ?? 0,
           pending: pendingEventsResult.count ?? 0,
         },
+        cities: cityStats,
         blogPosts: blogPostsResult.count ?? 0,
         members: membersResult.count ?? 0,
       };

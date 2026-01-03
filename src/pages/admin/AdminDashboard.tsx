@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Users, FileText, MapPin, Calendar, Sparkles, Tags, AlertTriangle, Info } from 'lucide-react';
+import { Users, FileText, MapPin, Calendar, Sparkles, Tags, AlertTriangle, Info, Building2, Rocket } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,28 +17,42 @@ const AdminDashboard = () => {
       icon: Users,
     },
     {
+      label: 'Cities',
+      value: stats?.cities.launched ?? 0,
+      subtext: stats?.cities.draft ? `${stats.cities.draft} in draft` : 'None in draft',
+      icon: Building2,
+      badgeCount: stats?.cities.readyToLaunch,
+      badgeLabel: 'ready',
+      badgeColor: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    },
+    {
       label: 'Places',
       value: stats?.places.approved ?? 0,
       subtext: stats?.places.pending ? `${stats.places.pending} pending review` : 'All reviewed',
       icon: MapPin,
-      pendingCount: stats?.places.pending,
+      badgeCount: stats?.places.pending,
+      badgeLabel: 'pending',
     },
     {
       label: 'Events',
       value: stats?.events.approved ?? 0,
       subtext: stats?.events.pending ? `${stats.events.pending} pending review` : 'All reviewed',
       icon: Calendar,
-      pendingCount: stats?.events.pending,
-    },
-    {
-      label: 'Blog Posts',
-      value: stats?.blogPosts ?? 0,
-      subtext: 'Published articles',
-      icon: FileText,
+      badgeCount: stats?.events.pending,
+      badgeLabel: 'pending',
     },
   ];
 
   const quickActions = [
+    {
+      title: 'Manage Cities',
+      description: 'Configure city rollouts and seeding progress',
+      href: '/admin/directory/cities',
+      icon: Building2,
+      badgeCount: stats?.cities.readyToLaunch,
+      badgeLabel: 'ready to launch',
+      badgeColor: 'bg-green-100 text-green-800',
+    },
     {
       title: 'Discover Events',
       description: 'AI-powered event research for your city',
@@ -52,20 +66,16 @@ const AdminDashboard = () => {
       description: 'Curate and review venue directory',
       href: '/admin/directory/places',
       icon: MapPin,
-      pendingCount: stats?.places.pending,
+      badgeCount: stats?.places.pending,
+      badgeLabel: 'pending',
     },
     {
       title: 'Manage Events',
       description: 'Curate and review event listings',
       href: '/admin/directory/events',
       icon: Calendar,
-      pendingCount: stats?.events.pending,
-    },
-    {
-      title: 'Manage Users',
-      description: 'View accounts and assign roles',
-      href: '/admin/users',
-      icon: Users,
+      badgeCount: stats?.events.pending,
+      badgeLabel: 'pending',
     },
     {
       title: 'Manage Interests',
@@ -82,6 +92,16 @@ const AdminDashboard = () => {
   ];
 
   const needsAttention = [];
+  
+  // City ready to launch
+  if (stats?.cities.readyToLaunch && stats.cities.readyToLaunch > 0) {
+    needsAttention.push({
+      type: 'success',
+      message: `${stats.cities.readyToLaunch} ${stats.cities.readyToLaunch > 1 ? 'cities' : 'city'} ready to launch`,
+      href: '/admin/directory/cities?status=draft',
+    });
+  }
+  
   if (stats?.places.pending && stats.places.pending > 0) {
     needsAttention.push({
       type: 'warning',
@@ -96,7 +116,13 @@ const AdminDashboard = () => {
       href: '/admin/directory/events?status=pending',
     });
   }
-  if (stats && stats.events.approved === 0 && stats.events.pending === 0) {
+  if (stats && stats.cities.total === 0) {
+    needsAttention.push({
+      type: 'info',
+      message: 'No cities configured — create your first city to start seeding',
+      href: '/admin/directory/cities',
+    });
+  } else if (stats && stats.events.approved === 0 && stats.events.pending === 0) {
     needsAttention.push({
       type: 'info',
       message: 'No events yet — use AI Discovery to find local events',
@@ -130,9 +156,9 @@ const AdminDashboard = () => {
                   <>
                     <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold">{stat.value}</span>
-                      {stat.pendingCount && stat.pendingCount > 0 && (
-                        <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                          {stat.pendingCount} pending
+                      {stat.badgeCount && stat.badgeCount > 0 && (
+                        <Badge variant="secondary" className={stat.badgeColor || 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'}>
+                          {stat.badgeCount} {stat.badgeLabel || 'pending'}
                         </Badge>
                       )}
                     </div>
@@ -152,12 +178,16 @@ const AdminDashboard = () => {
               {needsAttention.map((item, index) => (
                 <Link key={index} to={item.href}>
                   <Card className={`hover:bg-accent/50 transition-colors cursor-pointer border-l-4 ${
-                    item.type === 'warning' 
-                      ? 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' 
-                      : 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+                    item.type === 'success'
+                      ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20'
+                      : item.type === 'warning' 
+                        ? 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' 
+                        : 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
                   }`}>
                     <CardContent className="py-3 flex items-center gap-3">
-                      {item.type === 'warning' ? (
+                      {item.type === 'success' ? (
+                        <Rocket className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
+                      ) : item.type === 'warning' ? (
                         <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
                       ) : (
                         <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
@@ -196,9 +226,9 @@ const AdminDashboard = () => {
                         {action.isNew && (
                           <Badge className="bg-primary text-primary-foreground text-xs">NEW</Badge>
                         )}
-                        {action.pendingCount && action.pendingCount > 0 && (
-                          <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                            {action.pendingCount}
+                        {action.badgeCount && action.badgeCount > 0 && (
+                          <Badge variant="secondary" className={action.badgeColor || 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'}>
+                            {action.badgeCount}
                           </Badge>
                         )}
                       </div>
