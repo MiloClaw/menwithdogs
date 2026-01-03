@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Heart, Info, Zap, DollarSign } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES, FOCUSED_VENUE_TYPES } from '@/hooks/useCitySeedWizard';
+import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES, FOCUSED_VENUE_TYPES, INTEREST_ALIGNED_TYPES } from '@/hooks/useCitySeedWizard';
 
 interface SeedCategoryPickerProps {
   selectedTypes: string[];
@@ -41,10 +41,13 @@ export function SeedCategoryPicker({
     }
   };
 
-  const selectPreset = (preset: 'focused' | 'anchor' | 'extended' | 'none') => {
+  const selectPreset = (preset: 'focused' | 'interest' | 'anchor' | 'extended' | 'none') => {
     switch (preset) {
       case 'focused':
         onTypesChange([...FOCUSED_VENUE_TYPES]);
+        break;
+      case 'interest':
+        onTypesChange([...INTEREST_ALIGNED_TYPES]);
         break;
       case 'anchor':
         onTypesChange([...ANCHOR_VENUE_TYPES]);
@@ -100,7 +103,19 @@ export function SeedCategoryPicker({
           <Button
             type="button"
             size="sm"
-            variant={selectedTypes.length === ANCHOR_VENUE_TYPES.length ? 'outline' : 'outline'}
+            variant={selectedTypes.length === INTEREST_ALIGNED_TYPES.length && 
+                     INTEREST_ALIGNED_TYPES.every(t => selectedTypes.includes(t)) ? 'default' : 'outline'}
+            onClick={() => selectPreset('interest')}
+            className="gap-1"
+          >
+            <Heart className="h-3 w-3" />
+            Interest-Aligned ({INTEREST_ALIGNED_TYPES.length})
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={selectedTypes.length === ANCHOR_VENUE_TYPES.length && 
+                     ANCHOR_VENUE_TYPES.every(t => selectedTypes.includes(t)) ? 'default' : 'outline'}
             onClick={() => selectPreset('anchor')}
           >
             Anchor ({ANCHOR_VENUE_TYPES.length})
@@ -108,7 +123,8 @@ export function SeedCategoryPicker({
           <Button
             type="button"
             size="sm"
-            variant={selectedTypes.length === EXTENDED_VENUE_TYPES.length ? 'outline' : 'outline'}
+            variant={selectedTypes.length === EXTENDED_VENUE_TYPES.length && 
+                     EXTENDED_VENUE_TYPES.every(t => selectedTypes.includes(t)) ? 'default' : 'outline'}
             onClick={() => selectPreset('extended')}
           >
             Extended ({EXTENDED_VENUE_TYPES.length})
