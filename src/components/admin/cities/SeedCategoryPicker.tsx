@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Heart, Info, Zap, DollarSign } from 'lucide-react';
+import { Heart, Info, Zap, DollarSign, MapPin, X, Plus } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES, FOCUSED_VENUE_TYPES, INTEREST_ALIGNED_TYPES } from '@/hooks/useCitySeedWizard';
+import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES, FOCUSED_VENUE_TYPES, INTEREST_ALIGNED_TYPES, DiscoveryPoint, KNOWN_NEIGHBORHOODS } from '@/hooks/useCitySeedWizard';
+import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
+import { useGooglePlaces } from '@/hooks/useGooglePlaces';
+import { useState } from 'react';
 
 interface SeedCategoryPickerProps {
   selectedTypes: string[];
@@ -19,6 +22,10 @@ interface SeedCategoryPickerProps {
   onMinRatingChange?: (rating: number) => void;
   minReviewCount?: number;
   onMinReviewCountChange?: (count: number) => void;
+  discoveryPoints?: DiscoveryPoint[];
+  onAddDiscoveryPoint?: (point: Omit<DiscoveryPoint, 'id'>) => void;
+  onRemoveDiscoveryPoint?: (id: string) => void;
+  cityName?: string;
 }
 
 export function SeedCategoryPicker({
@@ -32,7 +39,22 @@ export function SeedCategoryPicker({
   onMinRatingChange,
   minReviewCount = 50,
   onMinReviewCountChange,
+  discoveryPoints = [],
+  onAddDiscoveryPoint,
+  onRemoveDiscoveryPoint,
+  cityName = '',
 }: SeedCategoryPickerProps) {
+  const { fetchDetails } = useGooglePlaces();
+  const [neighborhoodSearch, setNeighborhoodSearch] = useState('');
+  const [isAddingNeighborhood, setIsAddingNeighborhood] = useState(false);
+  
+  // Get known neighborhoods for this city
+  const knownNeighborhoods = KNOWN_NEIGHBORHOODS[cityName] || [];
+  // Filter out already-added neighborhoods
+  const availableKnownNeighborhoods = knownNeighborhoods.filter(
+    n => !discoveryPoints.some(p => p.label.includes(n))
+  );
+
   const toggleType = (type: string) => {
     if (selectedTypes.includes(type)) {
       onTypesChange(selectedTypes.filter(t => t !== type));
@@ -66,6 +88,39 @@ export function SeedCategoryPicker({
     onKeywordsChange?.(keywords);
   };
 
+  const handleNeighborhoodSelect = async (details: { place_id: string; lat?: number; lng?: number; formatted_address?: string; name?: string }) => {
+    if (!onAddDiscoveryPoint || !details.lat || !details.lng) return;
+    
+    setIsAddingNeighborhood(true);
+    try {
+      onAddDiscoveryPoint({
+        label: details.name || details.formatted_address || 'Unknown',
+        lat: details.lat,
+        lng: details.lng,
+        placeId: details.place_id,
+        isDefault: false,
+      });
+      setNeighborhoodSearch('');
+    } finally {
+      setIsAddingNeighborhood(false);
+    }
+  };
+
+  const handleQuickAddNeighborhood = async (neighborhoodName: string) => {
+    if (!onAddDiscoveryPoint) return;
+    
+    // Search for the neighborhood and get coordinates
+    setIsAddingNeighborhood(true);
+    try {
+      // Create a search query combining neighborhood and city
+      const searchQuery = `${neighborhoodName}, ${cityName}`;
+      // We'll rely on the autocomplete to find it and then user selects
+      setNeighborhoodSearch(searchQuery);
+    } finally {
+      setIsAddingNeighborhood(false);
+    }
+  };
+
   const radiusMiles = (radius / 1609.34).toFixed(1);
   const radiusOptions = [
     { meters: 8047, label: '5 mi' },
@@ -76,15 +131,97 @@ export function SeedCategoryPicker({
 
   const ratingOptions = [3.5, 4.0, 4.2, 4.5];
 
-  // Calculate estimated API cost
-  const discoveryCalls = Math.ceil(selectedTypes.length / 5);
-  const estimatedPlaces = Math.min(discoveryCalls * 15, 60); // Rough estimate
+  // Calculate estimated API cost - account for multiple discovery points
+  const discoveryCalls = Math.ceil(selectedTypes.length / 5) * Math.max(discoveryPoints.length, 1);
+  const estimatedPlaces = Math.min(discoveryCalls * 15, 100); // Rough estimate
   const discoveryCost = discoveryCalls * 0.04;
   const importCost = estimatedPlaces * 0.017;
   const totalEstimate = discoveryCost + importCost;
 
   return (
     <div className="space-y-6">
+      {/* Discovery Points (Neighborhoods) */}
+      {onAddDiscoveryPoint && onRemoveDiscoveryPoint && (
+        <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" />
+            <Label className="text-sm font-medium">Discovery Points</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-xs">
+                    Search from specific neighborhoods for more targeted discovery. LGBTQ+ communities often cluster in specific areas.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          {/* Active discovery points */}
+          <div className="flex flex-wrap gap-2">
+            {discoveryPoints.map((point) => (
+              <Badge
+                key={point.id}
+                variant={point.isDefault ? 'default' : 'secondary'}
+                className="gap-1 pr-1"
+              >
+                <MapPin className="h-3 w-3" />
+                {point.label}
+                {!point.isDefault && (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveDiscoveryPoint(point.id)}
+                    className="ml-1 p-0.5 rounded-full hover:bg-destructive/20 transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </Badge>
+            ))}
+          </div>
+
+          {/* Known neighborhoods quick-add */}
+          {availableKnownNeighborhoods.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Quick Add</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {availableKnownNeighborhoods.slice(0, 6).map((name) => (
+                  <Button
+                    key={name}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => handleQuickAddNeighborhood(name)}
+                    disabled={isAddingNeighborhood}
+                  >
+                    <Plus className="h-3 w-3" />
+                    {name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Neighborhood search */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Search Neighborhoods</Label>
+            <GooglePlacesAutocomplete
+              value={neighborhoodSearch}
+              onChange={setNeighborhoodSearch}
+              onPlaceSelect={handleNeighborhoodSelect}
+              placeholder={`Search for neighborhoods in ${cityName || 'this city'}...`}
+              types="(neighborhoods)"
+              className="text-sm"
+              disabled={isAddingNeighborhood}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Presets */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">Quick Presets</Label>
@@ -294,7 +431,8 @@ export function SeedCategoryPicker({
       <div className="p-3 bg-muted/50 rounded-lg space-y-2">
         <p className="text-sm text-muted-foreground">
           Will search for <span className="font-medium text-foreground">{selectedTypes.length}</span> venue types
-          within <span className="font-medium text-foreground">{radiusMiles} mi</span> of the city center.
+          within <span className="font-medium text-foreground">{radiusMiles} mi</span> of{' '}
+          <span className="font-medium text-foreground">{discoveryPoints.length}</span> discovery point{discoveryPoints.length !== 1 ? 's' : ''}.
           {searchKeywords.length > 0 && (
             <span> <span className="font-medium text-foreground">{searchKeywords.length}</span> keywords ready for scanning.</span>
           )}
@@ -309,9 +447,15 @@ export function SeedCategoryPicker({
           </span>
         </div>
         
-        {selectedTypes.length > 5 && (
+        {discoveryPoints.length === 0 && (
           <p className="text-xs text-amber-600">
-            ⚠️ {discoveryCalls} API calls needed. Consider using "Focused" preset for fewer calls.
+            ⚠️ Add at least one discovery point to begin searching.
+          </p>
+        )}
+        
+        {selectedTypes.length > 5 && discoveryPoints.length > 1 && (
+          <p className="text-xs text-amber-600">
+            ⚠️ {discoveryCalls} API calls needed. Consider fewer categories or points.
           </p>
         )}
       </div>
