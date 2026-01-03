@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
   ChevronLeft, ChevronRight, Heart
@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { getAllPhotoUrls, PhotoReference } from '@/lib/google-places-photos';
+import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
@@ -72,21 +72,32 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   const { data: presenceAgg } = usePlacePresenceAggregate(place?.id);
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
 
+  const photos = getPhotos(place?.photos ?? null);
+  const { photoUrls, isLoading: photosLoading } = usePlacePhotos(photos, { 
+    maxWidth: 800, 
+    maxHeight: 600,
+    maxPhotos: 5 
+  });
+
+  // Reset photo index when place changes
+  useEffect(() => {
+    setCurrentPhotoIndex(0);
+  }, [place?.id]);
+
   if (!place) return null;
 
-  const photos = getPhotos(place.photos);
-  const photoUrls = getAllPhotoUrls(photos, 800, 600);
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
   const openingHours = getOpeningHours(place.opening_hours);
   const saved = isFavorited(place.id);
+  const validPhotoUrls = photoUrls.filter((url): url is string => url !== null);
 
   const nextPhoto = () => {
-    setCurrentPhotoIndex((prev) => (prev + 1) % photoUrls.length);
+    setCurrentPhotoIndex((prev) => (prev + 1) % validPhotoUrls.length);
   };
 
   const prevPhoto = () => {
-    setCurrentPhotoIndex((prev) => (prev - 1 + photoUrls.length) % photoUrls.length);
+    setCurrentPhotoIndex((prev) => (prev - 1 + validPhotoUrls.length) % validPhotoUrls.length);
   };
 
   return (
@@ -94,16 +105,20 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
         {/* Photo Gallery */}
         <div className="relative aspect-[16/9] bg-muted">
-          {photoUrls.length > 0 ? (
+          {photosLoading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
+            </div>
+          ) : validPhotoUrls.length > 0 ? (
             <>
               <img
-                src={photoUrls[currentPhotoIndex]}
+                src={validPhotoUrls[currentPhotoIndex]}
                 alt={`${place.name} - Photo ${currentPhotoIndex + 1}`}
                 className="w-full h-full object-cover"
               />
               
               {/* Photo Navigation */}
-              {photoUrls.length > 1 && (
+              {validPhotoUrls.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
@@ -124,7 +139,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                   
                   {/* Photo Counter */}
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm">
-                    {currentPhotoIndex + 1} / {photoUrls.length}
+                    {currentPhotoIndex + 1} / {validPhotoUrls.length}
                   </div>
                 </>
               )}
