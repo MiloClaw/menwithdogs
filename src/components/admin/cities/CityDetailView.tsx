@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,11 +6,12 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { 
   Rocket, Pause, Play, Pencil, MapPin, Building2, 
-  CheckCircle2, Clock, Sparkles, AlertCircle, Plus 
+  CheckCircle2, Clock, Sparkles, AlertCircle, Plus, Wand2 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CityWithProgress } from '@/hooks/useCities';
 import { useLaunchCity, usePauseCity, useResumeCity } from '@/hooks/useCities';
+import { CitySeedWizard } from './CitySeedWizard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +30,8 @@ interface CityDetailViewProps {
 }
 
 export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
+  const [seedWizardOpen, setSeedWizardOpen] = useState(false);
+  
   const launchCity = useLaunchCity();
   const pauseCity = usePauseCity();
   const resumeCity = useResumeCity();
@@ -43,6 +47,8 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
   const handleResume = () => {
     resumeCity.mutate(city.id);
   };
+
+  const canSeed = city.lat != null && city.lng != null;
 
   const getStatusBadge = () => {
     switch (city.status) {
@@ -240,7 +246,29 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
             Add Place
           </Link>
         </Button>
+
+        {canSeed && (
+          <Button
+            variant="outline"
+            onClick={() => setSeedWizardOpen(true)}
+          >
+            <Wand2 className="h-4 w-4 mr-2" />
+            Seed City
+          </Button>
+        )}
       </div>
+
+      {/* Seed Wizard */}
+      {canSeed && (
+        <CitySeedWizard
+          open={seedWizardOpen}
+          onOpenChange={setSeedWizardOpen}
+          cityId={city.id}
+          cityName={city.name}
+          lat={city.lat!}
+          lng={city.lng!}
+        />
+      )}
     </div>
   );
 }

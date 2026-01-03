@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.discover-events]
 verify_jwt = false
+
+[functions.google-places-nearby]
+verify_jwt = false
