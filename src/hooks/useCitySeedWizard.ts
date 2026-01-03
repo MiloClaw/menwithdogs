@@ -78,7 +78,7 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
   
   const [step, setStep] = useState<WizardStep>('configure');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([...ANCHOR_VENUE_TYPES]);
-  const [radius, setRadius] = useState<number>(10000); // 10km default
+  const [radius, setRadius] = useState<number>(16093); // ~10 miles default
   const [candidates, setCandidates] = useState<SeedCandidate[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]);

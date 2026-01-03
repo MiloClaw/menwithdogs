@@ -57,8 +57,13 @@ export function SeedCategoryPicker({
     onKeywordsChange?.(keywords);
   };
 
-  const radiusKm = radius / 1000;
-  const radiusOptions = [5000, 10000, 15000, 25000];
+  const radiusMiles = (radius / 1609.34).toFixed(1);
+  const radiusOptions = [
+    { meters: 8047, label: '5 mi' },
+    { meters: 16093, label: '10 mi' },
+    { meters: 24140, label: '15 mi' },
+    { meters: 40234, label: '25 mi' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -126,25 +131,25 @@ export function SeedCategoryPicker({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">Search Radius</Label>
-          <span className="text-sm text-muted-foreground font-medium">{radiusKm} km</span>
+          <span className="text-sm text-muted-foreground font-medium">{radiusMiles} mi</span>
         </div>
         <Slider
           value={[radius]}
           onValueChange={([value]) => onRadiusChange(value)}
-          min={5000}
-          max={25000}
-          step={5000}
+          min={radiusOptions[0].meters}
+          max={radiusOptions[radiusOptions.length - 1].meters}
+          step={1609}
           className="w-full"
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          {radiusOptions.map((r) => (
+          {radiusOptions.map((option) => (
             <button
-              key={r}
+              key={option.meters}
               type="button"
               className="hover:text-foreground transition-colors"
-              onClick={() => onRadiusChange(r)}
+              onClick={() => onRadiusChange(option.meters)}
             >
-              {r / 1000}km
+              {option.label}
             </button>
           ))}
         </div>
@@ -204,7 +209,7 @@ export function SeedCategoryPicker({
       <div className="p-3 bg-muted/50 rounded-lg">
         <p className="text-sm text-muted-foreground">
           Will search for <span className="font-medium text-foreground">{selectedTypes.length}</span> venue types
-          within <span className="font-medium text-foreground">{radiusKm}km</span> of the city center.
+          within <span className="font-medium text-foreground">{radiusMiles} mi</span> of the city center.
           {scanReviews && searchKeywords.length > 0 && (
             <span> Reviews will be scanned for <span className="font-medium text-foreground">{searchKeywords.length}</span> keywords.</span>
           )}
