@@ -4,13 +4,13 @@
  */
 export const FEATURE_FLAGS = {
   // Enable presence controls (interested, planning, open_to_hello)
-  PRESENCE_ENABLED: true,
+  PRESENCE_ENABLED: false,
   
   // Enable the "open to hello" status option
-  OPEN_TO_HELLO_ENABLED: true,
+  OPEN_TO_HELLO_ENABLED: false,
   
   // Enable mutual photo reveal for couples
-  REVEAL_ENABLED: true,
+  REVEAL_ENABLED: false,
   
   // Enable chat functionality (future phase)
   CHAT_ENABLED: false,
