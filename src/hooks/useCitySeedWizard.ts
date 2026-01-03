@@ -20,6 +20,7 @@ export interface NearbyPlace {
 export interface SeedCandidate extends NearbyPlace {
   selected: boolean;
   isDuplicate: boolean;
+  keywordMatches?: string[];
 }
 
 interface NearbySearchParams {
@@ -80,6 +81,8 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
   const [radius, setRadius] = useState<number>(10000); // 10km default
   const [candidates, setCandidates] = useState<SeedCandidate[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
+  const [scanReviews, setScanReviews] = useState(false);
 
   // Fetch existing places in this city to detect duplicates
   const { data: existingPlaces = [] } = useQuery({
@@ -159,10 +162,34 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     },
   });
 
+  // Helper to find keyword matches in reviews
+  const findKeywordMatches = (reviews: Array<{ text: string }> | undefined, keywords: string[]): string[] => {
+    if (!reviews || reviews.length === 0 || keywords.length === 0) return [];
+    
+    const matches = new Set<string>();
+    const lowerKeywords = keywords.map(k => k.toLowerCase().trim()).filter(k => k.length > 0);
+    
+    for (const review of reviews) {
+      if (!review.text) continue;
+      const text = review.text.toLowerCase();
+      for (const keyword of lowerKeywords) {
+        if (text.includes(keyword)) {
+          matches.add(keyword);
+        }
+      }
+    }
+    
+    return Array.from(matches);
+  };
+
   // Import selected candidates
   const importPlaces = useMutation({
     mutationFn: async (selectedCandidates: SeedCandidate[]) => {
-      const results: { success: number; failed: number } = { success: 0, failed: 0 };
+      const results: { success: number; failed: number; keywordMatchCount: number } = { 
+        success: 0, 
+        failed: 0,
+        keywordMatchCount: 0 
+      };
       setImportProgress({ current: 0, total: selectedCandidates.length });
 
       for (let i = 0; i < selectedCandidates.length; i++) {
@@ -170,10 +197,10 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
         setImportProgress({ current: i + 1, total: selectedCandidates.length });
 
         try {
-          // Fetch full details from Google Places
+          // Fetch full details from Google Places (with reviews if scanning enabled)
           const { data: detailsData, error: detailsError } = await supabase.functions.invoke(
             'google-places-details',
-            { body: { place_id: candidate.place_id } }
+            { body: { place_id: candidate.place_id, includeReviews: scanReviews && searchKeywords.length > 0 } }
           );
 
           if (detailsError || !detailsData?.details) {
@@ -183,6 +210,16 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
           }
 
           const details = detailsData.details;
+          
+          // Find keyword matches in reviews
+          const keywordMatches = findKeywordMatches(details.reviews, searchKeywords);
+          if (keywordMatches.length > 0) {
+            results.keywordMatchCount++;
+            // Update candidate with matches for UI display
+            setCandidates(prev => prev.map(c => 
+              c.place_id === candidate.place_id ? { ...c, keywordMatches } : c
+            ));
+          }
 
           // Insert place with pending status
           const { error: insertError } = await supabase.from('places').insert({
@@ -233,7 +270,11 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
       queryClient.invalidateQueries({ queryKey: ['admin-places-city'] });
       queryClient.invalidateQueries({ queryKey: ['admin-cities'] });
       
-      toast.success(`Imported ${results.success} places${results.failed > 0 ? ` (${results.failed} failed)` : ''}`);
+      let message = `Imported ${results.success} places`;
+      if (results.failed > 0) message += ` (${results.failed} failed)`;
+      if (results.keywordMatchCount > 0) message += ` • ${results.keywordMatchCount} with keyword matches`;
+      
+      toast.success(message);
       setStep('complete');
     },
     onError: (error) => {
@@ -280,6 +321,8 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     setStep('configure');
     setCandidates([]);
     setImportProgress({ current: 0, total: 0 });
+    setSearchKeywords([]);
+    setScanReviews(false);
   }, []);
 
   const selectedCount = candidates.filter(c => c.selected && !c.isDuplicate).length;
@@ -296,6 +339,8 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     newCandidateCount,
     isSearching: searchNearby.isPending,
     isImporting: importPlaces.isPending,
+    searchKeywords,
+    scanReviews,
     
     // Actions
     setSelectedTypes,
@@ -306,5 +351,7 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     selectAll,
     reset,
     setStep,
+    setSearchKeywords,
+    setScanReviews,
   };
 }

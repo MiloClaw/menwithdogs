@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Star, MapPin, CheckCircle2, XCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Star, MapPin, Heart } from 'lucide-react';
 import type { SeedCandidate } from '@/hooks/useCitySeedWizard';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,10 +26,14 @@ export function SeedCandidateGrid({
 }: SeedCandidateGridProps) {
   const [minRating, setMinRating] = useState<number>(0);
   const [hideDuplicates, setHideDuplicates] = useState(false);
+  const [showKeywordMatchesOnly, setShowKeywordMatchesOnly] = useState(false);
+
+  const keywordMatchCount = candidates.filter(c => (c.keywordMatches?.length ?? 0) > 0).length;
 
   const filteredCandidates = candidates.filter((c) => {
     if (hideDuplicates && c.isDuplicate) return false;
     if (minRating > 0 && (c.rating || 0) < minRating) return false;
+    if (showKeywordMatchesOnly && (!c.keywordMatches || c.keywordMatches.length === 0)) return false;
     return true;
   });
 
@@ -36,7 +41,7 @@ export function SeedCandidateGrid({
     <div className="space-y-4">
       {/* Filters and Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-3 bg-muted/50 rounded-lg">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Switch
               id="hide-duplicates"
@@ -47,6 +52,20 @@ export function SeedCandidateGrid({
               Hide duplicates
             </Label>
           </div>
+          
+          {keywordMatchCount > 0 && (
+            <div className="flex items-center gap-2">
+              <Switch
+                id="keyword-matches"
+                checked={showKeywordMatchesOnly}
+                onCheckedChange={setShowKeywordMatchesOnly}
+              />
+              <Label htmlFor="keyword-matches" className="text-sm cursor-pointer flex items-center gap-1.5">
+                <Heart className="h-3.5 w-3.5 text-pink-500" />
+                Keyword matches ({keywordMatchCount})
+              </Label>
+            </div>
+          )}
           
           <div className="flex items-center gap-2">
             <Label className="text-sm">Min rating:</Label>
@@ -196,7 +215,7 @@ function CandidateCard({ candidate, onToggle }: CandidateCardProps) {
           {candidate.formatted_address}
         </p>
 
-        <div className="flex items-center gap-2 mt-1.5">
+        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           {candidate.rating && (
             <div className="flex items-center gap-1 text-xs">
               <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
@@ -212,6 +231,21 @@ function CandidateCard({ candidate, onToggle }: CandidateCardProps) {
             <Badge variant="outline" className="text-xs capitalize">
               {candidate.primary_type_display}
             </Badge>
+          )}
+          {candidate.keywordMatches && candidate.keywordMatches.length > 0 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="secondary" className="bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 text-xs cursor-help">
+                    <Heart className="h-3 w-3 mr-1 fill-current" />
+                    {candidate.keywordMatches.length}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Found: {candidate.keywordMatches.join(', ')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>

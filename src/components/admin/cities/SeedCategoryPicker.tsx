@@ -3,6 +3,10 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Heart, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES } from '@/hooks/useCitySeedWizard';
 
 interface SeedCategoryPickerProps {
@@ -10,6 +14,10 @@ interface SeedCategoryPickerProps {
   onTypesChange: (types: string[]) => void;
   radius: number;
   onRadiusChange: (radius: number) => void;
+  scanReviews?: boolean;
+  onScanReviewsChange?: (scan: boolean) => void;
+  searchKeywords?: string[];
+  onKeywordsChange?: (keywords: string[]) => void;
 }
 
 export function SeedCategoryPicker({
@@ -17,6 +25,10 @@ export function SeedCategoryPicker({
   onTypesChange,
   radius,
   onRadiusChange,
+  scanReviews = false,
+  onScanReviewsChange,
+  searchKeywords = [],
+  onKeywordsChange,
 }: SeedCategoryPickerProps) {
   const toggleType = (type: string) => {
     if (selectedTypes.includes(type)) {
@@ -38,6 +50,11 @@ export function SeedCategoryPicker({
         onTypesChange([]);
         break;
     }
+  };
+
+  const handleKeywordsChange = (value: string) => {
+    const keywords = value.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    onKeywordsChange?.(keywords);
   };
 
   const radiusKm = radius / 1000;
@@ -133,11 +150,64 @@ export function SeedCategoryPicker({
         </div>
       </div>
 
+      {/* Keyword Scanning */}
+      {onScanReviewsChange && onKeywordsChange && (
+        <div className="space-y-3 p-3 border border-dashed rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4 text-pink-500" />
+              <Label htmlFor="scan-reviews" className="text-sm font-medium cursor-pointer">
+                Scan Reviews for Keywords
+              </Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">
+                      During import, scan Google reviews for keywords to help identify affirming venues. 
+                      Additional API cost applies (~$0.025/place).
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Switch
+              id="scan-reviews"
+              checked={scanReviews}
+              onCheckedChange={onScanReviewsChange}
+            />
+          </div>
+          
+          {scanReviews && (
+            <div className="space-y-2">
+              <Label htmlFor="keywords" className="text-sm text-muted-foreground">
+                Keywords (comma-separated)
+              </Label>
+              <Input
+                id="keywords"
+                placeholder="gay, LGBT, LGBTQ, affirming, queer, pride, inclusive"
+                defaultValue={searchKeywords.join(', ')}
+                onChange={(e) => handleKeywordsChange(e.target.value)}
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Up to 5 reviews per place will be scanned for these terms.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Summary */}
       <div className="p-3 bg-muted/50 rounded-lg">
         <p className="text-sm text-muted-foreground">
           Will search for <span className="font-medium text-foreground">{selectedTypes.length}</span> venue types
           within <span className="font-medium text-foreground">{radiusKm}km</span> of the city center.
+          {scanReviews && searchKeywords.length > 0 && (
+            <span> Reviews will be scanned for <span className="font-medium text-foreground">{searchKeywords.length}</span> keywords.</span>
+          )}
         </p>
         {selectedTypes.length > 5 && (
           <p className="text-xs text-muted-foreground mt-1">
