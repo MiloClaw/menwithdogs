@@ -58,14 +58,14 @@ const Saved = () => {
         .select(`
           *,
           venue:places!events_venue_place_id_fkey(
-            id, name, city, state, formatted_address, lat, lng
+            id, name, city, state, formatted_address, lat, lng, photos
           )
         `)
         .in('id', eventIds)
         .order('start_at', { ascending: true });
 
       if (error) throw error;
-      return data as PublicEvent[];
+      return data as unknown as PublicEvent[];
     },
     enabled: !eventFavLoading && eventFavorites.length > 0,
   });

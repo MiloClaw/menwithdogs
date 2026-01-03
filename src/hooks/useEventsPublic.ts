@@ -4,6 +4,12 @@ import { useCoupleContext } from '@/contexts/CoupleContext';
 import { calculateDistanceMiles } from '@/lib/distance';
 import { startOfDay, endOfDay, endOfWeek, endOfMonth, addDays } from 'date-fns';
 
+export interface VenuePhoto {
+  name: string;
+  widthPx: number;
+  heightPx: number;
+}
+
 export interface PublicEvent {
   id: string;
   name: string;
@@ -26,6 +32,7 @@ export interface PublicEvent {
     lat: number | null;
     lng: number | null;
     formatted_address: string | null;
+    photos?: VenuePhoto[] | null;
   };
   distance?: number;
 }
@@ -100,7 +107,8 @@ export function useEventsPublic(options: UseEventsPublicOptions = {}) {
             state,
             lat,
             lng,
-            formatted_address
+            formatted_address,
+            photos
           )
         `)
         .eq('status', 'approved')
@@ -117,8 +125,8 @@ export function useEventsPublic(options: UseEventsPublicOptions = {}) {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Process events with distance calculation
-      let events = (data as PublicEvent[]).map(event => {
+      // Process events with distance calculation and proper type conversion
+      let events = (data as unknown as PublicEvent[]).map(event => {
         let distance: number | undefined;
         
         if (hasUserLocation && event.venue?.lat != null && event.venue?.lng != null) {
