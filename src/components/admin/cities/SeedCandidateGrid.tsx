@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Star, MapPin, Heart } from 'lucide-react';
+import { Star, MapPin, Heart, Search, Loader2, CheckCircle2, MessageSquareQuote } from 'lucide-react';
 import type { SeedCandidate } from '@/hooks/useCitySeedWizard';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,6 +15,10 @@ interface SeedCandidateGridProps {
   onSelectAll: (select: boolean) => void;
   selectedCount: number;
   newCandidateCount: number;
+  searchKeywords?: string[];
+  onScanReviews?: (placeId: string) => void;
+  onScanAllReviews?: (placeIds: string[]) => void;
+  isScanningReviews?: boolean;
 }
 
 export function SeedCandidateGrid({
@@ -23,12 +27,18 @@ export function SeedCandidateGrid({
   onSelectAll,
   selectedCount,
   newCandidateCount,
+  searchKeywords = [],
+  onScanReviews,
+  onScanAllReviews,
+  isScanningReviews = false,
 }: SeedCandidateGridProps) {
   const [minRating, setMinRating] = useState<number>(0);
-  const [hideDuplicates, setHideDuplicates] = useState(false);
+  const [hideDuplicates, setHideDuplicates] = useState(true);
   const [showKeywordMatchesOnly, setShowKeywordMatchesOnly] = useState(false);
 
   const keywordMatchCount = candidates.filter(c => (c.keywordMatches?.length ?? 0) > 0).length;
+  const scannedCount = candidates.filter(c => c.reviewsScanned).length;
+  const hasKeywords = searchKeywords.length > 0;
 
   const filteredCandidates = candidates.filter((c) => {
     if (hideDuplicates && c.isDuplicate) return false;
@@ -37,10 +47,72 @@ export function SeedCandidateGrid({
     return true;
   });
 
+  const unscannedVisibleIds = filteredCandidates
+    .filter(c => !c.isDuplicate && !c.reviewsScanned && !c.isScanning)
+    .map(c => c.place_id);
+
+  const handleScanAll = () => {
+    if (onScanAllReviews && unscannedVisibleIds.length > 0) {
+      onScanAllReviews(unscannedVisibleIds);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Review Summary Panel */}
+      <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="text-sm">
+            <span className="font-medium text-foreground">{candidates.length}</span> places found
+            <span className="text-muted-foreground"> • </span>
+            <span className="font-medium text-foreground">{newCandidateCount}</span> new
+            <span className="text-muted-foreground"> • </span>
+            <span className="font-medium text-foreground">{candidates.length - newCandidateCount}</span> exist
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            {selectedCount} selected
+          </Badge>
+        </div>
+        
+        {hasKeywords && (
+          <div className="flex items-center justify-between pt-2 border-t border-border/50">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <span>
+                <span className="font-medium text-foreground">{scannedCount}</span> scanned
+              </span>
+              {keywordMatchCount > 0 && (
+                <>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Heart className="h-3 w-3 text-pink-500 fill-pink-500" />
+                    <span className="font-medium text-foreground">{keywordMatchCount}</span> matches
+                  </span>
+                </>
+              )}
+            </div>
+            {unscannedVisibleIds.length > 0 && onScanAllReviews && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleScanAll}
+                disabled={isScanningReviews}
+                className="gap-1.5"
+              >
+                {isScanningReviews ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Search className="h-3.5 w-3.5" />
+                )}
+                Scan {unscannedVisibleIds.length} Visible
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Filters and Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-3 bg-muted/50 rounded-lg">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-3 bg-muted/30 rounded-lg">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Switch
@@ -49,7 +121,7 @@ export function SeedCandidateGrid({
               onCheckedChange={setHideDuplicates}
             />
             <Label htmlFor="hide-duplicates" className="text-sm cursor-pointer">
-              Hide duplicates
+              Hide existing
             </Label>
           </div>
           
@@ -62,15 +134,15 @@ export function SeedCandidateGrid({
               />
               <Label htmlFor="keyword-matches" className="text-sm cursor-pointer flex items-center gap-1.5">
                 <Heart className="h-3.5 w-3.5 text-pink-500" />
-                Keyword matches ({keywordMatchCount})
+                Matches only
               </Label>
             </div>
           )}
           
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Min rating:</Label>
+            <Label className="text-sm">Rating:</Label>
             <div className="flex gap-1">
-              {[0, 3, 3.5, 4, 4.5].map((rating) => (
+              {[0, 3.5, 4, 4.5].map((rating) => (
                 <Button
                   key={rating}
                   type="button"
@@ -106,28 +178,15 @@ export function SeedCandidateGrid({
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <span>
-          <span className="font-medium text-foreground">{selectedCount}</span> selected
-        </span>
-        <span>•</span>
-        <span>
-          <span className="font-medium text-foreground">{newCandidateCount}</span> new
-        </span>
-        <span>•</span>
-        <span>
-          <span className="font-medium text-foreground">{candidates.length - newCandidateCount}</span> already exist
-        </span>
-      </div>
-
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2">
         {filteredCandidates.map((candidate) => (
           <CandidateCard
             key={candidate.place_id}
             candidate={candidate}
             onToggle={() => onToggle(candidate.place_id)}
+            onScanReviews={onScanReviews}
+            hasKeywords={hasKeywords}
           />
         ))}
       </div>
@@ -144,9 +203,11 @@ export function SeedCandidateGrid({
 interface CandidateCardProps {
   candidate: SeedCandidate;
   onToggle: () => void;
+  onScanReviews?: (placeId: string) => void;
+  hasKeywords: boolean;
 }
 
-function CandidateCard({ candidate, onToggle }: CandidateCardProps) {
+function CandidateCard({ candidate, onToggle, onScanReviews, hasKeywords }: CandidateCardProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState(false);
 
@@ -165,90 +226,139 @@ function CandidateCard({ candidate, onToggle }: CandidateCardProps) {
   });
 
   const isDisabled = candidate.isDuplicate;
+  const showScanButton = hasKeywords && !candidate.reviewsScanned && !candidate.isScanning && !isDisabled;
+  const hasMatches = (candidate.keywordMatches?.length ?? 0) > 0;
+  const hasSnippets = (candidate.reviewSnippets?.length ?? 0) > 0;
 
   return (
     <div
       className={`
-        relative flex gap-3 p-3 rounded-lg border cursor-pointer transition-all
+        relative flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all
         ${isDisabled ? 'opacity-60 bg-muted/30' : 'hover:border-primary/50'}
         ${candidate.selected && !isDisabled ? 'border-primary bg-primary/5' : ''}
+        ${hasMatches ? 'ring-1 ring-pink-300 dark:ring-pink-700' : ''}
       `}
       onClick={() => !isDisabled && onToggle()}
     >
-      {/* Checkbox */}
-      <div className="flex items-start pt-1">
-        <Checkbox
-          checked={candidate.selected && !isDisabled}
-          disabled={isDisabled}
-          onCheckedChange={() => !isDisabled && onToggle()}
-          onClick={(e) => e.stopPropagation()}
-        />
-      </div>
-
-      {/* Photo */}
-      <div className="flex-shrink-0 w-16 h-16 bg-muted rounded-md overflow-hidden">
-        {photoUrl ? (
-          <img
-            src={photoUrl}
-            alt={candidate.name}
-            className="w-full h-full object-cover"
+      <div className="flex gap-3">
+        {/* Checkbox */}
+        <div className="flex items-start pt-1">
+          <Checkbox
+            checked={candidate.selected && !isDisabled}
+            disabled={isDisabled}
+            onCheckedChange={() => !isDisabled && onToggle()}
+            onClick={(e) => e.stopPropagation()}
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <MapPin className="h-6 w-6" />
+        </div>
+
+        {/* Photo */}
+        <div className="flex-shrink-0 w-14 h-14 bg-muted rounded-md overflow-hidden">
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={candidate.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              <MapPin className="h-5 w-5" />
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <h4 className="font-medium text-sm truncate">{candidate.name}</h4>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {candidate.isDuplicate && (
+                <Badge variant="secondary" className="text-xs">
+                  Exists
+                </Badge>
+              )}
+              {candidate.reviewsScanned && !hasMatches && (
+                <Badge variant="outline" className="text-xs text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Scanned
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          <p className="text-xs text-muted-foreground truncate mt-0.5">
+            {candidate.formatted_address}
+          </p>
+
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            {candidate.rating && (
+              <div className="flex items-center gap-1 text-xs">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <span>{candidate.rating.toFixed(1)}</span>
+                {candidate.user_ratings_total && (
+                  <span className="text-muted-foreground">
+                    ({candidate.user_ratings_total.toLocaleString()})
+                  </span>
+                )}
+              </div>
+            )}
+            {candidate.primary_type_display && (
+              <Badge variant="outline" className="text-xs capitalize">
+                {candidate.primary_type_display}
+              </Badge>
+            )}
+            {hasMatches && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 text-xs cursor-help">
+                      <Heart className="h-3 w-3 mr-1 fill-current" />
+                      {candidate.keywordMatches!.length}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">Found: {candidate.keywordMatches!.join(', ')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        </div>
+
+        {/* Scan button or loading */}
+        {hasKeywords && (
+          <div className="flex-shrink-0">
+            {candidate.isScanning && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
+            {showScanButton && onScanReviews && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onScanReviews(candidate.place_id);
+                }}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <h4 className="font-medium text-sm truncate">{candidate.name}</h4>
-          {candidate.isDuplicate && (
-            <Badge variant="secondary" className="flex-shrink-0 text-xs">
-              Exists
-            </Badge>
-          )}
+      {/* Review Snippets */}
+      {hasSnippets && (
+        <div className="ml-7 pl-3 border-l-2 border-pink-200 dark:border-pink-800 space-y-1">
+          {candidate.reviewSnippets!.map((snippet, i) => (
+            <p key={i} className="text-xs text-muted-foreground italic flex items-start gap-1.5">
+              <MessageSquareQuote className="h-3 w-3 flex-shrink-0 mt-0.5 text-pink-500" />
+              "{snippet}"
+            </p>
+          ))}
         </div>
-        
-        <p className="text-xs text-muted-foreground truncate mt-0.5">
-          {candidate.formatted_address}
-        </p>
-
-        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-          {candidate.rating && (
-            <div className="flex items-center gap-1 text-xs">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              <span>{candidate.rating.toFixed(1)}</span>
-              {candidate.user_ratings_total && (
-                <span className="text-muted-foreground">
-                  ({candidate.user_ratings_total.toLocaleString()})
-                </span>
-              )}
-            </div>
-          )}
-          {candidate.primary_type_display && (
-            <Badge variant="outline" className="text-xs capitalize">
-              {candidate.primary_type_display}
-            </Badge>
-          )}
-          {candidate.keywordMatches && candidate.keywordMatches.length > 0 && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="secondary" className="bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300 text-xs cursor-help">
-                    <Heart className="h-3 w-3 mr-1 fill-current" />
-                    {candidate.keywordMatches.length}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Found: {candidate.keywordMatches.join(', ')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

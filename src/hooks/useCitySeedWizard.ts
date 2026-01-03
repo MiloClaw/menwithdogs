@@ -21,6 +21,9 @@ export interface SeedCandidate extends NearbyPlace {
   selected: boolean;
   isDuplicate: boolean;
   keywordMatches?: string[];
+  reviewSnippets?: string[];
+  reviewsScanned?: boolean;
+  isScanning?: boolean;
 }
 
 interface NearbySearchParams {
@@ -91,7 +94,6 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
   const [candidates, setCandidates] = useState<SeedCandidate[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
-  const [scanReviews, setScanReviews] = useState(false);
   const [minRating, setMinRating] = useState<number>(4.0);
   const [minReviewCount, setMinReviewCount] = useState<number>(50);
 
@@ -162,6 +164,8 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
         ...place,
         isDuplicate: existingIds.has(place.place_id),
         selected: !existingIds.has(place.place_id), // Auto-select non-duplicates
+        reviewsScanned: false,
+        isScanning: false,
       }));
 
       // Sort: non-duplicates first, then by rating
@@ -186,27 +190,143 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     },
   });
 
-  // Helper to find keyword matches in reviews
-  const findKeywordMatches = (reviews: Array<{ text: string }> | undefined, keywords: string[]): string[] => {
-    if (!reviews || reviews.length === 0 || keywords.length === 0) return [];
+  // Helper to find keyword matches in reviews and extract snippets
+  const findKeywordMatchesWithSnippets = (
+    reviews: Array<{ text: string }> | undefined, 
+    keywords: string[]
+  ): { matches: string[]; snippets: string[] } => {
+    if (!reviews || reviews.length === 0 || keywords.length === 0) {
+      return { matches: [], snippets: [] };
+    }
     
     const matches = new Set<string>();
+    const snippets: string[] = [];
     const lowerKeywords = keywords.map(k => k.toLowerCase().trim()).filter(k => k.length > 0);
     
     for (const review of reviews) {
       if (!review.text) continue;
-      const text = review.text.toLowerCase();
+      const text = review.text;
+      const lowerText = text.toLowerCase();
+      
       for (const keyword of lowerKeywords) {
-        if (text.includes(keyword)) {
+        if (lowerText.includes(keyword)) {
           matches.add(keyword);
+          // Extract a snippet around the keyword (first match only per review)
+          const keywordIndex = lowerText.indexOf(keyword);
+          const start = Math.max(0, keywordIndex - 50);
+          const end = Math.min(text.length, keywordIndex + keyword.length + 50);
+          const snippet = (start > 0 ? '...' : '') + 
+                         text.slice(start, end).trim() + 
+                         (end < text.length ? '...' : '');
+          if (!snippets.includes(snippet) && snippets.length < 3) {
+            snippets.push(snippet);
+          }
+          break; // Only one snippet per review
         }
       }
     }
     
-    return Array.from(matches);
+    return { matches: Array.from(matches), snippets };
   };
 
-  // Import selected candidates
+  // Scan reviews for a single candidate (on-demand)
+  const scanCandidateReviews = useMutation({
+    mutationFn: async (placeId: string) => {
+      // Mark as scanning
+      setCandidates(prev => prev.map(c => 
+        c.place_id === placeId ? { ...c, isScanning: true } : c
+      ));
+
+      const { data, error } = await supabase.functions.invoke('google-places-details', {
+        body: { place_id: placeId, includeReviews: true },
+      });
+
+      if (error) throw error;
+      return { placeId, details: data?.details };
+    },
+    onSuccess: ({ placeId, details }) => {
+      const { matches, snippets } = findKeywordMatchesWithSnippets(details?.reviews, searchKeywords);
+      
+      setCandidates(prev => prev.map(c => 
+        c.place_id === placeId 
+          ? { 
+              ...c, 
+              keywordMatches: matches, 
+              reviewSnippets: snippets,
+              reviewsScanned: true, 
+              isScanning: false 
+            } 
+          : c
+      ));
+
+      if (matches.length > 0) {
+        toast.success(`Found ${matches.length} keyword match(es)`);
+      } else {
+        toast.info('No keyword matches found in reviews');
+      }
+    },
+    onError: (error, placeId) => {
+      console.error('Review scan failed:', error);
+      setCandidates(prev => prev.map(c => 
+        c.place_id === placeId ? { ...c, isScanning: false } : c
+      ));
+      toast.error('Failed to scan reviews');
+    },
+  });
+
+  // Scan all visible candidates
+  const scanAllReviews = useMutation({
+    mutationFn: async (placeIds: string[]) => {
+      const results: { placeId: string; matches: string[]; snippets: string[] }[] = [];
+      
+      for (const placeId of placeIds) {
+        // Mark as scanning
+        setCandidates(prev => prev.map(c => 
+          c.place_id === placeId ? { ...c, isScanning: true } : c
+        ));
+
+        try {
+          const { data, error } = await supabase.functions.invoke('google-places-details', {
+            body: { place_id: placeId, includeReviews: true },
+          });
+
+          if (error) {
+            console.error(`Review scan failed for ${placeId}:`, error);
+            continue;
+          }
+
+          const { matches, snippets } = findKeywordMatchesWithSnippets(data?.details?.reviews, searchKeywords);
+          results.push({ placeId, matches, snippets });
+
+          // Update candidate immediately
+          setCandidates(prev => prev.map(c => 
+            c.place_id === placeId 
+              ? { 
+                  ...c, 
+                  keywordMatches: matches, 
+                  reviewSnippets: snippets,
+                  reviewsScanned: true, 
+                  isScanning: false 
+                } 
+              : c
+          ));
+        } catch (err) {
+          console.error(`Error scanning ${placeId}:`, err);
+          setCandidates(prev => prev.map(c => 
+            c.place_id === placeId ? { ...c, isScanning: false } : c
+          ));
+        }
+      }
+
+      return results;
+    },
+    onSuccess: (results) => {
+      const matchCount = results.filter(r => r.matches.length > 0).length;
+      toast.success(`Scanned ${results.length} places • ${matchCount} with keyword matches`);
+    },
+  });
+
+  // Import selected candidates (no review fetching - done on-demand)
   const importPlaces = useMutation({
     mutationFn: async (selectedCandidates: SeedCandidate[]) => {
       const results: { success: number; failed: number; keywordMatchCount: number } = { 
@@ -220,11 +340,16 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
         const candidate = selectedCandidates[i];
         setImportProgress({ current: i + 1, total: selectedCandidates.length });
 
+        // Count pre-scanned keyword matches
+        if (candidate.keywordMatches && candidate.keywordMatches.length > 0) {
+          results.keywordMatchCount++;
+        }
+
         try {
-          // Fetch full details from Google Places (with reviews if scanning enabled)
+          // Fetch basic details (no reviews - they were scanned on-demand)
           const { data: detailsData, error: detailsError } = await supabase.functions.invoke(
             'google-places-details',
-            { body: { place_id: candidate.place_id, includeReviews: scanReviews && searchKeywords.length > 0 } }
+            { body: { place_id: candidate.place_id, includeReviews: false } }
           );
 
           if (detailsError || !detailsData?.details) {
@@ -234,16 +359,6 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
           }
 
           const details = detailsData.details;
-          
-          // Find keyword matches in reviews
-          const keywordMatches = findKeywordMatches(details.reviews, searchKeywords);
-          if (keywordMatches.length > 0) {
-            results.keywordMatchCount++;
-            // Update candidate with matches for UI display
-            setCandidates(prev => prev.map(c => 
-              c.place_id === candidate.place_id ? { ...c, keywordMatches } : c
-            ));
-          }
 
           // Insert place with pending status
           const { error: insertError } = await supabase.from('places').insert({
@@ -346,11 +461,12 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     setCandidates([]);
     setImportProgress({ current: 0, total: 0 });
     setSearchKeywords([]);
-    setScanReviews(false);
   }, []);
 
   const selectedCount = candidates.filter(c => c.selected && !c.isDuplicate).length;
   const newCandidateCount = candidates.filter(c => !c.isDuplicate).length;
+  const scannedCount = candidates.filter(c => c.reviewsScanned).length;
+  const keywordMatchCount = candidates.filter(c => (c.keywordMatches?.length ?? 0) > 0).length;
 
   return {
     // State
@@ -361,10 +477,12 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     importProgress,
     selectedCount,
     newCandidateCount,
+    scannedCount,
+    keywordMatchCount,
     isSearching: searchNearby.isPending,
     isImporting: importPlaces.isPending,
+    isScanningReviews: scanCandidateReviews.isPending || scanAllReviews.isPending,
     searchKeywords,
-    scanReviews,
     minRating,
     minReviewCount,
     
@@ -378,8 +496,9 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     reset,
     setStep,
     setSearchKeywords,
-    setScanReviews,
     setMinRating,
     setMinReviewCount,
+    scanCandidateReviews: scanCandidateReviews.mutate,
+    scanAllReviews: scanAllReviews.mutate,
   };
 }
