@@ -62,6 +62,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cities: {
+        Row: {
+          country: string
+          created_at: string
+          id: string
+          launched_at: string | null
+          launched_by: string | null
+          name: string
+          state: string | null
+          status: Database["public"]["Enums"]["city_status"]
+          target_anchor_count: number
+          target_place_count: number
+          updated_at: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          id?: string
+          launched_at?: string | null
+          launched_by?: string | null
+          name: string
+          state?: string | null
+          status?: Database["public"]["Enums"]["city_status"]
+          target_anchor_count?: number
+          target_place_count?: number
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: string
+          launched_at?: string | null
+          launched_by?: string | null
+          name?: string
+          state?: string | null
+          status?: Database["public"]["Enums"]["city_status"]
+          target_anchor_count?: number
+          target_place_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       couple_favorites: {
         Row: {
           couple_id: string
@@ -917,6 +959,25 @@ export type Database = {
       }
     }
     Views: {
+      city_seeding_progress: {
+        Row: {
+          approved_place_count: number | null
+          completion_percentage: number | null
+          country: string | null
+          curated_place_count: number | null
+          current_place_count: number | null
+          id: string | null
+          is_ready_to_launch: boolean | null
+          launched_at: string | null
+          name: string | null
+          pending_place_count: number | null
+          state: string | null
+          status: Database["public"]["Enums"]["city_status"] | null
+          target_anchor_count: number | null
+          target_place_count: number | null
+        }
+        Relationships: []
+      }
       event_presence_agg: {
         Row: {
           event_id: string | null
@@ -1012,6 +1073,7 @@ export type Database = {
     Enums: {
       affinity_type: "regular" | "occasional" | "aspirational"
       app_role: "admin" | "user"
+      city_status: "draft" | "launched" | "paused"
       couple_status: "onboarding" | "pending_match" | "active" | "paused"
       event_status: "approved" | "pending" | "rejected"
       member_onboarding_step: "profile_pending" | "profile_complete"
@@ -1150,6 +1212,7 @@ export const Constants = {
     Enums: {
       affinity_type: ["regular", "occasional", "aspirational"],
       app_role: ["admin", "user"],
+      city_status: ["draft", "launched", "paused"],
       couple_status: ["onboarding", "pending_match", "active", "paused"],
       event_status: ["approved", "pending", "rejected"],
       member_onboarding_step: ["profile_pending", "profile_complete"],
