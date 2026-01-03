@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
-  ChevronLeft, ChevronRight, X 
+  ChevronLeft, ChevronRight, Heart
 } from 'lucide-react';
 import {
   Dialog,
@@ -18,6 +18,7 @@ import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
 import CoupleTileGrid from './CoupleTileGrid';
 import { usePlacePresenceAggregate } from '@/hooks/usePresenceAggregates';
+import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { Json } from '@/integrations/supabase/types';
 
@@ -69,6 +70,7 @@ const getOpeningHours = (hours: Json | null): string[] => {
 const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const { data: presenceAgg } = usePlacePresenceAggregate(place?.id);
+  const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
 
   if (!place) return null;
 
@@ -77,6 +79,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
   const openingHours = getOpeningHours(place.opening_hours);
+  const saved = isFavorited(place.id);
 
   const nextPhoto = () => {
     setCurrentPhotoIndex((prev) => (prev + 1) % photoUrls.length);
@@ -146,12 +149,25 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
         <div className="p-6 space-y-6">
           <DialogHeader className="space-y-3">
             <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1">
                 <Badge variant="secondary" className="mb-2">
                   {place.primary_category}
                 </Badge>
                 <DialogTitle className="text-2xl">{place.name}</DialogTitle>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => toggleFavorite(place.id)}
+                disabled={isUpdating}
+                className="flex-shrink-0"
+              >
+                <Heart 
+                  className={`h-6 w-6 transition-colors ${
+                    saved ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground'
+                  }`} 
+                />
+              </Button>
             </div>
             
             {/* Rating & Price */}
