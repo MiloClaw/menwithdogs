@@ -8,6 +8,13 @@ const corsHeaders = {
 interface DetailsRequest {
   place_id: string;
   sessionToken?: string;
+  includeReviews?: boolean;
+}
+
+interface Review {
+  text: string;
+  rating: number;
+  relativePublishTimeDescription?: string;
 }
 
 interface PhotoReference {
@@ -36,6 +43,8 @@ interface PlaceDetails {
   photos: PhotoReference[] | null;
   google_primary_type: string | null;
   google_primary_type_display: string | null;
+  // Optional reviews for keyword scanning
+  reviews?: Review[];
 }
 
 serve(async (req) => {
@@ -54,7 +63,7 @@ serve(async (req) => {
       );
     }
 
-    const { place_id, sessionToken }: DetailsRequest = await req.json();
+    const { place_id, sessionToken, includeReviews }: DetailsRequest = await req.json();
 
     if (!place_id) {
       return new Response(
@@ -63,10 +72,10 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Fetching details for place_id: ${place_id}`);
+    console.log(`Fetching details for place_id: ${place_id}, includeReviews: ${includeReviews}`);
 
-    // Expanded field mask to include all GBP data
-    const fieldMask = [
+    // Build field mask - add reviews if requested (Enterprise + Atmosphere SKU)
+    const fields = [
       "id",
       "displayName",
       "formattedAddress",
@@ -82,7 +91,13 @@ serve(async (req) => {
       "photos",
       "primaryType",
       "primaryTypeDisplayName",
-    ].join(",");
+    ];
+    
+    if (includeReviews) {
+      fields.push("reviews");
+    }
+    
+    const fieldMask = fields.join(",");
 
     let url = `https://places.googleapis.com/v1/places/${place_id}?languageCode=en`;
     
@@ -167,6 +182,17 @@ serve(async (req) => {
       price_level = priceLevelMap[data.priceLevel] ?? null;
     }
 
+    // Parse reviews if included
+    let reviews: Review[] | undefined = undefined;
+    if (includeReviews && data.reviews && Array.isArray(data.reviews)) {
+      reviews = data.reviews.slice(0, 5).map((review: any) => ({
+        text: review.text?.text || review.originalText?.text || "",
+        rating: review.rating ?? 0,
+        relativePublishTimeDescription: review.relativePublishTimeDescription,
+      }));
+      console.log(`Parsed ${reviews!.length} reviews for keyword scanning`);
+    }
+
     const details: PlaceDetails = {
       place_id: data.id || place_id,
       name: data.displayName?.text || "",
@@ -187,9 +213,10 @@ serve(async (req) => {
       photos,
       google_primary_type: data.primaryType ?? null,
       google_primary_type_display: data.primaryTypeDisplayName?.text ?? null,
+      reviews,
     };
 
-    console.log(`Returning enriched details for: ${details.name} (rating: ${details.rating}, photos: ${photos?.length || 0})`);
+    console.log(`Returning enriched details for: ${details.name} (rating: ${details.rating}, photos: ${photos?.length || 0}, reviews: ${reviews?.length || 0})`);
 
     return new Response(
       JSON.stringify({ details }),

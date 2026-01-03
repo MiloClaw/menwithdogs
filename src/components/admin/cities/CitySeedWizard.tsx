@@ -42,6 +42,8 @@ export function CitySeedWizard({
     newCandidateCount,
     isSearching,
     isImporting,
+    searchKeywords,
+    scanReviews,
     setSelectedTypes,
     setRadius,
     startDiscovery,
@@ -50,6 +52,8 @@ export function CitySeedWizard({
     selectAll,
     reset,
     setStep,
+    setSearchKeywords,
+    setScanReviews,
   } = useCitySeedWizard(cityId, cityName);
 
   const handleClose = () => {
@@ -108,6 +112,10 @@ export function CitySeedWizard({
               onTypesChange={setSelectedTypes}
               radius={radius}
               onRadiusChange={setRadius}
+              scanReviews={scanReviews}
+              onScanReviewsChange={setScanReviews}
+              searchKeywords={searchKeywords}
+              onKeywordsChange={setSearchKeywords}
             />
           )}
 
