@@ -13,8 +13,6 @@ import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
 import { useCoupleContext } from '@/contexts/CoupleContext';
 import { calculateDistanceMiles } from '@/lib/distance';
-import { EDITORIAL_FILTERS, placeMatchesFilter, eventMatchesFilter, EditorialFilter } from '@/lib/editorial-filters';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const RADIUS_OPTIONS = [
   { label: 'All', value: null },
@@ -37,7 +35,6 @@ const Places = () => {
   const [activeTab, setActiveTab] = useState<'places' | 'events'>('places');
   const [searchTerm, setSearchTerm] = useState('');
   const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
-  const [activeEditorialFilter, setActiveEditorialFilter] = useState<string | null>(null);
   
   // Places state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -53,28 +50,6 @@ const Places = () => {
   const userLat = memberProfile?.city_lat;
   const userLng = memberProfile?.city_lng;
   const hasUserLocation = userLat != null && userLng != null;
-
-  // Get active editorial filter object
-  const currentEditorialFilter = useMemo(() => 
-    EDITORIAL_FILTERS.find(f => f.id === activeEditorialFilter) || null,
-    [activeEditorialFilter]
-  );
-
-  // Handle editorial filter selection
-  const handleEditorialFilterClick = (filter: EditorialFilter) => {
-    if (activeEditorialFilter === filter.id) {
-      // Deselect
-      setActiveEditorialFilter(null);
-    } else {
-      setActiveEditorialFilter(filter.id);
-      // Clear technical filters when editorial filter is selected
-      setSelectedCategory(null);
-      // If filter has a date preference, apply it
-      if (filter.dateFilter) {
-        setDateFilter(filter.dateFilter);
-      }
-    }
-  };
 
   // Data fetching
   const { data: places, isLoading: placesLoading } = usePublicPlaces();
@@ -111,11 +86,7 @@ const Places = () => {
       const matchesCategory = !selectedCategory || 
         place.primary_category === selectedCategory;
       
-      // Apply editorial filter
-      const matchesEditorial = !currentEditorialFilter || 
-        placeMatchesFilter(place, currentEditorialFilter);
-      
-      return matchesSearch && matchesCategory && matchesEditorial;
+      return matchesSearch && matchesCategory;
     });
 
     if (radiusFilter !== null && hasUserLocation) {
@@ -132,15 +103,13 @@ const Places = () => {
       if (b.distance !== undefined) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng, currentEditorialFilter]);
+  }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
 
-  // Process events with editorial filter
+  // Process events
   const processedEvents = useMemo(() => {
     if (!events) return [];
-    if (!currentEditorialFilter) return events;
-    
-    return events.filter(event => eventMatchesFilter(event, currentEditorialFilter));
-  }, [events, currentEditorialFilter]);
+    return events;
+  }, [events]);
 
   const handlePlaceClick = (place: DirectoryPlace) => {
     setSelectedPlace(place);
@@ -153,7 +122,7 @@ const Places = () => {
   };
 
   // Check if any filters are active
-  const hasActiveFilters = searchTerm || selectedCategory || radiusFilter || activeEditorialFilter;
+  const hasActiveFilters = searchTerm || selectedCategory || radiusFilter;
 
   return (
     <PageLayout>
@@ -165,23 +134,6 @@ const Places = () => {
             Find great spots and events for your next date
           </p>
         </div>
-
-        {/* Editorial Filter Rail */}
-        <ScrollArea className="w-full whitespace-nowrap">
-          <div className="flex gap-2 pb-2">
-            {EDITORIAL_FILTERS.map(filter => (
-              <Badge
-                key={filter.id}
-                variant={activeEditorialFilter === filter.id ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-primary/90 min-h-[40px] px-4 flex items-center whitespace-nowrap transition-colors"
-                onClick={() => handleEditorialFilterClick(filter)}
-              >
-                {filter.label}
-              </Badge>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'places' | 'events')}>
@@ -234,7 +186,7 @@ const Places = () => {
           {/* Places Tab */}
           <TabsContent value="places" className="space-y-6 mt-6">
             {/* Category Filters */}
-            {placeCategories.length > 0 && !activeEditorialFilter && (
+            {placeCategories.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Category</p>
                 <div className="flex flex-wrap gap-2">
@@ -303,23 +255,21 @@ const Places = () => {
           {/* Events Tab */}
           <TabsContent value="events" className="space-y-6 mt-6">
             {/* Date Filters */}
-            {!activeEditorialFilter && (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">When</p>
-                <div className="flex flex-wrap gap-2">
-                  {DATE_FILTER_OPTIONS.map(option => (
-                    <Badge
-                      key={option.value}
-                      variant={dateFilter === option.value ? 'default' : 'outline'}
-                      className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                      onClick={() => setDateFilter(option.value)}
-                    >
-                      {option.label}
-                    </Badge>
-                  ))}
-                </div>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">When</p>
+              <div className="flex flex-wrap gap-2">
+                {DATE_FILTER_OPTIONS.map(option => (
+                  <Badge
+                    key={option.value}
+                    variant={dateFilter === option.value ? 'default' : 'outline'}
+                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                    onClick={() => setDateFilter(option.value)}
+                  >
+                    {option.label}
+                  </Badge>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Results Count */}
             {!eventsLoading && (
