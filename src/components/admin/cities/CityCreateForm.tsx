@@ -1,17 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateCity } from '@/hooks/useCities';
-
-const US_STATES = [
-  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
-];
+import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
+import { PlaceDetails } from '@/hooks/useGooglePlaces';
 
 interface CityCreateFormProps {
   onSuccess?: () => void;
@@ -19,27 +12,50 @@ interface CityCreateFormProps {
 }
 
 export function CityCreateForm({ onSuccess, onCancel }: CityCreateFormProps) {
-  const [name, setName] = useState('');
-  const [state, setState] = useState('');
-  const [country, setCountry] = useState('US');
+  const [cityInput, setCityInput] = useState('');
+  const [selectedCity, setSelectedCity] = useState<{
+    name: string;
+    state: string | null;
+    country: string;
+    google_place_id: string;
+    lat: number | null;
+    lng: number | null;
+  } | null>(null);
   const [targetPlaceCount, setTargetPlaceCount] = useState(30);
   const [targetAnchorCount, setTargetAnchorCount] = useState(15);
 
   const createCity = useCreateCity();
 
+  const handleCitySelect = useCallback((details: PlaceDetails) => {
+    setSelectedCity({
+      name: details.city || details.name,
+      state: details.state,
+      country: details.country || 'US',
+      google_place_id: details.place_id,
+      lat: details.lat,
+      lng: details.lng,
+    });
+    setCityInput(details.city || details.name);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!selectedCity) return;
+
     createCity.mutate({
-      name: name.trim(),
-      state: state || null,
-      country,
+      name: selectedCity.name,
+      state: selectedCity.state,
+      country: selectedCity.country,
+      google_place_id: selectedCity.google_place_id,
+      lat: selectedCity.lat,
+      lng: selectedCity.lng,
       target_place_count: targetPlaceCount,
       target_anchor_count: targetAnchorCount,
     }, {
       onSuccess: () => {
-        setName('');
-        setState('');
+        setCityInput('');
+        setSelectedCity(null);
         setTargetPlaceCount(30);
         setTargetAnchorCount(15);
         onSuccess?.();
@@ -47,50 +63,32 @@ export function CityCreateForm({ onSuccess, onCancel }: CityCreateFormProps) {
     });
   };
 
-  const isValid = name.trim().length > 0;
+  const isValid = selectedCity !== null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="city-name">City Name *</Label>
-        <Input
-          id="city-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Austin"
-          autoFocus
+        <Label htmlFor="city-search">City *</Label>
+        <GooglePlacesAutocomplete
+          value={cityInput}
+          onChange={setCityInput}
+          onPlaceSelect={handleCitySelect}
+          placeholder="Search for a city..."
+          types="(cities)"
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="city-state">State</Label>
-          <Select value={state} onValueChange={setState}>
-            <SelectTrigger id="city-state">
-              <SelectValue placeholder="Select state" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">None</SelectItem>
-              {US_STATES.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="city-country">Country</Label>
-          <Select value={country} onValueChange={setCountry}>
-            <SelectTrigger id="city-country">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="US">United States</SelectItem>
-              <SelectItem value="CA">Canada</SelectItem>
-              <SelectItem value="UK">United Kingdom</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {selectedCity && (
+          <div className="text-sm text-muted-foreground bg-muted/50 rounded-md p-2">
+            <div className="font-medium text-foreground">{selectedCity.name}</div>
+            <div>
+              {selectedCity.state ? `${selectedCity.state}, ` : ''}{selectedCity.country}
+            </div>
+            {selectedCity.lat && selectedCity.lng && (
+              <div className="text-xs mt-1">
+                Coordinates: {selectedCity.lat.toFixed(4)}, {selectedCity.lng.toFixed(4)}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">

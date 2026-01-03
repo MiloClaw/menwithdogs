@@ -13,7 +13,11 @@ export interface CityWithProgress {
   status: CityStatus;
   target_place_count: number;
   target_anchor_count: number;
+  google_place_id: string | null;
+  lat: number | null;
+  lng: number | null;
   launched_at: string | null;
+  // Progress fields from view
   current_place_count: number;
   approved_place_count: number;
   pending_place_count: number;
@@ -26,6 +30,9 @@ export interface CityInsert {
   name: string;
   state?: string | null;
   country?: string;
+  google_place_id?: string | null;
+  lat?: number | null;
+  lng?: number | null;
   target_place_count?: number;
   target_anchor_count?: number;
 }
@@ -89,6 +96,9 @@ export function useCreateCity() {
           name: city.name,
           state: city.state || null,
           country: city.country || 'US',
+          google_place_id: city.google_place_id || null,
+          lat: city.lat || null,
+          lng: city.lng || null,
           target_place_count: city.target_place_count || 30,
           target_anchor_count: city.target_anchor_count || 15,
           status: 'draft',

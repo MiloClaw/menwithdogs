@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Plus, Search, Trash2, ChevronRight } from 'lucide-react';
+import { Plus, Search, Trash2, ChevronRight, X, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ResizablePanelGroup,
@@ -32,6 +33,18 @@ const PlaceManagement = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   
+  // Read city filter from URL
+  const cityFilter = searchParams.get('city') || '';
+  // Read location bias from URL (for Google Places search)
+  const locationBias = useMemo(() => {
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+    if (lat && lng) {
+      return { lat: parseFloat(lat), lng: parseFloat(lng) };
+    }
+    return undefined;
+  }, [searchParams]);
+  
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
 
   // Sync mode state with URL
@@ -44,9 +57,20 @@ const PlaceManagement = () => {
     return { type: 'empty' };
   });
 
-  // Update URL when mode changes
+  // Update URL when mode changes (preserve city filter)
   useEffect(() => {
     const params = new URLSearchParams();
+    
+    // Preserve city filter
+    if (cityFilter) {
+      params.set('city', cityFilter);
+    }
+    
+    // Preserve location bias
+    if (locationBias) {
+      params.set('lat', locationBias.lat.toString());
+      params.set('lng', locationBias.lng.toString());
+    }
     
     if (detailMode.type === 'viewing') {
       params.set('id', detailMode.placeId);
@@ -58,7 +82,7 @@ const PlaceManagement = () => {
     }
     
     setSearchParams(params, { replace: true });
-  }, [detailMode, setSearchParams]);
+  }, [detailMode, cityFilter, locationBias, setSearchParams]);
 
   // Status counts for tabs
   const statusCounts = useMemo(() => {
@@ -77,6 +101,10 @@ const PlaceManagement = () => {
       if (statusFilter !== 'all' && place.status !== statusFilter) {
         return false;
       }
+      // City filter from URL
+      if (cityFilter && place.city?.toLowerCase() !== cityFilter.toLowerCase()) {
+        return false;
+      }
       // Search filter
       if (searchTerm) {
         const search = searchTerm.toLowerCase();
@@ -88,7 +116,7 @@ const PlaceManagement = () => {
       }
       return true;
     });
-  }, [places, statusFilter, searchTerm]);
+  }, [places, statusFilter, searchTerm, cityFilter]);
 
   // Handle place selection
   const handleSelectPlace = useCallback((id: string) => {
@@ -151,6 +179,24 @@ const PlaceManagement = () => {
               </Link>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
               <h1 className="text-xl font-semibold">Places</h1>
+              {cityFilter && (
+                <Badge variant="secondary" className="gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {cityFilter}
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams(searchParams);
+                      params.delete('city');
+                      params.delete('lat');
+                      params.delete('lng');
+                      setSearchParams(params, { replace: true });
+                    }}
+                    className="ml-1 hover:bg-muted rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
             </div>
             <div className="flex items-center gap-2">
               {detailMode.type === 'viewing' && (
@@ -234,6 +280,7 @@ const PlaceManagement = () => {
                 onCreate={handleCreate}
                 isUpdating={updatePlace.isPending}
                 isCreating={createPlace.isPending}
+                locationBias={locationBias}
               />
             </ResizablePanel>
           </ResizablePanelGroup>

@@ -9,9 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 interface GooglePlaceSearchProps {
   onPlaceSelected: (details: PlaceDetails) => void;
   disabled?: boolean;
+  locationBias?: { lat: number; lng: number };
 }
 
-const GooglePlaceSearch = ({ onPlaceSelected, disabled }: GooglePlaceSearchProps) => {
+const GooglePlaceSearch = ({ onPlaceSelected, disabled, locationBias }: GooglePlaceSearchProps) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
@@ -29,11 +30,11 @@ const GooglePlaceSearch = ({ onPlaceSelected, disabled }: GooglePlaceSearchProps
   const handleSearchChange = useCallback((value: string) => {
     setSearchValue(value);
     if (value.trim().length >= 1) {
-      fetchAutocomplete(value, 'establishment');
+      fetchAutocomplete(value, 'establishment', locationBias);
     } else {
       clearPredictions();
     }
-  }, [fetchAutocomplete, clearPredictions]);
+  }, [fetchAutocomplete, clearPredictions, locationBias]);
 
   const handleSelectPrediction = useCallback(async (prediction: PlacePrediction) => {
     setIsLoadingDetails(true);

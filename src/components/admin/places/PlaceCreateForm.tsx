@@ -29,13 +29,15 @@ interface PlaceCreateFormProps {
   onCreate: (input: CreatePlaceInput) => Promise<void>;
   existingPlaces: Place[];
   isCreating?: boolean;
+  locationBias?: { lat: number; lng: number };
 }
 
 const PlaceCreateForm = ({ 
   onCancel, 
   onCreate, 
   existingPlaces,
-  isCreating 
+  isCreating,
+  locationBias,
 }: PlaceCreateFormProps) => {
   const [activeTab, setActiveTab] = useState<'google' | 'manual'>('google');
   
@@ -166,6 +168,7 @@ const PlaceCreateForm = ({
             <GooglePlaceSearch 
               onPlaceSelected={handlePlaceSelected}
               disabled={isCreating}
+              locationBias={locationBias}
             />
 
             {selectedPlace && (
