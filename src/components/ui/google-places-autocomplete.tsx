@@ -198,6 +198,7 @@ const GooglePlacesAutocomplete = ({
       {showDropdown && predictions.length > 0 && createPortal(
         <div 
           ref={dropdownRef}
+          data-gp-autocomplete-dropdown="true"
           style={dropdownStyle}
           className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
         >

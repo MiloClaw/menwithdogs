@@ -245,7 +245,16 @@ const PlaceManagement = () => {
                   Add Place
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogContent 
+              className="max-w-lg max-h-[90vh] overflow-y-auto"
+              onPointerDownOutside={(e) => {
+                // Prevent dialog close when clicking on portaled autocomplete dropdown
+                const target = e.target as HTMLElement;
+                if (target.closest('[data-gp-autocomplete-dropdown="true"]')) {
+                  e.preventDefault();
+                }
+              }}
+            >
               <DialogHeader>
                 <DialogTitle>Add New Place</DialogTitle>
               </DialogHeader>
