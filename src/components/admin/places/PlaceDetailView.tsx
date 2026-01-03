@@ -72,34 +72,41 @@ const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDet
         )}
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Status:</span>
-          <div className="flex gap-2">
-            <Button
-              variant={place.status === 'approved' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onStatusChange('approved')}
-              disabled={isUpdating || place.status === 'approved'}
-            >
-              Approve
-            </Button>
-            <Button
-              variant={place.status === 'pending' ? 'secondary' : 'outline'}
-              size="sm"
-              onClick={() => onStatusChange('pending')}
-              disabled={isUpdating || place.status === 'pending'}
-            >
-              Pending
-            </Button>
-            <Button
-              variant={place.status === 'rejected' ? 'destructive' : 'outline'}
-              size="sm"
-              onClick={() => onStatusChange('rejected')}
-              disabled={isUpdating || place.status === 'rejected'}
-            >
-              Reject
-            </Button>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Status:</span>
+            <div className="flex gap-2">
+              <Button
+                variant={place.status === 'approved' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onStatusChange('approved')}
+                disabled={isUpdating || place.status === 'approved'}
+              >
+                Approve
+              </Button>
+              <Button
+                variant={place.status === 'pending' ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={() => onStatusChange('pending')}
+                disabled={isUpdating || place.status === 'pending'}
+              >
+                Pending
+              </Button>
+              <Button
+                variant={place.status === 'rejected' ? 'destructive' : 'outline'}
+                size="sm"
+                onClick={() => onStatusChange('rejected')}
+                disabled={isUpdating || place.status === 'rejected'}
+              >
+                Reject
+              </Button>
+            </div>
           </div>
+          {place.status === 'approved' && place.approved_at && (
+            <p className="text-xs text-muted-foreground">
+              Approved on {format(new Date(place.approved_at), 'MMM d, yyyy \'at\' h:mm a')}
+            </p>
+          )}
         </div>
 
         {/* Venue Events */}

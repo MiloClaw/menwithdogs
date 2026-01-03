@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Plus, Search, Trash2 } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Plus, Search, Trash2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -140,9 +140,18 @@ const PlaceManagement = () => {
       <div className="h-[calc(100vh-theme(spacing.16))] flex flex-col">
         {/* Header */}
         <div className="shrink-0 border-b bg-background px-4 py-3 space-y-3">
-          {/* Title + Add Button */}
+          {/* Breadcrumb + Title + Add Button */}
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Places</h1>
+            <div className="flex items-center gap-2">
+              <Link 
+                to="/admin" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Dashboard
+              </Link>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <h1 className="text-xl font-semibold">Places</h1>
+            </div>
             <div className="flex items-center gap-2">
               {detailMode.type === 'viewing' && (
                 <Button
