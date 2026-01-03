@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Input } from '@/components/ui/input';
 import { useGooglePlaces, PlacePrediction, PlaceDetails } from '@/hooks/useGooglePlaces';
 import { MapPin, Loader2 } from 'lucide-react';
@@ -26,7 +27,9 @@ const GooglePlacesAutocomplete = ({
   const [inputValue, setInputValue] = useState(value);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
@@ -37,10 +40,40 @@ const GooglePlacesAutocomplete = ({
     clearPredictions,
   } = useGooglePlaces();
 
-  // Sync external value changes
+  // Calculate dropdown position
+  const updateDropdownPosition = useCallback(() => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 9999,
+      });
+    }
+  }, []);
+
+  // Update position when dropdown is shown
   useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+    if (showDropdown && predictions.length > 0) {
+      updateDropdownPosition();
+    }
+  }, [showDropdown, predictions.length, updateDropdownPosition]);
+
+  // Handle resize/scroll to reposition dropdown
+  useEffect(() => {
+    if (!showDropdown) return;
+
+    const handleReposition = () => updateDropdownPosition();
+    window.addEventListener('resize', handleReposition);
+    window.addEventListener('scroll', handleReposition, true);
+
+    return () => {
+      window.removeEventListener('resize', handleReposition);
+      window.removeEventListener('scroll', handleReposition, true);
+    };
+  }, [showDropdown, updateDropdownPosition]);
 
   // Handle clicks outside to close dropdown
   useEffect(() => {
@@ -54,6 +87,11 @@ const GooglePlacesAutocomplete = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Sync external value changes
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -135,6 +173,7 @@ const GooglePlacesAutocomplete = ({
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
+          ref={inputRef}
           type="text"
           value={inputValue}
           onChange={handleInputChange}
@@ -150,9 +189,12 @@ const GooglePlacesAutocomplete = ({
         )}
       </div>
 
-      {/* Dropdown */}
-      {showDropdown && predictions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+      {/* Dropdown - rendered via Portal to escape dialog clipping */}
+      {showDropdown && predictions.length > 0 && createPortal(
+        <div 
+          style={dropdownStyle}
+          className="bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+        >
           <ul
             className="max-h-60 overflow-auto"
             role="listbox"
@@ -189,7 +231,8 @@ const GooglePlacesAutocomplete = ({
           <div className="px-3 py-2 border-t border-border bg-muted/50">
             <span className="text-xs text-muted-foreground">Powered by Google</span>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
