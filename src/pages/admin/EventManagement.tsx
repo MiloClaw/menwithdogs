@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Search, Trash2, Calendar, MapPin, Zap, DollarSign } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Trash2, Calendar, MapPin, Zap, DollarSign, Eye } from 'lucide-react';
 import { useEvents, CreateEventInput } from '@/hooks/useEvents';
 import { usePlaces } from '@/hooks/usePlaces';
 import {
@@ -150,13 +150,20 @@ const EventManagement = () => {
               Manage activities and gatherings in the directory
             </p>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Event
+          <div className="flex gap-2">
+            <Link to="/places?tab=events" target="_blank">
+              <Button variant="outline">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Events
               </Button>
-            </DialogTrigger>
+            </Link>
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Event
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Event</DialogTitle>
@@ -397,6 +404,7 @@ const EventManagement = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Search */}

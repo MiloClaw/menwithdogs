@@ -50,11 +50,11 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
       }`}
       onClick={onClick}
     >
-      <CardContent className="p-4 space-y-3">
-        {/* Header: Type Badge + Energy + Save Button */}
-        <div className="flex items-start justify-between gap-2">
-          {/* Event Type & Energy */}
-          <div className="flex flex-wrap gap-1.5 flex-1 items-center">
+      {/* Header bar with badges - matching PlaceCard structure */}
+      <div className="relative bg-muted/30 px-4 py-3">
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: Category badge */}
+          <div className="flex flex-wrap gap-1.5 items-center flex-1">
             {event.event_type && (
               <Badge variant="secondary" className="text-xs">
                 {getEventTypeLabel(event.event_type)}
@@ -66,56 +66,58 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
                 <span>{event.social_energy_level}/5</span>
               </div>
             )}
-            {event.cost_type && event.cost_type !== 'unknown' && (
-              <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                <DollarSign className="h-3 w-3" />
-                <span>{getCostTypeLabel(event.cost_type)}</span>
-              </div>
-            )}
           </div>
           
-          {/* Save Button */}
-          <button
-            onClick={handleSaveClick}
-            disabled={isUpdating}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors flex-shrink-0"
-            aria-label={saved ? 'Remove from saved' : 'Save event'}
-          >
-            <Heart 
-              className={`h-4 w-4 transition-colors ${saved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
-            />
-          </button>
+          {/* Right: Save + Distance (matching PlaceCard) */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveClick}
+              disabled={isUpdating}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-background/90 hover:bg-background transition-colors"
+              aria-label={saved ? 'Remove from saved' : 'Save event'}
+            >
+              <Heart 
+                className={`h-4 w-4 transition-colors ${saved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
+              />
+            </button>
+            {event.distance !== undefined && (
+              <Badge variant="outline" className="text-xs font-medium">
+                {formatDistance(event.distance)}
+              </Badge>
+            )}
+          </div>
         </div>
+      </div>
 
+      <CardContent className="p-4 space-y-2">
         {/* Event Name */}
         <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
           {event.name}
         </h3>
 
-        {/* Date & Time */}
-        <div className="flex items-center gap-2 text-sm">
-          <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
-          <span className="font-medium">
-            {formatEventDate(event.start_at, event.end_at)}
-          </span>
+        {/* Venue (secondary info - matching PlaceCard location) */}
+        <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+          <span className="truncate">{event.venue?.name || location}</span>
         </div>
 
-        {/* Venue */}
-        <div className="flex items-start gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-          <div className="min-w-0">
-            <p className="font-medium text-foreground truncate">{event.venue?.name}</p>
-            {location && <p className="truncate">{location}</p>}
+        {/* Date & Time (tertiary meta) */}
+        <div className="flex items-center gap-3 flex-wrap text-sm">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+            <span className="font-medium">
+              {formatEventDate(event.start_at, event.end_at)}
+            </span>
           </div>
+          
+          {/* Cost indicator */}
+          {event.cost_type && event.cost_type !== 'unknown' && (
+            <div className="flex items-center gap-0.5 text-muted-foreground">
+              <DollarSign className="h-3.5 w-3.5" />
+              <span>{getCostTypeLabel(event.cost_type)}</span>
+            </div>
+          )}
         </div>
-
-        {/* Distance */}
-        {event.distance !== undefined && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 flex-shrink-0" />
-            <span>{formatDistance(event.distance)} away</span>
-          </div>
-        )}
 
         {/* Presence Counts */}
         {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (

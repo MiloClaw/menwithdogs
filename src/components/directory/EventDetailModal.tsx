@@ -90,6 +90,9 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
         </DialogHeader>
 
         <div className="space-y-6 pt-2">
+          {/* Future: AI-generated relevance text */}
+          {/* <p className="text-sm text-muted-foreground italic">Why this may be relevant to you...</p> */}
+
           {/* Presence Counts */}
           {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
             <PresenceCountStrip aggregate={presenceAgg} />
