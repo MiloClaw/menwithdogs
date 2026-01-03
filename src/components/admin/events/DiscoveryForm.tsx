@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,13 +10,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, MapPin, X } from 'lucide-react';
 import { EVENT_TYPES } from '@/lib/event-taxonomy';
+import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
+import type { PlaceDetails } from '@/hooks/useGooglePlaces';
 import type { DiscoveryParams } from '@/hooks/useEventDiscovery';
 
 interface DiscoveryFormProps {
   onSubmit: (params: DiscoveryParams) => void;
   isLoading: boolean;
+}
+
+interface SelectedLocation {
+  city: string;
+  state: string | null;
+  displayName: string;
 }
 
 const TIME_WINDOWS = [
@@ -39,8 +46,8 @@ const VENUE_TYPES = [
 ];
 
 export function DiscoveryForm({ onSubmit, isLoading }: DiscoveryFormProps) {
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
+  const [locationInput, setLocationInput] = useState('');
   const [timeWindow, setTimeWindow] = useState('30');
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [selectedVenueTypes, setSelectedVenueTypes] = useState<string[]>([]);
@@ -62,14 +69,30 @@ export function DiscoveryForm({ onSubmit, isLoading }: DiscoveryFormProps) {
     );
   };
 
+  const handlePlaceSelect = (details: PlaceDetails) => {
+    setSelectedLocation({
+      city: details.city || details.name,
+      state: details.state,
+      displayName: details.city && details.state 
+        ? `${details.city}, ${details.state}` 
+        : details.formatted_address,
+    });
+    setLocationInput('');
+  };
+
+  const clearLocation = () => {
+    setSelectedLocation(null);
+    setLocationInput('');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!city.trim()) return;
+    if (!selectedLocation) return;
 
     onSubmit({
-      city: city.trim(),
-      state: state.trim() || undefined,
+      city: selectedLocation.city,
+      state: selectedLocation.state || undefined,
       time_window_days: parseInt(timeWindow),
       event_focus: selectedEventTypes.length > 0 ? selectedEventTypes : undefined,
       venue_types: selectedVenueTypes.length > 0 ? selectedVenueTypes : undefined,
@@ -80,31 +103,33 @@ export function DiscoveryForm({ onSubmit, isLoading }: DiscoveryFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Location */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium text-foreground">Location</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="city">City *</Label>
-            <Input
-              id="city"
-              placeholder="e.g. Austin"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
+      <div className="space-y-2">
+        <Label>Location *</Label>
+        {selectedLocation ? (
+          <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
+            <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="flex-1 text-sm font-medium">{selectedLocation.displayName}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clearLocation}
               disabled={isLoading}
-            />
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="state">State</Label>
-            <Input
-              id="state"
-              placeholder="e.g. TX"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-        </div>
+        ) : (
+          <GooglePlacesAutocomplete
+            value={locationInput}
+            onChange={setLocationInput}
+            onPlaceSelect={handlePlaceSelect}
+            placeholder="Search for a city..."
+            types="(cities)"
+            disabled={isLoading}
+          />
+        )}
       </div>
 
       {/* Time Window */}
@@ -187,7 +212,7 @@ export function DiscoveryForm({ onSubmit, isLoading }: DiscoveryFormProps) {
       <Button
         type="submit"
         className="w-full"
-        disabled={!city.trim() || isLoading}
+        disabled={!selectedLocation || isLoading}
       >
         {isLoading ? (
           <>
