@@ -19,6 +19,7 @@ interface AutocompleteRequest {
 // Map legacy type strings to new API format (max 5 types per API limitation)
 const TYPE_MAPPINGS: Record<string, string[]> = {
   "(cities)": ["locality", "administrative_area_level_3", "postal_town", "sublocality_level_1"],
+  "(neighborhoods)": ["neighborhood", "sublocality", "sublocality_level_1", "locality"],
   // For "establishment", we don't restrict types - allows searching all venue types
 };
 

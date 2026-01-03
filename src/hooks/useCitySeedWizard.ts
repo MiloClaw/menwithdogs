@@ -105,9 +105,42 @@ export const DEFAULT_REVIEW_KEYWORDS = [
   'gay', 'LGBT', 'LGBTQ', 'queer', 'inclusive', 'affirming', 'pride', 'welcoming'
 ] as const;
 
+// Known LGBTQ+ neighborhoods for quick-add suggestions
+export const KNOWN_NEIGHBORHOODS: Record<string, string[]> = {
+  'Dallas': ['Oak Lawn', 'Bishop Arts District', 'Uptown', 'Deep Ellum', 'Design District'],
+  'Austin': ['South Congress', 'East Austin', 'Rainey Street', 'The Domain', 'Downtown'],
+  'Houston': ['Montrose', 'The Heights', 'Midtown', 'EaDo', 'River Oaks'],
+  'San Antonio': ['Southtown', 'Pearl District', 'King William', 'Downtown'],
+  'Fort Worth': ['Near Southside', 'Sundance Square', 'West 7th', 'Fairmount'],
+  'San Francisco': ['Castro', 'Mission', 'Hayes Valley', 'SOMA', 'Noe Valley'],
+  'Los Angeles': ['West Hollywood', 'Silver Lake', 'Echo Park', 'Downtown LA', 'Los Feliz'],
+  'New York': ['Chelsea', "Hell's Kitchen", 'West Village', 'Williamsburg', 'East Village'],
+  'Chicago': ['Boystown', 'Andersonville', 'Wicker Park', 'Logan Square', 'Pilsen'],
+  'Atlanta': ['Midtown', 'Virginia-Highland', 'East Atlanta', 'Little Five Points', 'Inman Park'],
+  'Denver': ['Capitol Hill', 'RiNo', 'Baker', 'Highlands', 'LoDo'],
+  'Seattle': ['Capitol Hill', 'Fremont', 'Ballard', 'Columbia City', 'Georgetown'],
+  'Miami': ['South Beach', 'Wynwood', 'Wilton Manors', 'Coconut Grove', 'Design District'],
+  'Phoenix': ['Roosevelt Row', 'Downtown Phoenix', 'Melrose District', 'Arcadia', 'Tempe'],
+  'Portland': ['Pearl District', 'Alberta Arts District', 'Hawthorne', 'Division', 'Mississippi'],
+  'Philadelphia': ['Gayborhood', 'Fishtown', 'Northern Liberties', 'South Street', 'University City'],
+  'Boston': ['South End', 'Jamaica Plain', 'Cambridge', 'Provincetown', 'Back Bay'],
+  'Nashville': ['The Gulch', '12 South', 'East Nashville', 'Germantown', 'Wedgewood-Houston'],
+  'New Orleans': ['Marigny', 'Bywater', 'French Quarter', 'Treme', 'Garden District'],
+  'Minneapolis': ['Loring Park', 'Uptown', 'Northeast', 'North Loop', 'Whittier'],
+};
+
+export interface DiscoveryPoint {
+  id: string;
+  label: string;
+  lat: number;
+  lng: number;
+  placeId?: string;
+  isDefault?: boolean;
+}
+
 export type WizardStep = 'configure' | 'discovering' | 'review' | 'importing' | 'complete';
 
-export function useCitySeedWizard(cityId: string, cityName: string) {
+export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?: number, defaultLng?: number) {
   const queryClient = useQueryClient();
   
   const [step, setStep] = useState<WizardStep>('configure');
@@ -118,6 +151,20 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
   const [searchKeywords, setSearchKeywords] = useState<string[]>([...DEFAULT_REVIEW_KEYWORDS]);
   const [minRating, setMinRating] = useState<number>(4.0);
   const [minReviewCount, setMinReviewCount] = useState<number>(50);
+  
+  // Discovery points for neighborhood-based searching
+  const [discoveryPoints, setDiscoveryPoints] = useState<DiscoveryPoint[]>(() => {
+    if (defaultLat && defaultLng) {
+      return [{
+        id: 'city-center',
+        label: `${cityName} (City Center)`,
+        lat: defaultLat,
+        lng: defaultLng,
+        isDefault: true,
+      }];
+    }
+    return [];
+  });
 
   // Fetch existing places in this city to detect duplicates
   const { data: existingPlaces = [] } = useQuery({
@@ -133,10 +180,21 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     },
   });
 
-  // Search nearby places
+  // Add a discovery point (neighborhood)
+  const addDiscoveryPoint = useCallback((point: Omit<DiscoveryPoint, 'id'>) => {
+    const id = `point-${Date.now()}`;
+    setDiscoveryPoints(prev => [...prev, { ...point, id }]);
+  }, []);
+
+  // Remove a discovery point
+  const removeDiscoveryPoint = useCallback((pointId: string) => {
+    setDiscoveryPoints(prev => prev.filter(p => p.id !== pointId || p.isDefault));
+  }, []);
+
+  // Search nearby places from ALL discovery points
   const searchNearby = useMutation({
-    mutationFn: async (params: NearbySearchParams) => {
-      const allPlaces: NearbyPlace[] = [];
+    mutationFn: async (params: NearbySearchParams & { discoveryPoints: DiscoveryPoint[] }) => {
+      const allPlaces: (NearbyPlace & { discoveredFrom?: string })[] = [];
       
       // Split types into batches of 5 (Google API limit per call)
       const typeBatches: string[][] = [];
@@ -144,28 +202,38 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
         typeBatches.push(params.includedTypes.slice(i, i + 5));
       }
 
-      for (const batch of typeBatches) {
-        const { data, error } = await supabase.functions.invoke('google-places-nearby', {
-          body: {
-            lat: params.lat,
-            lng: params.lng,
-            radius: params.radius,
-            includedTypes: batch,
-            maxResultCount: 20,
-          },
-        });
+      // Search from each discovery point
+      for (const point of params.discoveryPoints) {
+        console.log(`Searching near: ${point.label}`);
+        
+        for (const batch of typeBatches) {
+          const { data, error } = await supabase.functions.invoke('google-places-nearby', {
+            body: {
+              lat: point.lat,
+              lng: point.lng,
+              radius: params.radius,
+              includedTypes: batch,
+              maxResultCount: 20,
+            },
+          });
 
-        if (error) {
-          console.error('Nearby search error:', error);
-          continue;
-        }
+          if (error) {
+            console.error(`Nearby search error for ${point.label}:`, error);
+            continue;
+          }
 
-        if (data?.places) {
-          allPlaces.push(...data.places);
+          if (data?.places) {
+            // Tag each place with where it was discovered
+            const taggedPlaces = data.places.map((p: NearbyPlace) => ({
+              ...p,
+              discoveredFrom: point.label,
+            }));
+            allPlaces.push(...taggedPlaces);
+          }
         }
       }
 
-      // De-duplicate by place_id
+      // De-duplicate by place_id (keep first occurrence to preserve discoveredFrom)
       const uniquePlaces = Array.from(
         new Map(allPlaces.map(p => [p.place_id, p])).values()
       );
@@ -444,15 +512,29 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     },
   });
 
-  const startDiscovery = useCallback((lat: number, lng: number) => {
+  const startDiscovery = useCallback(() => {
     if (selectedTypes.length === 0) {
       toast.error('Please select at least one category');
       return;
     }
     
+    if (discoveryPoints.length === 0) {
+      toast.error('Please add at least one discovery point');
+      return;
+    }
+    
     setStep('discovering');
-    searchNearby.mutate({ lat, lng, radius, includedTypes: selectedTypes });
-  }, [selectedTypes, radius, searchNearby]);
+    // Use the first point's coordinates as the base params (for compatibility),
+    // but pass all discovery points for multi-point search
+    const firstPoint = discoveryPoints[0];
+    searchNearby.mutate({ 
+      lat: firstPoint.lat, 
+      lng: firstPoint.lng, 
+      radius, 
+      includedTypes: selectedTypes,
+      discoveryPoints,
+    });
+  }, [selectedTypes, radius, discoveryPoints, searchNearby]);
 
   const startImport = useCallback(() => {
     const selected = candidates.filter(c => c.selected && !c.isDuplicate);
@@ -507,6 +589,7 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     searchKeywords,
     minRating,
     minReviewCount,
+    discoveryPoints,
     
     // Actions
     setSelectedTypes,
@@ -520,6 +603,8 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     setSearchKeywords,
     setMinRating,
     setMinReviewCount,
+    addDiscoveryPoint,
+    removeDiscoveryPoint,
     scanCandidateReviews: scanCandidateReviews.mutate,
     scanAllReviews: scanAllReviews.mutate,
   };

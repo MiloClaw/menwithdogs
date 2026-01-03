@@ -45,6 +45,7 @@ export function CitySeedWizard({
     searchKeywords,
     minRating,
     minReviewCount,
+    discoveryPoints,
     setSelectedTypes,
     setRadius,
     startDiscovery,
@@ -56,9 +57,11 @@ export function CitySeedWizard({
     setSearchKeywords,
     setMinRating,
     setMinReviewCount,
+    addDiscoveryPoint,
+    removeDiscoveryPoint,
     scanCandidateReviews,
     scanAllReviews,
-  } = useCitySeedWizard(cityId, cityName);
+  } = useCitySeedWizard(cityId, cityName, lat, lng);
 
   const handleClose = () => {
     if (!isSearching && !isImporting) {
@@ -125,6 +128,10 @@ export function CitySeedWizard({
               onMinRatingChange={setMinRating}
               minReviewCount={minReviewCount}
               onMinReviewCountChange={setMinReviewCount}
+              discoveryPoints={discoveryPoints}
+              onAddDiscoveryPoint={addDiscoveryPoint}
+              onRemoveDiscoveryPoint={removeDiscoveryPoint}
+              cityName={cityName}
             />
           )}
 
@@ -203,8 +210,8 @@ export function CitySeedWizard({
                 Cancel
               </Button>
               <Button
-                onClick={() => startDiscovery(lat, lng)}
-                disabled={selectedTypes.length === 0 || isSearching}
+                onClick={() => startDiscovery()}
+                disabled={selectedTypes.length === 0 || discoveryPoints.length === 0 || isSearching}
               >
                 <Search className="h-4 w-4 mr-2" />
                 Discover Places
