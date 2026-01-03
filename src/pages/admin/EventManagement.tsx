@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -44,12 +44,15 @@ import {
   getSocialEnergyLabel,
   getCostTypeLabel,
 } from '@/lib/event-taxonomy';
+import StatusFilterTabs, { StatusFilter } from '@/components/admin/StatusFilterTabs';
+import SourceBadge from '@/components/admin/SourceBadge';
 
 const EventManagement = () => {
   const { events, isLoading, createEvent, updateEvent, deleteEvent } = useEvents();
   const { places } = usePlaces();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   // Form state
   const [formData, setFormData] = useState<CreateEventInput>({
@@ -69,6 +72,13 @@ const EventManagement = () => {
   const [tagInput, setTagInput] = useState('');
 
   const approvedPlaces = places.filter(p => p.status === 'approved');
+
+  const statusCounts = useMemo(() => ({
+    all: events.length,
+    approved: events.filter(e => e.status === 'approved').length,
+    pending: events.filter(e => e.status === 'pending').length,
+    rejected: events.filter(e => e.status === 'rejected').length,
+  }), [events]);
 
   const resetForm = () => {
     setFormData({
@@ -123,10 +133,12 @@ const EventManagement = () => {
     }
   };
 
-  const filteredEvents = events.filter(event =>
-    event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.venue?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEvents = events
+    .filter(event => statusFilter === 'all' || event.status === statusFilter)
+    .filter(event =>
+      event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.venue?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const statusColors = {
     approved: 'bg-green-500/10 text-green-700 border-green-500/20',
@@ -407,6 +419,13 @@ const EventManagement = () => {
           </div>
         </div>
 
+        {/* Status Filters */}
+        <StatusFilterTabs
+          activeStatus={statusFilter}
+          onStatusChange={setStatusFilter}
+          counts={statusCounts}
+        />
+
         {/* Search */}
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -425,6 +444,7 @@ const EventManagement = () => {
               <TableRow>
                 <TableHead>Event</TableHead>
                 <TableHead>Type / Energy</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Venue</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
@@ -434,13 +454,13 @@ const EventManagement = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredEvents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No events found
                   </TableCell>
                 </TableRow>
@@ -478,6 +498,9 @@ const EventManagement = () => {
                           </div>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <SourceBadge source={event.source} />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm">
