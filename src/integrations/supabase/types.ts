@@ -975,9 +975,12 @@ export type Database = {
           country: string | null
           curated_place_count: number | null
           current_place_count: number | null
+          google_place_id: string | null
           id: string | null
           is_ready_to_launch: boolean | null
+          lat: number | null
           launched_at: string | null
+          lng: number | null
           name: string | null
           pending_place_count: number | null
           state: string | null
