@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { format } from 'date-fns';
 import { 
-  Calendar, MapPin, Clock, Navigation, X,
-  ChevronLeft, ChevronRight 
+  Calendar, MapPin, Navigation, Heart
 } from 'lucide-react';
 import {
   Dialog,
@@ -18,6 +16,7 @@ import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
 import CoupleTileGrid from './CoupleTileGrid';
 import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
+import { useEventFavorites } from '@/hooks/useEventFavorites';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { PublicEvent } from '@/hooks/useEventsPublic';
 
@@ -42,11 +41,13 @@ const formatEventDateTime = (startAt: string, endAt: string | null): string => {
 
 const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) => {
   const { data: presenceAgg } = useEventPresenceAggregate(event?.id);
+  const { isFavorited, toggleFavorite, isUpdating } = useEventFavorites();
   
   if (!event) return null;
 
   const location = [event.venue?.city, event.venue?.state].filter(Boolean).join(', ');
   const eventEndTime = event.end_at ? new Date(event.end_at) : undefined;
+  const saved = isFavorited(event.id);
   
   // Build Google Maps URL for venue
   const mapsUrl = event.venue?.formatted_address 
@@ -57,18 +58,35 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-4">
-          {/* Category Tags */}
-          {event.category_tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {event.category_tags.map(tag => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 space-y-4">
+              {/* Category Tags */}
+              {event.category_tags?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {event.category_tags.map(tag => (
+                    <Badge key={tag} variant="secondary">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
+              <DialogTitle className="text-2xl">{event.name}</DialogTitle>
             </div>
-          )}
-          
-          <DialogTitle className="text-2xl">{event.name}</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => toggleFavorite(event.id)}
+              disabled={isUpdating}
+              className="flex-shrink-0"
+            >
+              <Heart 
+                className={`h-6 w-6 transition-colors ${
+                  saved ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground'
+                }`} 
+              />
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="space-y-6 pt-2">

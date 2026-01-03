@@ -62,6 +62,42 @@ export type Database = {
         }
         Relationships: []
       }
+      couple_favorites: {
+        Row: {
+          couple_id: string
+          created_at: string
+          id: string
+          place_id: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          id?: string
+          place_id: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          id?: string
+          place_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_favorites_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_favorites_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       couple_interests: {
         Row: {
           couple_id: string
@@ -382,6 +418,42 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      event_favorites: {
+        Row: {
+          couple_id: string
+          created_at: string
+          event_id: string
+          id: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_favorites_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_favorites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       events: {
         Row: {
