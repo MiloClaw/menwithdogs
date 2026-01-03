@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import {
   Select,
   SelectContent,
@@ -11,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Place } from '@/hooks/usePlaces';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
+import { VIBE_ENERGY_LABELS, VIBE_FORMALITY_LABELS } from '@/lib/place-taxonomy';
 
 interface PlaceDetailEditProps {
   place: Place;
@@ -28,6 +31,12 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
     state: '',
     country: '',
     status: 'pending' as Place['status'],
+    // Vibe tags
+    vibe_energy: null as number | null,
+    vibe_formality: null as number | null,
+    vibe_conversation: null as boolean | null,
+    vibe_daytime: null as boolean | null,
+    vibe_evening: null as boolean | null,
   });
 
   useEffect(() => {
@@ -39,6 +48,11 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       state: place.state || '',
       country: place.country || '',
       status: place.status,
+      vibe_energy: place.vibe_energy,
+      vibe_formality: place.vibe_formality,
+      vibe_conversation: place.vibe_conversation,
+      vibe_daytime: place.vibe_daytime,
+      vibe_evening: place.vibe_evening,
     });
   }, [place]);
 
@@ -53,6 +67,11 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       state: formData.state || null,
       country: formData.country || null,
       status: formData.status,
+      vibe_energy: formData.vibe_energy,
+      vibe_formality: formData.vibe_formality,
+      vibe_conversation: formData.vibe_conversation,
+      vibe_daytime: formData.vibe_daytime,
+      vibe_evening: formData.vibe_evening,
     });
   };
 
@@ -202,6 +221,126 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
               </div>
             </div>
           )}
+
+          {/* Editorial Vibe Tags */}
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="text-sm font-medium text-muted-foreground">Editorial Vibe Tags</h4>
+            
+            {/* Energy Slider */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Energy Level</Label>
+                <span className="text-sm text-muted-foreground">
+                  {formData.vibe_energy 
+                    ? VIBE_ENERGY_LABELS.find(v => v.value === formData.vibe_energy)?.label 
+                    : 'Not set'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Slider
+                  value={formData.vibe_energy ? [formData.vibe_energy] : [3]}
+                  onValueChange={([val]) => setFormData({ ...formData, vibe_energy: val })}
+                  min={1}
+                  max={5}
+                  step={1}
+                  className="flex-1"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={() => setFormData({ ...formData, vibe_energy: null })}
+                >
+                  Clear
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formData.vibe_energy 
+                  ? VIBE_ENERGY_LABELS.find(v => v.value === formData.vibe_energy)?.description 
+                  : 'Slide to set energy level'}
+              </p>
+            </div>
+
+            {/* Formality Slider */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Formality</Label>
+                <span className="text-sm text-muted-foreground">
+                  {formData.vibe_formality 
+                    ? VIBE_FORMALITY_LABELS.find(v => v.value === formData.vibe_formality)?.label 
+                    : 'Not set'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Slider
+                  value={formData.vibe_formality ? [formData.vibe_formality] : [3]}
+                  onValueChange={([val]) => setFormData({ ...formData, vibe_formality: val })}
+                  min={1}
+                  max={5}
+                  step={1}
+                  className="flex-1"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={() => setFormData({ ...formData, vibe_formality: null })}
+                >
+                  Clear
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formData.vibe_formality 
+                  ? VIBE_FORMALITY_LABELS.find(v => v.value === formData.vibe_formality)?.description 
+                  : 'Slide to set formality level'}
+              </p>
+            </div>
+
+            {/* Boolean vibes */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="vibe_conversation">Conversation-friendly</Label>
+                  <p className="text-xs text-muted-foreground">Good for talking without shouting</p>
+                </div>
+                <Switch
+                  id="vibe_conversation"
+                  checked={formData.vibe_conversation ?? false}
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, vibe_conversation: checked || null })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="vibe_daytime">Daytime spot</Label>
+                  <p className="text-xs text-muted-foreground">Suitable for daytime visits</p>
+                </div>
+                <Switch
+                  id="vibe_daytime"
+                  checked={formData.vibe_daytime ?? false}
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, vibe_daytime: checked || null })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="vibe_evening">Evening spot</Label>
+                  <p className="text-xs text-muted-foreground">Suitable for evening visits</p>
+                </div>
+                <Switch
+                  id="vibe_evening"
+                  checked={formData.vibe_evening ?? false}
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, vibe_evening: checked || null })
+                  }
+                />
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>

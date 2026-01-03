@@ -39,6 +39,12 @@ export interface Place {
   photos: Json | null;
   google_primary_type: string | null;
   google_primary_type_display: string | null;
+  // Editorial vibe tags
+  vibe_energy: number | null;
+  vibe_formality: number | null;
+  vibe_conversation: boolean | null;
+  vibe_daytime: boolean | null;
+  vibe_evening: boolean | null;
 }
 
 export interface CreatePlaceInput {
@@ -65,6 +71,12 @@ export interface CreatePlaceInput {
   photos?: Json | null;
   google_primary_type?: string | null;
   google_primary_type_display?: string | null;
+  // Editorial vibe tags
+  vibe_energy?: number | null;
+  vibe_formality?: number | null;
+  vibe_conversation?: boolean | null;
+  vibe_daytime?: boolean | null;
+  vibe_evening?: boolean | null;
 }
 
 // Helper to extract weekday_text from opening_hours JSON

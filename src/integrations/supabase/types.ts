@@ -726,6 +726,11 @@ export type Database = {
           submitted_by: string | null
           updated_at: string
           user_ratings_total: number | null
+          vibe_conversation: boolean | null
+          vibe_daytime: boolean | null
+          vibe_energy: number | null
+          vibe_evening: boolean | null
+          vibe_formality: number | null
           website_url: string | null
         }
         Insert: {
@@ -756,6 +761,11 @@ export type Database = {
           submitted_by?: string | null
           updated_at?: string
           user_ratings_total?: number | null
+          vibe_conversation?: boolean | null
+          vibe_daytime?: boolean | null
+          vibe_energy?: number | null
+          vibe_evening?: boolean | null
+          vibe_formality?: number | null
           website_url?: string | null
         }
         Update: {
@@ -786,6 +796,11 @@ export type Database = {
           submitted_by?: string | null
           updated_at?: string
           user_ratings_total?: number | null
+          vibe_conversation?: boolean | null
+          vibe_daytime?: boolean | null
+          vibe_energy?: number | null
+          vibe_evening?: boolean | null
+          vibe_formality?: number | null
           website_url?: string | null
         }
         Relationships: []
