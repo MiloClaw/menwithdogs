@@ -1,10 +1,11 @@
-import { Calendar, MapPin, Clock } from 'lucide-react';
+import { Calendar, MapPin, Clock, Heart } from 'lucide-react';
 import { format, isSameDay, isPast } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
 import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
+import { useEventFavorites } from '@/hooks/useEventFavorites';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { PublicEvent } from '@/hooks/useEventsPublic';
 
@@ -31,8 +32,15 @@ const formatEventDate = (startAt: string, endAt: string | null): string => {
 
 const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
   const { data: presenceAgg } = useEventPresenceAggregate(event.id);
+  const { isFavorited, toggleFavorite, isUpdating } = useEventFavorites();
   const location = [event.venue?.city, event.venue?.state].filter(Boolean).join(', ');
   const isPastEvent = isPast(new Date(event.end_at || event.start_at));
+  const saved = isFavorited(event.id);
+
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(event.id);
+  };
 
   return (
     <Card 
@@ -42,16 +50,29 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
       onClick={onClick}
     >
       <CardContent className="p-4 space-y-3">
-        {/* Category Tags */}
-        {event.category_tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {event.category_tags.slice(0, 3).map(tag => (
+        {/* Header: Tags + Save Button */}
+        <div className="flex items-start justify-between gap-2">
+          {/* Category Tags */}
+          <div className="flex flex-wrap gap-1 flex-1">
+            {event.category_tags?.slice(0, 3).map(tag => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
             ))}
           </div>
-        )}
+          
+          {/* Save Button */}
+          <button
+            onClick={handleSaveClick}
+            disabled={isUpdating}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors flex-shrink-0"
+            aria-label={saved ? 'Remove from saved' : 'Save event'}
+          >
+            <Heart 
+              className={`h-4 w-4 transition-colors ${saved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
+            />
+          </button>
+        </div>
 
         {/* Event Name */}
         <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
