@@ -44,6 +44,8 @@ export function CitySeedWizard({
     isImporting,
     searchKeywords,
     scanReviews,
+    minRating,
+    minReviewCount,
     setSelectedTypes,
     setRadius,
     startDiscovery,
@@ -54,6 +56,8 @@ export function CitySeedWizard({
     setStep,
     setSearchKeywords,
     setScanReviews,
+    setMinRating,
+    setMinReviewCount,
   } = useCitySeedWizard(cityId, cityName);
 
   const handleClose = () => {
@@ -116,6 +120,10 @@ export function CitySeedWizard({
               onScanReviewsChange={setScanReviews}
               searchKeywords={searchKeywords}
               onKeywordsChange={setSearchKeywords}
+              minRating={minRating}
+              onMinRatingChange={setMinRating}
+              minReviewCount={minReviewCount}
+              onMinReviewCountChange={setMinReviewCount}
             />
           )}
 

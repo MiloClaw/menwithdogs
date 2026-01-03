@@ -30,6 +30,15 @@ interface NearbySearchParams {
   includedTypes: string[];
 }
 
+// Focused venue types - optimized for 1 API call (5 types max)
+export const FOCUSED_VENUE_TYPES = [
+  'restaurant',      // Core dining
+  'bar',             // Core nightlife  
+  'cafe',            // Daytime social
+  'brewery',         // Craft scene
+  'art_gallery',     // Culture
+] as const;
+
 // Curated anchor venue types for seeding
 export const ANCHOR_VENUE_TYPES = [
   'restaurant', 'cafe', 'bakery',
@@ -77,12 +86,14 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
   const queryClient = useQueryClient();
   
   const [step, setStep] = useState<WizardStep>('configure');
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([...ANCHOR_VENUE_TYPES]);
-  const [radius, setRadius] = useState<number>(16093); // ~10 miles default
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([...FOCUSED_VENUE_TYPES]);
+  const [radius, setRadius] = useState<number>(8047); // ~5 miles default (optimized)
   const [candidates, setCandidates] = useState<SeedCandidate[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
   const [scanReviews, setScanReviews] = useState(false);
+  const [minRating, setMinRating] = useState<number>(4.0);
+  const [minReviewCount, setMinReviewCount] = useState<number>(50);
 
   // Fetch existing places in this city to detect duplicates
   const { data: existingPlaces = [] } = useQuery({
@@ -140,7 +151,14 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     onSuccess: (places) => {
       const existingIds = new Set(existingPlaces.map(p => p.google_place_id));
       
-      const candidatesWithStatus: SeedCandidate[] = places.map(place => ({
+      // Filter by quality thresholds before creating candidates
+      const qualityFiltered = places.filter(place => {
+        const rating = place.rating || 0;
+        const reviews = place.user_ratings_total || 0;
+        return rating >= minRating && reviews >= minReviewCount;
+      });
+
+      const candidatesWithStatus: SeedCandidate[] = qualityFiltered.map(place => ({
         ...place,
         isDuplicate: existingIds.has(place.place_id),
         selected: !existingIds.has(place.place_id), // Auto-select non-duplicates
@@ -154,6 +172,12 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
 
       setCandidates(candidatesWithStatus);
       setStep('review');
+      
+      // Show how many were filtered out
+      const filteredOut = places.length - qualityFiltered.length;
+      if (filteredOut > 0) {
+        toast.info(`Filtered out ${filteredOut} places below quality threshold`);
+      }
     },
     onError: (error) => {
       console.error('Search failed:', error);
@@ -341,6 +365,8 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     isImporting: importPlaces.isPending,
     searchKeywords,
     scanReviews,
+    minRating,
+    minReviewCount,
     
     // Actions
     setSelectedTypes,
@@ -353,5 +379,7 @@ export function useCitySeedWizard(cityId: string, cityName: string) {
     setStep,
     setSearchKeywords,
     setScanReviews,
+    setMinRating,
+    setMinReviewCount,
   };
 }

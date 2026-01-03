@@ -5,9 +5,9 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
-import { Heart, Info } from 'lucide-react';
+import { Heart, Info, Zap, DollarSign } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES } from '@/hooks/useCitySeedWizard';
+import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES, FOCUSED_VENUE_TYPES } from '@/hooks/useCitySeedWizard';
 
 interface SeedCategoryPickerProps {
   selectedTypes: string[];
@@ -18,6 +18,10 @@ interface SeedCategoryPickerProps {
   onScanReviewsChange?: (scan: boolean) => void;
   searchKeywords?: string[];
   onKeywordsChange?: (keywords: string[]) => void;
+  minRating?: number;
+  onMinRatingChange?: (rating: number) => void;
+  minReviewCount?: number;
+  onMinReviewCountChange?: (count: number) => void;
 }
 
 export function SeedCategoryPicker({
@@ -29,6 +33,10 @@ export function SeedCategoryPicker({
   onScanReviewsChange,
   searchKeywords = [],
   onKeywordsChange,
+  minRating = 4.0,
+  onMinRatingChange,
+  minReviewCount = 50,
+  onMinReviewCountChange,
 }: SeedCategoryPickerProps) {
   const toggleType = (type: string) => {
     if (selectedTypes.includes(type)) {
@@ -38,8 +46,11 @@ export function SeedCategoryPicker({
     }
   };
 
-  const selectPreset = (preset: 'anchor' | 'extended' | 'none') => {
+  const selectPreset = (preset: 'focused' | 'anchor' | 'extended' | 'none') => {
     switch (preset) {
+      case 'focused':
+        onTypesChange([...FOCUSED_VENUE_TYPES]);
+        break;
       case 'anchor':
         onTypesChange([...ANCHOR_VENUE_TYPES]);
         break;
@@ -65,6 +76,16 @@ export function SeedCategoryPicker({
     { meters: 40234, label: '25 mi' },
   ];
 
+  const ratingOptions = [3.5, 4.0, 4.2, 4.5];
+
+  // Calculate estimated API cost
+  const discoveryCalls = Math.ceil(selectedTypes.length / 5);
+  const estimatedPlaces = Math.min(discoveryCalls * 15, 60); // Rough estimate
+  const discoveryCost = discoveryCalls * 0.04;
+  const importCost = estimatedPlaces * 0.017;
+  const reviewCost = scanReviews ? estimatedPlaces * 0.008 : 0;
+  const totalEstimate = discoveryCost + importCost + reviewCost;
+
   return (
     <div className="space-y-6">
       {/* Presets */}
@@ -74,15 +95,26 @@ export function SeedCategoryPicker({
           <Button
             type="button"
             size="sm"
-            variant={selectedTypes.length === ANCHOR_VENUE_TYPES.length ? 'default' : 'outline'}
-            onClick={() => selectPreset('anchor')}
+            variant={selectedTypes.length === FOCUSED_VENUE_TYPES.length && 
+                     FOCUSED_VENUE_TYPES.every(t => selectedTypes.includes(t)) ? 'default' : 'outline'}
+            onClick={() => selectPreset('focused')}
+            className="gap-1"
           >
-            Anchor Venues ({ANCHOR_VENUE_TYPES.length})
+            <Zap className="h-3 w-3" />
+            Focused ({FOCUSED_VENUE_TYPES.length})
           </Button>
           <Button
             type="button"
             size="sm"
-            variant={selectedTypes.length === EXTENDED_VENUE_TYPES.length ? 'default' : 'outline'}
+            variant={selectedTypes.length === ANCHOR_VENUE_TYPES.length ? 'outline' : 'outline'}
+            onClick={() => selectPreset('anchor')}
+          >
+            Anchor ({ANCHOR_VENUE_TYPES.length})
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={selectedTypes.length === EXTENDED_VENUE_TYPES.length ? 'outline' : 'outline'}
             onClick={() => selectPreset('extended')}
           >
             Extended ({EXTENDED_VENUE_TYPES.length})
@@ -97,6 +129,65 @@ export function SeedCategoryPicker({
           </Button>
         </div>
       </div>
+
+      {/* Quality Thresholds */}
+      {onMinRatingChange && onMinReviewCountChange && (
+        <div className="space-y-4 p-3 border rounded-lg bg-muted/30">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Quality Threshold</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-xs">
+                    Filter out low-quality venues before importing. Reduces API costs by skipping places that don't meet your standards.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Min Rating</Label>
+              <div className="flex gap-1">
+                {ratingOptions.map((r) => (
+                  <Button
+                    key={r}
+                    type="button"
+                    size="sm"
+                    variant={minRating === r ? 'default' : 'outline'}
+                    onClick={() => onMinRatingChange(r)}
+                    className="flex-1 text-xs px-2"
+                  >
+                    {r}★
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Min Reviews</Label>
+              <div className="flex gap-1">
+                {[25, 50, 100, 200].map((count) => (
+                  <Button
+                    key={count}
+                    type="button"
+                    size="sm"
+                    variant={minReviewCount === count ? 'default' : 'outline'}
+                    onClick={() => onMinReviewCountChange(count)}
+                    className="flex-1 text-xs px-2"
+                  >
+                    {count}+
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Category Groups */}
       <div className="space-y-4">
@@ -172,7 +263,7 @@ export function SeedCategoryPicker({
                   <TooltipContent className="max-w-xs">
                     <p className="text-xs">
                       During import, scan Google reviews for keywords to help identify affirming venues. 
-                      Additional API cost applies (~$0.025/place).
+                      Additional API cost applies (~$0.008/place).
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -205,8 +296,8 @@ export function SeedCategoryPicker({
         </div>
       )}
 
-      {/* Summary */}
-      <div className="p-3 bg-muted/50 rounded-lg">
+      {/* Summary with Cost Estimate */}
+      <div className="p-3 bg-muted/50 rounded-lg space-y-2">
         <p className="text-sm text-muted-foreground">
           Will search for <span className="font-medium text-foreground">{selectedTypes.length}</span> venue types
           within <span className="font-medium text-foreground">{radiusMiles} mi</span> of the city center.
@@ -214,9 +305,19 @@ export function SeedCategoryPicker({
             <span> Reviews will be scanned for <span className="font-medium text-foreground">{searchKeywords.length}</span> keywords.</span>
           )}
         </p>
+        
+        {/* Cost estimate */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1 border-t border-border/50">
+          <DollarSign className="h-3 w-3" />
+          <span>
+            Est. cost: ~${totalEstimate.toFixed(2)}
+            <span className="text-muted-foreground/70"> ({discoveryCalls} discovery + ~{estimatedPlaces} imports{scanReviews ? ' + reviews' : ''})</span>
+          </span>
+        </div>
+        
         {selectedTypes.length > 5 && (
-          <p className="text-xs text-muted-foreground mt-1">
-            Note: Multiple API calls will be made for larger category selections.
+          <p className="text-xs text-amber-600">
+            ⚠️ {discoveryCalls} API calls needed. Consider using "Focused" preset for fewer calls.
           </p>
         )}
       </div>
