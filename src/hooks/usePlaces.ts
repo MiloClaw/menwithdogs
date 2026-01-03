@@ -143,6 +143,7 @@ export const usePlaces = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
+      queryClient.invalidateQueries({ queryKey: ['places', 'public'] });
       toast({ title: 'Place created successfully' });
     },
     onError: (error) => {
@@ -169,6 +170,7 @@ export const usePlaces = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
+      queryClient.invalidateQueries({ queryKey: ['places', 'public'] });
       toast({ title: 'Place updated successfully' });
     },
     onError: (error) => {
@@ -192,6 +194,7 @@ export const usePlaces = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
+      queryClient.invalidateQueries({ queryKey: ['places', 'public'] });
       toast({ title: 'Place deleted successfully' });
     },
     onError: (error) => {
