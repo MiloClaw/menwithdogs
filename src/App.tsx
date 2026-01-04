@@ -18,8 +18,6 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
-import OnboardingGuard from "./components/onboarding/OnboardingGuard";
-import MyProfile from "./pages/onboarding/MyProfile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
