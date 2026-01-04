@@ -229,6 +229,7 @@ export type Database = {
       couples: {
         Row: {
           about_us: string | null
+          city_geo_area_id: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -243,6 +244,7 @@ export type Database = {
         }
         Insert: {
           about_us?: string | null
+          city_geo_area_id?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -257,6 +259,7 @@ export type Database = {
         }
         Update: {
           about_us?: string | null
+          city_geo_area_id?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -269,7 +272,15 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "couples_city_geo_area_id_fkey"
+            columns: ["city_geo_area_id"]
+            isOneToOne: false
+            referencedRelation: "geo_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_favorites: {
         Row: {
@@ -389,6 +400,59 @@ export type Database = {
             columns: ["venue_place_id"]
             isOneToOne: false
             referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      geo_areas: {
+        Row: {
+          bounds_json: Json | null
+          centroid_lat: number | null
+          centroid_lng: number | null
+          created_at: string | null
+          google_place_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          parent_id: string | null
+          slug: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          bounds_json?: Json | null
+          centroid_lat?: number | null
+          centroid_lng?: number | null
+          created_at?: string | null
+          google_place_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parent_id?: string | null
+          slug?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          bounds_json?: Json | null
+          centroid_lat?: number | null
+          centroid_lng?: number | null
+          created_at?: string | null
+          google_place_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parent_id?: string | null
+          slug?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "geo_areas_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "geo_areas"
             referencedColumns: ["id"]
           },
         ]
@@ -589,6 +653,48 @@ export type Database = {
             columns: ["couple_id"]
             isOneToOne: false
             referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      place_geo_areas: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          geo_area_id: string
+          id: string
+          place_id: string
+          source: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          geo_area_id: string
+          id?: string
+          place_id: string
+          source: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          geo_area_id?: string
+          id?: string
+          place_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_geo_areas_geo_area_id_fkey"
+            columns: ["geo_area_id"]
+            isOneToOne: false
+            referencedRelation: "geo_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_geo_areas_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
             referencedColumns: ["id"]
           },
         ]
