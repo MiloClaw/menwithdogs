@@ -150,16 +150,26 @@ const Auth = () => {
       <main className="flex-1 flex items-center justify-center px-4 pb-8">
         <div className="w-full max-w-sm space-y-8">
           {/* Title */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-primary">
-              {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+          <div className="text-center space-y-3">
+            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">
+              {mode === 'signin' ? 'Welcome back' : 'Join quietly'}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
               {mode === 'signin' 
-                ? 'Sign in to explore places and local insights' 
-                : 'Create an account to explore places and local insights'}
+                ? 'Sign in to continue discovering your community' 
+                : 'Start discovering places where your community gathers'}
             </p>
           </div>
+
+          {/* Privacy reassurance for signup */}
+          {mode === 'signup' && (
+            <div className="bg-surface rounded-lg p-4 text-center">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Your information stays private by default.<br />
+                No public profile. No exposure unless you choose it.
+              </p>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -223,7 +233,7 @@ const Auth = () => {
                 ? 'Please wait...' 
                 : mode === 'signin' 
                   ? 'Sign in' 
-                  : 'Create account'}
+                  : 'Get started'}
             </Button>
           </form>
 
@@ -238,10 +248,18 @@ const Auth = () => {
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               {mode === 'signin' 
-                ? "Don't have an account? Sign up" 
-                : 'Already have an account? Sign in'}
+                ? "New here? Create an account" 
+                : 'Already a member? Sign in'}
             </button>
           </div>
+
+          {/* Footer note */}
+          <p className="text-center text-xs text-muted-foreground/70">
+            By continuing, you agree to our{' '}
+            <Link to="/terms" className="underline hover:text-foreground">Terms</Link>
+            {' '}and{' '}
+            <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
+          </p>
         </div>
       </main>
     </div>
