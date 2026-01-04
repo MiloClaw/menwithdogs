@@ -88,7 +88,19 @@ serve(async (req) => {
 
     console.log(`Returning photo: ${contentType}, ${imageData.byteLength} bytes`);
 
-    // Convert to base64 data URL for JSON response
+    // For GET requests, return raw binary (for direct img src use)
+    // For POST requests, return JSON with base64 data URL (for SDK invoke use)
+    if (req.method === "GET") {
+      return new Response(imageData, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": contentType,
+          "Cache-Control": "public, max-age=86400, s-maxage=604800",
+        },
+      });
+    }
+
+    // POST: Convert to base64 data URL for JSON response
     const uint8Array = new Uint8Array(imageData);
     let binary = '';
     for (let i = 0; i < uint8Array.length; i++) {
@@ -97,7 +109,6 @@ serve(async (req) => {
     const base64 = btoa(binary);
     const dataUrl = `data:${contentType};base64,${base64}`;
 
-    // Return JSON with data URL
     return new Response(
       JSON.stringify({ url: dataUrl }),
       {
