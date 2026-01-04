@@ -21,7 +21,7 @@ interface AdminStats {
     paused: number;
     readyToLaunch: number;
   };
-  blogPosts: number;
+  posts: number;
   members: number;
 }
 
@@ -36,7 +36,7 @@ export const useAdminStats = () => {
         pendingPlacesResult,
         approvedEventsResult,
         pendingEventsResult,
-        blogPostsResult,
+        postsResult,
         membersResult,
         citiesResult,
       ] = await Promise.all([
@@ -46,7 +46,7 @@ export const useAdminStats = () => {
         supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
+        supabase.from('posts').select('id', { count: 'exact', head: true }),
         supabase.from('member_profiles').select('id', { count: 'exact', head: true }),
         supabase.from('city_seeding_progress').select('*'),
       ]);
@@ -75,7 +75,7 @@ export const useAdminStats = () => {
           pending: pendingEventsResult.count ?? 0,
         },
         cities: cityStats,
-        blogPosts: blogPostsResult.count ?? 0,
+        posts: postsResult.count ?? 0,
         members: membersResult.count ?? 0,
       };
     },

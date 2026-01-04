@@ -65,9 +65,6 @@ const Navbar = () => {
               <Link to="/places" className={navLinkClasses}>
                 Places
               </Link>
-              <Link to="/blog" className={navLinkClasses}>
-                Blog
-              </Link>
               <Link to="/#how-it-works" className={navLinkClasses}>
                 How It Works
               </Link>
@@ -144,13 +141,6 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Places
-                </Link>
-                <Link 
-                  to="/blog" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Blog
                 </Link>
                 <Link 
                   to="/#how-it-works" 

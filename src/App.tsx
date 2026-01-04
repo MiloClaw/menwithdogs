@@ -9,8 +9,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Places from "./pages/Places";
 import ExploreCities from "./pages/ExploreCities";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
@@ -22,7 +20,7 @@ import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
-import BlogManagement from "./pages/admin/BlogManagement";
+import PostManagement from "./pages/admin/PostManagement";
 import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import EventDiscovery from "./pages/admin/EventDiscovery";
@@ -45,8 +43,10 @@ const App = () => (
               <Route path="/places" element={<Places />} />
               <Route path="/places/explore" element={<ExploreCities />} />
               <Route path="/directory" element={<Navigate to="/places" replace />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
+              
+              {/* Legacy blog routes - redirect to places */}
+              <Route path="/blog" element={<Navigate to="/places" replace />} />
+              <Route path="/blog/:slug" element={<Navigate to="/places" replace />} />
               
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
@@ -80,7 +80,10 @@ const App = () => (
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
               <Route path="/admin/directory/events/discover" element={<RequireRole role="admin"><EventDiscovery /></RequireRole>} />
-              <Route path="/admin/blog" element={<RequireRole role="admin"><BlogManagement /></RequireRole>} />
+              <Route path="/admin/posts" element={<RequireRole role="admin"><PostManagement /></RequireRole>} />
+              
+              {/* Legacy admin blog route */}
+              <Route path="/admin/blog" element={<Navigate to="/admin/posts" replace />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
