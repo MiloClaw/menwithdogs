@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, MapPinOff, Calendar, MapPin, X, Loader2 } from 'lucide-react';
+import { Search, Calendar, MapPin, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,10 +9,11 @@ import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/Direc
 import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import EventDetailModal from '@/components/directory/EventDetailModal';
-import CityPickerModal from '@/components/directory/CityPickerModal';
+import CityPickerModal, { CityPickerMode } from '@/components/directory/CityPickerModal';
 import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
 import { CitySuggestionModal } from '@/components/directory/CitySuggestionModal';
 import PreferencePrompt from '@/components/preferences/PreferencePrompt';
+import LocationContextBanner from '@/components/directory/LocationContextBanner';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
@@ -62,17 +62,21 @@ const Places = () => {
   
   // City picker modal state
   const [showCityPicker, setShowCityPicker] = useState(false);
+  const [cityPickerMode, setCityPickerMode] = useState<CityPickerMode>('home');
   const [hasShownCityPicker, setHasShownCityPicker] = useState(() => {
     return sessionStorage.getItem('city_picker_shown') === 'true';
   });
 
-  // User location (profile first, then browser geolocation fallback)
+  // User location (exploration > profile > browser geolocation)
   const { 
     lat: userLat, 
     lng: userLng, 
     source: locationSource,
+    explorationCity,
     isLoading: locationLoading, 
-    requestBrowserLocation 
+    requestBrowserLocation,
+    setExplorationCity,
+    clearExplorationCity,
   } = useUserLocation();
   const hasUserLocation = userLat != null && userLng != null;
   
@@ -106,6 +110,7 @@ const Places = () => {
     if (isAuthenticated && !hasUserLocation && !hasShownCityPicker && !locationLoading) {
       // Small delay to let the page render first
       const timer = setTimeout(() => {
+        setCityPickerMode('home');
         setShowCityPicker(true);
         setHasShownCityPicker(true);
         sessionStorage.setItem('city_picker_shown', 'true');
@@ -116,6 +121,17 @@ const Places = () => {
 
   // Handle city selection from modal
   const handleCitySelect = async (details: PlaceDetails) => {
+    if (cityPickerMode === 'exploration') {
+      // Exploration mode: just set session-based exploration city
+      setExplorationCity({
+        name: details.city || details.name,
+        lat: details.lat,
+        lng: details.lng,
+      });
+      return;
+    }
+
+    // Home mode: save to profile
     if (!isAuthenticated) return;
 
     // Ensure relationship unit exists (creates silently if needed)
@@ -144,8 +160,17 @@ const Places = () => {
   };
 
   const handleCityPickerSkip = () => {
-    // Try browser geolocation as fallback
-    requestBrowserLocation();
+    if (cityPickerMode === 'home') {
+      // Try browser geolocation as fallback
+      requestBrowserLocation();
+    }
+    // For exploration mode, just close the modal (no fallback needed)
+  };
+
+  // Open city picker in exploration mode
+  const handleExploreCity = () => {
+    setCityPickerMode('exploration');
+    setShowCityPicker(true);
   };
 
   // Data fetching
@@ -351,38 +376,19 @@ const Places = () => {
             )}
           </div>
 
-          {/* Location Notice */}
-          {!hasUserLocation && (
-            <div className="flex items-center justify-between gap-4 text-sm bg-muted/50 px-4 py-3 rounded-lg mt-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPinOff className="h-4 w-4 flex-shrink-0" />
-                <span>Enable location to see nearby places</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={requestBrowserLocation}
-                  disabled={locationLoading}
-                  className="h-auto py-1.5 px-3"
-                >
-                  {locationLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Use my location'
-                  )}
-                </Button>
-                <Button 
-                  variant="link" 
-                  size="sm" 
-                  onClick={() => setShowCityPicker(true)}
-                  className="h-auto py-1.5 px-3"
-                >
-                  Add City
-                </Button>
-              </div>
-            </div>
-          )}
+          {/* Location Context Banner */}
+          <div className="mt-4">
+            <LocationContextBanner
+              hasLocation={hasUserLocation}
+              locationSource={locationSource}
+              explorationCity={explorationCity}
+              profileCity={memberProfile?.city}
+              isLoading={locationLoading}
+              onRequestLocation={requestBrowserLocation}
+              onExploreCity={handleExploreCity}
+              onClearExploration={clearExplorationCity}
+            />
+          </div>
 
           {/* Distance Filter (shared) */}
           {hasUserLocation && (
@@ -584,6 +590,7 @@ const Places = () => {
         onOpenChange={setShowCityPicker}
         onCitySelect={handleCitySelect}
         onSkip={handleCityPickerSkip}
+        mode={cityPickerMode}
       />
       <PlaceSuggestionModal
         open={suggestionModalOpen}
