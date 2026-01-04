@@ -36,6 +36,10 @@ export interface PlaceDetails {
   photos: PhotoReference[] | null;
   google_primary_type: string | null;
   google_primary_type_display: string | null;
+  // Additional GBP fields
+  google_types: string[] | null;
+  business_status: string | null;
+  utc_offset_minutes: number | null;
 }
 
 // Generate a UUID v4 for session tokens
