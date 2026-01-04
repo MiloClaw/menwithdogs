@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Building2 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,10 +29,17 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { CityCard } from '@/components/admin/cities/CityCard';
 import { CityListPane } from '@/components/admin/cities/CityListPane';
 import { CityDetailPane, type CityDetailMode } from '@/components/admin/cities/CityDetailPane';
-import { useCities, useCity, useDeleteCity, type CityWithProgress } from '@/hooks/useCities';
+import { CitySuggestionCard } from '@/components/admin/cities/CitySuggestionCard';
+import { useCities, useCity, useDeleteCity, useCreateCity, type CityWithProgress, type CityInsert } from '@/hooks/useCities';
+import { useCitySuggestions, useUpdateCitySuggestion, type CitySuggestion } from '@/hooks/useCitySuggestions';
 import type { Database } from '@/integrations/supabase/types';
 
 type CityStatus = Database['public']['Enums']['city_status'];
@@ -46,9 +53,14 @@ export default function CityManagement() {
   );
   const [detailMode, setDetailMode] = useState<CityDetailMode>('empty');
 
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+
   const { data: cities = [], isLoading } = useCities();
   const { data: selectedCity } = useCity(selectedCityId);
+  const { data: pendingSuggestions = [] } = useCitySuggestions('pending');
   const deleteCity = useDeleteCity();
+  const createCity = useCreateCity();
+  const updateSuggestion = useUpdateCitySuggestion();
 
   // Sync URL with selected city
   useEffect(() => {
@@ -133,6 +145,29 @@ export default function CityManagement() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [detailMode, selectedCityId]);
 
+  // Handle approving a city suggestion (creates the city)
+  const handleApproveSuggestion = useCallback(async (suggestion: CitySuggestion) => {
+    const cityData: CityInsert = {
+      name: suggestion.name,
+      state: suggestion.state,
+      country: suggestion.country,
+      google_place_id: suggestion.google_place_id,
+      lat: suggestion.lat,
+      lng: suggestion.lng,
+    };
+
+    createCity.mutate(cityData, {
+      onSuccess: () => {
+        updateSuggestion.mutate({ id: suggestion.id, status: 'approved' });
+      },
+    });
+  }, [createCity, updateSuggestion]);
+
+  // Handle rejecting a city suggestion
+  const handleRejectSuggestion = useCallback((id: string) => {
+    updateSuggestion.mutate({ id, status: 'rejected' });
+  }, [updateSuggestion]);
+
   return (
     <AdminLayout>
       <div className="flex flex-col h-full">
@@ -188,6 +223,38 @@ export default function CityManagement() {
               </Button>
             </div>
           </div>
+
+          {/* City Suggestions Section */}
+          {pendingSuggestions.length > 0 && (
+            <Collapsible open={suggestionsOpen} onOpenChange={setSuggestionsOpen} className="mb-4">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between px-0 hover:bg-transparent">
+                  <div className="flex items-center gap-2 text-amber-600">
+                    <Building2 className="h-4 w-4" />
+                    <span className="font-medium">
+                      {pendingSuggestions.length} City {pendingSuggestions.length === 1 ? 'Suggestion' : 'Suggestions'}
+                    </span>
+                  </div>
+                  {suggestionsOpen ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-2 pt-2">
+                {pendingSuggestions.map((suggestion) => (
+                  <CitySuggestionCard
+                    key={suggestion.id}
+                    suggestion={suggestion}
+                    onApprove={handleApproveSuggestion}
+                    onReject={handleRejectSuggestion}
+                    isProcessing={createCity.isPending || updateSuggestion.isPending}
+                  />
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {/* Dashboard Cards */}
           {cities.length > 0 && (
