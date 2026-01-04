@@ -174,7 +174,7 @@ const Places = () => {
   };
 
   // Data fetching - pass location for city-scoped filtering
-  const { data: places, isLoading: placesLoading } = usePublicPlaces({
+  const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePublicPlaces({
     lat: userLat,
     lng: userLng,
     radiusMiles: 100,
@@ -473,6 +473,13 @@ const Places = () => {
                     <Skeleton className="h-4 w-1/2" />
                   </div>
                 ))}
+              </div>
+            ) : isSwitchingLocation ? (
+              <div className="flex flex-col items-center justify-center py-20 space-y-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+                <p className="text-sm text-muted-foreground">
+                  Finding places in {explorationCity?.name || 'new location'}...
+                </p>
               </div>
             ) : processedPlaces.length === 0 ? (
               <div className="text-center py-20 space-y-4">
