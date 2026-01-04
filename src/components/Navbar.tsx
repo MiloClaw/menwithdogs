@@ -48,9 +48,6 @@ const Navbar = () => {
               <Link to="/dashboard" className={navLinkClasses}>
                 Dashboard
               </Link>
-              <Link to="/discover" className={navLinkClasses}>
-                Discover
-              </Link>
               <Link to="/onboarding/my-profile" className={navLinkClasses}>
                 My Profile
               </Link>
@@ -116,13 +113,6 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
-                </Link>
-                <Link 
-                  to="/discover" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Discover
                 </Link>
                 <Link 
                   to="/onboarding/my-profile" 

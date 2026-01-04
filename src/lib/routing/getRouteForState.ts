@@ -44,10 +44,7 @@ export function getRouteForState(state: RouteState): string {
     return '/onboarding/couple-profile';
   }
 
-  // Couple in pending_match state - show holding view
-  if (coupleStatus === 'pending_match') {
-    return '/pending-match';
-  }
+  // pending_match status routes to dashboard (holding page removed)
 
   // Active or paused = dashboard
   return '/dashboard';
