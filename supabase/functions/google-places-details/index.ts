@@ -43,8 +43,16 @@ interface PlaceDetails {
   photos: PhotoReference[] | null;
   google_primary_type: string | null;
   google_primary_type_display: string | null;
+  // All Google place types for taxonomy mapping
+  google_types: string[];
+  // Business status from Google
+  business_status: string | null;
+  // UTC offset for timezone handling
+  utc_offset_minutes: number | null;
   // Optional reviews for keyword scanning
   reviews?: Review[];
+  // Raw response for snapshot storage
+  raw_response?: Record<string, unknown>;
 }
 
 serve(async (req) => {
@@ -91,6 +99,9 @@ serve(async (req) => {
       "photos",
       "primaryType",
       "primaryTypeDisplayName",
+      "types",
+      "businessStatus",
+      "utcOffsetMinutes",
     ];
     
     if (includeReviews) {
@@ -193,6 +204,19 @@ serve(async (req) => {
       console.log(`Parsed ${reviews!.length} reviews for keyword scanning`);
     }
 
+    // Extract all Google place types (for taxonomy mapping)
+    const google_types: string[] = data.types || [];
+    
+    // Business status mapping
+    let business_status: string | null = null;
+    if (data.businessStatus) {
+      // Map enum to readable value: OPERATIONAL, CLOSED_TEMPORARILY, CLOSED_PERMANENTLY
+      business_status = data.businessStatus;
+    }
+
+    // UTC offset for timezone handling
+    const utc_offset_minutes: number | null = data.utcOffsetMinutes ?? null;
+
     const details: PlaceDetails = {
       place_id: data.id || place_id,
       name: data.displayName?.text || "",
@@ -213,10 +237,16 @@ serve(async (req) => {
       photos,
       google_primary_type: data.primaryType ?? null,
       google_primary_type_display: data.primaryTypeDisplayName?.text ?? null,
+      // New fields for directory foundation
+      google_types,
+      business_status,
+      utc_offset_minutes,
       reviews,
+      // Include raw response for snapshot storage
+      raw_response: data,
     };
 
-    console.log(`Returning enriched details for: ${details.name} (rating: ${details.rating}, photos: ${photos?.length || 0}, reviews: ${reviews?.length || 0})`);
+    console.log(`Returning enriched details for: ${details.name} (rating: ${details.rating}, photos: ${photos?.length || 0}, reviews: ${reviews?.length || 0}, types: ${google_types.length})`);
 
     return new Response(
       JSON.stringify({ details }),
