@@ -113,8 +113,8 @@ const Auth = () => {
           return;
         }
         toast({
-          title: 'Welcome!',
-          description: 'Your account has been created.',
+          title: 'Welcome to the community',
+          description: 'Start exploring places where real connection happens.',
         });
         // Check for pending intent (invite flow)
         const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
