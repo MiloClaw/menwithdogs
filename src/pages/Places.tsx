@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPinOff, Calendar, MapPin, X, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +11,9 @@ import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import EventDetailModal from '@/components/directory/EventDetailModal';
 import CityPickerModal from '@/components/directory/CityPickerModal';
+import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
 import PreferencePrompt from '@/components/preferences/PreferencePrompt';
+import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
 import { useUserLocation } from '@/hooks/useUserLocation';
@@ -20,8 +21,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
 import { usePreferencePrompts } from '@/hooks/usePreferencePrompts';
+import { usePlaceSuggestion } from '@/hooks/usePlaceSuggestion';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
+import { toast } from 'sonner';
 const RADIUS_OPTIONS = [
   { label: 'All', value: null },
   { label: '10 mi', value: 10 },
@@ -76,6 +79,11 @@ const Places = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
   const [placeModalOpen, setPlaceModalOpen] = useState(false);
+  
+  // Place suggestion state
+  const [suggestionModalOpen, setSuggestionModalOpen] = useState(false);
+  const [selectedGooglePlace, setSelectedGooglePlace] = useState<PlaceDetails | null>(null);
+  const { submitSuggestion, isSubmitting: isSuggesting } = usePlaceSuggestion();
   
   // Events state
   const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
@@ -194,6 +202,39 @@ const Places = () => {
     setPlaceModalOpen(true);
   };
 
+  // Handle search autocomplete place selection
+  const handleSearchPlaceSelect = (details: PlaceDetails) => {
+    // Check if place exists in our database
+    const matchingPlace = places?.find(
+      p => p.google_place_id === details.place_id
+    );
+    
+    if (matchingPlace) {
+      // Place exists - open existing detail modal
+      setSelectedPlace(matchingPlace as DirectoryPlace);
+      setPlaceModalOpen(true);
+    } else if (isAuthenticated) {
+      // Place not in DB - offer to suggest it
+      setSelectedGooglePlace(details);
+      setSuggestionModalOpen(true);
+    } else {
+      // Not authenticated - prompt to sign in
+      toast.info('Sign in to suggest this place');
+    }
+  };
+
+  // Handle place suggestion confirmation
+  const handleConfirmSuggestion = async () => {
+    if (!selectedGooglePlace) return;
+    
+    const success = await submitSuggestion(selectedGooglePlace);
+    if (success) {
+      setSuggestionModalOpen(false);
+      setSelectedGooglePlace(null);
+      setSearchTerm('');
+    }
+  };
+
   const handleEventClick = (event: PublicEvent) => {
     setSelectedEvent(event);
     setEventModalOpen(true);
@@ -235,21 +276,35 @@ const Places = () => {
           </TabsList>
 
           {/* Search */}
-          <div className="relative max-w-md mt-6">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={activeTab === 'places' ? 'Search places...' : 'Search events...'}
-              className="pl-9 pr-9"
-            />
-            {searchTerm && (
-              <button 
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
+          <div className="max-w-md mt-6">
+            {activeTab === 'places' ? (
+              <GooglePlacesAutocomplete
+                value={searchTerm}
+                onChange={setSearchTerm}
+                onPlaceSelect={handleSearchPlaceSelect}
+                placeholder="Search places..."
+                types="establishment"
+                locationBias={hasUserLocation ? { lat: userLat!, lng: userLng! } : undefined}
+              />
+            ) : (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search events..."
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9 pr-9"
+                />
+                {searchTerm && (
+                  <button 
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
@@ -486,6 +541,13 @@ const Places = () => {
         onOpenChange={setShowCityPicker}
         onCitySelect={handleCitySelect}
         onSkip={handleCityPickerSkip}
+      />
+      <PlaceSuggestionModal
+        open={suggestionModalOpen}
+        onOpenChange={setSuggestionModalOpen}
+        placeDetails={selectedGooglePlace}
+        onConfirm={handleConfirmSuggestion}
+        isSubmitting={isSuggesting}
       />
       
       {/* Behavioral Preference Prompt */}

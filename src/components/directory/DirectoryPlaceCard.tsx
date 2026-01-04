@@ -9,6 +9,7 @@ import type { Json } from '@/integrations/supabase/types';
 
 export interface DirectoryPlace {
   id: string;
+  google_place_id: string;
   name: string;
   primary_category: string;
   city: string | null;

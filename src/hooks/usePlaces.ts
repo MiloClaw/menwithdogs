@@ -20,7 +20,7 @@ export interface Place {
   country: string | null;
   lat: number | null;
   lng: number | null;
-  source: 'google_places' | 'admin';
+  source: 'google_places' | 'admin' | 'user_submitted';
   status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   updated_at: string;
@@ -57,7 +57,7 @@ export interface CreatePlaceInput {
   country?: string;
   lat?: number;
   lng?: number;
-  source?: 'google_places' | 'admin';
+  source?: 'google_places' | 'admin' | 'user_submitted';
   status?: 'approved' | 'pending' | 'rejected';
   // GBP enrichment fields
   rating?: number | null;
