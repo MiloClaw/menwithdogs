@@ -20,9 +20,9 @@ interface RouteState {
 export function getRouteForState(state: RouteState): string {
   const { hasCouple, memberStep, coupleStatus, coupleIsComplete, coupleIsConfirmed } = state;
 
-  // No couple yet - create one
+  // No relationship unit yet - show path selection
   if (!hasCouple) {
-    return '/onboarding/create-couple';
+    return '/onboarding/path-selection';
   }
 
   // Member profile incomplete

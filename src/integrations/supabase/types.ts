@@ -436,6 +436,8 @@ export type Database = {
           preferred_meetup_times: string | null
           profile_photo_url: string | null
           status: Database["public"]["Enums"]["couple_status"]
+          subscription_status: string
+          type: string
           updated_at: string
         }
         Insert: {
@@ -451,6 +453,8 @@ export type Database = {
           preferred_meetup_times?: string | null
           profile_photo_url?: string | null
           status?: Database["public"]["Enums"]["couple_status"]
+          subscription_status?: string
+          type?: string
           updated_at?: string
         }
         Update: {
@@ -466,6 +470,8 @@ export type Database = {
           preferred_meetup_times?: string | null
           profile_photo_url?: string | null
           status?: Database["public"]["Enums"]["couple_status"]
+          subscription_status?: string
+          type?: string
           updated_at?: string
         }
         Relationships: []
@@ -1072,7 +1078,9 @@ export type Database = {
     }
     Functions: {
       confirm_couple_intent: { Args: { p_couple_id: string }; Returns: boolean }
-      create_couple_for_current_user: { Args: never; Returns: string }
+      create_couple_for_current_user:
+        | { Args: never; Returns: string }
+        | { Args: { unit_type?: string }; Returns: string }
       get_user_couple_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {

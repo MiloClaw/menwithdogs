@@ -1,53 +1,49 @@
-import { MapPin, Users, CalendarCheck, Eye, Coffee } from "lucide-react";
+import { MapPin, BarChart3, Bookmark, UserPlus, MessageCircle } from "lucide-react";
 
 const steps = [
   {
     number: "01",
     icon: MapPin,
-    title: "Explore Real Places & Events",
-    description: "Browse a curated directory of cafés, bars, parks, and local events where gay couples actually go.",
+    title: "Browse the Directory",
+    description: "Explore a curated list of cafés, bars, parks, and local events — all chosen for their community potential.",
   },
   {
     number: "02",
-    icon: Users,
-    title: "See When Community Is Forming",
-    description: "See anonymous, aggregated activity:",
+    icon: BarChart3,
+    title: "See Aggregate Signals",
+    description: "View anonymous, aggregated activity to understand where community is forming:",
     bullets: [
-      "How many couples are interested",
-      "How many plan to attend",
-      "When a place or event tends to be active",
+      '"Popular with locals"',
+      '"Busy on weekends"',
+      '"Trending this week"',
     ],
-    tagline: "Just helpful context so you're not walking in blind.",
+    tagline: "Helpful context — without exposing anyone.",
   },
   {
     number: "03",
-    icon: CalendarCheck,
-    title: "Plan on Your Own Terms",
-    description: "Mark places or events as:",
-    bullets: [
-      "Interested",
-      "Planning to attend",
-    ],
-    tagline: "This helps improve the directory for everyone — and helps you choose where to spend your time — without making you visible to anyone.",
+    icon: Bookmark,
+    title: "Save Privately",
+    description: "Mark places you're interested in or planning to visit. Your saves are private — no social pressure, no visibility.",
+    tagline: "Build your own list at your own pace.",
   },
   {
     number: "04",
-    icon: Eye,
-    title: "Be Visible Only If You Choose",
-    description: "If you're feeling social, you can optionally mark yourself as open to saying hello at a specific place or event.",
-    bullets: [
-      "Visibility is temporary",
-      "Visibility is contextual",
-      "Nothing is shared unless a couple chooses",
-    ],
-    tagline: "Your photos stay private until you choose. They only appear when you mark yourself as Open to Saying Hello.",
+    icon: UserPlus,
+    title: "Join When You're Ready",
+    description: "When you're ready to be part of the community, create an account and choose your path — as a couple or as an individual.",
+    tagline: "No rush. The directory is always here.",
   },
   {
     number: "05",
-    icon: Coffee,
-    title: "Keep It Real & Offline",
-    description: "MainStreetIRL doesn't organize meetups or push conversations. It simply helps couples understand where community already exists — so any interaction happens naturally, in the real world.",
-    tagline: "No pressure. No awkwardness. Just clarity.",
+    icon: MessageCircle,
+    title: "Connect on Your Terms",
+    description: "If you opt in, you can receive curated introductions based on shared places and interests. All interactions are:",
+    bullets: [
+      "Contextual (tied to a place or event)",
+      "Permission-based (you choose when to be visible)",
+      "Temporary (no permanent profile exposure)",
+    ],
+    tagline: "Social connection as an optional layer — never the default.",
   },
 ];
 
@@ -58,7 +54,7 @@ const HowItWorks = () => {
         <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-semibold text-foreground text-center mb-14 md:mb-20 tracking-tight text-balance">
           How It Works
         </h2>
-        
+
         <div className="space-y-12 md:space-y-16">
           {steps.map((step, index) => {
             const Icon = step.icon;
@@ -89,11 +85,11 @@ const HowItWorks = () => {
                   <p className="text-sm md:text-[15px] text-muted-foreground leading-[1.7] max-w-prose">
                     {step.description}
                   </p>
-                  
+
                   {step.bullets && (
                     <ul className="mt-3.5 space-y-2">
                       {step.bullets.map((bullet, bulletIndex) => (
-                        <li 
+                        <li
                           key={bulletIndex}
                           className="text-sm md:text-[15px] text-muted-foreground leading-[1.7] flex items-start gap-2.5 pl-0.5"
                         >
@@ -103,7 +99,7 @@ const HowItWorks = () => {
                       ))}
                     </ul>
                   )}
-                  
+
                   {step.tagline && (
                     <p className="mt-4 text-[13px] md:text-sm text-muted-foreground/80 leading-relaxed">
                       {step.tagline}
@@ -118,10 +114,10 @@ const HowItWorks = () => {
         {/* Closing Line */}
         <div className="mt-16 md:mt-20 text-center border-t border-border/40 pt-12">
           <p className="text-base md:text-lg text-foreground font-medium max-w-xl mx-auto leading-snug tracking-tight text-balance">
-            MainStreetIRL is about confidence, not connection algorithms.
+            Places first. Community second. Social on your terms.
           </p>
           <p className="text-sm md:text-[15px] text-muted-foreground mt-3 leading-relaxed">
-            You decide when&thinsp;—&thinsp;and if&thinsp;—&thinsp;you want to be seen.
+            MainStreetIRL is about clarity, not algorithms.
           </p>
         </div>
       </div>
