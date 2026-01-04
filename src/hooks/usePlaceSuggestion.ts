@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { PlaceDetails } from '@/hooks/useGooglePlaces';
+import type { Json } from '@/integrations/supabase/types';
 
 export const usePlaceSuggestion = () => {
   const { toast } = useToast();
@@ -73,9 +74,18 @@ export const usePlaceSuggestion = () => {
         website_url: details.website_url || null,
         phone_number: details.phone_number || null,
         google_maps_url: details.google_maps_url || null,
-        opening_hours: details.opening_hours || null,
+        opening_hours: (details.opening_hours as Json) || null,
         google_primary_type: details.google_primary_type || null,
         google_primary_type_display: details.google_primary_type_display || null,
+        // Additional GBP fields (previously missing)
+        photos: (details.photos as unknown as Json) || null,
+        price_level: details.price_level || null,
+        google_types: details.google_types || null,
+        business_status: details.business_status || null,
+        utc_offset_minutes: details.utc_offset_minutes || null,
+        // Track data freshness
+        last_fetched_at: new Date().toISOString(),
+        fetch_version: 1,
       };
 
       const { error } = await supabase.from('places').insert(insertData);
