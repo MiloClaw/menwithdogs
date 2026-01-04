@@ -1,17 +1,12 @@
 import { MapPin, MapPinOff, Loader2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface ExplorationCity {
-  name: string;
-  state?: string | null;
-  lat?: number | null;
-  lng?: number | null;
-}
-
 interface LocationContextBannerProps {
   hasLocation: boolean;
   locationSource: 'profile' | 'browser' | 'exploration' | null;
-  explorationCity: ExplorationCity | null;
+  // URL-based exploration props
+  exploringCity?: string | null;
+  exploringState?: string | null;
   profileCity?: string | null;
   isLoading: boolean;
   onRequestLocation: () => void;
@@ -29,18 +24,19 @@ interface LocationContextBannerProps {
 const LocationContextBanner = ({
   hasLocation,
   locationSource,
-  explorationCity,
+  exploringCity,
+  exploringState,
   profileCity,
   isLoading,
   onRequestLocation,
   onExploreCity,
   onClearExploration,
 }: LocationContextBannerProps) => {
-  // Exploration mode
-  if (locationSource === 'exploration' && explorationCity) {
-    const displayName = explorationCity.state 
-      ? `${explorationCity.name}, ${explorationCity.state}` 
-      : explorationCity.name;
+  // Exploration mode (based on URL params)
+  if (locationSource === 'exploration' && exploringCity) {
+    const displayName = exploringState 
+      ? `${exploringCity}, ${exploringState}` 
+      : exploringCity;
     
     return (
       <div className="flex items-center justify-between gap-4 text-sm bg-accent/50 border border-accent px-4 py-3 rounded-lg">
