@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 
 interface ExplorationCity {
   name: string;
-  lat: number;
-  lng: number;
+  state?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 interface LocationContextBannerProps {
@@ -37,11 +38,15 @@ const LocationContextBanner = ({
 }: LocationContextBannerProps) => {
   // Exploration mode
   if (locationSource === 'exploration' && explorationCity) {
+    const displayName = explorationCity.state 
+      ? `${explorationCity.name}, ${explorationCity.state}` 
+      : explorationCity.name;
+    
     return (
       <div className="flex items-center justify-between gap-4 text-sm bg-accent/50 border border-accent px-4 py-3 rounded-lg">
         <div className="flex items-center gap-2 text-accent-foreground">
           <Globe className="h-4 w-4 flex-shrink-0" />
-          <span className="font-medium">Exploring: {explorationCity.name}</span>
+          <span className="font-medium">Exploring: {displayName}</span>
         </div>
         <Button 
           variant="ghost" 

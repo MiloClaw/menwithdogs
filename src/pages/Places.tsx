@@ -122,9 +122,10 @@ const Places = () => {
   // Handle city selection from modal
   const handleCitySelect = async (details: PlaceDetails) => {
     if (cityPickerMode === 'exploration') {
-      // Exploration mode: just set session-based exploration city
+      // Exploration mode: store city name + state for text-based filtering
       setExplorationCity({
         name: details.city || details.name,
+        state: details.state,
         lat: details.lat,
         lng: details.lng,
       });
@@ -173,12 +174,12 @@ const Places = () => {
     setShowCityPicker(true);
   };
 
-  // Data fetching - pass location for city-scoped filtering
-  const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePublicPlaces({
-    lat: userLat,
-    lng: userLng,
-    radiusMiles: 100,
-  });
+  // Data fetching - use city/state for exploration, lat/lng for normal mode
+  const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePublicPlaces(
+    locationSource === 'exploration' && explorationCity
+      ? { city: explorationCity.name, state: explorationCity.state }
+      : { lat: userLat, lng: userLng, radiusMiles: 100 }
+  );
   const { data: events, isLoading: eventsLoading } = useEventsPublic({
     dateFilter,
     radiusFilter,
