@@ -657,6 +657,47 @@ export type Database = {
           },
         ]
       }
+      place_aggregates: {
+        Row: {
+          computed_at: string | null
+          id: string
+          label: string | null
+          place_id: string
+          save_count: number | null
+          segment_json: Json | null
+          time_window: string
+          unique_savers_count: number | null
+        }
+        Insert: {
+          computed_at?: string | null
+          id?: string
+          label?: string | null
+          place_id: string
+          save_count?: number | null
+          segment_json?: Json | null
+          time_window: string
+          unique_savers_count?: number | null
+        }
+        Update: {
+          computed_at?: string | null
+          id?: string
+          label?: string | null
+          place_id?: string
+          save_count?: number | null
+          segment_json?: Json | null
+          time_window?: string
+          unique_savers_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_aggregates_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       place_geo_areas: {
         Row: {
           confidence: number | null
@@ -996,6 +1037,7 @@ export type Database = {
       }
     }
     Functions: {
+      compute_place_aggregates: { Args: never; Returns: undefined }
       create_couple_for_current_user:
         | { Args: never; Returns: string }
         | { Args: { unit_type?: string }; Returns: string }
