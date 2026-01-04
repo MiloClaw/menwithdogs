@@ -23,11 +23,16 @@ interface CachedLocation {
  * 1. First priority: memberProfile.city_lat/lng
  * 2. Fallback: Browser geolocation (cached in session storage)
  */
+const AUTO_GEO_KEY = 'auto_geo_attempted';
+
 export const useUserLocation = (): UserLocation => {
-  const { memberProfile } = useCouple();
+  const { memberProfile, loading: profileLoading } = useCouple();
   const [browserLocation, setBrowserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedAutoGeo, setHasAttemptedAutoGeo] = useState(() => {
+    return sessionStorage.getItem(AUTO_GEO_KEY) === 'true';
+  });
 
   // Check session storage for cached browser location on mount
   useEffect(() => {
@@ -46,6 +51,11 @@ export const useUserLocation = (): UserLocation => {
       }
     }
   }, []);
+
+  // Profile location check
+  const profileLat = memberProfile?.city_lat;
+  const profileLng = memberProfile?.city_lng;
+  const hasProfileLocation = profileLat != null && profileLng != null;
 
   const requestBrowserLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -95,14 +105,30 @@ export const useUserLocation = (): UserLocation => {
     );
   }, []);
 
-  // Priority: profile location > browser location
-  const profileLat = memberProfile?.city_lat;
-  const profileLng = memberProfile?.city_lng;
+  // Auto-request geolocation on first visit if no profile location and no cached browser location
+  useEffect(() => {
+    // Wait for profile to finish loading
+    if (profileLoading) return;
+    
+    // Skip if already have profile location, browser location, or already attempted
+    if (hasProfileLocation || browserLocation || hasAttemptedAutoGeo) return;
+    
+    // Skip if geolocation not supported
+    if (!navigator.geolocation) return;
+    
+    // Mark as attempted (persisted across page refreshes in this session)
+    setHasAttemptedAutoGeo(true);
+    sessionStorage.setItem(AUTO_GEO_KEY, 'true');
+    
+    // Silently request geolocation
+    requestBrowserLocation();
+  }, [profileLoading, hasProfileLocation, browserLocation, hasAttemptedAutoGeo, requestBrowserLocation]);
 
-  if (profileLat != null && profileLng != null) {
+  // Return profile location if available
+  if (hasProfileLocation) {
     return {
-      lat: profileLat,
-      lng: profileLng,
+      lat: profileLat!,
+      lng: profileLng!,
       source: 'profile',
       isLoading: false,
       error: null,
@@ -110,6 +136,7 @@ export const useUserLocation = (): UserLocation => {
     };
   }
 
+  // Return browser location if available
   if (browserLocation) {
     return {
       lat: browserLocation.lat,
@@ -121,6 +148,7 @@ export const useUserLocation = (): UserLocation => {
     };
   }
 
+  // No location available
   return {
     lat: null,
     lng: null,
