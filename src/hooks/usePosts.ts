@@ -144,7 +144,7 @@ export const usePlaceEvents = (placeId: string | null) => {
         .eq("place_id", placeId!)
         .eq("type", "event")
         .eq("status", "published")
-        .gt("end_date", now)
+        .or(`end_date.is.null,end_date.gt.${now}`)
         .order("start_date", { ascending: true })
         .limit(5);
 
