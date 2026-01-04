@@ -28,6 +28,73 @@ interface PlaceResult {
   photos: Array<{ name: string; widthPx: number; heightPx: number }>;
 }
 
+// ========================================================================
+// Google Places API (New) Table A Types - VALIDATED
+// Reference: https://developers.google.com/maps/documentation/places/web-service/place-types
+// IMPORTANT: Only these types are valid for Nearby Search includedTypes
+// ========================================================================
+const VALID_TABLE_A_TYPES = new Set([
+  // Food & Dining
+  'restaurant', 'cafe', 'bakery', 'coffee_shop', 'ice_cream_shop',
+  'brunch_restaurant', 'fine_dining_restaurant', 'fast_food_restaurant',
+  'pizza_restaurant', 'seafood_restaurant', 'steak_house', 'sushi_restaurant',
+  'japanese_restaurant', 'chinese_restaurant', 'mexican_restaurant',
+  'italian_restaurant', 'indian_restaurant', 'thai_restaurant',
+  'vietnamese_restaurant', 'korean_restaurant', 'greek_restaurant',
+  'french_restaurant', 'spanish_restaurant', 'mediterranean_restaurant',
+  'middle_eastern_restaurant', 'american_restaurant', 'barbecue_restaurant',
+  'hamburger_restaurant', 'sandwich_shop', 'vegetarian_restaurant',
+  'vegan_restaurant', 'ramen_restaurant', 'breakfast_restaurant',
+  
+  // Nightlife
+  'bar', 'night_club', 'pub', 'wine_bar', 'comedy_club', 'karaoke',
+  
+  // Entertainment
+  'movie_theater', 'performing_arts_theater', 'concert_hall', 'amphitheatre',
+  'bowling_alley', 'amusement_center', 'amusement_park', 'video_arcade',
+  'casino', 'water_park', 'event_venue', 'convention_center',
+  'banquet_hall', 'wedding_venue',
+  
+  // Culture & Museums
+  'museum', 'art_gallery', 'art_studio', 'library', 'tourist_attraction',
+  'historical_landmark', 'cultural_landmark', 'planetarium',
+  'observation_deck', 'cultural_center', 'visitor_center',
+  
+  // Outdoor & Nature
+  'park', 'hiking_area', 'beach', 'marina', 'dog_park', 'campground',
+  'national_park', 'state_park', 'garden', 'botanical_garden',
+  'picnic_ground', 'playground', 'nature_preserve', 'wildlife_park',
+  'zoo', 'aquarium',
+  
+  // Fitness & Wellness
+  'gym', 'fitness_center', 'yoga_studio', 'spa', 'wellness_center',
+  'pilates_studio', 'sports_club', 'hair_salon', 'beauty_salon',
+  'nail_salon', 'barbershop',
+  
+  // Sports & Recreation
+  'golf_course', 'ski_resort', 'ice_skating_rink', 'swimming_pool',
+  'athletic_field', 'stadium', 'sports_complex', 'tennis_court',
+  'basketball_court',
+  
+  // Lodging
+  'hotel', 'motel', 'resort_hotel', 'bed_and_breakfast', 'hostel',
+  'extended_stay_hotel', 'lodging', 'vacation_rental', 'rv_park',
+  
+  // Shopping
+  'shopping_mall', 'clothing_store', 'book_store', 'florist',
+  'jewelry_store', 'gift_shop', 'supermarket', 'grocery_store',
+  'convenience_store', 'liquor_store', 'pet_store', 'furniture_store',
+  'electronics_store', 'home_goods_store', 'department_store',
+  'discount_store', 'market',
+  
+  // Services
+  'travel_agency', 'car_rental', 'laundry', 'car_wash', 'gas_station',
+  'electric_vehicle_charging_station', 'parking',
+  
+  // Religious
+  'church', 'hindu_temple', 'mosque', 'synagogue',
+]);
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -53,13 +120,45 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Nearby search: lat=${lat}, lng=${lng}, radius=${radius}m, types=${includedTypes.join(',')}`);
+    // ========================================================================
+    // TYPE VALIDATION - Filter out invalid types to prevent 400 errors
+    // ========================================================================
+    const validTypes: string[] = [];
+    const invalidTypes: string[] = [];
+    
+    for (const type of includedTypes) {
+      if (VALID_TABLE_A_TYPES.has(type)) {
+        validTypes.push(type);
+      } else {
+        invalidTypes.push(type);
+      }
+    }
+    
+    // Log any invalid types for debugging
+    if (invalidTypes.length > 0) {
+      console.warn(`Filtered out ${invalidTypes.length} invalid types: ${invalidTypes.join(', ')}`);
+    }
+    
+    // If no valid types remain, return early with descriptive error
+    if (validTypes.length === 0) {
+      console.error('No valid place types provided after filtering');
+      return new Response(
+        JSON.stringify({ 
+          error: 'No valid place types provided', 
+          invalidTypes,
+          places: [] 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Nearby search: lat=${lat}, lng=${lng}, radius=${radius}m, validTypes=${validTypes.join(',')}`);
 
     // Google Places API (New) Nearby Search endpoint
     const url = 'https://places.googleapis.com/v1/places:searchNearby';
     
     const requestBody = {
-      includedTypes: includedTypes,
+      includedTypes: validTypes,
       maxResultCount: Math.min(maxResultCount, 20), // API max is 20
       rankPreference: 'POPULARITY',
       locationRestriction: {
@@ -140,7 +239,11 @@ serve(async (req) => {
     }));
 
     return new Response(
-      JSON.stringify({ places }),
+      JSON.stringify({ 
+        places,
+        // Include metadata about filtered types for debugging
+        ...(invalidTypes.length > 0 && { filteredInvalidTypes: invalidTypes })
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

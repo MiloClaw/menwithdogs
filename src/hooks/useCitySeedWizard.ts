@@ -34,70 +34,116 @@ interface NearbySearchParams {
   includedTypes: string[];
 }
 
+// ========================================================================
+// Google Places API (New) Table A Types - VALIDATED
+// Reference: https://developers.google.com/maps/documentation/places/web-service/place-types
+// ========================================================================
+
 // Focused venue types - optimized for 1 API call (5 types max)
 export const FOCUSED_VENUE_TYPES = [
   'restaurant',      // Core dining
   'bar',             // Core nightlife  
   'cafe',            // Daytime social
-  'brewery',         // Craft scene
+  'night_club',      // Late night
   'art_gallery',     // Culture
 ] as const;
 
-// Interest-Aligned: Types that map directly to user interests
+// Interest-Aligned: Types that map directly to user interests (all validated Table A)
 export const INTEREST_ALIGNED_TYPES = [
-  'restaurant', 'bar', 'cafe', 'brewery', 'winery',
+  // Dining
+  'restaurant', 'bar', 'cafe', 'coffee_shop', 'brunch_restaurant', 'wine_bar',
+  // Culture
   'museum', 'art_gallery', 'performing_arts_theater', 'movie_theater',
-  'gym', 'yoga_studio', 'spa',
-  'hiking_area', 'beach', 'park', 'marina',
-  'bowling_alley', 'escape_room', 'comedy_club', 'live_music_venue',
+  // Fitness
+  'gym', 'fitness_center', 'yoga_studio', 'spa',
+  // Outdoor
+  'hiking_area', 'beach', 'park', 'marina', 'dog_park',
+  // Entertainment
+  'bowling_alley', 'comedy_club', 'night_club', 'karaoke', 'amusement_center',
 ] as const;
 
-// Curated anchor venue types for seeding
+// Curated anchor venue types for seeding (validated Table A)
 export const ANCHOR_VENUE_TYPES = [
-  'restaurant', 'cafe', 'bakery',
-  'bar', 'wine_bar', 'brewery',
+  'restaurant', 'cafe', 'bakery', 'coffee_shop',
+  'bar', 'wine_bar', 'pub', 'night_club',
   'movie_theater', 'bowling_alley', 'gym',
   'museum', 'art_gallery',
   'park', 'hiking_area',
 ] as const;
 
+// Extended venue types - comprehensive discovery (all validated Table A)
 export const EXTENDED_VENUE_TYPES = [
-  ...ANCHOR_VENUE_TYPES,
-  'coffee_shop', 'ice_cream_shop', 'winery', 'cooking_class', 'farmers_market',
-  'night_club', 'live_music_venue', 'comedy_club',
-  'performing_arts_theater', 'escape_room', 'amusement_park',
-  'spa', 'yoga_studio', 'beach', 'campground', 'marina',
-  'library', 'tourist_attraction',
+  // Dining & Food
+  'restaurant', 'cafe', 'bakery', 'coffee_shop', 'ice_cream_shop',
+  'brunch_restaurant', 'fine_dining_restaurant', 'seafood_restaurant',
+  'italian_restaurant', 'mexican_restaurant', 'japanese_restaurant',
+  'steak_house', 'pizza_restaurant', 'barbecue_restaurant',
+  // Nightlife & Bars
+  'bar', 'wine_bar', 'pub', 'night_club', 'comedy_club', 'karaoke',
+  // Entertainment
+  'movie_theater', 'performing_arts_theater', 'concert_hall',
+  'bowling_alley', 'amusement_center', 'amusement_park', 'video_arcade',
+  'aquarium', 'zoo', 'casino', 'event_venue', 'water_park',
+  // Culture & Museums
+  'museum', 'art_gallery', 'art_studio', 'library', 'tourist_attraction',
+  'historical_landmark', 'botanical_garden', 'planetarium',
+  // Wellness & Fitness
+  'gym', 'fitness_center', 'spa', 'yoga_studio', 'wellness_center',
+  // Outdoor & Nature
+  'park', 'hiking_area', 'beach', 'marina', 'dog_park', 'campground',
+  'national_park', 'state_park', 'garden', 'picnic_ground',
+  // Sports & Recreation
+  'golf_course', 'ski_resort', 'ice_skating_rink', 'swimming_pool',
+  // Getaways & Lodging
+  'hotel', 'bed_and_breakfast', 'resort_hotel',
 ] as const;
 
+// Category groups for UI organization (all validated Table A types)
 export const VENUE_CATEGORY_GROUPS = [
   {
     label: 'Dining & Food',
-    types: ['restaurant', 'cafe', 'bakery', 'coffee_shop', 'ice_cream_shop', 'winery', 'farmers_market', 'cooking_class'],
+    types: [
+      'restaurant', 'cafe', 'bakery', 'coffee_shop', 'ice_cream_shop',
+      'brunch_restaurant', 'fine_dining_restaurant', 'seafood_restaurant',
+      'italian_restaurant', 'mexican_restaurant', 'japanese_restaurant',
+      'steak_house', 'pizza_restaurant', 'barbecue_restaurant',
+    ],
   },
   {
     label: 'Nightlife & Bars',
-    types: ['bar', 'wine_bar', 'brewery', 'night_club', 'live_music_venue'],
+    types: ['bar', 'wine_bar', 'pub', 'night_club', 'comedy_club', 'karaoke'],
   },
   {
     label: 'Live Performance',
-    types: ['performing_arts_theater', 'comedy_club', 'movie_theater'],
+    types: ['performing_arts_theater', 'movie_theater', 'concert_hall', 'amphitheatre'],
   },
   {
     label: 'Games & Activities',
-    types: ['bowling_alley', 'escape_room', 'amusement_park'],
+    types: ['bowling_alley', 'amusement_center', 'amusement_park', 'video_arcade', 'casino', 'water_park'],
   },
   {
-    label: 'Culture',
-    types: ['museum', 'art_gallery', 'library', 'tourist_attraction'],
+    label: 'Culture & Museums',
+    types: ['museum', 'art_gallery', 'art_studio', 'library', 'tourist_attraction', 'historical_landmark', 'planetarium'],
   },
   {
     label: 'Fitness & Wellness',
-    types: ['gym', 'yoga_studio', 'spa'],
+    types: ['gym', 'fitness_center', 'yoga_studio', 'spa', 'wellness_center'],
   },
   {
-    label: 'Outdoor & Adventure',
-    types: ['park', 'hiking_area', 'beach', 'campground', 'marina'],
+    label: 'Outdoor & Nature',
+    types: ['park', 'hiking_area', 'beach', 'marina', 'dog_park', 'campground', 'national_park', 'state_park', 'garden', 'botanical_garden', 'picnic_ground'],
+  },
+  {
+    label: 'Animals & Wildlife',
+    types: ['zoo', 'aquarium'],
+  },
+  {
+    label: 'Sports & Recreation',
+    types: ['golf_course', 'ski_resort', 'ice_skating_rink', 'swimming_pool', 'athletic_field'],
+  },
+  {
+    label: 'Getaways & Lodging',
+    types: ['hotel', 'bed_and_breakfast', 'resort_hotel', 'campground'],
   },
 ];
 
