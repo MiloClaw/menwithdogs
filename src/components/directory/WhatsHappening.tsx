@@ -1,4 +1,4 @@
-import { Calendar, Megaphone, ArrowRight } from 'lucide-react';
+import { Calendar, Megaphone, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useCityPostsByName, Post } from '@/hooks/usePosts';
 import { format } from 'date-fns';
@@ -8,24 +8,23 @@ interface WhatsHappeningProps {
   state: string | null;
 }
 
-const formatEventDate = (startDate: string | null, endDate: string | null): string => {
-  if (!startDate) return '';
+const formatEventDate = (post: Post): string => {
+  if (post.is_recurring && post.recurrence_text) {
+    return post.recurrence_text;
+  }
   
-  const start = new Date(startDate);
-  const end = endDate ? new Date(endDate) : null;
+  if (!post.start_date) return '';
   
+  const start = new Date(post.start_date);
   const dateStr = format(start, 'EEE MMM d');
   const timeStr = format(start, 'h:mm a');
-  
-  if (end && start.toDateString() === end.toDateString()) {
-    return `${dateStr} · ${timeStr}`;
-  }
   
   return `${dateStr} · ${timeStr}`;
 };
 
 const PostItem = ({ post }: { post: Post }) => {
   const isEvent = post.type === 'event';
+  const externalUrl = post.external_url || post.place?.website_url;
   
   return (
     <div className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 border-b border-border last:border-0">
@@ -39,11 +38,11 @@ const PostItem = ({ post }: { post: Post }) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-1">
           <Badge variant="outline" className="text-xs">
-            {isEvent ? 'Event' : 'Update'}
+            {isEvent ? (post.is_recurring ? 'Recurring' : 'Event') : 'Update'}
           </Badge>
-          {isEvent && post.start_date && (
+          {isEvent && (
             <span className="text-xs text-muted-foreground">
-              {formatEventDate(post.start_date, post.end_date)}
+              {formatEventDate(post)}
             </span>
           )}
         </div>
@@ -57,6 +56,17 @@ const PostItem = ({ post }: { post: Post }) => {
           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
             {post.body}
           </p>
+        )}
+        {externalUrl && (
+          <a 
+            href={externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Visit website for details
+          </a>
         )}
       </div>
     </div>

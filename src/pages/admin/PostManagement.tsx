@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Plus, Megaphone, Calendar, Trash2, Edit, 
-  AlertCircle, Check, Clock, MapPin
+  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -10,9 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -61,6 +62,9 @@ interface PostFormData {
   place_id: string;
   start_date: string;
   end_date: string;
+  is_recurring: boolean;
+  recurrence_text: string;
+  external_url: string;
   status: PostStatus;
 }
 
@@ -72,6 +76,9 @@ const INITIAL_FORM: PostFormData = {
   place_id: '',
   start_date: '',
   end_date: '',
+  is_recurring: false,
+  recurrence_text: '',
+  external_url: '',
   status: 'draft',
 };
 
@@ -98,7 +105,6 @@ const PostManagement = () => {
 
   const launchedCities = cities?.filter(c => c.status === 'launched') || [];
   
-  // Find the selected city name to filter places by city
   const selectedCityName = launchedCities.find(c => c.id === formData.city_id)?.name;
   const cityPlaces = places?.filter(p => 
     p.status === 'approved' && 
@@ -127,6 +133,9 @@ const PostManagement = () => {
       place_id: post.place_id || '',
       start_date: post.start_date ? post.start_date.slice(0, 16) : '',
       end_date: post.end_date ? post.end_date.slice(0, 16) : '',
+      is_recurring: post.is_recurring || false,
+      recurrence_text: post.recurrence_text || '',
+      external_url: post.external_url || '',
       status: post.status,
     });
     setStep(4); // Skip to content step for editing
@@ -148,14 +157,22 @@ const PostManagement = () => {
         toast.error('Place is required for events');
         return;
       }
-      if (!formData.start_date || !formData.end_date) {
-        toast.error('Start and end dates are required for events');
+      // For non-recurring events, require a date
+      if (!formData.is_recurring && !formData.start_date) {
+        toast.error('Event date is required for single-date events');
         return;
       }
-      if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-        toast.error('End date must be after start date');
+      // For recurring events, require recurrence text
+      if (formData.is_recurring && !formData.recurrence_text.trim()) {
+        toast.error('Recurrence description is required for recurring events');
         return;
       }
+    }
+
+    // Validate external URL format if provided
+    if (formData.external_url.trim() && !formData.external_url.match(/^https?:\/\//)) {
+      toast.error('External URL must start with http:// or https://');
+      return;
     }
 
     const postData: PostInsert = {
@@ -164,8 +181,11 @@ const PostManagement = () => {
       body: formData.body.trim() || null,
       city_id: formData.city_id,
       place_id: formData.type === 'event' ? formData.place_id : null,
-      start_date: formData.type === 'event' ? formData.start_date : null,
-      end_date: formData.type === 'event' ? formData.end_date : null,
+      start_date: formData.type === 'event' && !formData.is_recurring ? formData.start_date : null,
+      end_date: formData.type === 'event' && formData.end_date ? formData.end_date : null,
+      is_recurring: formData.type === 'event' ? formData.is_recurring : false,
+      recurrence_text: formData.type === 'event' && formData.is_recurring ? formData.recurrence_text.trim() : null,
+      external_url: formData.external_url.trim() || null,
       status: publish ? 'published' : 'draft',
     };
 
@@ -198,11 +218,15 @@ const PostManagement = () => {
 
   const canProceed = () => {
     switch (step) {
-      case 1: return true; // Type selection always valid
+      case 1: return true;
       case 2: return !!formData.city_id;
       case 3: return !isEventType || !!formData.place_id;
       case 4: return !!formData.title.trim();
-      case 5: return !!formData.start_date && !!formData.end_date;
+      case 5: 
+        if (formData.is_recurring) {
+          return !!formData.recurrence_text.trim();
+        }
+        return !!formData.start_date;
       default: return false;
     }
   };
@@ -279,7 +303,6 @@ const PostManagement = () => {
       
       case 3:
         if (!isEventType) {
-          // Skip place selection for announcements
           return (
             <div className="space-y-4">
               <Label>Link to a Place? (Optional)</Label>
@@ -352,11 +375,26 @@ const PostManagement = () => {
                 value={formData.body}
                 onChange={(e) => setFormData(f => ({ ...f, body: e.target.value }))}
                 placeholder="Short, factual description..."
-                rows={4}
+                rows={3}
                 className="mt-1.5"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Keep it brief. No marketing copy.
+                Keep it brief. Users will visit the venue website for details.
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="external_url">Venue Website URL (Optional)</Label>
+              <Input
+                id="external_url"
+                type="url"
+                value={formData.external_url}
+                onChange={(e) => setFormData(f => ({ ...f, external_url: e.target.value }))}
+                placeholder="https://venue.com/event"
+                className="mt-1.5"
+              />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <ExternalLink className="h-3 w-3" />
+                Where users can confirm details or RSVP
               </p>
             </div>
           </div>
@@ -365,29 +403,66 @@ const PostManagement = () => {
       case 5:
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start_date">Start Date & Time</Label>
-                <Input
-                  id="start_date"
-                  type="datetime-local"
-                  value={formData.start_date}
-                  onChange={(e) => setFormData(f => ({ ...f, start_date: e.target.value }))}
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="end_date">End Date & Time</Label>
-                <Input
-                  id="end_date"
-                  type="datetime-local"
-                  value={formData.end_date}
-                  onChange={(e) => setFormData(f => ({ ...f, end_date: e.target.value }))}
-                  className="mt-1.5"
+            <div className="flex items-center justify-between">
+              <Label>Event Schedule</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Recurring</span>
+                <Switch
+                  checked={formData.is_recurring}
+                  onCheckedChange={(checked) => setFormData(f => ({ 
+                    ...f, 
+                    is_recurring: checked,
+                    start_date: checked ? '' : f.start_date,
+                    recurrence_text: checked ? f.recurrence_text : ''
+                  }))}
                 />
               </div>
             </div>
-            {formData.end_date && new Date(formData.end_date) < new Date() && (
+
+            {formData.is_recurring ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <RotateCcw className="h-4 w-4" />
+                  <span>Describe the recurring schedule</span>
+                </div>
+                <Input
+                  value={formData.recurrence_text}
+                  onChange={(e) => setFormData(f => ({ ...f, recurrence_text: e.target.value }))}
+                  placeholder="Every Wednesday at 7pm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Examples: "Every Friday night", "First Saturday of each month", "Tuesdays & Thursdays at 8pm"
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="start_date">Event Date & Time</Label>
+                  <Input
+                    id="start_date"
+                    type="datetime-local"
+                    value={formData.start_date}
+                    onChange={(e) => setFormData(f => ({ ...f, start_date: e.target.value }))}
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="end_date">End Date & Time (Optional)</Label>
+                  <Input
+                    id="end_date"
+                    type="datetime-local"
+                    value={formData.end_date}
+                    onChange={(e) => setFormData(f => ({ ...f, end_date: e.target.value }))}
+                    className="mt-1.5"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    For multi-day events or to control when it disappears from the feed
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!formData.is_recurring && formData.end_date && new Date(formData.end_date) < new Date() && (
               <p className="text-sm text-amber-600 flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
                 This event has already ended
@@ -399,6 +474,20 @@ const PostManagement = () => {
       default:
         return null;
     }
+  };
+
+  const formatPostDate = (post: Post): string => {
+    if (post.is_recurring && post.recurrence_text) {
+      return post.recurrence_text;
+    }
+    if (post.start_date) {
+      const formatted = format(new Date(post.start_date), 'EEE MMM d, h:mm a');
+      if (post.end_date) {
+        return `${formatted} – ${format(new Date(post.end_date), 'h:mm a')}`;
+      }
+      return formatted;
+    }
+    return '';
   };
 
   return (
@@ -452,7 +541,11 @@ const PostManagement = () => {
                     <div className="flex items-start gap-3 min-w-0">
                       <div className={`p-2 rounded-lg ${post.type === 'event' ? 'bg-accent/10' : 'bg-primary/10'}`}>
                         {post.type === 'event' ? (
-                          <Calendar className="h-4 w-4 text-accent" />
+                          post.is_recurring ? (
+                            <RotateCcw className="h-4 w-4 text-accent" />
+                          ) : (
+                            <Calendar className="h-4 w-4 text-accent" />
+                          )
                         ) : (
                           <Megaphone className="h-4 w-4 text-primary" />
                         )}
@@ -462,6 +555,11 @@ const PostManagement = () => {
                           <Badge className={statusColors[post.status]}>
                             {post.status}
                           </Badge>
+                          {post.is_recurring && (
+                            <Badge variant="outline" className="text-xs">
+                              Recurring
+                            </Badge>
+                          )}
                           <span className="text-xs text-muted-foreground">
                             {post.city?.name}{post.city?.state ? `, ${post.city.state}` : ''}
                           </span>
@@ -472,11 +570,21 @@ const PostManagement = () => {
                             @ {post.place.name}
                           </p>
                         )}
-                        {post.type === 'event' && post.start_date && (
+                        {post.type === 'event' && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            {format(new Date(post.start_date), 'EEE MMM d, h:mm a')}
-                            {post.end_date && ` – ${format(new Date(post.end_date), 'h:mm a')}`}
+                            {formatPostDate(post)}
                           </p>
+                        )}
+                        {post.external_url && (
+                          <a 
+                            href={post.external_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            {new URL(post.external_url).hostname}
+                          </a>
                         )}
                       </div>
                     </div>

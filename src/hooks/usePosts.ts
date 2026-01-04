@@ -10,13 +10,16 @@ export interface Post {
   place_id: string | null;
   start_date: string | null;
   end_date: string | null;
+  is_recurring: boolean;
+  recurrence_text: string | null;
+  external_url: string | null;
   status: 'draft' | 'published' | 'expired';
   created_at: string;
   updated_at: string;
   created_by: string | null;
   // Joined data
   city?: { id: string; name: string; state: string | null };
-  place?: { id: string; name: string; formatted_address: string | null; city: string | null };
+  place?: { id: string; name: string; formatted_address: string | null; city: string | null; website_url: string | null };
 }
 
 export interface PostInsert {
@@ -27,6 +30,9 @@ export interface PostInsert {
   place_id?: string | null;
   start_date?: string | null;
   end_date?: string | null;
+  is_recurring?: boolean;
+  recurrence_text?: string | null;
+  external_url?: string | null;
   status?: 'draft' | 'published' | 'expired';
 }
 
@@ -44,7 +50,7 @@ export const useAdminPosts = (statusFilter?: string) => {
         .select(`
           *,
           city:cities(id, name, state),
-          place:places(id, name, formatted_address, city)
+          place:places(id, name, formatted_address, city, website_url)
         `)
         .order("created_at", { ascending: false });
 
@@ -70,7 +76,7 @@ export const useCityPosts = (cityId: string | null) => {
         .select(`
           *,
           city:cities(id, name, state),
-          place:places(id, name, formatted_address, city)
+          place:places(id, name, formatted_address, city, website_url)
         `)
         .eq("city_id", cityId!)
         .eq("status", "published")
@@ -111,7 +117,7 @@ export const useCityPostsByName = (cityName: string | null, state: string | null
         .select(`
           *,
           city:cities(id, name, state),
-          place:places(id, name, formatted_address, city)
+          place:places(id, name, formatted_address, city, website_url)
         `)
         .eq("city_id", cities.id)
         .eq("status", "published")
