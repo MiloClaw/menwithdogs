@@ -213,10 +213,11 @@ function CandidateCard({ candidate, onToggle, onScanReviews, hasKeywords }: Cand
 
   // Load photo on mount
   useState(() => {
-    if (candidate.photos?.[0]?.name && !photoError) {
+    const photoName = candidate.photos?.[0]?.name;
+    if (photoName && !photoError) {
       supabase.functions
         .invoke('google-places-photo', {
-          body: { photoName: candidate.photos[0].name, maxWidth: 200 },
+          body: { name: photoName, maxWidth: 200, maxHeight: 200 },
         })
         .then(({ data }) => {
           if (data?.url) setPhotoUrl(data.url);
