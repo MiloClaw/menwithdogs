@@ -1,49 +1,40 @@
-import { MapPin, BarChart3, Bookmark, UserPlus, MessageCircle } from "lucide-react";
+import { User, MapPin, Eye, Users } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: MapPin,
-    title: "Browse the Directory",
-    description: "Explore a curated list of cafés, bars, parks, and local events — all chosen for their community potential.",
+    icon: User,
+    title: "Understand Your Real-World Patterns",
+    description: "You tell us what you enjoy—your interests, routines, and the kinds of places you like to spend time.",
+    tagline: "No bios. No performance. Just context.",
   },
   {
     number: "02",
-    icon: BarChart3,
-    title: "See Aggregate Signals",
-    description: "View anonymous, aggregated activity to understand where community is forming:",
+    icon: MapPin,
+    title: "Discover Community-Centered Places",
+    description: "Our directory highlights places popular with the gay community, along with recommendations based on overlapping interests.",
     bullets: [
-      '"Popular with locals"',
-      '"Busy on weekends"',
-      '"Trending this week"',
+      "Coffee shops",
+      "Gyms",
+      "Bars",
+      "Events",
+      "Neighborhood spots",
     ],
-    tagline: "Helpful context — without exposing anyone.",
+    tagline: "Places where real life actually happens.",
   },
   {
     number: "03",
-    icon: Bookmark,
-    title: "Save Privately",
-    description: "Mark places you're interested in or planning to visit. Your saves are private — no social pressure, no visibility.",
-    tagline: "Build your own list at your own pace.",
+    icon: Eye,
+    title: "Opt In — Only When You're Ready",
+    description: "Your information is private by default. If you choose to opt in, others won't see who you are—only that someone like them is open to saying hello at a specific place.",
+    tagline: "No messaging pressure. No awkward intros. Just a clear signal that connection is welcome.",
   },
   {
     number: "04",
-    icon: UserPlus,
-    title: "Join When You're Ready",
-    description: "When you're ready to be part of the community, create an account and choose your path — as a couple or as an individual.",
-    tagline: "No rush. The directory is always here.",
-  },
-  {
-    number: "05",
-    icon: MessageCircle,
-    title: "Connect on Your Terms",
-    description: "If you opt in, you can receive curated introductions based on shared places and interests. All interactions are:",
-    bullets: [
-      "Contextual (tied to a place or event)",
-      "Permission-based (you choose when to be visible)",
-      "Temporary (no permanent profile exposure)",
-    ],
-    tagline: "Social connection as an optional layer — never the default.",
+    icon: Users,
+    title: "Grow Real Community, Naturally",
+    description: "The goal isn't to \"match.\" It's to make real-world interaction feel easier, safer, and more human again.",
+    tagline: "A nod. A hello. A conversation that starts where you already are.",
   },
 ];
 
@@ -87,21 +78,20 @@ const HowItWorks = () => {
                   </p>
 
                   {step.bullets && (
-                    <ul className="mt-3.5 space-y-2">
+                    <div className="mt-3.5 flex flex-wrap gap-2">
                       {step.bullets.map((bullet, bulletIndex) => (
-                        <li
+                        <span
                           key={bulletIndex}
-                          className="text-sm md:text-[15px] text-muted-foreground leading-[1.7] flex items-start gap-2.5 pl-0.5"
+                          className="text-xs md:text-sm text-muted-foreground bg-background px-3 py-1 rounded-full"
                         >
-                          <span className="text-primary/60 text-[10px] mt-[7px]">●</span>
-                          <span>{bullet}</span>
-                        </li>
+                          {bullet}
+                        </span>
                       ))}
-                    </ul>
+                    </div>
                   )}
 
                   {step.tagline && (
-                    <p className="mt-4 text-[13px] md:text-sm text-muted-foreground/80 leading-relaxed">
+                    <p className="mt-4 text-[13px] md:text-sm text-muted-foreground/80 leading-relaxed italic">
                       {step.tagline}
                     </p>
                   )}
@@ -109,16 +99,6 @@ const HowItWorks = () => {
               </div>
             );
           })}
-        </div>
-
-        {/* Closing Line */}
-        <div className="mt-16 md:mt-20 text-center border-t border-border/40 pt-12">
-          <p className="text-base md:text-lg text-foreground font-medium max-w-xl mx-auto leading-snug tracking-tight text-balance">
-            Places first. Community second. Social on your terms.
-          </p>
-          <p className="text-sm md:text-[15px] text-muted-foreground mt-3 leading-relaxed">
-            MainStreetIRL is about clarity, not algorithms.
-          </p>
         </div>
       </div>
     </section>
