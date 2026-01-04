@@ -16,7 +16,7 @@ interface UsePublicPlacesOptions {
 export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
   const { lat, lng, radiusMiles = 100 } = options || {};
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['places', 'public', lat, lng, radiusMiles],
     staleTime: 0, // Ensure fresh filtering when location changes
     queryFn: async () => {
@@ -58,4 +58,9 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
       return data as DirectoryPlace[];
     },
   });
+
+  return {
+    ...query,
+    isSwitchingLocation: query.isFetching && !query.isLoading,
+  };
 };
