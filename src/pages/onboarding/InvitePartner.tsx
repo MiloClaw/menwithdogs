@@ -144,7 +144,7 @@ const InvitePartner = () => {
         {/* Privacy reassurance */}
         <div className="p-3 bg-muted/50 rounded-lg">
           <p className="text-xs text-muted-foreground">
-            Your profile stays private until you both join and confirm together.
+            Inviting your partner lets you view shared insights and saved places together. This does not enable messaging or introductions.
           </p>
         </div>
 

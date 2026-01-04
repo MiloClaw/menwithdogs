@@ -86,9 +86,9 @@ const ConfirmIntent = () => {
               htmlFor="confirm" 
               className="text-sm leading-relaxed cursor-pointer"
             >
-              We're joining MainStreetIRL as a couple looking for{' '}
-              <span className="font-medium">platonic friendships</span> with other couples.
-              We understand this is not a dating or matchmaking service.
+              We're joining MainStreetIRL as a couple interested in{' '}
+              <span className="font-medium">platonic community engagement</span>.
+              We understand this platform provides insights and signals — it does not facilitate contact or meetings.
             </Label>
           </div>
         </div>
@@ -96,8 +96,8 @@ const ConfirmIntent = () => {
         {/* Privacy reminder */}
         <div className="p-3 bg-muted/50 rounded-lg">
           <p className="text-xs text-muted-foreground">
-            Your individual profiles remain private. Only your shared couple profile 
-            can be made visible to others — and only when you choose.
+            Your individual profiles remain private. Your preferences help personalize
+            the places and content we recommend.
           </p>
         </div>
 

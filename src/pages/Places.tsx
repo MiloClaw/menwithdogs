@@ -144,7 +144,7 @@ const Places = () => {
             Discover Places
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            Curated spots for memorable dates in your city
+            Curated spots and community signals in your city
           </p>
         </header>
 
@@ -301,7 +301,7 @@ const Places = () => {
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                     {hasActiveFilters
                       ? 'Try adjusting your filters to see more results'
-                      : "We're curating the best spots for couples. Add your city to be notified."}
+                      : "We're curating the best spots in your area. Add your city to be notified."}
                   </p>
                 </div>
                 {hasActiveFilters ? (

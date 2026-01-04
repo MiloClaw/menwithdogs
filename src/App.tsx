@@ -17,10 +17,7 @@ import About from "./pages/About";
 import Auth from "./pages/Auth";
 import Invite from "./pages/Invite";
 import Dashboard from "./pages/Dashboard";
-import Discover from "./pages/Discover";
 import Saved from "./pages/Saved";
-import DiscoverCoupleView from "./pages/DiscoverCoupleView";
-import PendingMatch from "./pages/PendingMatch";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import PathSelection from "./pages/onboarding/PathSelection";
 import CreateCouple from "./pages/onboarding/CreateCouple";
@@ -64,10 +61,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/invite/:token" element={<Invite />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/discover" element={<Discover />} />
-              <Route path="/discover/:coupleId" element={<DiscoverCoupleView />} />
               <Route path="/saved" element={<Saved />} />
-              <Route path="/pending-match" element={<PendingMatch />} />
               {/* Onboarding - all wrapped with OnboardingGuard */}
               <Route path="/onboarding" element={<OnboardingGuard><PathSelection /></OnboardingGuard>} />
               <Route path="/onboarding/path-selection" element={<OnboardingGuard><PathSelection /></OnboardingGuard>} />

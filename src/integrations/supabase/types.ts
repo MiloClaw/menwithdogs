@@ -357,71 +357,6 @@ export type Database = {
           },
         ]
       }
-      couple_reveals: {
-        Row: {
-          context_type: Database["public"]["Enums"]["reveal_context"]
-          couple_a_id: string
-          couple_b_id: string
-          created_at: string | null
-          event_id: string | null
-          expires_at: string
-          id: string
-          place_id: string | null
-          state: Database["public"]["Enums"]["reveal_state"]
-        }
-        Insert: {
-          context_type: Database["public"]["Enums"]["reveal_context"]
-          couple_a_id: string
-          couple_b_id: string
-          created_at?: string | null
-          event_id?: string | null
-          expires_at: string
-          id?: string
-          place_id?: string | null
-          state?: Database["public"]["Enums"]["reveal_state"]
-        }
-        Update: {
-          context_type?: Database["public"]["Enums"]["reveal_context"]
-          couple_a_id?: string
-          couple_b_id?: string
-          created_at?: string | null
-          event_id?: string | null
-          expires_at?: string
-          id?: string
-          place_id?: string | null
-          state?: Database["public"]["Enums"]["reveal_state"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_reveals_couple_a_id_fkey"
-            columns: ["couple_a_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_reveals_couple_b_id_fkey"
-            columns: ["couple_b_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_reveals_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_reveals_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       couples: {
         Row: {
           about_us: string | null
@@ -431,7 +366,6 @@ export type Database = {
           display_name: string | null
           id: string
           is_complete: boolean
-          is_discoverable: boolean
           partner_first_name: string | null
           preferred_meetup_times: string | null
           profile_photo_url: string | null
@@ -448,7 +382,6 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_complete?: boolean
-          is_discoverable?: boolean
           partner_first_name?: string | null
           preferred_meetup_times?: string | null
           profile_photo_url?: string | null
@@ -465,7 +398,6 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_complete?: boolean
-          is_discoverable?: boolean
           partner_first_name?: string | null
           preferred_meetup_times?: string | null
           profile_photo_url?: string | null
@@ -862,95 +794,6 @@ export type Database = {
         }
         Relationships: []
       }
-      saved_couples: {
-        Row: {
-          created_at: string
-          id: string
-          saved_couple_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          saved_couple_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          saved_couple_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_couples_saved_couple_id_fkey"
-            columns: ["saved_couple_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      suggested_connections: {
-        Row: {
-          candidate_couple_id: string
-          candidate_opt_in_at: string | null
-          expires_at: string
-          generated_at: string
-          id: string
-          recipient_couple_id: string
-          recipient_opt_in_at: string | null
-          resolved_at: string | null
-          status: string
-          surfaced_rank: number | null
-          surfaced_reason: string | null
-          surfaced_source: string | null
-        }
-        Insert: {
-          candidate_couple_id: string
-          candidate_opt_in_at?: string | null
-          expires_at?: string
-          generated_at?: string
-          id?: string
-          recipient_couple_id: string
-          recipient_opt_in_at?: string | null
-          resolved_at?: string | null
-          status?: string
-          surfaced_rank?: number | null
-          surfaced_reason?: string | null
-          surfaced_source?: string | null
-        }
-        Update: {
-          candidate_couple_id?: string
-          candidate_opt_in_at?: string | null
-          expires_at?: string
-          generated_at?: string
-          id?: string
-          recipient_couple_id?: string
-          recipient_opt_in_at?: string | null
-          resolved_at?: string | null
-          status?: string
-          surfaced_rank?: number | null
-          surfaced_reason?: string | null
-          surfaced_source?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "suggested_connections_candidate_couple_id_fkey"
-            columns: ["candidate_couple_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "suggested_connections_recipient_couple_id_fkey"
-            columns: ["recipient_couple_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_roles: {
         Row: {
           created_at: string
@@ -1023,51 +866,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "couple_presence_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      revealed_couples_view: {
-        Row: {
-          context_type: Database["public"]["Enums"]["reveal_context"] | null
-          couple_a_display_name: string | null
-          couple_a_id: string | null
-          couple_a_photo: string | null
-          couple_b_display_name: string | null
-          couple_b_id: string | null
-          couple_b_photo: string | null
-          event_id: string | null
-          expires_at: string | null
-          id: string | null
-          place_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_reveals_couple_a_id_fkey"
-            columns: ["couple_a_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_reveals_couple_b_id_fkey"
-            columns: ["couple_b_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_reveals_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_reveals_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
             referencedRelation: "places"
