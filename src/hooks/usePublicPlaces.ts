@@ -18,6 +18,7 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
 
   return useQuery({
     queryKey: ['places', 'public', lat, lng, radiusMiles],
+    staleTime: 0, // Ensure fresh filtering when location changes
     queryFn: async () => {
       const { data, error } = await supabase
         .from('places')
