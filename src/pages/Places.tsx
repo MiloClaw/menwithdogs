@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Calendar, MapPin, MapPinOff, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,13 @@ const DATE_FILTER_OPTIONS: { label: string; value: DateFilter }[] = [
 ];
 
 const Places = () => {
+  // URL params for exploration mode
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const exploringCity = searchParams.get('city');
+  const exploringState = searchParams.get('state');
+  const isExplorationMode = !!exploringCity;
+
   // Auth & relationship state
   const { isAuthenticated } = useAuth();
   const { memberProfile, updateMemberProfile, refetch } = useCouple();
@@ -60,23 +68,19 @@ const Places = () => {
     handleSkip,
   } = usePreferencePrompts();
   
-  // City picker modal state
+  // City picker modal state (for setting home city only now)
   const [showCityPicker, setShowCityPicker] = useState(false);
-  const [cityPickerMode, setCityPickerMode] = useState<CityPickerMode>('home');
   const [hasShownCityPicker, setHasShownCityPicker] = useState(() => {
     return sessionStorage.getItem('city_picker_shown') === 'true';
   });
 
-  // User location (exploration > profile > browser geolocation)
+  // User location (profile > browser geolocation) - exploration is now via URL
   const { 
     lat: userLat, 
     lng: userLng, 
     source: locationSource,
-    explorationCity,
     isLoading: locationLoading, 
     requestBrowserLocation,
-    setExplorationCity,
-    clearExplorationCity,
   } = useUserLocation();
   const hasUserLocation = userLat != null && userLng != null;
   
@@ -106,33 +110,22 @@ const Places = () => {
   const [eventModalOpen, setEventModalOpen] = useState(false);
 
   // Show city picker for authenticated users without location (once per session)
+  // Only show when NOT in exploration mode
   useEffect(() => {
-    if (isAuthenticated && !hasUserLocation && !hasShownCityPicker && !locationLoading) {
+    if (isAuthenticated && !hasUserLocation && !hasShownCityPicker && !locationLoading && !isExplorationMode) {
       // Small delay to let the page render first
       const timer = setTimeout(() => {
-        setCityPickerMode('home');
         setShowCityPicker(true);
         setHasShownCityPicker(true);
         sessionStorage.setItem('city_picker_shown', 'true');
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, hasUserLocation, hasShownCityPicker, locationLoading]);
+  }, [isAuthenticated, hasUserLocation, hasShownCityPicker, locationLoading, isExplorationMode]);
 
-  // Handle city selection from modal
+  // Handle city selection from modal (home city only now)
   const handleCitySelect = async (details: PlaceDetails) => {
-    if (cityPickerMode === 'exploration') {
-      // Exploration mode: store city name + state for text-based filtering
-      setExplorationCity({
-        name: details.city || details.name,
-        state: details.state,
-        lat: details.lat,
-        lng: details.lng,
-      });
-      return;
-    }
-
-    // Home mode: save to profile
+    // Save to profile
     if (!isAuthenticated) return;
 
     // Ensure relationship unit exists (creates silently if needed)
@@ -161,23 +154,24 @@ const Places = () => {
   };
 
   const handleCityPickerSkip = () => {
-    if (cityPickerMode === 'home') {
-      // Try browser geolocation as fallback
-      requestBrowserLocation();
-    }
-    // For exploration mode, just close the modal (no fallback needed)
+    // Try browser geolocation as fallback
+    requestBrowserLocation();
   };
 
-  // Open city picker in exploration mode
+  // Navigate to explore cities page
   const handleExploreCity = () => {
-    setCityPickerMode('exploration');
-    setShowCityPicker(true);
+    navigate('/places/explore');
   };
 
-  // Data fetching - use city/state for exploration, lat/lng for normal mode
+  // Clear exploration (remove URL params)
+  const handleClearExploration = () => {
+    setSearchParams({});
+  };
+
+  // Data fetching - use city/state from URL params for exploration, lat/lng for normal mode
   const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePublicPlaces(
-    locationSource === 'exploration' && explorationCity
-      ? { city: explorationCity.name, state: explorationCity.state }
+    isExplorationMode
+      ? { city: exploringCity!, state: exploringState }
       : { lat: userLat, lng: userLng, radiusMiles: 100 }
   );
   const { data: events, isLoading: eventsLoading } = useEventsPublic({
@@ -385,13 +379,14 @@ const Places = () => {
           <div className="mt-4">
             <LocationContextBanner
               hasLocation={hasUserLocation}
-              locationSource={locationSource}
-              explorationCity={explorationCity}
+              locationSource={isExplorationMode ? 'exploration' : locationSource}
+              exploringCity={exploringCity}
+              exploringState={exploringState}
               profileCity={memberProfile?.city}
               isLoading={locationLoading}
               onRequestLocation={requestBrowserLocation}
               onExploreCity={handleExploreCity}
-              onClearExploration={clearExplorationCity}
+              onClearExploration={handleClearExploration}
             />
           </div>
 
@@ -479,7 +474,7 @@ const Places = () => {
               <div className="flex flex-col items-center justify-center py-20 space-y-3">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
                 <p className="text-sm text-muted-foreground">
-                  Finding places in {explorationCity?.name || 'new location'}...
+                  Finding places in {exploringCity || 'new location'}...
                 </p>
               </div>
             ) : processedPlaces.length === 0 ? (
@@ -489,14 +484,14 @@ const Places = () => {
                   <p className="font-medium">
                     {hasActiveFilters 
                       ? 'No matches found' 
-                      : locationSource === 'exploration' 
-                        ? `No places in ${explorationCity?.name} yet`
+                      : isExplorationMode 
+                        ? `No places in ${exploringCity} yet`
                         : 'Your area is coming soon'}
                   </p>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                     {hasActiveFilters
                       ? 'Try adjusting your filters to see more results'
-                      : locationSource === 'exploration'
+                      : isExplorationMode
                         ? 'Be the first to suggest a spot in this city!'
                         : "We're curating the best spots in your area. Add your city to be notified."}
                   </p>
@@ -505,8 +500,8 @@ const Places = () => {
                   <Button variant="outline" size="sm" onClick={clearAllFilters}>
                     Clear all filters
                   </Button>
-                ) : locationSource === 'exploration' ? (
-                  <Button variant="outline" size="sm" onClick={clearExplorationCity}>
+                ) : isExplorationMode ? (
+                  <Button variant="outline" size="sm" onClick={handleClearExploration}>
                     ← Back to your location
                   </Button>
                 ) : !hasUserLocation && (
@@ -612,7 +607,7 @@ const Places = () => {
         onOpenChange={setShowCityPicker}
         onCitySelect={handleCitySelect}
         onSkip={handleCityPickerSkip}
-        mode={cityPickerMode}
+        mode="home"
       />
       <PlaceSuggestionModal
         open={suggestionModalOpen}
