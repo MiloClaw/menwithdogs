@@ -41,6 +41,9 @@ const Footer = () => {
               <Link to="/about" className={linkClasses}>
                 About
               </Link>
+              <Link to="/faq" className={linkClasses}>
+                FAQ
+              </Link>
               <Link to="/pricing" className={linkClasses}>
                 Pricing
               </Link>
