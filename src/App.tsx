@@ -19,16 +19,10 @@ import Invite from "./pages/Invite";
 import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
-import PathSelection from "./pages/onboarding/PathSelection";
-import CreateCouple from "./pages/onboarding/CreateCouple";
 import MyProfile from "./pages/onboarding/MyProfile";
-import InvitePartner from "./pages/onboarding/InvitePartner";
-import CoupleProfileEdit from "./pages/onboarding/CoupleProfileEdit";
-import ConfirmIntent from "./pages/onboarding/ConfirmIntent";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
-
 import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import EventDiscovery from "./pages/admin/EventDiscovery";
@@ -57,29 +51,34 @@ const App = () => (
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/about" element={<About />} />
+              
               {/* Auth & Onboarding */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/invite/:token" element={<Invite />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/saved" element={<Saved />} />
-              {/* Onboarding - all wrapped with OnboardingGuard */}
-              <Route path="/onboarding" element={<OnboardingGuard><PathSelection /></OnboardingGuard>} />
-              <Route path="/onboarding/path-selection" element={<OnboardingGuard><PathSelection /></OnboardingGuard>} />
-              <Route path="/onboarding/create-couple" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
+              
+              {/* Simplified Onboarding - single step */}
               <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
-              <Route path="/onboarding/invite-partner" element={<OnboardingGuard><InvitePartner /></OnboardingGuard>} />
-              <Route path="/onboarding/couple-profile" element={<OnboardingGuard><CoupleProfileEdit /></OnboardingGuard>} />
-              <Route path="/onboarding/confirm" element={<OnboardingGuard><ConfirmIntent /></OnboardingGuard>} />
+              
+              {/* Legacy onboarding redirects */}
+              <Route path="/onboarding" element={<Navigate to="/onboarding/my-profile" replace />} />
+              <Route path="/onboarding/path-selection" element={<Navigate to="/onboarding/my-profile" replace />} />
+              <Route path="/onboarding/create-couple" element={<Navigate to="/onboarding/my-profile" replace />} />
+              <Route path="/onboarding/invite-partner" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/onboarding/couple-profile" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/onboarding/confirm" element={<Navigate to="/dashboard" replace />} />
+              
               {/* Admin Routes */}
               <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
               <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
               <Route path="/admin/interests" element={<RequireRole role="admin"><InterestManagement /></RequireRole>} />
-              
               <Route path="/admin/directory/cities" element={<RequireRole role="admin"><CityManagement /></RequireRole>} />
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
               <Route path="/admin/directory/events/discover" element={<RequireRole role="admin"><EventDiscovery /></RequireRole>} />
               <Route path="/admin/blog" element={<RequireRole role="admin"><BlogManagement /></RequireRole>} />
+              
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

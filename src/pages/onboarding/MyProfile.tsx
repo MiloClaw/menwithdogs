@@ -1,26 +1,38 @@
 import { useState } from 'react';
-import { useCouple } from '@/hooks/useCouple';
+import { useCoupleContext } from '@/contexts/CoupleContext';
 import { useMemberInterests } from '@/hooks/useInterests';
 import { useToast } from '@/hooks/use-toast';
 import OnboardingLayout from '@/components/onboarding/OnboardingLayout';
 import MemberProfileForm, { MemberProfileFormData } from '@/components/onboarding/MemberProfileForm';
 
 /**
- * MyProfile - Step 2 of onboarding
+ * MyProfile - Single onboarding step
  * 
- * This is a "dumb" component - it only renders UI and handles profile updates.
+ * Auto-creates couple on first save, then updates member profile.
  * Navigation is controlled by OnboardingGuard based on state changes.
  */
 const MyProfile = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { memberProfile, updateMemberProfile, refetch } = useCouple();
+  const { 
+    couple, 
+    memberProfile, 
+    createCouple, 
+    updateMemberProfile, 
+    updateCoupleProfile,
+    refetch 
+  } = useCoupleContext();
   const { syncInterests } = useMemberInterests();
   const { toast } = useToast();
 
   const handleSubmit = async (data: MemberProfileFormData) => {
     setIsSubmitting(true);
     try {
-      // Update member profile (without interests - now in join table)
+      // Auto-create couple if doesn't exist
+      if (!couple) {
+        await createCouple();
+      }
+
+      // Update member profile
       await updateMemberProfile({
         first_name: data.first_name,
         city: data.city,
@@ -29,16 +41,23 @@ const MyProfile = () => {
         city_lng: data.city_lng,
         state: data.state,
         is_profile_complete: true,
-        onboarding_step: 'profile_complete', // Explicit state transition
+        onboarding_step: 'profile_complete',
+      });
+      
+      // Set couple to active status immediately
+      await updateCoupleProfile({
+        status: 'active',
+        is_complete: true,
       });
       
       // Sync interests to member_interests join table
       await syncInterests(data.interests);
       
       toast({
-        title: 'Profile saved',
-        description: 'Now invite your partner to join.',
+        title: 'Welcome to MainStreetIRL!',
+        description: 'Your profile is ready.',
       });
+      
       // Refetch to update context state, guard handles navigation
       await refetch();
     } catch (err) {
@@ -54,10 +73,10 @@ const MyProfile = () => {
 
   return (
     <OnboardingLayout
-      currentStep={2}
-      totalSteps={4}
-      title="Your preferences"
-      subtitle="Helps tailor insights and recommendations to you."
+      currentStep={1}
+      totalSteps={1}
+      title="Tell us about yourself"
+      subtitle="We'll use this to find places you'll love."
     >
       <MemberProfileForm
         initialData={{
