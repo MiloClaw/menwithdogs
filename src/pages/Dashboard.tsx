@@ -112,9 +112,9 @@ const Dashboard = () => {
                 <Button 
                   variant="link" 
                   className="p-0 h-auto text-sm"
-                  onClick={() => navigate('/onboarding/my-profile')}
+                  onClick={() => navigate('/preferences')}
                 >
-                  Edit profile
+                  Edit preferences
                 </Button>
               </CardContent>
             </Card>
