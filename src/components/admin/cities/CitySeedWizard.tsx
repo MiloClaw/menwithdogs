@@ -46,6 +46,8 @@ export function CitySeedWizard({
     minRating,
     minReviewCount,
     discoveryPoints,
+    discoveryStats,
+    categoryGroups,
     setSelectedTypes,
     setRadius,
     startDiscovery,
@@ -171,6 +173,8 @@ export function CitySeedWizard({
                   onScanReviews={scanCandidateReviews}
                   onScanAllReviews={scanAllReviews}
                   isScanningReviews={isScanningReviews}
+                  categoryGroups={categoryGroups}
+                  discoveryStats={discoveryStats}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 space-y-4">

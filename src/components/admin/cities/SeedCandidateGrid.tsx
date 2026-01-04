@@ -19,6 +19,15 @@ interface SeedCandidateGridProps {
   onScanReviews?: (placeId: string) => void;
   onScanAllReviews?: (placeIds: string[]) => void;
   isScanningReviews?: boolean;
+  categoryGroups?: string[];
+  discoveryStats?: {
+    totalApiResults: number;
+    afterDedup: number;
+    filteredByQuality: number;
+    duplicatesInDb: number;
+    byDiscoveryPoint: Record<string, number>;
+    byCategory: Record<string, number>;
+  } | null;
 }
 
 export function SeedCandidateGrid({
@@ -31,10 +40,13 @@ export function SeedCandidateGrid({
   onScanReviews,
   onScanAllReviews,
   isScanningReviews = false,
+  categoryGroups = ['All'],
+  discoveryStats,
 }: SeedCandidateGridProps) {
   const [minRating, setMinRating] = useState<number>(0);
   const [hideDuplicates, setHideDuplicates] = useState(true);
   const [showKeywordMatchesOnly, setShowKeywordMatchesOnly] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   const keywordMatchCount = candidates.filter(c => (c.keywordMatches?.length ?? 0) > 0).length;
   const scannedCount = candidates.filter(c => c.reviewsScanned).length;
@@ -44,6 +56,7 @@ export function SeedCandidateGrid({
     if (hideDuplicates && c.isDuplicate) return false;
     if (minRating > 0 && (c.rating || 0) < minRating) return false;
     if (showKeywordMatchesOnly && (!c.keywordMatches || c.keywordMatches.length === 0)) return false;
+    if (selectedCategory !== 'All' && c.categoryGroup !== selectedCategory) return false;
     return true;
   });
 
@@ -59,6 +72,43 @@ export function SeedCandidateGrid({
 
   return (
     <div className="space-y-4">
+      {/* Discovery Stats Summary */}
+      {discoveryStats && (
+        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg space-y-2">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+            Discovery Complete
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div>
+              <span className="text-muted-foreground">API Results:</span>{' '}
+              <span className="font-medium">{discoveryStats.totalApiResults}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">After Dedup:</span>{' '}
+              <span className="font-medium">{discoveryStats.afterDedup}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Quality Filtered:</span>{' '}
+              <span className="font-medium text-amber-600">{discoveryStats.filteredByQuality}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Already in DB:</span>{' '}
+              <span className="font-medium">{discoveryStats.duplicatesInDb}</span>
+            </div>
+          </div>
+          
+          {/* Category breakdown */}
+          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/50">
+            {Object.entries(discoveryStats.byCategory).map(([cat, count]) => (
+              <Badge key={cat} variant="outline" className="text-xs">
+                {cat}: {count}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Review Summary Panel */}
       <div className="p-3 bg-muted/50 rounded-lg space-y-2">
         <div className="flex items-center justify-between">
@@ -110,6 +160,32 @@ export function SeedCandidateGrid({
           </div>
         )}
       </div>
+      
+      {/* Category Filter Tabs */}
+      {categoryGroups.length > 2 && (
+        <div className="flex flex-wrap gap-1.5">
+          {categoryGroups.map((cat) => {
+            const count = cat === 'All' 
+              ? candidates.length 
+              : candidates.filter(c => c.categoryGroup === cat).length;
+            return (
+              <Button
+                key={cat}
+                type="button"
+                size="sm"
+                variant={selectedCategory === cat ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(cat)}
+                className="h-7 text-xs gap-1"
+              >
+                {cat}
+                <Badge variant="secondary" className="ml-1 text-xs h-4 px-1">
+                  {count}
+                </Badge>
+              </Button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Filters and Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-3 bg-muted/30 rounded-lg">
