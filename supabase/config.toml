@@ -1,14 +1,5 @@
 project_id = "pgaduiukijwoenibybvq"
 
-[functions.send-invite]
-verify_jwt = false
-
-[functions.validate-invite]
-verify_jwt = false
-
-[functions.generate-suggestions]
-verify_jwt = false
-
 [functions.google-places-autocomplete]
 verify_jwt = false
 
@@ -22,4 +13,13 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.google-places-nearby]
+verify_jwt = false
+
+[functions.seed-city-places]
+verify_jwt = false
+
+[functions.refresh-places]
+verify_jwt = false
+
+[functions.compute-place-taxonomy]
 verify_jwt = false
