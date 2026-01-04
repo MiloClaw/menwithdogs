@@ -39,8 +39,10 @@ const Dashboard = () => {
       return;
     }
 
+    // No couple yet - redirect to places (behavior-first)
+    // They can explore and the relationship unit will be created lazily
     if (!hasCouple) {
-      navigate('/onboarding/my-profile');
+      navigate('/places');
       return;
     }
   }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);

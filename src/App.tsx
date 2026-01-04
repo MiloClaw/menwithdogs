@@ -57,16 +57,16 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/saved" element={<Saved />} />
               
-              {/* Simplified Onboarding - single step */}
+              {/* Profile editing - optional, not a gate */}
               <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
               
-              {/* Legacy onboarding redirects */}
-              <Route path="/onboarding" element={<Navigate to="/onboarding/my-profile" replace />} />
-              <Route path="/onboarding/path-selection" element={<Navigate to="/onboarding/my-profile" replace />} />
-              <Route path="/onboarding/create-couple" element={<Navigate to="/onboarding/my-profile" replace />} />
-              <Route path="/onboarding/invite-partner" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/onboarding/couple-profile" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/onboarding/confirm" element={<Navigate to="/dashboard" replace />} />
+              {/* Legacy onboarding redirects - all go to /places */}
+              <Route path="/onboarding" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/path-selection" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/create-couple" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/invite-partner" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/couple-profile" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/confirm" element={<Navigate to="/places" replace />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />

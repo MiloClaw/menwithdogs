@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPinOff, Calendar, MapPin, X, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,14 @@ import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/Direc
 import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import EventDetailModal from '@/components/directory/EventDetailModal';
+import CityPickerModal from '@/components/directory/CityPickerModal';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
 import { useUserLocation } from '@/hooks/useUserLocation';
+import { useAuth } from '@/hooks/useAuth';
+import { useCouple } from '@/hooks/useCouple';
+import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
+import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
 
 const RADIUS_OPTIONS = [
@@ -31,6 +36,17 @@ const DATE_FILTER_OPTIONS: { label: string; value: DateFilter }[] = [
 ];
 
 const Places = () => {
+  // Auth & relationship state
+  const { isAuthenticated } = useAuth();
+  const { memberProfile, updateMemberProfile, refetch } = useCouple();
+  const { ensureRelationshipUnit } = useEnsureRelationshipUnit();
+  
+  // City picker modal state
+  const [showCityPicker, setShowCityPicker] = useState(false);
+  const [hasShownCityPicker, setHasShownCityPicker] = useState(() => {
+    return sessionStorage.getItem('city_picker_shown') === 'true';
+  });
+
   // User location (profile first, then browser geolocation fallback)
   const { 
     lat: userLat, 
@@ -55,6 +71,53 @@ const Places = () => {
   const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
   const [selectedEvent, setSelectedEvent] = useState<PublicEvent | null>(null);
   const [eventModalOpen, setEventModalOpen] = useState(false);
+
+  // Show city picker for authenticated users without location (once per session)
+  useEffect(() => {
+    if (isAuthenticated && !hasUserLocation && !hasShownCityPicker && !locationLoading) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        setShowCityPicker(true);
+        setHasShownCityPicker(true);
+        sessionStorage.setItem('city_picker_shown', 'true');
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, hasUserLocation, hasShownCityPicker, locationLoading]);
+
+  // Handle city selection from modal
+  const handleCitySelect = async (details: PlaceDetails) => {
+    if (!isAuthenticated) return;
+
+    // Ensure relationship unit exists (creates silently if needed)
+    const coupleId = await ensureRelationshipUnit();
+    if (!coupleId) {
+      // Fall back to browser location if we can't save to profile
+      requestBrowserLocation();
+      return;
+    }
+
+    // Update member profile with city info
+    try {
+      await updateMemberProfile({
+        city: details.city || details.name,
+        city_place_id: details.place_id,
+        city_lat: details.lat,
+        city_lng: details.lng,
+        state: details.state,
+      });
+      await refetch();
+    } catch (error) {
+      console.error('Failed to save city:', error);
+      // Fall back to browser location
+      requestBrowserLocation();
+    }
+  };
+
+  const handleCityPickerSkip = () => {
+    // Try browser geolocation as fallback
+    requestBrowserLocation();
+  };
 
   // Data fetching
   const { data: places, isLoading: placesLoading } = usePublicPlaces();
@@ -401,6 +464,12 @@ const Places = () => {
         event={selectedEvent}
         open={eventModalOpen}
         onOpenChange={setEventModalOpen}
+      />
+      <CityPickerModal
+        open={showCityPicker}
+        onOpenChange={setShowCityPicker}
+        onCitySelect={handleCitySelect}
+        onSkip={handleCityPickerSkip}
       />
     </PageLayout>
   );

@@ -27,14 +27,14 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already authenticated - check for pending intent first
+  // Redirect if already authenticated - go directly to places
   useEffect(() => {
     if (!loading && isAuthenticated) {
       const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
       if (pendingInviteToken) {
         navigate(`/invite/${pendingInviteToken}`);
       } else {
-        navigate('/onboarding');
+        navigate('/places');
       }
     }
   }, [isAuthenticated, loading, navigate]);
@@ -92,7 +92,7 @@ const Auth = () => {
         if (pendingInviteToken) {
           navigate(`/invite/${pendingInviteToken}`);
         } else {
-          navigate('/onboarding');
+          navigate('/places');
         }
       } else {
         const { error } = await signUp(email, password);
@@ -121,7 +121,7 @@ const Auth = () => {
         if (pendingInviteToken) {
           navigate(`/invite/${pendingInviteToken}`);
         } else {
-          navigate('/onboarding');
+          navigate('/places');
         }
       }
     } finally {
@@ -156,8 +156,8 @@ const Auth = () => {
             </h1>
             <p className="text-muted-foreground">
               {mode === 'signin' 
-                ? 'Sign in to continue to your profile' 
-                : 'Start building your couple profile'}
+                ? 'Sign in to explore places and local insights' 
+                : 'Create an account to explore places and local insights'}
             </p>
           </div>
 
