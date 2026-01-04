@@ -1,9 +1,10 @@
 import { Star, MapPin, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getFirstPhotoUrl, PhotoReference } from '@/lib/google-places-photos';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
+import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import type { Json } from '@/integrations/supabase/types';
 
 export interface DirectoryPlace {
@@ -46,7 +47,12 @@ const getPriceIndicator = (priceLevel: number | null): string => {
 const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
   const photos = getPhotos(place.photos);
-  const photoUrl = getFirstPhotoUrl(photos, 600, 400);
+  const { photoUrls, isLoading: isLoadingPhoto } = usePlacePhotos(photos, { 
+    maxWidth: 600, 
+    maxHeight: 400, 
+    maxPhotos: 1 
+  });
+  const photoUrl = photoUrls[0] || null;
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
   const saved = isFavorited(place.id);
@@ -63,15 +69,13 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
     >
       {/* Photo Section */}
       <div className="aspect-[4/3] relative bg-muted overflow-hidden">
-        {photoUrl ? (
+        {isLoadingPhoto ? (
+          <Skeleton className="w-full h-full" />
+        ) : photoUrl ? (
           <img
             src={photoUrl}
             alt={place.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
