@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Heart, Info, Zap, DollarSign, MapPin, X, Plus } from 'lucide-react';
+import { Heart, Info, Zap, DollarSign, MapPin, X, Plus, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { VENUE_CATEGORY_GROUPS, ANCHOR_VENUE_TYPES, EXTENDED_VENUE_TYPES, FOCUSED_VENUE_TYPES, INTEREST_ALIGNED_TYPES, DiscoveryPoint, KNOWN_NEIGHBORHOODS } from '@/hooks/useCitySeedWizard';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { useGooglePlaces } from '@/hooks/useGooglePlaces';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface SeedCategoryPickerProps {
   selectedTypes: string[];
@@ -113,13 +115,49 @@ export function SeedCategoryPicker({
   const handleQuickAddNeighborhood = async (neighborhoodName: string) => {
     if (!onAddDiscoveryPoint) return;
     
-    // Search for the neighborhood and get coordinates
     setIsAddingNeighborhood(true);
     try {
-      // Create a search query combining neighborhood and city
+      // Search for the neighborhood to get its place_id
       const searchQuery = `${neighborhoodName}, ${cityName}`;
-      // We'll rely on the autocomplete to find it and then user selects
-      setNeighborhoodSearch(searchQuery);
+      
+      const response = await supabase.functions.invoke('google-places-autocomplete', {
+        body: {
+          input: searchQuery,
+          types: '(neighborhoods)',
+          locationBias: cityLat && cityLng 
+            ? { lat: cityLat, lng: cityLng, radius: 50000 }
+            : undefined,
+        },
+      });
+      
+      if (response.error || !response.data?.predictions?.length) {
+        toast.error(`Could not find "${neighborhoodName}"`);
+        return;
+      }
+      
+      const firstPrediction = response.data.predictions[0];
+      
+      // Fetch details to get coordinates
+      const details = await fetchDetails(firstPrediction.place_id);
+      
+      if (!details?.lat || !details?.lng) {
+        toast.error(`Could not get coordinates for "${neighborhoodName}"`);
+        return;
+      }
+      
+      // Add the discovery point
+      onAddDiscoveryPoint({
+        label: neighborhoodName,
+        lat: details.lat,
+        lng: details.lng,
+        placeId: firstPrediction.place_id,
+        isDefault: false,
+      });
+      
+      toast.success(`Added ${neighborhoodName}`);
+    } catch (error) {
+      console.error('Error adding neighborhood:', error);
+      toast.error(`Failed to add "${neighborhoodName}"`);
     } finally {
       setIsAddingNeighborhood(false);
     }
@@ -202,7 +240,11 @@ export function SeedCategoryPicker({
                     onClick={() => handleQuickAddNeighborhood(name)}
                     disabled={isAddingNeighborhood}
                   >
-                    <Plus className="h-3 w-3" />
+                    {isAddingNeighborhood ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Plus className="h-3 w-3" />
+                    )}
                     {name}
                   </Button>
                 ))}
