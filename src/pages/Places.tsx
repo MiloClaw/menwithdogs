@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Search, MapPinOff, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, MapPinOff, Calendar, MapPin, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import PageLayout from '@/components/PageLayout';
@@ -124,21 +126,32 @@ const Places = () => {
   // Check if any filters are active
   const hasActiveFilters = searchTerm || selectedCategory || radiusFilter;
 
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory(null);
+    setRadiusFilter(null);
+  };
+
   return (
     <PageLayout>
-      <div className="container py-8 space-y-6">
+      <div className="container py-8 md:py-12 space-y-8">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Discover Places</h1>
-          <p className="text-muted-foreground">
-            Find great spots and events for your next date
+        <header className="space-y-3 max-w-2xl">
+          <h1 className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-balance">
+            Discover Places
+          </h1>
+          <p className="text-muted-foreground text-lg leading-relaxed">
+            Curated spots for memorable dates in your city
           </p>
-        </div>
+        </header>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'places' | 'events')}>
           <TabsList className="grid w-full max-w-xs grid-cols-2">
-            <TabsTrigger value="places" className="min-h-[44px]">Places</TabsTrigger>
+            <TabsTrigger value="places" className="min-h-[44px]">
+              <MapPin className="h-4 w-4 mr-2" />
+              Places
+            </TabsTrigger>
             <TabsTrigger value="events" className="min-h-[44px]">
               <Calendar className="h-4 w-4 mr-2" />
               Events
@@ -152,22 +165,38 @@ const Places = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={activeTab === 'places' ? 'Search places...' : 'Search events...'}
-              className="pl-9"
+              className="pl-9 pr-9"
             />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Location Notice */}
           {!hasUserLocation && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-3 rounded-lg mt-4">
-              <MapPinOff className="h-4 w-4 flex-shrink-0" />
-              <span>Add your city in your profile to see distance and filter by radius</span>
+            <div className="flex items-center justify-between gap-4 text-sm bg-muted/50 px-4 py-3 rounded-lg mt-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPinOff className="h-4 w-4 flex-shrink-0" />
+                <span>Add your city to see distances</span>
+              </div>
+              <Link 
+                to="/onboarding/my-profile" 
+                className="text-primary font-medium hover:underline whitespace-nowrap"
+              >
+                Add City
+              </Link>
             </div>
           )}
 
           {/* Distance Filter (shared) */}
           {hasUserLocation && (
             <div className="space-y-2 mt-4">
-              <p className="text-sm text-muted-foreground">Distance</p>
+              <p className="text-sm text-muted-foreground font-medium">Distance</p>
               <div className="flex flex-wrap gap-2">
                 {RADIUS_OPTIONS.map(option => (
                   <Badge
@@ -188,7 +217,7 @@ const Places = () => {
             {/* Category Filters */}
             {placeCategories.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Category</p>
+                <p className="text-sm text-muted-foreground font-medium">Category</p>
                 <div className="flex flex-wrap gap-2">
                   <Badge
                     variant={selectedCategory === null ? 'default' : 'outline'}
@@ -213,11 +242,24 @@ const Places = () => {
               </div>
             )}
 
-            {/* Results Count */}
+            {/* Results Count & Clear Filters */}
             {!placesLoading && (
-              <p className="text-sm text-muted-foreground">
-                {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
+                </p>
+                {hasActiveFilters && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={clearAllFilters}
+                    className="text-muted-foreground hover:text-foreground h-auto py-1 px-2"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear filters
+                  </Button>
+                )}
+              </div>
             )}
 
             {/* Places Grid */}
@@ -225,19 +267,34 @@ const Places = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="space-y-3">
-                    <Skeleton className="aspect-[4/3] w-full" />
+                    <Skeleton className="aspect-[4/3] w-full rounded-lg" />
                     <Skeleton className="h-5 w-3/4" />
                     <Skeleton className="h-4 w-1/2" />
                   </div>
                 ))}
               </div>
             ) : processedPlaces.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground">
-                  {hasActiveFilters
-                    ? 'Nothing here yet — try adjusting your filters'
-                    : "We're curating spots for your area. Check back soon."}
-                </p>
+              <div className="text-center py-20 space-y-4">
+                <MapPin className="h-12 w-12 mx-auto text-muted-foreground/30" />
+                <div className="space-y-2">
+                  <p className="font-medium">
+                    {hasActiveFilters ? 'No matches found' : 'Your area is coming soon'}
+                  </p>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    {hasActiveFilters
+                      ? 'Try adjusting your filters to see more results'
+                      : "We're curating the best spots for couples. Add your city to be notified."}
+                  </p>
+                </div>
+                {hasActiveFilters ? (
+                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                    Clear all filters
+                  </Button>
+                ) : !hasUserLocation && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/onboarding/my-profile">Add Your City</Link>
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -256,7 +313,7 @@ const Places = () => {
           <TabsContent value="events" className="space-y-6 mt-6">
             {/* Date Filters */}
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">When</p>
+              <p className="text-sm text-muted-foreground font-medium">When</p>
               <div className="flex flex-wrap gap-2">
                 {DATE_FILTER_OPTIONS.map(option => (
                   <Badge
@@ -288,13 +345,18 @@ const Places = () => {
                 ))}
               </div>
             ) : processedEvents.length === 0 ? (
-              <div className="text-center py-16">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
-                <p className="text-muted-foreground">
-                  {hasActiveFilters
-                    ? 'No events match right now — more are added weekly'
-                    : 'This city is just getting started. New events coming soon.'}
-                </p>
+              <div className="text-center py-20 space-y-4">
+                <Calendar className="h-12 w-12 mx-auto text-muted-foreground/30" />
+                <div className="space-y-2">
+                  <p className="font-medium">
+                    {hasActiveFilters ? 'No events match' : 'Events coming soon'}
+                  </p>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    {hasActiveFilters
+                      ? 'Try a different time range to see more events'
+                      : 'This city is just getting started. New events are added weekly.'}
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
