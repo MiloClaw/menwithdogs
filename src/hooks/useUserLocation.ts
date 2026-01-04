@@ -3,8 +3,9 @@ import { useCouple } from '@/hooks/useCouple';
 
 interface ExplorationCity {
   name: string;
-  lat: number;
-  lng: number;
+  state?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 interface UserLocation {
@@ -28,7 +29,11 @@ interface CachedLocation {
   timestamp: number;
 }
 
-interface CachedExplorationCity extends ExplorationCity {
+interface CachedExplorationCity {
+  name: string;
+  state?: string | null;
+  lat?: number | null;
+  lng?: number | null;
   timestamp: number;
 }
 
@@ -58,7 +63,12 @@ export const useUserLocation = (): UserLocation => {
         const parsed: CachedExplorationCity = JSON.parse(cached);
         // Cache valid for 24 hours
         if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
-          setExplorationCityState({ name: parsed.name, lat: parsed.lat, lng: parsed.lng });
+          setExplorationCityState({ 
+            name: parsed.name, 
+            state: parsed.state,
+            lat: parsed.lat, 
+            lng: parsed.lng 
+          });
         } else {
           sessionStorage.removeItem(EXPLORATION_KEY);
         }
