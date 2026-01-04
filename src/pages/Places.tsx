@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Calendar, MapPin, X } from 'lucide-react';
+import { Search, Calendar, MapPin, MapPinOff, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -173,8 +173,12 @@ const Places = () => {
     setShowCityPicker(true);
   };
 
-  // Data fetching
-  const { data: places, isLoading: placesLoading } = usePublicPlaces();
+  // Data fetching - pass location for city-scoped filtering
+  const { data: places, isLoading: placesLoading } = usePublicPlaces({
+    lat: userLat,
+    lng: userLng,
+    radiusMiles: 100,
+  });
   const { data: events, isLoading: eventsLoading } = useEventsPublic({
     dateFilter,
     radiusFilter,
@@ -472,20 +476,30 @@ const Places = () => {
               </div>
             ) : processedPlaces.length === 0 ? (
               <div className="text-center py-20 space-y-4">
-                <MapPin className="h-12 w-12 mx-auto text-muted-foreground/30" />
+                <MapPinOff className="h-12 w-12 mx-auto text-muted-foreground/30" />
                 <div className="space-y-2">
                   <p className="font-medium">
-                    {hasActiveFilters ? 'No matches found' : 'Your area is coming soon'}
+                    {hasActiveFilters 
+                      ? 'No matches found' 
+                      : locationSource === 'exploration' 
+                        ? `No places in ${explorationCity?.name} yet`
+                        : 'Your area is coming soon'}
                   </p>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                     {hasActiveFilters
                       ? 'Try adjusting your filters to see more results'
-                      : "We're curating the best spots in your area. Add your city to be notified."}
+                      : locationSource === 'exploration'
+                        ? 'Be the first to suggest a spot in this city!'
+                        : "We're curating the best spots in your area. Add your city to be notified."}
                   </p>
                 </div>
                 {hasActiveFilters ? (
                   <Button variant="outline" size="sm" onClick={clearAllFilters}>
                     Clear all filters
+                  </Button>
+                ) : locationSource === 'exploration' ? (
+                  <Button variant="outline" size="sm" onClick={clearExplorationCity}>
+                    ← Back to your location
                   </Button>
                 ) : !hasUserLocation && (
                   <Button 
