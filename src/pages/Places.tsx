@@ -12,15 +12,16 @@ import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import EventDetailModal from '@/components/directory/EventDetailModal';
 import CityPickerModal from '@/components/directory/CityPickerModal';
+import PreferencePrompt from '@/components/preferences/PreferencePrompt';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
+import { usePreferencePrompts } from '@/hooks/usePreferencePrompts';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
-
 const RADIUS_OPTIONS = [
   { label: 'All', value: null },
   { label: '10 mi', value: 10 },
@@ -40,6 +41,15 @@ const Places = () => {
   const { isAuthenticated } = useAuth();
   const { memberProfile, updateMemberProfile, refetch } = useCouple();
   const { ensureRelationshipUnit } = useEnsureRelationshipUnit();
+  
+  // Preference prompts (behavioral onboarding)
+  const {
+    currentPrompt,
+    isPromptOpen,
+    setIsPromptOpen,
+    handleAnswer,
+    handleSkip,
+  } = usePreferencePrompts();
   
   // City picker modal state
   const [showCityPicker, setShowCityPicker] = useState(false);
@@ -264,12 +274,14 @@ const Places = () => {
                     'Use my location'
                   )}
                 </Button>
-                <Link 
-                  to="/onboarding/my-profile" 
-                  className="text-primary font-medium hover:underline whitespace-nowrap text-sm"
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  onClick={() => setShowCityPicker(true)}
+                  className="h-auto py-1.5 px-3"
                 >
                   Add City
-                </Link>
+                </Button>
               </div>
             </div>
           )}
@@ -372,8 +384,12 @@ const Places = () => {
                     Clear all filters
                   </Button>
                 ) : !hasUserLocation && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/onboarding/my-profile">Add Your City</Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowCityPicker(true)}
+                  >
+                    Add Your City
                   </Button>
                 )}
               </div>
@@ -471,6 +487,17 @@ const Places = () => {
         onCitySelect={handleCitySelect}
         onSkip={handleCityPickerSkip}
       />
+      
+      {/* Behavioral Preference Prompt */}
+      {currentPrompt && (
+        <PreferencePrompt
+          prompt={currentPrompt}
+          open={isPromptOpen}
+          onOpenChange={setIsPromptOpen}
+          onAnswer={handleAnswer}
+          onSkip={handleSkip}
+        />
+      )}
     </PageLayout>
   );
 };

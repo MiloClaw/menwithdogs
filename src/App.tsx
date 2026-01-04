@@ -17,6 +17,7 @@ import About from "./pages/About";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
+import Preferences from "./pages/Preferences";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
 import MyProfile from "./pages/onboarding/MyProfile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -57,11 +58,12 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/saved" element={<Saved />} />
               
-              {/* Profile editing - optional, not a gate */}
-              <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
+              {/* Preferences (optional profile editing - not a gate) */}
+              <Route path="/preferences" element={<Preferences />} />
               
-              {/* Legacy onboarding redirects - all go to /places */}
+              {/* Legacy routes - all redirect to /places */}
               <Route path="/onboarding" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/my-profile" element={<Navigate to="/places" replace />} />
               <Route path="/onboarding/path-selection" element={<Navigate to="/places" replace />} />
               <Route path="/onboarding/create-couple" element={<Navigate to="/places" replace />} />
               <Route path="/onboarding/invite-partner" element={<Navigate to="/places" replace />} />

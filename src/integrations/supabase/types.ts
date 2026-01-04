@@ -990,6 +990,45 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          distance_preference: string | null
+          geo_affinity: string | null
+          id: string
+          intent_preferences: Json | null
+          prompts_shown: Json | null
+          time_preference: string | null
+          updated_at: string
+          user_id: string
+          vibe_preference: string | null
+        }
+        Insert: {
+          created_at?: string
+          distance_preference?: string | null
+          geo_affinity?: string | null
+          id?: string
+          intent_preferences?: Json | null
+          prompts_shown?: Json | null
+          time_preference?: string | null
+          updated_at?: string
+          user_id: string
+          vibe_preference?: string | null
+        }
+        Update: {
+          created_at?: string
+          distance_preference?: string | null
+          geo_affinity?: string | null
+          id?: string
+          intent_preferences?: Json | null
+          prompts_shown?: Json | null
+          time_preference?: string | null
+          updated_at?: string
+          user_id?: string
+          vibe_preference?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
