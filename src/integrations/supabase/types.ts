@@ -393,6 +393,50 @@ export type Database = {
           },
         ]
       }
+      google_type_mappings: {
+        Row: {
+          created_at: string | null
+          google_type: string
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          taxonomy_node_id: string
+          updated_at: string | null
+          version: number | null
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          google_type: string
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          taxonomy_node_id: string
+          updated_at?: string | null
+          version?: number | null
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          google_type?: string
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          taxonomy_node_id?: string
+          updated_at?: string | null
+          version?: number | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_type_mappings_taxonomy_node_id_fkey"
+            columns: ["taxonomy_node_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interest_categories: {
         Row: {
           icon: string | null
@@ -545,6 +589,48 @@ export type Database = {
             columns: ["couple_id"]
             isOneToOne: false
             referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      place_taxonomy: {
+        Row: {
+          computed_at: string | null
+          confidence: number | null
+          id: string
+          place_id: string
+          source: string
+          taxonomy_node_id: string
+        }
+        Insert: {
+          computed_at?: string | null
+          confidence?: number | null
+          id?: string
+          place_id: string
+          source: string
+          taxonomy_node_id: string
+        }
+        Update: {
+          computed_at?: string | null
+          confidence?: number | null
+          id?: string
+          place_id?: string
+          source?: string
+          taxonomy_node_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_taxonomy_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_taxonomy_taxonomy_node_id_fkey"
+            columns: ["taxonomy_node_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_nodes"
             referencedColumns: ["id"]
           },
         ]
@@ -706,6 +792,53 @@ export type Database = {
             columns: ["place_id"]
             isOneToOne: false
             referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      taxonomy_nodes: {
+        Row: {
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          kind: string
+          name: string
+          parent_id: string | null
+          slug: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          kind: string
+          name: string
+          parent_id?: string | null
+          slug?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          kind?: string
+          name?: string
+          parent_id?: string | null
+          slug?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taxonomy_nodes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_nodes"
             referencedColumns: ["id"]
           },
         ]
