@@ -1,9 +1,6 @@
 /**
  * Pure routing function for onboarding state machine.
- * No side effects - testable, callable from anywhere.
- * 
- * Member state = what I have done.
- * Couple state = what we are ready for.
+ * Simplified to 3 states: no-couple, profile-pending, done.
  */
 
 export type CoupleStatus = 'onboarding' | 'pending_match' | 'active' | 'paused';
@@ -11,41 +8,26 @@ export type MemberOnboardingStep = 'profile_pending' | 'profile_complete';
 
 interface RouteState {
   hasCouple: boolean;
-  coupleStatus: CoupleStatus | null;
   memberStep: MemberOnboardingStep | null;
-  coupleIsComplete: boolean;
-  coupleIsConfirmed: boolean;
+  // Legacy fields kept for type compatibility but no longer used
+  coupleStatus?: CoupleStatus | null;
+  coupleIsComplete?: boolean;
+  coupleIsConfirmed?: boolean;
 }
 
 export function getRouteForState(state: RouteState): string {
-  const { hasCouple, memberStep, coupleStatus, coupleIsComplete, coupleIsConfirmed } = state;
+  const { hasCouple, memberStep } = state;
 
-  // No relationship unit yet - show path selection
+  // No couple yet = need to complete profile (which will auto-create couple)
   if (!hasCouple) {
-    return '/onboarding/path-selection';
+    return '/onboarding/my-profile';
   }
 
-  // Member profile incomplete
+  // Profile pending = still on MyProfile
   if (memberStep === 'profile_pending') {
     return '/onboarding/my-profile';
   }
 
-  // Member done, but couple still onboarding
-  if (coupleStatus === 'onboarding') {
-    // If partner hasn't joined yet, show invite
-    if (!coupleIsComplete) {
-      return '/onboarding/invite-partner';
-    }
-    // Both joined but not confirmed - show confirmation
-    if (!coupleIsConfirmed) {
-      return '/onboarding/confirm';
-    }
-    // Both confirmed, complete couple profile
-    return '/onboarding/couple-profile';
-  }
-
-  // pending_match status routes to dashboard (holding page removed)
-
-  // Active or paused = dashboard
+  // All done = dashboard
   return '/dashboard';
 }

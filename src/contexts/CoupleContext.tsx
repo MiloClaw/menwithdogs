@@ -271,16 +271,13 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     await fetchCoupleData();
   }, [fetchCoupleData]);
 
-  // Compute next route using pure routing function
+  // Compute next route using simplified routing function
   // Admin users without a couple bypass onboarding and go to /admin
   const nextRoute = isAdmin && !couple
     ? '/admin'
     : getRouteForState({
         hasCouple: !!couple,
-        coupleStatus: couple?.status ?? null,
         memberStep: memberProfile?.onboarding_step ?? null,
-        coupleIsComplete: couple?.is_complete ?? false,
-        coupleIsConfirmed: !!couple?.confirmed_at,
       });
 
   console.debug('[CoupleContext] Computed nextRoute:', nextRoute, { loading, hasCouple: !!couple, isAdmin });
