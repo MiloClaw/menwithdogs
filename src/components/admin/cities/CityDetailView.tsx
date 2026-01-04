@@ -180,7 +180,7 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button 
-                disabled={!city.is_ready_to_launch || launchCity.isPending}
+                disabled={launchCity.isPending}
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Rocket className="h-4 w-4 mr-2" />
@@ -190,20 +190,30 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Launch {city.name}?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will make {city.name} visible to users. The city has {city.approved_place_count} approved places.
-                  {city.pending_place_count > 0 && (
-                    <span className="block mt-2 text-orange-600">
-                      <AlertCircle className="inline h-4 w-4 mr-1" />
-                      {city.pending_place_count} places are still pending review.
-                    </span>
-                  )}
+                <AlertDialogDescription asChild>
+                  <div>
+                    <p>This will make {city.name} visible to users.</p>
+                    
+                    {!city.is_ready_to_launch && (
+                      <p className="mt-2 text-amber-600">
+                        <AlertCircle className="inline h-4 w-4 mr-1" />
+                        Only {city.approved_place_count} of {city.target_place_count} target places approved ({city.completion_percentage}% complete).
+                      </p>
+                    )}
+                    
+                    {city.pending_place_count > 0 && (
+                      <p className="mt-2 text-orange-600">
+                        <AlertCircle className="inline h-4 w-4 mr-1" />
+                        {city.pending_place_count} places are still pending review.
+                      </p>
+                    )}
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleLaunch} className="bg-green-600 hover:bg-green-700">
-                  Launch
+                  {city.is_ready_to_launch ? 'Launch' : 'Launch Anyway'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
