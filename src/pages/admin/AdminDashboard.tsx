@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const statCards = [
     {
       label: 'Active Couples',
-      value: stats?.couples.discoverable ?? 0,
+      value: stats?.couples.active ?? 0,
       subtext: `of ${stats?.couples.total ?? 0} total`,
       icon: Users,
     },

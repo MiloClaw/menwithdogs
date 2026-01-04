@@ -56,8 +56,8 @@ const MyProfile = () => {
     <OnboardingLayout
       currentStep={2}
       totalSteps={4}
-      title="About you"
-      subtitle="Only your partner will see this. You can update it anytime."
+      title="Your preferences"
+      subtitle="Helps tailor insights and recommendations to you."
     >
       <MemberProfileForm
         initialData={{

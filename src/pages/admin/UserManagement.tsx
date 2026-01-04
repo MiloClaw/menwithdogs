@@ -40,7 +40,6 @@ interface Couple {
   id: string;
   display_name: string | null;
   is_complete: boolean;
-  is_discoverable: boolean;
 }
 
 interface EnrichedUser {
@@ -78,7 +77,7 @@ const UserManagement = () => {
           .select('user_id, role'),
         supabase
           .from('couples')
-          .select('id, display_name, is_complete, is_discoverable'),
+          .select('id, display_name, is_complete'),
       ]);
 
       if (profilesRes.data) setProfiles(profilesRes.data);
@@ -148,7 +147,7 @@ const UserManagement = () => {
       totalUsers: enrichedUsers.length,
       completeProfiles: enrichedUsers.filter((u) => u.is_profile_complete).length,
       couplesCreated: couples.length,
-      discoverableCouples: couples.filter((c) => c.is_discoverable && c.is_complete).length,
+      activeCouples: couples.filter((c) => c.is_complete).length,
     };
   }, [enrichedUsers, couples]);
 
@@ -197,10 +196,10 @@ const UserManagement = () => {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Discoverable</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.discoverableCouples}</div>
+              <div className="text-2xl font-bold">{stats.activeCouples}</div>
             </CardContent>
           </Card>
         </div>
@@ -306,9 +305,9 @@ const UserManagement = () => {
                           {user.couple ? (
                             <span className="text-sm">
                               {user.couple.display_name || 'Unnamed couple'}
-                              {user.couple.is_discoverable && (
+                              {user.couple.is_complete && (
                                 <Badge variant="outline" className="ml-2 text-xs">
-                                  Live
+                                  Complete
                                 </Badge>
                               )}
                             </span>

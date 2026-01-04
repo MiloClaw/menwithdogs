@@ -21,7 +21,6 @@ import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
 import PresenceControl from './PresenceControl';
-import CoupleTileGrid from './CoupleTileGrid';
 import { usePlacePresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
@@ -328,13 +327,6 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
             </>
           )}
 
-          {/* Couple Tiles */}
-          {FEATURE_FLAGS.PRESENCE_ENABLED && (
-            <>
-              <Separator />
-              <CoupleTileGrid placeId={place.id} />
-            </>
-          )}
 
           {/* Action Buttons - Sticky on mobile */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">

@@ -72,7 +72,7 @@ const PathSelection = () => {
       </div>
 
       <p className="text-xs text-muted-foreground text-center mt-8 max-w-xs mx-auto">
-        This choice determines how you'll appear in the community. You can always adjust your preferences later.
+        This helps tailor insights and recommendations. It does not affect how you engage in real life.
       </p>
     </OnboardingLayout>
   );

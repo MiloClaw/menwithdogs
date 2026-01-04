@@ -13,7 +13,7 @@ const Footer = () => {
               MainStreetIRL
             </span>
             <p className="text-sm text-primary-foreground/70 mt-2">
-              Discover your city. Meet your people.
+              Find your community.
             </p>
           </div>
           
@@ -64,7 +64,10 @@ const Footer = () => {
         </div>
         
         {/* Bottom */}
-        <div className="pt-10 border-t border-primary-foreground/20">
+        <div className="pt-10 border-t border-primary-foreground/20 space-y-3">
+          <p className="text-xs text-primary-foreground/60 text-center max-w-lg mx-auto">
+            MainStreetIRL provides place-based insights and community signals. Users choose how and where they engage independently.
+          </p>
           <p className="text-sm text-primary-foreground/70 text-center">
             © {new Date().getFullYear()} MainStreetIRL. All rights reserved.
           </p>

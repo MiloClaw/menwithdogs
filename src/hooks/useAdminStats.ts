@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface AdminStats {
   couples: {
     total: number;
-    discoverable: number;
+    active: number;
   };
   places: {
     approved: number;
@@ -31,7 +31,7 @@ export const useAdminStats = () => {
     queryFn: async (): Promise<AdminStats> => {
       const [
         couplesResult,
-        discoverableCouplesResult,
+        activeCouplesResult,
         approvedPlacesResult,
         pendingPlacesResult,
         approvedEventsResult,
@@ -41,7 +41,7 @@ export const useAdminStats = () => {
         citiesResult,
       ] = await Promise.all([
         supabase.from('couples').select('id', { count: 'exact', head: true }),
-        supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_discoverable', true).eq('is_complete', true),
+        supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_complete', true),
         supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
         supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
@@ -64,7 +64,7 @@ export const useAdminStats = () => {
       return {
         couples: {
           total: couplesResult.count ?? 0,
-          discoverable: discoverableCouplesResult.count ?? 0,
+          active: activeCouplesResult.count ?? 0,
         },
         places: {
           approved: approvedPlacesResult.count ?? 0,

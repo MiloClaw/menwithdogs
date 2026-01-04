@@ -16,7 +16,6 @@ interface Couple {
   partner_first_name: string | null;
   profile_photo_url: string | null;
   is_complete: boolean;
-  is_discoverable: boolean;
   status: CoupleStatus;
   type: UnitType;
   subscription_status: SubscriptionStatus;

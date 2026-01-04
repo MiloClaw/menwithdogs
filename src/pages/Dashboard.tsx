@@ -7,8 +7,7 @@ import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { DiscoveryToggle } from '@/components/discovery/DiscoveryToggle';
-import { Compass, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const Dashboard = () => {
   const { isAuthenticated, loading: authLoading, signOut, user } = useAuth();
@@ -61,13 +60,7 @@ const Dashboard = () => {
       navigate('/onboarding/create-couple');
       return;
     }
-
-    // If couple is pending_match, redirect to holding state
-    if (couple?.status === 'pending_match') {
-      navigate('/pending-match');
-      return;
-    }
-  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, couple, navigate]);
+  }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
 
   const handleSavePartnerName = async () => {
     if (!partnerName.trim()) return;
@@ -109,13 +102,12 @@ const Dashboard = () => {
                 {couple?.display_name || 'Your Dashboard'}
               </h1>
               <p className="text-muted-foreground mt-1">
-                {isCoupleComplete ? 'Your couple profile is ready' : 'Waiting for your partner to join'}
+                {isCoupleComplete ? 'Your preferences are set' : 'Waiting for your partner to join'}
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/discover')}>
-                <Compass className="h-4 w-4 mr-1" />
-                Discover
+              <Button variant="outline" size="sm" onClick={() => navigate('/places')}>
+                Explore Places
               </Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 Sign out
@@ -259,30 +251,11 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Discovery toggle */}
-            {couple && isCoupleComplete && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-medium">Discovery</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {!couple.is_discoverable && (
-                    <p className="text-sm text-muted-foreground">
-                      When you're ready, we'll surface couples and places based on shared interests — no browsing, no pressure.
-                    </p>
-                  )}
-                  <DiscoveryToggle 
-                    coupleId={couple.id} 
-                    initialValue={(couple as any).is_discoverable ?? false}
-                  />
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Privacy note */}
           <p className="text-xs text-center text-muted-foreground">
-            Your individual profiles are always private. Only your couple profile can be discoverable.
+            Your individual profiles are always private. Your preferences help tailor the places and content we recommend.
           </p>
         </div>
       </div>

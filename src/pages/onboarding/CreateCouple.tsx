@@ -55,8 +55,8 @@ const CreateCouple = () => {
     <OnboardingLayout
       currentStep={1}
       totalSteps={4}
-      title="Start your couple"
-      subtitle="You'll each fill out a short profile, then build your shared couple page together."
+      title="Set up your preferences"
+      subtitle="This helps tailor the places and insights you see."
     >
       <div className="space-y-8">
         {/* Partner name (optional) */}
@@ -82,19 +82,19 @@ const CreateCouple = () => {
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
               <span className="text-primary font-medium">1.</span>
-              <span>You fill out a short profile about yourself</span>
+              <span>Fill out your preferences to personalize your experience</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary font-medium">2.</span>
-              <span>Invite your partner to do the same</span>
+              <span>Invite your partner to share insights and saved places</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary font-medium">3.</span>
-              <span>Together, build your shared couple profile</span>
+              <span>Explore places, events, and community signals together</span>
             </li>
           </ul>
           <p className="text-xs text-muted-foreground pt-2 border-t border-border">
-            Nothing is visible to others until you both confirm.
+            Your preferences are private and used only for personalization.
           </p>
         </div>
 
