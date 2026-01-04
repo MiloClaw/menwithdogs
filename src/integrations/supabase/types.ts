@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_place_metadata: {
+        Row: {
+          created_at: string | null
+          id: string
+          internal_tags: string[] | null
+          lgbtq_confidence: number | null
+          notes: string | null
+          place_id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          internal_tags?: string[] | null
+          lgbtq_confidence?: number | null
+          notes?: string | null
+          place_id: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          internal_tags?: string[] | null
+          lgbtq_confidence?: number | null
+          notes?: string | null
+          place_id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_place_metadata_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: true
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author: string
@@ -512,15 +553,20 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          business_status: string | null
           city: string | null
           country: string | null
           created_at: string
+          fetch_version: number | null
           formatted_address: string | null
           google_maps_url: string | null
           google_place_id: string
           google_primary_type: string | null
           google_primary_type_display: string | null
+          google_types: string[] | null
           id: string
+          is_active: boolean | null
+          last_fetched_at: string | null
           lat: number | null
           lng: number | null
           name: string
@@ -537,6 +583,7 @@ export type Database = {
           submitted_by: string | null
           updated_at: string
           user_ratings_total: number | null
+          utc_offset_minutes: number | null
           vibe_conversation: boolean | null
           vibe_daytime: boolean | null
           vibe_energy: number | null
@@ -547,15 +594,20 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          business_status?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
+          fetch_version?: number | null
           formatted_address?: string | null
           google_maps_url?: string | null
           google_place_id: string
           google_primary_type?: string | null
           google_primary_type_display?: string | null
+          google_types?: string[] | null
           id?: string
+          is_active?: boolean | null
+          last_fetched_at?: string | null
           lat?: number | null
           lng?: number | null
           name: string
@@ -572,6 +624,7 @@ export type Database = {
           submitted_by?: string | null
           updated_at?: string
           user_ratings_total?: number | null
+          utc_offset_minutes?: number | null
           vibe_conversation?: boolean | null
           vibe_daytime?: boolean | null
           vibe_energy?: number | null
@@ -582,15 +635,20 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          business_status?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
+          fetch_version?: number | null
           formatted_address?: string | null
           google_maps_url?: string | null
           google_place_id?: string
           google_primary_type?: string | null
           google_primary_type_display?: string | null
+          google_types?: string[] | null
           id?: string
+          is_active?: boolean | null
+          last_fetched_at?: string | null
           lat?: number | null
           lng?: number | null
           name?: string
@@ -607,6 +665,7 @@ export type Database = {
           submitted_by?: string | null
           updated_at?: string
           user_ratings_total?: number | null
+          utc_offset_minutes?: number | null
           vibe_conversation?: boolean | null
           vibe_daytime?: boolean | null
           vibe_energy?: number | null
@@ -615,6 +674,41 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      places_google_snapshots: {
+        Row: {
+          created_at: string | null
+          fetched_at: string
+          id: string
+          place_id: string
+          raw_response: Json
+          source: string
+        }
+        Insert: {
+          created_at?: string | null
+          fetched_at?: string
+          id?: string
+          place_id: string
+          raw_response: Json
+          source?: string
+        }
+        Update: {
+          created_at?: string | null
+          fetched_at?: string
+          id?: string
+          place_id?: string
+          raw_response?: Json
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "places_google_snapshots_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
