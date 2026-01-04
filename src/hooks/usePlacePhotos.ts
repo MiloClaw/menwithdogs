@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface PhotoReference {
@@ -25,6 +25,12 @@ export const usePlacePhotos = (
   
   const [loadedPhotos, setLoadedPhotos] = useState<(string | null)[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Stabilize photos reference to prevent infinite loops
+  const photosKey = useMemo(
+    () => photos?.map(p => p.name).join(',') ?? '',
+    [photos]
+  );
 
   const loadPhotos = useCallback(async () => {
     if (!photos || photos.length === 0) {
@@ -58,7 +64,8 @@ export const usePlacePhotos = (
 
     setLoadedPhotos(results);
     setIsLoading(false);
-  }, [photos, maxWidth, maxHeight, maxPhotos]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photosKey, maxWidth, maxHeight, maxPhotos]);
 
   useEffect(() => {
     loadPhotos();
