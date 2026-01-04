@@ -87,7 +87,7 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
         {/* Category Badge */}
         <Badge 
           variant="secondary" 
-          className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm text-xs"
+          className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm text-xs text-foreground"
         >
           {place.primary_category}
         </Badge>
