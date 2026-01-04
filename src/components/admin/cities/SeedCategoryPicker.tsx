@@ -26,6 +26,8 @@ interface SeedCategoryPickerProps {
   onAddDiscoveryPoint?: (point: Omit<DiscoveryPoint, 'id'>) => void;
   onRemoveDiscoveryPoint?: (id: string) => void;
   cityName?: string;
+  cityLat?: number;
+  cityLng?: number;
 }
 
 export function SeedCategoryPicker({
@@ -43,6 +45,8 @@ export function SeedCategoryPicker({
   onAddDiscoveryPoint,
   onRemoveDiscoveryPoint,
   cityName = '',
+  cityLat,
+  cityLng,
 }: SeedCategoryPickerProps) {
   const { fetchDetails } = useGooglePlaces();
   const [neighborhoodSearch, setNeighborhoodSearch] = useState('');
@@ -217,6 +221,7 @@ export function SeedCategoryPicker({
               types="(neighborhoods)"
               className="text-sm"
               disabled={isAddingNeighborhood}
+              locationBias={cityLat && cityLng ? { lat: cityLat, lng: cityLng, radius: 50000 } : undefined}
             />
           </div>
         </div>

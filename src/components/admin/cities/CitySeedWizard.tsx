@@ -141,6 +141,8 @@ export function CitySeedWizard({
               onAddDiscoveryPoint={addDiscoveryPoint}
               onRemoveDiscoveryPoint={removeDiscoveryPoint}
               cityName={cityName}
+              cityLat={lat}
+              cityLng={lng}
             />
           )}
 
