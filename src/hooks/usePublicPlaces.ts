@@ -13,6 +13,7 @@ export const usePublicPlaces = () => {
         .from('places')
         .select(`
           id,
+          google_place_id,
           name,
           primary_category,
           city,

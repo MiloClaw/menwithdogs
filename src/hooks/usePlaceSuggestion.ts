@@ -1,0 +1,116 @@
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import type { PlaceDetails } from '@/hooks/useGooglePlaces';
+
+export const usePlaceSuggestion = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  /**
+   * Check if a place already exists in our database by google_place_id
+   */
+  const checkExisting = async (googlePlaceId: string): Promise<boolean> => {
+    const { data, error } = await supabase
+      .from('places')
+      .select('id')
+      .eq('google_place_id', googlePlaceId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking existing place:', error);
+      return false;
+    }
+
+    return data !== null;
+  };
+
+  /**
+   * Submit a place suggestion from Google Places details
+   */
+  const submitSuggestion = async (details: PlaceDetails): Promise<boolean> => {
+    setIsSubmitting(true);
+
+    try {
+      // Get current user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        toast({
+          title: 'Please sign in',
+          description: 'You need to be signed in to suggest places.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      // Check if place already exists
+      const exists = await checkExisting(details.place_id);
+      if (exists) {
+        toast({
+          title: 'Already in directory',
+          description: 'This place is already in our directory or pending review.',
+        });
+        return false;
+      }
+
+      // Prepare the insert data
+      const insertData = {
+        google_place_id: details.place_id,
+        name: details.name,
+        primary_category: details.google_primary_type_display || 'Uncategorized',
+        city: details.city || null,
+        state: details.state || null,
+        country: details.country || null,
+        lat: details.lat || null,
+        lng: details.lng || null,
+        source: 'user_submitted' as const,
+        status: 'pending' as const,
+        submitted_by: user.id,
+        // GBP enrichment fields
+        rating: details.rating || null,
+        user_ratings_total: details.user_ratings_total || null,
+        formatted_address: details.formatted_address || null,
+        website_url: details.website_url || null,
+        phone_number: details.phone_number || null,
+        google_maps_url: details.google_maps_url || null,
+        opening_hours: details.opening_hours || null,
+        google_primary_type: details.google_primary_type || null,
+        google_primary_type_display: details.google_primary_type_display || null,
+      };
+
+      const { error } = await supabase.from('places').insert(insertData);
+
+      if (error) {
+        console.error('Error submitting place suggestion:', error);
+        toast({
+          title: 'Submission failed',
+          description: 'There was an error submitting your suggestion. Please try again.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      toast({
+        title: 'Thanks for your suggestion!',
+        description: 'Our team will review it shortly.',
+      });
+      return true;
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      toast({
+        title: 'Something went wrong',
+        description: 'Please try again later.',
+        variant: 'destructive',
+      });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return {
+    submitSuggestion,
+    checkExisting,
+    isSubmitting,
+  };
+};
