@@ -51,13 +51,14 @@ const Hero = () => {
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-6 pb-12 md:pb-16">
           <h1
-            className={`font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-primary leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}
+            className={`font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-primary leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}
           >
-            Discover your neighborhood.<br />
-            Find your people.
+            Real Community.<br />
+            Real Places.<br />
+            Real Life — Again.
           </h1>
-          <p className="text-lg md:text-xl text-foreground/90 font-medium drop-shadow-sm max-w-md">
-            Real places. Real connection. Real life.
+          <p className="text-base md:text-lg text-foreground/90 font-medium drop-shadow-sm max-w-lg leading-relaxed">
+            A private platform for gay men—single or coupled—who want platonic, real-world connection, not endless scrolling, ghosting, or performative profiles.
           </p>
         </div>
       </div>
@@ -78,8 +79,11 @@ const Hero = () => {
 
       {/* Tagline */}
       <div className="text-center py-10 bg-background border-t border-border">
-        <p className="font-serif text-lg md:text-xl text-muted-foreground italic font-medium">
-          No swiping. No pressure. No performance.
+        <p className="font-serif text-lg md:text-xl text-foreground font-medium">
+          This is not a dating app.
+        </p>
+        <p className="text-base text-muted-foreground mt-2">
+          It's a community layer for real life.
         </p>
         <button
           onClick={scrollToHowItWorks}
