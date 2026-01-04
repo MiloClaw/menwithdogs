@@ -13,6 +13,7 @@ interface GooglePlacesAutocompleteProps {
   types?: string; // "(cities)" for cities, "establishment" for venues
   className?: string;
   disabled?: boolean;
+  locationBias?: { lat: number; lng: number; radius?: number };
 }
 
 const GooglePlacesAutocomplete = ({
@@ -23,6 +24,7 @@ const GooglePlacesAutocomplete = ({
   types = '(cities)',
   className,
   disabled = false,
+  locationBias,
 }: GooglePlacesAutocompleteProps) => {
   const [inputValue, setInputValue] = useState(value);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -112,14 +114,14 @@ const GooglePlacesAutocomplete = ({
     // Start showing predictions after just 1 character
     if (newValue.length >= 1) {
       debounceRef.current = setTimeout(() => {
-        fetchAutocomplete(newValue, types);
+        fetchAutocomplete(newValue, types, locationBias);
         setShowDropdown(true);
       }, 200);
     } else {
       clearPredictions();
       setShowDropdown(false);
     }
-  }, [onChange, fetchAutocomplete, clearPredictions, types]);
+  }, [onChange, fetchAutocomplete, clearPredictions, types, locationBias]);
 
   const handleSelectPrediction = useCallback(async (prediction: PlacePrediction) => {
     const displayValue = prediction.structured_formatting?.main_text || prediction.description;
@@ -168,10 +170,10 @@ const GooglePlacesAutocomplete = ({
       setShowDropdown(true);
     } else if (inputValue.length >= 1) {
       // Re-fetch if user focuses back on input with content
-      fetchAutocomplete(inputValue, types);
+      fetchAutocomplete(inputValue, types, locationBias);
       setShowDropdown(true);
     }
-  }, [predictions.length, inputValue, fetchAutocomplete, types]);
+  }, [predictions.length, inputValue, fetchAutocomplete, types, locationBias]);
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
