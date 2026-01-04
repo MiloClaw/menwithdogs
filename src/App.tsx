@@ -10,7 +10,6 @@ import NotFound from "./pages/NotFound";
 import Places from "./pages/Places";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
-import CoupleProfile from "./pages/CoupleProfile";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
@@ -31,7 +30,7 @@ import ConfirmIntent from "./pages/onboarding/ConfirmIntent";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
-import DirectoryManagement from "./pages/admin/DirectoryManagement";
+
 import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import EventDiscovery from "./pages/admin/EventDiscovery";
@@ -55,7 +54,7 @@ const App = () => (
               <Route path="/directory" element={<Navigate to="/places" replace />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/profile/:id" element={<CoupleProfile />} />
+              
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/pricing" element={<Pricing />} />
@@ -79,7 +78,7 @@ const App = () => (
               <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
               <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
               <Route path="/admin/interests" element={<RequireRole role="admin"><InterestManagement /></RequireRole>} />
-              <Route path="/admin/directory" element={<RequireRole role="admin"><DirectoryManagement /></RequireRole>} />
+              
               <Route path="/admin/directory/cities" element={<RequireRole role="admin"><CityManagement /></RequireRole>} />
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
