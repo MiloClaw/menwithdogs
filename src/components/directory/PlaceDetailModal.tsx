@@ -20,6 +20,7 @@ import {
 import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
+import PlaceUpcomingEvents from '@/components/directory/PlaceUpcomingEvents';
 import type { Json } from '@/integrations/supabase/types';
 
 export interface PlaceDetail {
@@ -305,6 +306,9 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
               </Collapsible>
             </>
           )}
+
+          {/* Upcoming Events at this Place */}
+          <PlaceUpcomingEvents placeId={place.id} placeName={place.name} />
 
           {/* Action Buttons - Sticky on mobile */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">

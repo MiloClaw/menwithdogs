@@ -55,54 +55,6 @@ export type Database = {
           },
         ]
       }
-      blog_posts: {
-        Row: {
-          author: string
-          category: string
-          content: string
-          created_at: string
-          excerpt: string | null
-          hero_image_url: string | null
-          id: string
-          is_featured: boolean
-          published_at: string
-          reading_time: number
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author?: string
-          category: string
-          content: string
-          created_at?: string
-          excerpt?: string | null
-          hero_image_url?: string | null
-          id?: string
-          is_featured?: boolean
-          published_at?: string
-          reading_time?: number
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author?: string
-          category?: string
-          content?: string
-          created_at?: string
-          excerpt?: string | null
-          hero_image_url?: string | null
-          id?: string
-          is_featured?: boolean
-          published_at?: string
-          reading_time?: number
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       cities: {
         Row: {
           country: string
@@ -984,6 +936,73 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "places_google_snapshots_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          body: string | null
+          city_id: string
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          id: string
+          place_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          city_id: string
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          place_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          city_id?: string
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          place_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city_seeding_progress"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
             referencedRelation: "places"

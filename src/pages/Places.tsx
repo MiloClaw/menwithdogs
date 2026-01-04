@@ -15,6 +15,7 @@ import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
 import { CitySuggestionModal } from '@/components/directory/CitySuggestionModal';
 import PreferencePrompt from '@/components/preferences/PreferencePrompt';
 import LocationContextBanner from '@/components/directory/LocationContextBanner';
+import WhatsHappening from '@/components/directory/WhatsHappening';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
@@ -406,6 +407,16 @@ const Places = () => {
                   </Badge>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* What's Happening Section - City-scoped posts */}
+          {(isExplorationMode || memberProfile?.city) && (
+            <div className="mt-6">
+              <WhatsHappening 
+                cityName={isExplorationMode ? exploringCity : memberProfile?.city || null}
+                state={isExplorationMode ? exploringState : memberProfile?.state || null}
+              />
             </div>
           )}
 

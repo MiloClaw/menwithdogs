@@ -26,9 +26,6 @@ const Footer = () => {
               <Link to="/places" className={linkClasses}>
                 Places
               </Link>
-              <Link to="/blog" className={linkClasses}>
-                Blog
-              </Link>
             </nav>
           </div>
           

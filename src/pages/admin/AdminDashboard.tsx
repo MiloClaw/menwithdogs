@@ -84,9 +84,9 @@ const AdminDashboard = () => {
       icon: Tags,
     },
     {
-      title: 'Manage Blog',
-      description: 'Create and edit blog posts',
-      href: '/admin/blog',
+      title: 'Manage Posts',
+      description: 'City announcements and events',
+      href: '/admin/posts',
       icon: FileText,
     },
   ];
