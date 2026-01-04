@@ -45,9 +45,6 @@ const Navbar = () => {
                   Admin
                 </Link>
               )}
-              <Link to="/dashboard" className={navLinkClasses}>
-                Dashboard
-              </Link>
               <Link to="/preferences" className={navLinkClasses}>
                 Preferences
               </Link>
@@ -108,14 +105,7 @@ const Navbar = () => {
                   </Link>
                 )}
                 <Link 
-                  to="/dashboard" 
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  to="/preferences" 
+                  to="/preferences"
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
