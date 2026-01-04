@@ -22,6 +22,7 @@ import Saved from "./pages/Saved";
 import DiscoverCoupleView from "./pages/DiscoverCoupleView";
 import PendingMatch from "./pages/PendingMatch";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
+import PathSelection from "./pages/onboarding/PathSelection";
 import CreateCouple from "./pages/onboarding/CreateCouple";
 import MyProfile from "./pages/onboarding/MyProfile";
 import InvitePartner from "./pages/onboarding/InvitePartner";
@@ -68,7 +69,8 @@ const App = () => (
               <Route path="/saved" element={<Saved />} />
               <Route path="/pending-match" element={<PendingMatch />} />
               {/* Onboarding - all wrapped with OnboardingGuard */}
-              <Route path="/onboarding" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
+              <Route path="/onboarding" element={<OnboardingGuard><PathSelection /></OnboardingGuard>} />
+              <Route path="/onboarding/path-selection" element={<OnboardingGuard><PathSelection /></OnboardingGuard>} />
               <Route path="/onboarding/create-couple" element={<OnboardingGuard><CreateCouple /></OnboardingGuard>} />
               <Route path="/onboarding/my-profile" element={<OnboardingGuard><MyProfile /></OnboardingGuard>} />
               <Route path="/onboarding/invite-partner" element={<OnboardingGuard><InvitePartner /></OnboardingGuard>} />

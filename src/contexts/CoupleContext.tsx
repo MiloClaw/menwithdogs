@@ -4,6 +4,10 @@ import { useAuthContext } from './AuthContext';
 import { getRouteForState, CoupleStatus, MemberOnboardingStep } from '@/lib/routing/getRouteForState';
 import { useUserRole } from '@/hooks/useUserRole';
 
+// Conceptually a "relationship_unit" - named Couple for backward compatibility
+type UnitType = 'couple' | 'individual';
+type SubscriptionStatus = 'free' | 'trial' | 'active' | 'cancelled' | 'paused';
+
 interface Couple {
   id: string;
   display_name: string | null;
@@ -14,6 +18,8 @@ interface Couple {
   is_complete: boolean;
   is_discoverable: boolean;
   status: CoupleStatus;
+  type: UnitType;
+  subscription_status: SubscriptionStatus;
   confirmed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -61,7 +67,9 @@ interface CoupleContextValue {
   isOwner: boolean;
   isCoupleComplete: boolean;
   isProfileComplete: boolean;
-  createCouple: (partnerFirstName?: string) => Promise<void>;
+  unitType: UnitType;
+  isIndividual: boolean;
+  createCouple: (partnerFirstName?: string, unitType?: UnitType) => Promise<void>;
   updateMemberProfile: (updates: Partial<MemberProfile>) => Promise<MemberProfile>;
   updateCoupleProfile: (updates: Partial<Couple>) => Promise<Couple>;
   refetch: () => Promise<void>;
@@ -278,6 +286,9 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
 
   console.debug('[CoupleContext] Computed nextRoute:', nextRoute, { loading, hasCouple: !!couple, isAdmin });
 
+  const unitType: UnitType = couple?.type ?? 'couple';
+  const isIndividual = unitType === 'individual';
+
   const value: CoupleContextValue = {
     couple,
     memberProfile,
@@ -290,6 +301,8 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     isOwner: memberProfile?.is_owner ?? false,
     isCoupleComplete: couple?.is_complete ?? false,
     isProfileComplete: memberProfile?.is_profile_complete ?? false,
+    unitType,
+    isIndividual,
     createCouple,
     updateMemberProfile,
     updateCoupleProfile,

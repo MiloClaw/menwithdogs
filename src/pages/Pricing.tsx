@@ -19,7 +19,7 @@ const pricingTiers = [
   {
     name: "Premium",
     price: "$9/month",
-    description: "Enhanced features for active couples",
+    description: "Enhanced features for active members",
     features: [
       "Everything in Free",
       "Personalized recommendations",
@@ -47,11 +47,11 @@ const pricingTiers = [
 const Pricing = () => {
   return (
     <PageLayout>
-      <PageHeader 
-        title="Simple, Transparent Pricing" 
-        subtitle="Coming Soon" 
+      <PageHeader
+        title="Simple, Transparent Pricing"
+        subtitle="Coming Soon"
       />
-      
+
       <div className="container py-8 md:py-12 lg:py-16">
         {/* Pricing Tiers */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
@@ -71,40 +71,50 @@ const Pricing = () => {
                   </span>
                 </div>
               )}
-              
+
               <div className="mb-6">
-                <h3 className={`font-serif text-xl md:text-2xl font-semibold mb-2 ${
-                  tier.highlighted ? "text-primary-foreground" : "text-foreground"
-                }`}>
+                <h3
+                  className={`font-serif text-xl md:text-2xl font-semibold mb-2 ${
+                    tier.highlighted ? "text-primary-foreground" : "text-foreground"
+                  }`}
+                >
                   {tier.name}
                 </h3>
-                <div className={`text-3xl md:text-4xl font-semibold mb-2 ${
-                  tier.highlighted ? "text-primary-foreground" : "text-foreground"
-                }`}>
+                <div
+                  className={`text-3xl md:text-4xl font-semibold mb-2 ${
+                    tier.highlighted ? "text-primary-foreground" : "text-foreground"
+                  }`}
+                >
                   {tier.price}
                 </div>
-                <p className={`text-sm ${
-                  tier.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"
-                }`}>
+                <p
+                  className={`text-sm ${
+                    tier.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"
+                  }`}
+                >
                   {tier.description}
                 </p>
               </div>
-              
+
               <ul className="space-y-3 mb-8">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <Check className={`h-5 w-5 shrink-0 mt-0.5 ${
-                      tier.highlighted ? "text-accent" : "text-secondary"
-                    }`} />
-                    <span className={`text-sm ${
-                      tier.highlighted ? "text-primary-foreground/90" : "text-muted-foreground"
-                    }`}>
+                    <Check
+                      className={`h-5 w-5 shrink-0 mt-0.5 ${
+                        tier.highlighted ? "text-accent" : "text-secondary"
+                      }`}
+                    />
+                    <span
+                      className={`text-sm ${
+                        tier.highlighted ? "text-primary-foreground/90" : "text-muted-foreground"
+                      }`}
+                    >
                       {feature}
                     </span>
                   </li>
                 ))}
               </ul>
-              
+
               <Button
                 variant={tier.highlighted ? "accent" : "outline"}
                 className="w-full"
@@ -115,19 +125,19 @@ const Pricing = () => {
             </div>
           ))}
         </div>
-        
+
         {/* Bottom Message */}
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
             We're Still Building
           </h2>
           <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-            MainStreetIRL is currently in development. We're focused on creating something 
-            genuinely useful for couples who want to explore their local communities together.
+            MainStreetIRL is currently in development. We're focused on creating something
+            genuinely useful for people who want to explore their local communities.
           </p>
           <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-            Pricing details will be finalized closer to launch. Join our waitlist to be the 
-            first to know when we're ready—and to secure early access benefits.
+            Pricing details will be finalized closer to launch. Join our community to be the
+            first to know when we're ready — and to secure early access benefits.
           </p>
         </div>
       </div>
