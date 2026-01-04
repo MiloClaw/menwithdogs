@@ -1,4 +1,4 @@
-import { Star, MapPin, ExternalLink, Heart } from 'lucide-react';
+import { Star, MapPin, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getFirstPhotoUrl, PhotoReference } from '@/lib/google-places-photos';
@@ -58,7 +58,7 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
 
   return (
     <Card 
-      className="overflow-hidden group hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      className="overflow-hidden group hover:shadow-lg hover:border-primary/20 transition-all duration-200 cursor-pointer"
       onClick={onClick}
     >
       {/* Photo Section */}
@@ -92,7 +92,7 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
           <button
             onClick={handleSaveClick}
             disabled={isUpdating}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-background/90 backdrop-blur-sm hover:bg-background transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-background/90 backdrop-blur-sm hover:bg-background transition-colors"
             aria-label={saved ? 'Remove from saved' : 'Save place'}
           >
             <Heart 
@@ -144,34 +144,6 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
             <span className="text-sm text-muted-foreground font-medium">
               {priceIndicator}
             </span>
-          )}
-        </div>
-
-        {/* Links */}
-        <div className="flex items-center gap-3 pt-1">
-          {place.website_url && (
-            <a
-              href={place.website_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Website
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
-          {place.google_maps_url && (
-            <a
-              href={place.google_maps_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Directions
-              <ExternalLink className="h-3 w-3" />
-            </a>
           )}
         </div>
       </CardContent>

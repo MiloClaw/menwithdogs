@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
-  ChevronLeft, ChevronRight, Heart
+  ChevronLeft, ChevronRight, Heart, ChevronDown
 } from 'lucide-react';
 import {
   Dialog,
@@ -12,6 +12,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import { formatDistance } from '@/lib/distance';
 import PresenceCountStrip from './PresenceCountStrip';
@@ -58,17 +63,25 @@ const getPriceIndicator = (priceLevel: number | null): string => {
   return '$'.repeat(priceLevel);
 };
 
-const getOpeningHours = (hours: Json | null): string[] => {
-  if (!hours || typeof hours !== 'object') return [];
+interface OpeningHoursParsed {
+  weekdayDescriptions: string[];
+  openNow?: boolean;
+}
+
+const getOpeningHours = (hours: Json | null): OpeningHoursParsed => {
+  if (!hours || typeof hours !== 'object') return { weekdayDescriptions: [] };
   const hoursObj = hours as Record<string, unknown>;
-  if (Array.isArray(hoursObj.weekdayDescriptions)) {
-    return hoursObj.weekdayDescriptions as string[];
-  }
-  return [];
+  return {
+    weekdayDescriptions: Array.isArray(hoursObj.weekdayDescriptions) 
+      ? hoursObj.weekdayDescriptions as string[]
+      : [],
+    openNow: typeof hoursObj.openNow === 'boolean' ? hoursObj.openNow : undefined,
+  };
 };
 
 const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [hoursExpanded, setHoursExpanded] = useState(false);
   const { data: presenceAgg } = usePlacePresenceAggregate(place?.id);
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
 
@@ -82,13 +95,18 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   // Reset photo index when place changes
   useEffect(() => {
     setCurrentPhotoIndex(0);
+    setHoursExpanded(false);
   }, [place?.id]);
+
+  const openingHoursData = useMemo(() => 
+    getOpeningHours(place?.opening_hours ?? null), 
+    [place?.opening_hours]
+  );
 
   if (!place) return null;
 
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
-  const openingHours = getOpeningHours(place.opening_hours);
   const saved = isFavorited(place.id);
   const validPhotoUrls = photoUrls.filter((url): url is string => url !== null);
 
@@ -185,7 +203,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
               </Button>
             </div>
             
-            {/* Rating & Price */}
+            {/* Rating, Price & Open Status */}
             <div className="flex items-center gap-4 flex-wrap">
               {place.rating && (
                 <div className="flex items-center gap-1">
@@ -203,11 +221,19 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                   {priceIndicator}
                 </span>
               )}
+              {openingHoursData.openNow !== undefined && (
+                <Badge 
+                  variant="outline" 
+                  className={openingHoursData.openNow 
+                    ? 'border-emerald-500/50 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' 
+                    : 'border-muted text-muted-foreground'
+                  }
+                >
+                  {openingHoursData.openNow ? 'Open now' : 'Closed'}
+                </Badge>
+              )}
             </div>
           </DialogHeader>
-
-          {/* Future: AI-generated relevance text */}
-          {/* <p className="text-sm text-muted-foreground italic">Why this may be relevant to you...</p> */}
 
           {/* Presence Counts */}
           {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
@@ -266,23 +292,28 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
             )}
           </div>
 
-          {/* Opening Hours */}
-          {openingHours.length > 0 && (
+          {/* Opening Hours - Collapsible */}
+          {openingHoursData.weekdayDescriptions.length > 0 && (
             <>
               <Separator />
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-medium">Hours</span>
-                </div>
-                <div className="grid gap-1 text-sm">
-                  {openingHours.map((day, index) => (
-                    <div key={index} className="text-muted-foreground">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Collapsible open={hoursExpanded} onOpenChange={setHoursExpanded}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-medium">Hours</span>
+                  </div>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${hoursExpanded ? 'rotate-180' : ''}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-3">
+                  <div className="grid gap-1 text-sm pl-7">
+                    {openingHoursData.weekdayDescriptions.map((day, index) => (
+                      <div key={index} className="text-muted-foreground">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </>
           )}
 
@@ -305,18 +336,20 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
             </>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
+          {/* Action Buttons - Sticky on mobile */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">
             {place.website_url && (
-              <Button asChild className="flex-1">
+              <Button asChild className="flex-1 min-h-[48px]">
                 <a href={place.website_url} target="_blank" rel="noopener noreferrer">
+                  <Globe className="h-4 w-4 mr-2" />
                   Visit Website
                 </a>
               </Button>
             )}
             {place.google_maps_url && (
-              <Button variant="outline" asChild className="flex-1">
+              <Button variant="outline" asChild className="flex-1 min-h-[48px]">
                 <a href={place.google_maps_url} target="_blank" rel="noopener noreferrer">
+                  <Navigation className="h-4 w-4 mr-2" />
                   Directions
                 </a>
               </Button>
