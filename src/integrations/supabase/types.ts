@@ -154,6 +154,54 @@ export type Database = {
         }
         Relationships: []
       }
+      city_suggestions: {
+        Row: {
+          country: string
+          created_at: string
+          google_place_id: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string | null
+          status: string
+          submitted_by: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          google_place_id: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string | null
+          status?: string
+          submitted_by: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          google_place_id?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string | null
+          status?: string
+          submitted_by?: string
+        }
+        Relationships: []
+      }
       couple_favorites: {
         Row: {
           couple_id: string
