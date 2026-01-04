@@ -1,6 +1,7 @@
 /**
  * Pure routing function for onboarding state machine.
- * Simplified to 3 states: no-couple, profile-pending, done.
+ * Behavior-first: Users go to /places immediately after auth.
+ * Profile completion is optional, not a gate.
  */
 
 export type CoupleStatus = 'onboarding' | 'pending_match' | 'active' | 'paused';
@@ -15,19 +16,11 @@ interface RouteState {
   coupleIsConfirmed?: boolean;
 }
 
-export function getRouteForState(state: RouteState): string {
-  const { hasCouple, memberStep } = state;
-
-  // No couple yet = need to complete profile (which will auto-create couple)
-  if (!hasCouple) {
-    return '/onboarding/my-profile';
-  }
-
-  // Profile pending = still on MyProfile
-  if (memberStep === 'profile_pending') {
-    return '/onboarding/my-profile';
-  }
-
-  // All done = dashboard
-  return '/dashboard';
+/**
+ * Behavior-first routing: always return /places
+ * Profile completion is no longer a gate, just a preference
+ */
+export function getRouteForState(_state: RouteState): string {
+  // All users go directly to places - behavior over profiles
+  return '/places';
 }

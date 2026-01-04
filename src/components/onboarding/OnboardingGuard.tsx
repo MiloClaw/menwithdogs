@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useCouple } from '@/hooks/useCouple';
 import { useUserRole } from '@/hooks/useUserRole';
 
 interface OnboardingGuardProps {
@@ -9,32 +8,27 @@ interface OnboardingGuardProps {
 }
 
 /**
- * OnboardingGuard - Single source of truth for onboarding navigation
+ * OnboardingGuard - Lightweight redirect helper for /onboarding/* routes
  * 
- * This component owns ALL navigation decisions for onboarding routes.
- * Individual pages become "dumb" - they only render UI and call mutations.
+ * Behavior-first model: The guard no longer blocks access to /places.
+ * It only ensures:
+ * 1. Users are authenticated to access /onboarding/* routes
+ * 2. Admins are redirected to /admin
  * 
- * Flow:
- * 1. Wait for auth + couple loading to complete
- * 2. Redirect unauthenticated users to /auth
- * 3. If on wrong route, redirect to nextRoute
- * 4. Render children only when on correct route
+ * Profile completion is optional - users can always go to /places.
  */
 const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { nextRoute, loading: coupleLoading } = useCouple();
   const { isAdmin, loading: roleLoading } = useUserRole();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isLoading = authLoading || coupleLoading || roleLoading;
+  const isLoading = authLoading || roleLoading;
 
   useEffect(() => {
     console.debug('[OnboardingGuard]', {
       pathname: location.pathname,
-      nextRoute,
       authLoading,
-      coupleLoading,
       roleLoading,
       isAuthenticated,
       isAdmin,
@@ -56,12 +50,9 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
       return;
     }
 
-    // On wrong route - redirect to correct one
-    if (location.pathname !== nextRoute) {
-      console.debug('[OnboardingGuard] Redirecting to:', nextRoute);
-      navigate(nextRoute, { replace: true });
-    }
-  }, [isLoading, isAuthenticated, isAdmin, nextRoute, navigate, location.pathname]);
+    // Authenticated non-admin users can access onboarding pages
+    // No more forced routing - profile completion is optional
+  }, [isLoading, isAuthenticated, isAdmin, navigate, location.pathname]);
 
   // Still loading - show loading state
   if (isLoading) {
@@ -86,16 +77,7 @@ const OnboardingGuard = ({ children }: OnboardingGuardProps) => {
     );
   }
 
-  // On wrong route - will redirect
-  if (location.pathname !== nextRoute) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  // On correct route - render children
+  // Authenticated user - render children
   return <>{children}</>;
 };
 
