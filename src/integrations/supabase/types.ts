@@ -185,183 +185,9 @@ export type Database = {
           },
         ]
       }
-      couple_invites: {
-        Row: {
-          accepted_at: string | null
-          couple_id: string
-          created_at: string
-          expires_at: string
-          id: string
-          invited_by: string
-          invited_email: string
-          token_hash: string
-        }
-        Insert: {
-          accepted_at?: string | null
-          couple_id: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          invited_by: string
-          invited_email: string
-          token_hash: string
-        }
-        Update: {
-          accepted_at?: string | null
-          couple_id?: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          invited_by?: string
-          invited_email?: string
-          token_hash?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_invites_couple_id_fkey"
-            columns: ["couple_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      couple_location_summary: {
-        Row: {
-          city: string
-          country: string
-          couple_id: string
-          last_updated: string
-          state: string | null
-        }
-        Insert: {
-          city: string
-          country?: string
-          couple_id: string
-          last_updated?: string
-          state?: string | null
-        }
-        Update: {
-          city?: string
-          country?: string
-          couple_id?: string
-          last_updated?: string
-          state?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_location_summary_couple_id_fkey"
-            columns: ["couple_id"]
-            isOneToOne: true
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      couple_presence: {
-        Row: {
-          couple_id: string
-          created_at: string | null
-          ends_at: string
-          event_id: string | null
-          id: string
-          place_id: string | null
-          starts_at: string | null
-          status: Database["public"]["Enums"]["presence_status"]
-          updated_at: string | null
-        }
-        Insert: {
-          couple_id: string
-          created_at?: string | null
-          ends_at: string
-          event_id?: string | null
-          id?: string
-          place_id?: string | null
-          starts_at?: string | null
-          status: Database["public"]["Enums"]["presence_status"]
-          updated_at?: string | null
-        }
-        Update: {
-          couple_id?: string
-          created_at?: string | null
-          ends_at?: string
-          event_id?: string | null
-          id?: string
-          place_id?: string | null
-          starts_at?: string | null
-          status?: Database["public"]["Enums"]["presence_status"]
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_presence_couple_id_fkey"
-            columns: ["couple_id"]
-            isOneToOne: false
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_presence_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "couple_presence_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      couple_profile_drafts: {
-        Row: {
-          couple_id: string
-          created_at: string
-          generated_about_us: string | null
-          generated_display_name: string | null
-          generated_shared_interests: string[] | null
-          id: string
-          is_applied: boolean
-          updated_at: string
-        }
-        Insert: {
-          couple_id: string
-          created_at?: string
-          generated_about_us?: string | null
-          generated_display_name?: string | null
-          generated_shared_interests?: string[] | null
-          id?: string
-          is_applied?: boolean
-          updated_at?: string
-        }
-        Update: {
-          couple_id?: string
-          created_at?: string
-          generated_about_us?: string | null
-          generated_display_name?: string | null
-          generated_shared_interests?: string[] | null
-          id?: string
-          is_applied?: boolean
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_profile_drafts_couple_id_fkey"
-            columns: ["couple_id"]
-            isOneToOne: true
-            referencedRelation: "couples"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       couples: {
         Row: {
           about_us: string | null
-          confirmation_text: string | null
-          confirmed_at: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -376,8 +202,6 @@ export type Database = {
         }
         Insert: {
           about_us?: string | null
-          confirmation_text?: string | null
-          confirmed_at?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -392,8 +216,6 @@ export type Database = {
         }
         Update: {
           about_us?: string | null
-          confirmation_text?: string | null
-          confirmed_at?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -839,43 +661,8 @@ export type Database = {
         }
         Relationships: []
       }
-      event_presence_agg: {
-        Row: {
-          event_id: string | null
-          interested_count: number | null
-          open_count: number | null
-          planning_count: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_presence_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      place_presence_agg: {
-        Row: {
-          interested_count: number | null
-          open_count: number | null
-          place_id: string | null
-          planning_count: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "couple_presence_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Functions: {
-      confirm_couple_intent: { Args: { p_couple_id: string }; Returns: boolean }
       create_couple_for_current_user:
         | { Args: never; Returns: string }
         | { Args: { unit_type?: string }; Returns: string }

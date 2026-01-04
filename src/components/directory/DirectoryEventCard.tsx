@@ -4,11 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistance } from '@/lib/distance';
-import PresenceCountStrip from './PresenceCountStrip';
-import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
 import { usePlacePhotos } from '@/hooks/usePlacePhotos';
-import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import { getEventTypeLabel, getCostTypeLabel } from '@/lib/event-taxonomy';
 import type { PublicEvent, VenuePhoto } from '@/hooks/useEventsPublic';
 
@@ -34,7 +31,6 @@ const formatEventDate = (startAt: string, endAt: string | null): string => {
 };
 
 const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
-  const { data: presenceAgg } = useEventPresenceAggregate(event.id);
   const { isFavorited, toggleFavorite, isUpdating } = useEventFavorites();
   const location = [event.venue?.city, event.venue?.state].filter(Boolean).join(', ');
   const isPastEvent = isPast(new Date(event.end_at || event.start_at));
@@ -146,10 +142,6 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
           )}
         </div>
 
-        {/* Presence Counts */}
-        {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
-          <PresenceCountStrip aggregate={presenceAgg} compact className="pt-1" />
-        )}
       </CardContent>
     </Card>
   );
