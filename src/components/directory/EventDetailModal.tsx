@@ -12,12 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { formatDistance } from '@/lib/distance';
-import PresenceCountStrip from './PresenceCountStrip';
-import PresenceControl from './PresenceControl';
 import EventPhotoGallery from './EventPhotoGallery';
-import { useEventPresenceAggregate } from '@/hooks/usePresenceAggregates';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
-import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import type { PublicEvent, VenuePhoto } from '@/hooks/useEventsPublic';
 
 interface EventDetailModalProps {
@@ -40,13 +36,11 @@ const formatEventDateTime = (startAt: string, endAt: string | null): string => {
 };
 
 const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) => {
-  const { data: presenceAgg } = useEventPresenceAggregate(event?.id);
   const { isFavorited, toggleFavorite, isUpdating } = useEventFavorites();
   
   if (!event) return null;
 
   const location = [event.venue?.city, event.venue?.state].filter(Boolean).join(', ');
-  const eventEndTime = event.end_at ? new Date(event.end_at) : undefined;
   const saved = isFavorited(event.id);
   
   // Get venue photos (safely cast from JSON)
@@ -101,12 +95,6 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
         </DialogHeader>
 
         <div className="space-y-6 pt-2">
-          {/* Presence Counts */}
-          {FEATURE_FLAGS.PRESENCE_ENABLED && presenceAgg && (
-            <PresenceCountStrip aggregate={presenceAgg} />
-          )}
-
-          <Separator />
 
           {/* Date & Time */}
           <div className="flex items-start gap-3">
@@ -148,21 +136,6 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
               </div>
             </>
           )}
-
-          {/* Presence Control */}
-          {FEATURE_FLAGS.PRESENCE_ENABLED && (
-            <>
-              <Separator />
-              <div className="space-y-3">
-                <span className="font-medium">Your status</span>
-                <PresenceControl 
-                  eventId={event.id} 
-                  eventEndTime={eventEndTime}
-                />
-              </div>
-            </>
-          )}
-
 
           {/* Action Buttons */}
           {mapsUrl && (

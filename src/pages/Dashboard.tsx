@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -6,34 +6,17 @@ import { useMemberInterests, useCoupleInterests, useInterestsCatalog, getInteres
 import PageLayout from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Check } from 'lucide-react';
 
 const Dashboard = () => {
-  const { isAuthenticated, loading: authLoading, signOut, user } = useAuth();
+  const { isAuthenticated, loading: authLoading, signOut } = useAuth();
   const { 
     couple, 
     memberProfile, 
     partnerProfile,
     hasCouple, 
-    isCoupleComplete,
-    pendingInvite,
     loading: coupleLoading,
-    updateCoupleProfile,
   } = useCouple();
   const navigate = useNavigate();
-  
-  // Partner name editing state
-  const [partnerName, setPartnerName] = useState('');
-  const [isSavingName, setIsSavingName] = useState(false);
-  const [nameSaved, setNameSaved] = useState(false);
-
-  // Sync partner name from couple data
-  useEffect(() => {
-    if (couple?.partner_first_name) {
-      setPartnerName(couple.partner_first_name);
-    }
-  }, [couple?.partner_first_name]);
 
   // Fetch interests from database
   const { data: catalog } = useInterestsCatalog();
@@ -57,24 +40,10 @@ const Dashboard = () => {
     }
 
     if (!hasCouple) {
-      navigate('/onboarding/create-couple');
+      navigate('/onboarding/my-profile');
       return;
     }
   }, [authLoading, coupleLoading, isAuthenticated, hasCouple, navigate]);
-
-  const handleSavePartnerName = async () => {
-    if (!partnerName.trim()) return;
-    setIsSavingName(true);
-    try {
-      await updateCoupleProfile({ partner_first_name: partnerName.trim() });
-      setNameSaved(true);
-      setTimeout(() => setNameSaved(false), 2000);
-    } catch (err) {
-      console.error('Failed to save partner name:', err);
-    } finally {
-      setIsSavingName(false);
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -101,9 +70,7 @@ const Dashboard = () => {
               <h1 className="text-2xl md:text-3xl font-serif font-semibold text-primary">
                 {couple?.display_name || 'Your Dashboard'}
               </h1>
-              <p className="text-muted-foreground mt-1">
-                {isCoupleComplete ? 'Your preferences are set' : 'Waiting for your partner to join'}
-              </p>
+              <p className="text-muted-foreground mt-1">Your preferences are set</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => navigate('/places')}>
@@ -117,54 +84,6 @@ const Dashboard = () => {
 
           {/* Status cards */}
           <div className="grid gap-4">
-            {/* Couple status */}
-            {!isCoupleComplete && (
-              <Card className="border-accent/30 bg-accent/5">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-medium">Partner invitation pending</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Editable partner name */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground">Partner's first name</label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={partnerName}
-                        onChange={(e) => setPartnerName(e.target.value)}
-                        placeholder="Your partner's name"
-                        className="h-10"
-                        maxLength={50}
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleSavePartnerName}
-                        disabled={isSavingName || !partnerName.trim()}
-                        className="h-10 px-3"
-                      >
-                        {nameSaved ? <Check className="h-4 w-4 text-secondary" /> : 'Save'}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      We'll use this to personalize their invite.
-                    </p>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground">
-                    {pendingInvite 
-                      ? `Waiting for ${pendingInvite.invited_email} to accept.`
-                      : 'Send an invite to complete your couple profile.'}
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => navigate('/onboarding/invite-partner')}
-                  >
-                    {pendingInvite ? 'View invitation' : 'Invite partner'}
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Your profile */}
             <Card>

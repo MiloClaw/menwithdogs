@@ -15,7 +15,6 @@ import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
-import Invite from "./pages/Invite";
 import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
 import OnboardingGuard from "./components/onboarding/OnboardingGuard";
@@ -54,7 +53,7 @@ const App = () => (
               
               {/* Auth & Onboarding */}
               <Route path="/auth" element={<Auth />} />
-              <Route path="/invite/:token" element={<Invite />} />
+              <Route path="/invite/:token" element={<Navigate to="/" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/saved" element={<Saved />} />
               

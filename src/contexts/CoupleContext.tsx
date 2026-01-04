@@ -19,7 +19,6 @@ interface Couple {
   status: CoupleStatus;
   type: UnitType;
   subscription_status: SubscriptionStatus;
-  confirmed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,21 +43,10 @@ interface MemberProfile {
   updated_at: string;
 }
 
-interface CoupleInvite {
-  id: string;
-  couple_id: string;
-  invited_by: string;
-  invited_email: string;
-  expires_at: string;
-  accepted_at: string | null;
-  created_at: string;
-}
-
 interface CoupleContextValue {
   couple: Couple | null;
   memberProfile: MemberProfile | null;
   partnerProfile: MemberProfile | null;
-  pendingInvite: CoupleInvite | null;
   loading: boolean;
   error: string | null;
   nextRoute: string;
@@ -83,7 +71,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
   const [couple, setCouple] = useState<Couple | null>(null);
   const [memberProfile, setMemberProfile] = useState<MemberProfile | null>(null);
   const [partnerProfile, setPartnerProfile] = useState<MemberProfile | null>(null);
-  const [pendingInvite, setPendingInvite] = useState<CoupleInvite | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +105,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
         setCouple(null);
         setMemberProfile(null);
         setPartnerProfile(null);
-        setPendingInvite(null);
         setLoading(false);
         return;
       }
@@ -140,21 +126,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
         .neq('user_id', user.id)
         .maybeSingle();
 
-      // Fetch pending invite (if owner and couple not complete)
-      let fetchedPendingInvite = null;
-      if (fetchedMemberProfile.is_owner && !fetchedCouple.is_complete) {
-        const { data: invite } = await supabase
-          .from('couple_invites')
-          .select('*')
-          .eq('couple_id', fetchedMemberProfile.couple_id)
-          .is('accepted_at', null)
-          .gt('expires_at', new Date().toISOString())
-          .order('created_at', { ascending: false })
-          .maybeSingle();
-        
-        fetchedPendingInvite = invite;
-      }
-
       console.debug('[CoupleContext] Data fetched:', {
         coupleId: fetchedCouple.id,
         coupleStatus: fetchedCouple.status,
@@ -165,7 +136,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
       setCouple(fetchedCouple as Couple);
       setMemberProfile(fetchedMemberProfile as MemberProfile);
       setPartnerProfile(fetchedPartnerProfile as MemberProfile | null);
-      setPendingInvite(fetchedPendingInvite as CoupleInvite | null);
       setLoading(false);
       setInitialLoadComplete(true);
     } catch (err) {
@@ -183,7 +153,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
       setCouple(null);
       setMemberProfile(null);
       setPartnerProfile(null);
-      setPendingInvite(null);
       setLoading(false);
     }
   }, [isAuthenticated, fetchCoupleData]);
@@ -234,19 +203,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
 
     if (error) throw error;
 
-    // Sync city/state to couple_location_summary
-    if (updates.city && couple) {
-      await supabase
-        .from('couple_location_summary')
-        .upsert({
-          couple_id: couple.id,
-          city: updates.city,
-          state: updates.state || null,
-          country: 'US',
-          last_updated: new Date().toISOString(),
-        }, { onConflict: 'couple_id' });
-    }
-
     setMemberProfile(data as MemberProfile);
     return data as MemberProfile;
   }, [memberProfile, couple]);
@@ -289,7 +245,6 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     couple,
     memberProfile,
     partnerProfile,
-    pendingInvite,
     loading,
     error,
     nextRoute,
