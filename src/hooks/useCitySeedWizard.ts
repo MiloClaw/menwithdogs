@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
+import { isValidPlaceType, getPlaceTypeLabel } from '@/lib/google-places-types';
 export interface NearbyPlace {
   place_id: string;
   name: string;
@@ -25,6 +25,17 @@ export interface SeedCandidate extends NearbyPlace {
   reviewsScanned?: boolean;
   isScanning?: boolean;
   discoveredFrom?: string;
+  categoryGroup?: string; // Track which category group this place belongs to
+}
+
+// Discovery statistics for transparency
+export interface DiscoveryStats {
+  totalApiResults: number;
+  afterDedup: number;
+  filteredByQuality: number;
+  duplicatesInDb: number;
+  byDiscoveryPoint: Record<string, number>;
+  byCategory: Record<string, number>;
 }
 
 interface NearbySearchParams {
@@ -196,8 +207,9 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
   const [candidates, setCandidates] = useState<SeedCandidate[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [searchKeywords, setSearchKeywords] = useState<string[]>([...DEFAULT_REVIEW_KEYWORDS]);
-  const [minRating, setMinRating] = useState<number>(4.0);
-  const [minReviewCount, setMinReviewCount] = useState<number>(50);
+  const [minRating, setMinRating] = useState<number>(0); // Default to "Any" for broader discovery
+  const [minReviewCount, setMinReviewCount] = useState<number>(0); // Default to "Any"
+  const [discoveryStats, setDiscoveryStats] = useState<DiscoveryStats | null>(null);
   
   // Discovery points for neighborhood-based searching
   const [discoveryPoints, setDiscoveryPoints] = useState<DiscoveryPoint[]>(() => {
@@ -238,20 +250,47 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
     setDiscoveryPoints(prev => prev.filter(p => p.id !== pointId));
   }, []);
 
+  // Map primary_type to category group for filtering
+  const getCategoryGroup = (primaryType: string | null): string => {
+    if (!primaryType) return 'Other';
+    for (const group of VENUE_CATEGORY_GROUPS) {
+      if (group.types.includes(primaryType)) {
+        return group.label;
+      }
+    }
+    return 'Other';
+  };
+
   // Search nearby places from ALL discovery points
   const searchNearby = useMutation({
     mutationFn: async (params: NearbySearchParams & { discoveryPoints: DiscoveryPoint[] }) => {
       const allPlaces: (NearbyPlace & { discoveredFrom?: string })[] = [];
       
+      // RUNTIME VALIDATION: Filter to only valid Google Places types
+      const validatedTypes = params.includedTypes.filter(t => isValidPlaceType(t));
+      const invalidTypes = params.includedTypes.filter(t => !isValidPlaceType(t));
+      
+      if (invalidTypes.length > 0) {
+        console.warn('Filtered out invalid place types:', invalidTypes);
+      }
+      
+      if (validatedTypes.length === 0) {
+        throw new Error('No valid place types selected');
+      }
+      
       // Split types into batches of 5 (Google API limit per call)
       const typeBatches: string[][] = [];
-      for (let i = 0; i < params.includedTypes.length; i += 5) {
-        typeBatches.push(params.includedTypes.slice(i, i + 5));
+      for (let i = 0; i < validatedTypes.length; i += 5) {
+        typeBatches.push(validatedTypes.slice(i, i + 5));
       }
+
+      const byDiscoveryPoint: Record<string, number> = {};
+      let totalApiResults = 0;
 
       // Search from each discovery point
       for (const point of params.discoveryPoints) {
         console.log(`Searching near: ${point.label}`);
+        let pointCount = 0;
         
         for (const batch of typeBatches) {
           const { data, error } = await supabase.functions.invoke('google-places-nearby', {
@@ -270,6 +309,9 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
           }
 
           if (data?.places) {
+            totalApiResults += data.places.length;
+            pointCount += data.places.length;
+            
             // Tag each place with where it was discovered
             const taggedPlaces = data.places.map((p: NearbyPlace) => ({
               ...p,
@@ -278,6 +320,8 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
             allPlaces.push(...taggedPlaces);
           }
         }
+        
+        byDiscoveryPoint[point.label] = pointCount;
       }
 
       // De-duplicate by place_id (keep first occurrence to preserve discoveredFrom)
@@ -285,25 +329,36 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
         new Map(allPlaces.map(p => [p.place_id, p])).values()
       );
 
-      return uniquePlaces;
+      return { places: uniquePlaces, totalApiResults, byDiscoveryPoint };
     },
-    onSuccess: (places) => {
+    onSuccess: ({ places, totalApiResults, byDiscoveryPoint }) => {
       const existingIds = new Set(existingPlaces.map(p => p.google_place_id));
       
-      // Filter by quality thresholds before creating candidates
+      // Filter by quality thresholds (only if > 0)
       const qualityFiltered = places.filter(place => {
         const rating = place.rating || 0;
         const reviews = place.user_ratings_total || 0;
-        return rating >= minRating && reviews >= minReviewCount;
+        const passesRating = minRating === 0 || rating >= minRating;
+        const passesReviews = minReviewCount === 0 || reviews >= minReviewCount;
+        return passesRating && passesReviews;
       });
 
-      const candidatesWithStatus: SeedCandidate[] = qualityFiltered.map(place => ({
-        ...place,
-        isDuplicate: existingIds.has(place.place_id),
-        selected: !existingIds.has(place.place_id), // Auto-select non-duplicates
-        reviewsScanned: false,
-        isScanning: false,
-      }));
+      // Track category distribution
+      const byCategory: Record<string, number> = {};
+      
+      const candidatesWithStatus: SeedCandidate[] = qualityFiltered.map(place => {
+        const categoryGroup = getCategoryGroup(place.primary_type);
+        byCategory[categoryGroup] = (byCategory[categoryGroup] || 0) + 1;
+        
+        return {
+          ...place,
+          isDuplicate: existingIds.has(place.place_id),
+          selected: !existingIds.has(place.place_id), // Auto-select non-duplicates
+          reviewsScanned: false,
+          isScanning: false,
+          categoryGroup,
+        };
+      });
 
       // Sort: non-duplicates first, then by rating
       candidatesWithStatus.sort((a, b) => {
@@ -311,14 +366,26 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
         return (b.rating || 0) - (a.rating || 0);
       });
 
+      // Build discovery stats
+      const duplicatesInDb = candidatesWithStatus.filter(c => c.isDuplicate).length;
+      const stats: DiscoveryStats = {
+        totalApiResults,
+        afterDedup: places.length,
+        filteredByQuality: places.length - qualityFiltered.length,
+        duplicatesInDb,
+        byDiscoveryPoint,
+        byCategory,
+      };
+      
+      setDiscoveryStats(stats);
       setCandidates(candidatesWithStatus);
       setStep('review');
       
-      // Show how many were filtered out
-      const filteredOut = places.length - qualityFiltered.length;
-      if (filteredOut > 0) {
-        toast.info(`Filtered out ${filteredOut} places below quality threshold`);
-      }
+      // Show discovery summary
+      const qualityNote = stats.filteredByQuality > 0 
+        ? ` • ${stats.filteredByQuality} filtered by quality` 
+        : '';
+      toast.success(`Found ${candidatesWithStatus.length} places${qualityNote}`);
     },
     onError: (error) => {
       console.error('Search failed:', error);
@@ -612,7 +679,14 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
     setCandidates([]);
     setImportProgress({ current: 0, total: 0 });
     setSearchKeywords([]);
+    setDiscoveryStats(null);
   }, []);
+
+  // Compute unique category groups from candidates
+  const categoryGroups = useMemo(() => {
+    const groups = new Set(candidates.map(c => c.categoryGroup || 'Other'));
+    return ['All', ...Array.from(groups).sort()];
+  }, [candidates]);
 
   const selectedCount = candidates.filter(c => c.selected && !c.isDuplicate).length;
   const newCandidateCount = candidates.filter(c => !c.isDuplicate).length;
@@ -637,6 +711,8 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
     minRating,
     minReviewCount,
     discoveryPoints,
+    discoveryStats,
+    categoryGroups,
     
     // Actions
     setSelectedTypes,

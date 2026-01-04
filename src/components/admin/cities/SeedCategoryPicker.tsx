@@ -171,7 +171,19 @@ export function SeedCategoryPicker({
     { meters: 40234, label: '25 mi' },
   ];
 
-  const ratingOptions = [3.5, 4.0, 4.2, 4.5];
+  const ratingOptions = [
+    { value: 0, label: 'Any' },
+    { value: 3.5, label: '3.5★' },
+    { value: 4.0, label: '4.0★' },
+    { value: 4.5, label: '4.5★' },
+  ];
+  
+  const reviewCountOptions = [
+    { value: 0, label: 'Any' },
+    { value: 25, label: '25+' },
+    { value: 50, label: '50+' },
+    { value: 100, label: '100+' },
+  ];
 
   // Calculate estimated API cost - account for multiple discovery points
   const discoveryCalls = Math.ceil(selectedTypes.length / 5) * Math.max(discoveryPoints.length, 1);
@@ -404,16 +416,16 @@ export function SeedCategoryPicker({
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Min Rating</Label>
               <div className="flex gap-1">
-                {ratingOptions.map((r) => (
+                {ratingOptions.map((opt) => (
                   <Button
-                    key={r}
+                    key={opt.value}
                     type="button"
                     size="sm"
-                    variant={minRating === r ? 'default' : 'outline'}
-                    onClick={() => onMinRatingChange(r)}
+                    variant={minRating === opt.value ? 'default' : 'outline'}
+                    onClick={() => onMinRatingChange(opt.value)}
                     className="flex-1 text-xs px-2"
                   >
-                    {r}★
+                    {opt.label}
                   </Button>
                 ))}
               </div>
@@ -422,21 +434,27 @@ export function SeedCategoryPicker({
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Min Reviews</Label>
               <div className="flex gap-1">
-                {[25, 50, 100, 200].map((count) => (
+                {reviewCountOptions.map((opt) => (
                   <Button
-                    key={count}
+                    key={opt.value}
                     type="button"
                     size="sm"
-                    variant={minReviewCount === count ? 'default' : 'outline'}
-                    onClick={() => onMinReviewCountChange(count)}
+                    variant={minReviewCount === opt.value ? 'default' : 'outline'}
+                    onClick={() => onMinReviewCountChange(opt.value)}
                     className="flex-1 text-xs px-2"
                   >
-                    {count}+
+                    {opt.label}
                   </Button>
                 ))}
               </div>
             </div>
           </div>
+          
+          {(minRating === 0 && minReviewCount === 0) && (
+            <p className="text-xs text-muted-foreground mt-2">
+              💡 "Any" returns all discovered venues. Use filters in the review step to narrow down.
+            </p>
+          )}
         </div>
       )}
 
