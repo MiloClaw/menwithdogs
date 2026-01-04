@@ -12,6 +12,7 @@ import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import EventDetailModal from '@/components/directory/EventDetailModal';
 import CityPickerModal from '@/components/directory/CityPickerModal';
 import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
+import { CitySuggestionModal } from '@/components/directory/CitySuggestionModal';
 import PreferencePrompt from '@/components/preferences/PreferencePrompt';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
@@ -22,9 +23,14 @@ import { useCouple } from '@/hooks/useCouple';
 import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
 import { usePreferencePrompts } from '@/hooks/usePreferencePrompts';
 import { usePlaceSuggestion } from '@/hooks/usePlaceSuggestion';
+import { useCitySuggestion } from '@/hooks/useCitySuggestion';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
 import { toast } from 'sonner';
+
+// Types that indicate a geographic area (city) vs a business
+const CITY_TYPES = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'administrative_area_level_3', 'sublocality', 'postal_town'];
+const BUSINESS_TYPES = ['establishment', 'point_of_interest'];
 const RADIUS_OPTIONS = [
   { label: 'All', value: null },
   { label: '10 mi', value: 10 },
@@ -84,6 +90,11 @@ const Places = () => {
   const [suggestionModalOpen, setSuggestionModalOpen] = useState(false);
   const [selectedGooglePlace, setSelectedGooglePlace] = useState<PlaceDetails | null>(null);
   const { submitSuggestion, isSubmitting: isSuggesting } = usePlaceSuggestion();
+  
+  // City suggestion state
+  const [citySuggestionModalOpen, setCitySuggestionModalOpen] = useState(false);
+  const [selectedGoogleCity, setSelectedGoogleCity] = useState<PlaceDetails | null>(null);
+  const { submitSuggestion: submitCitySuggestion, isSubmitting: isSuggestingCity } = useCitySuggestion();
   
   // Events state
   const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
@@ -202,8 +213,28 @@ const Places = () => {
     setPlaceModalOpen(true);
   };
 
+  // Helper to detect if a place is a city (geographic area) vs a business
+  const isCity = (details: PlaceDetails): boolean => {
+    const types = details.google_types || [];
+    const hasGeoType = types.some(t => CITY_TYPES.includes(t));
+    const hasBusinessType = types.some(t => BUSINESS_TYPES.includes(t));
+    // It's a city if it has geographic types but NO business types
+    return hasGeoType && !hasBusinessType;
+  };
+
   // Handle search autocomplete place selection
   const handleSearchPlaceSelect = (details: PlaceDetails) => {
+    // First check if this is a city rather than a business
+    if (isCity(details)) {
+      if (isAuthenticated) {
+        setSelectedGoogleCity(details);
+        setCitySuggestionModalOpen(true);
+      } else {
+        toast.info('Sign in to suggest this city');
+      }
+      return;
+    }
+
     // Check if place exists in our database
     const matchingPlace = places?.find(
       p => p.google_place_id === details.place_id
@@ -231,6 +262,18 @@ const Places = () => {
     if (success) {
       setSuggestionModalOpen(false);
       setSelectedGooglePlace(null);
+      setSearchTerm('');
+    }
+  };
+
+  // Handle city suggestion confirmation
+  const handleConfirmCitySuggestion = async () => {
+    if (!selectedGoogleCity) return;
+    
+    const success = await submitCitySuggestion(selectedGoogleCity);
+    if (success) {
+      setCitySuggestionModalOpen(false);
+      setSelectedGoogleCity(null);
       setSearchTerm('');
     }
   };
@@ -548,6 +591,13 @@ const Places = () => {
         placeDetails={selectedGooglePlace}
         onConfirm={handleConfirmSuggestion}
         isSubmitting={isSuggesting}
+      />
+      <CitySuggestionModal
+        open={citySuggestionModalOpen}
+        onOpenChange={setCitySuggestionModalOpen}
+        cityDetails={selectedGoogleCity}
+        onConfirm={handleConfirmCitySuggestion}
+        isSubmitting={isSuggestingCity}
       />
       
       {/* Behavioral Preference Prompt */}
