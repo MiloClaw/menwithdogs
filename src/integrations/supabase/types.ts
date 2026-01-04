@@ -1097,7 +1097,7 @@ export type Database = {
       event_status: "approved" | "pending" | "rejected"
       member_onboarding_step: "profile_pending" | "profile_complete"
       place_cadence: "weekly" | "monthly" | "rare"
-      place_source: "google_places" | "admin"
+      place_source: "google_places" | "admin" | "user_submitted"
       place_status: "approved" | "pending" | "rejected"
       presence_status: "interested" | "planning_to_attend" | "open_to_hello"
       reveal_context: "place" | "event"
@@ -1236,7 +1236,7 @@ export const Constants = {
       event_status: ["approved", "pending", "rejected"],
       member_onboarding_step: ["profile_pending", "profile_complete"],
       place_cadence: ["weekly", "monthly", "rare"],
-      place_source: ["google_places", "admin"],
+      place_source: ["google_places", "admin", "user_submitted"],
       place_status: ["approved", "pending", "rejected"],
       presence_status: ["interested", "planning_to_attend", "open_to_hello"],
       reveal_context: ["place", "event"],
