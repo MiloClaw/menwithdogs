@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, MapPinOff, Calendar, MapPin, X } from 'lucide-react';
+import { Search, MapPinOff, Calendar, MapPin, X, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import EventDetailModal from '@/components/directory/EventDetailModal';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
 import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
-import { useCoupleContext } from '@/contexts/CoupleContext';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { calculateDistanceMiles } from '@/lib/distance';
 
 const RADIUS_OPTIONS = [
@@ -31,7 +31,15 @@ const DATE_FILTER_OPTIONS: { label: string; value: DateFilter }[] = [
 ];
 
 const Places = () => {
-  const { memberProfile } = useCoupleContext();
+  // User location (profile first, then browser geolocation fallback)
+  const { 
+    lat: userLat, 
+    lng: userLng, 
+    source: locationSource,
+    isLoading: locationLoading, 
+    requestBrowserLocation 
+  } = useUserLocation();
+  const hasUserLocation = userLat != null && userLng != null;
   
   // Shared state
   const [activeTab, setActiveTab] = useState<'places' | 'events'>('places');
@@ -47,11 +55,6 @@ const Places = () => {
   const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
   const [selectedEvent, setSelectedEvent] = useState<PublicEvent | null>(null);
   const [eventModalOpen, setEventModalOpen] = useState(false);
-
-  // User location
-  const userLat = memberProfile?.city_lat;
-  const userLng = memberProfile?.city_lng;
-  const hasUserLocation = userLat != null && userLng != null;
 
   // Data fetching
   const { data: places, isLoading: placesLoading } = usePublicPlaces();
@@ -182,14 +185,29 @@ const Places = () => {
             <div className="flex items-center justify-between gap-4 text-sm bg-muted/50 px-4 py-3 rounded-lg mt-4">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPinOff className="h-4 w-4 flex-shrink-0" />
-                <span>Add your city to see distances</span>
+                <span>Enable location to see nearby places</span>
               </div>
-              <Link 
-                to="/onboarding/my-profile" 
-                className="text-primary font-medium hover:underline whitespace-nowrap"
-              >
-                Add City
-              </Link>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={requestBrowserLocation}
+                  disabled={locationLoading}
+                  className="h-auto py-1.5 px-3"
+                >
+                  {locationLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Use my location'
+                  )}
+                </Button>
+                <Link 
+                  to="/onboarding/my-profile" 
+                  className="text-primary font-medium hover:underline whitespace-nowrap text-sm"
+                >
+                  Add City
+                </Link>
+              </div>
             </div>
           )}
 
