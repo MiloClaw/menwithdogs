@@ -167,7 +167,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
           {place.distance !== undefined && (
             <Badge 
               variant="outline" 
-              className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm"
+              className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm"
             >
               {formatDistance(place.distance)}
             </Badge>
