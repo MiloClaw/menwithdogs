@@ -157,7 +157,7 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, fetchCoupleData]);
 
-  const createCouple = useCallback(async (partnerFirstName?: string): Promise<void> => {
+  const createCouple = useCallback(async (partnerFirstName?: string, unitType: UnitType = 'individual'): Promise<void> => {
     if (!user) throw new Error('Not authenticated');
 
     // Verify session is fully propagated
@@ -166,18 +166,20 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
       throw new Error('Session not ready. Please try again in a moment.');
     }
 
-    console.debug('[CoupleContext] Creating couple...');
+    console.debug('[CoupleContext] Creating couple with type:', unitType);
 
-    // Call atomic backend function
-    const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user');
+    // Call atomic backend function with explicit unit_type
+    const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user', {
+      unit_type: unitType
+    });
 
     if (error) {
       console.error('[CoupleContext] createCouple error:', { code: error.code, message: error.message });
       throw new Error(error.message || 'Failed to create couple');
     }
 
-    // Update partner_first_name if provided
-    if (partnerFirstName && coupleId) {
+    // Update partner_first_name if provided (only relevant for 'couple' type)
+    if (partnerFirstName && coupleId && unitType === 'couple') {
       await supabase
         .from('couples')
         .update({ partner_first_name: partnerFirstName })

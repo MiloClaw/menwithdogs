@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCouple } from './useCouple';
+import { useAuth } from './useAuth';
+import { useEnsureRelationshipUnit } from './useEnsureRelationshipUnit';
 import { useToast } from './use-toast';
 
 interface PlaceFavorite {
@@ -11,7 +13,9 @@ interface PlaceFavorite {
 }
 
 export function usePlaceFavorites() {
-  const { couple } = useCouple();
+  const { couple, refetch: refetchCouple } = useCouple();
+  const { isAuthenticated, user } = useAuth();
+  const { ensureRelationshipUnit } = useEnsureRelationshipUnit();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const coupleId = couple?.id;
@@ -41,19 +45,41 @@ export function usePlaceFavorites() {
   // Add favorite
   const addFavorite = useMutation({
     mutationFn: async (placeId: string) => {
-      if (!coupleId) throw new Error('No couple found');
+      // Get or create couple ID
+      let effectiveCoupleId = coupleId;
+      
+      if (!effectiveCoupleId) {
+        effectiveCoupleId = await ensureRelationshipUnit();
+        if (!effectiveCoupleId) {
+          throw new Error('Could not create relationship unit');
+        }
+      }
 
       const { data, error } = await supabase
         .from('couple_favorites')
-        .insert({ couple_id: coupleId, place_id: placeId })
+        .insert({ couple_id: effectiveCoupleId, place_id: placeId })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Handle duplicate gracefully (unique constraint violation)
+        if (error.code === '23505') {
+          return { id: 'existing', couple_id: effectiveCoupleId, place_id: placeId, created_at: new Date().toISOString() };
+        }
+        throw error;
+      }
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['place-favorites', coupleId] });
+    onSuccess: (_, placeId) => {
+      // Invalidate favorites cache
+      queryClient.invalidateQueries({ queryKey: ['place-favorites'] });
+      // Invalidate affinity cache so Taste Profile updates
+      if (user?.id) {
+        queryClient.invalidateQueries({ queryKey: ['user-affinity', user.id] });
+      }
+      // Refetch couple data in case it was just created
+      refetchCouple();
+      
       toast({
         title: 'Saved',
         description: 'Place added to your saved list.',
@@ -72,18 +98,32 @@ export function usePlaceFavorites() {
   // Remove favorite
   const removeFavorite = useMutation({
     mutationFn: async (placeId: string) => {
-      if (!coupleId) throw new Error('No couple found');
+      // Get or create couple ID
+      let effectiveCoupleId = coupleId;
+      
+      if (!effectiveCoupleId) {
+        effectiveCoupleId = await ensureRelationshipUnit();
+        if (!effectiveCoupleId) {
+          throw new Error('Could not find relationship unit');
+        }
+      }
 
       const { error } = await supabase
         .from('couple_favorites')
         .delete()
-        .eq('couple_id', coupleId)
+        .eq('couple_id', effectiveCoupleId)
         .eq('place_id', placeId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['place-favorites', coupleId] });
+      // Invalidate favorites cache
+      queryClient.invalidateQueries({ queryKey: ['place-favorites'] });
+      // Invalidate affinity cache so Taste Profile updates
+      if (user?.id) {
+        queryClient.invalidateQueries({ queryKey: ['user-affinity', user.id] });
+      }
+      
       toast({
         title: 'Removed',
         description: 'Place removed from your saved list.',
@@ -99,8 +139,16 @@ export function usePlaceFavorites() {
     },
   });
 
-  // Toggle favorite
+  // Toggle favorite with auth check
   const toggleFavorite = (placeId: string) => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Sign in to save places',
+        description: 'Create an account to build your saved list.',
+      });
+      return;
+    }
+    
     if (isFavorited(placeId)) {
       removeFavorite.mutate(placeId);
     } else {
