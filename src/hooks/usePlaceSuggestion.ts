@@ -88,7 +88,11 @@ export const usePlaceSuggestion = () => {
         fetch_version: 1,
       };
 
-      const { error } = await supabase.from('places').insert(insertData);
+      const { data: insertedPlace, error } = await supabase
+        .from('places')
+        .insert(insertData)
+        .select('id')
+        .single();
 
       if (error) {
         console.error('Error submitting place suggestion:', error);
@@ -98,6 +102,20 @@ export const usePlaceSuggestion = () => {
           variant: 'destructive',
         });
         return false;
+      }
+
+      // Store photos in background (fire-and-forget)
+      if (insertedPlace?.id && details.photos?.length > 0) {
+        supabase.functions.invoke('store-place-photos', {
+          body: {
+            placeId: insertedPlace.id,
+            photos: details.photos.slice(0, 5),
+            maxWidth: 800,
+            maxHeight: 600,
+          },
+        }).catch(err => {
+          console.warn('Photo storage failed:', err);
+        });
       }
 
       toast({
