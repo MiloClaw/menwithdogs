@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Check } from 'lucide-react';
+import { MapPin, Check, Clock, Ruler, Zap, Search } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
@@ -17,6 +17,15 @@ import {
   PromptOption,
 } from '@/lib/preference-prompts';
 import { cn } from '@/lib/utils';
+import { TasteProfileCard } from './TasteProfileCard';
+import { PersonalizationSummary } from './PersonalizationSummary';
+
+const SECTION_ICONS = {
+  time: Clock,
+  distance: Ruler,
+  vibe: Zap,
+  intent: Search,
+};
 
 const SettingsPreferencesTab = () => {
   const { toast } = useToast();
@@ -71,49 +80,55 @@ const SettingsPreferencesTab = () => {
     updatePreferences({ intent_preferences: newIntents });
   };
 
-  const renderOptions = (
+  const renderChipOptions = (
     options: PromptOption[],
     selectedValue: string | null | undefined,
     onSelect: (value: string) => void
   ) => (
     <div className="flex flex-wrap gap-2">
-      {options.map(opt => (
-        <Button
-          key={opt.value}
-          variant={selectedValue === opt.value ? 'default' : 'outline'}
-          size="sm"
-          className={cn(
-            'min-h-[44px]',
-            selectedValue === opt.value && 'ring-2 ring-primary ring-offset-2'
-          )}
-          onClick={() => onSelect(opt.value)}
-          disabled={isUpdating}
-        >
-          {selectedValue === opt.value && <Check className="h-3 w-3 mr-1" />}
-          {opt.label}
-        </Button>
-      ))}
-    </div>
-  );
-
-  const renderMultiOptions = (options: PromptOption[]) => (
-    <div className="flex flex-wrap gap-2">
       {options.map(opt => {
-        const isSelected = selectedIntents.includes(opt.value);
+        const isSelected = selectedValue === opt.value;
         return (
           <Button
             key={opt.value}
             variant={isSelected ? 'default' : 'outline'}
             size="sm"
             className={cn(
-              'min-h-[44px]',
-              isSelected && 'ring-2 ring-primary ring-offset-2'
+              'min-h-[44px] gap-2',
+              isSelected && 'ring-2 ring-primary/20 ring-offset-2'
+            )}
+            onClick={() => onSelect(opt.value)}
+            disabled={isUpdating}
+          >
+            {opt.icon && <span className="text-base">{opt.icon}</span>}
+            <span>{opt.label}</span>
+            {isSelected && <Check className="h-3 w-3 ml-1" />}
+          </Button>
+        );
+      })}
+    </div>
+  );
+
+  const renderIntentGrid = (options: PromptOption[]) => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      {options.map(opt => {
+        const isSelected = selectedIntents.includes(opt.value);
+        return (
+          <Button
+            key={opt.value}
+            variant={isSelected ? 'default' : 'outline'}
+            className={cn(
+              'h-auto py-3 flex-col gap-1',
+              isSelected && 'ring-2 ring-primary/20 ring-offset-2'
             )}
             onClick={() => handleIntentToggle(opt.value)}
             disabled={isUpdating}
           >
-            {isSelected && <Check className="h-3 w-3 mr-1" />}
-            {opt.label}
+            <span className="text-xl">{opt.icon}</span>
+            <span className="text-xs font-medium">{opt.label}</span>
+            {isSelected && (
+              <Check className="h-3 w-3 absolute top-2 right-2" />
+            )}
           </Button>
         );
       })}
@@ -142,6 +157,7 @@ const SettingsPreferencesTab = () => {
               <Button 
                 variant="outline" 
                 size="sm"
+                className="min-h-[44px]"
                 onClick={() => setEditingCity(true)}
               >
                 Change
@@ -160,6 +176,7 @@ const SettingsPreferencesTab = () => {
                 <Button 
                   variant="ghost" 
                   size="sm"
+                  className="min-h-[44px]"
                   onClick={() => {
                     setEditingCity(false);
                     setCityInput('');
@@ -173,14 +190,20 @@ const SettingsPreferencesTab = () => {
         </CardContent>
       </Card>
 
-      {/* Time Preference */}
+      {/* Taste Profile - Intelligence visualization */}
+      <TasteProfileCard />
+
+      {/* Browsing Preferences */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">{TIME_PROMPT.question}</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Clock className="h-4 w-4" />
+            {TIME_PROMPT.question}
+          </CardTitle>
           <CardDescription>{TIME_PROMPT.footer}</CardDescription>
         </CardHeader>
         <CardContent>
-          {renderOptions(
+          {renderChipOptions(
             TIME_PROMPT.options,
             preferences?.time_preference,
             (v) => handleSingleSelect('time_preference', v)
@@ -188,14 +211,16 @@ const SettingsPreferencesTab = () => {
         </CardContent>
       </Card>
 
-      {/* Distance Preference */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">{DISTANCE_PROMPT.question}</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Ruler className="h-4 w-4" />
+            {DISTANCE_PROMPT.question}
+          </CardTitle>
           <CardDescription>{DISTANCE_PROMPT.footer}</CardDescription>
         </CardHeader>
         <CardContent>
-          {renderOptions(
+          {renderChipOptions(
             DISTANCE_PROMPT.options,
             preferences?.distance_preference,
             (v) => handleSingleSelect('distance_preference', v)
@@ -203,14 +228,16 @@ const SettingsPreferencesTab = () => {
         </CardContent>
       </Card>
 
-      {/* Vibe Preference */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">{VIBE_PROMPT.question}</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Zap className="h-4 w-4" />
+            {VIBE_PROMPT.question}
+          </CardTitle>
           <CardDescription>{VIBE_PROMPT.footer}</CardDescription>
         </CardHeader>
         <CardContent>
-          {renderOptions(
+          {renderChipOptions(
             VIBE_PROMPT.options,
             preferences?.vibe_preference,
             (v) => handleSingleSelect('vibe_preference', v)
@@ -218,16 +245,22 @@ const SettingsPreferencesTab = () => {
         </CardContent>
       </Card>
 
-      {/* Intent Preferences (multi-select) */}
+      {/* Intent Preferences (multi-select grid) */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">{INTENT_PROMPT.question}</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Search className="h-4 w-4" />
+            {INTENT_PROMPT.header}
+          </CardTitle>
           <CardDescription>{INTENT_PROMPT.footer}</CardDescription>
         </CardHeader>
         <CardContent>
-          {renderMultiOptions(INTENT_PROMPT.options)}
+          {renderIntentGrid(INTENT_PROMPT.options)}
         </CardContent>
       </Card>
+
+      {/* Personalization Summary */}
+      <PersonalizationSummary />
     </div>
   );
 };

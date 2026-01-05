@@ -10,6 +10,7 @@ export type PromptType = 'time' | 'distance' | 'vibe' | 'intent' | 'geo';
 export interface PromptOption {
   value: string;
   label: string;
+  icon?: string;
 }
 
 export interface PromptDefinition {
@@ -29,10 +30,10 @@ export const TIME_PROMPT: PromptDefinition = {
   footer: 'This only tailors the places you see.',
   multiSelect: false,
   options: [
-    { value: 'mornings', label: 'Mornings' },
-    { value: 'evenings', label: 'Evenings' },
-    { value: 'weekends', label: 'Weekends' },
-    { value: 'mixed', label: 'Show a mix' },
+    { value: 'mornings', label: 'Mornings', icon: '☀️' },
+    { value: 'evenings', label: 'Evenings', icon: '🌙' },
+    { value: 'weekends', label: 'Weekends', icon: '📅' },
+    { value: 'mixed', label: 'Show a mix', icon: '🔀' },
   ],
 };
 
@@ -44,9 +45,9 @@ export const DISTANCE_PROMPT: PromptDefinition = {
   footer: 'This only tailors the places you see.',
   multiSelect: false,
   options: [
-    { value: 'close', label: 'Close by' },
-    { value: 'medium', label: 'Up to ~15 min' },
-    { value: 'far', label: "I'll travel if worth it" },
+    { value: 'close', label: 'Close by', icon: '📍' },
+    { value: 'medium', label: 'Up to ~15 min', icon: '🚗' },
+    { value: 'far', label: "I'll travel if worth it", icon: '🗺️' },
   ],
 };
 
@@ -58,10 +59,10 @@ export const VIBE_PROMPT: PromptDefinition = {
   footer: 'This only tailors the places you see.',
   multiSelect: false,
   options: [
-    { value: 'quiet', label: 'Quiet / low-key' },
-    { value: 'balanced', label: 'Balanced' },
-    { value: 'lively', label: 'Lively' },
-    { value: 'depends', label: 'Depends' },
+    { value: 'quiet', label: 'Quiet / low-key', icon: '🤫' },
+    { value: 'balanced', label: 'Balanced', icon: '⚖️' },
+    { value: 'lively', label: 'Lively', icon: '🎉' },
+    { value: 'depends', label: 'Depends', icon: '🤷' },
   ],
 };
 
@@ -73,13 +74,13 @@ export const INTENT_PROMPT: PromptDefinition = {
   footer: 'This helps us show more of what you like.',
   multiSelect: true,
   options: [
-    { value: 'coffee', label: 'Coffee & calm' },
-    { value: 'food_casual', label: 'Good food, casual' },
-    { value: 'bars', label: 'Bars & lounges' },
-    { value: 'special', label: 'Something special' },
-    { value: 'fitness', label: 'Fitness & wellness' },
-    { value: 'outdoors', label: 'Outdoors' },
-    { value: 'culture', label: 'Culture & browsing' },
+    { value: 'coffee', label: 'Coffee & calm', icon: '☕' },
+    { value: 'food_casual', label: 'Good food, casual', icon: '🍽️' },
+    { value: 'bars', label: 'Bars & lounges', icon: '🍷' },
+    { value: 'special', label: 'Something special', icon: '✨' },
+    { value: 'fitness', label: 'Fitness & wellness', icon: '💪' },
+    { value: 'outdoors', label: 'Outdoors', icon: '🌳' },
+    { value: 'culture', label: 'Culture & browsing', icon: '🎨' },
   ],
 };
 
@@ -91,9 +92,9 @@ export const GEO_PROMPT: PromptDefinition = {
   footer: 'This only tailors the places you see.',
   multiSelect: false,
   options: [
-    { value: 'single_area', label: 'Mostly one area' },
-    { value: 'few_areas', label: 'A few nearby areas' },
-    { value: 'anywhere', label: 'Anywhere nearby' },
+    { value: 'single_area', label: 'Mostly one area', icon: '🎯' },
+    { value: 'few_areas', label: 'A few nearby areas', icon: '🔄' },
+    { value: 'anywhere', label: 'Anywhere nearby', icon: '🌐' },
   ],
 };
 
