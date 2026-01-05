@@ -1,14 +1,20 @@
 import { useNavigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, User, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AffinityBar } from './AffinityBar';
 import { useUserAffinity } from '@/hooks/useUserAffinity';
+import { useCouple } from '@/hooks/useCouple';
 
 export function TasteProfileCard() {
   const navigate = useNavigate();
   const { affinities, isLoading, totalSignals, hasData } = useUserAffinity();
+  const { couple } = useCouple();
+  
+  const isCouple = couple?.type === 'couple';
+  const UnitIcon = isCouple ? Users : User;
 
   // Only show top 4 categories
   const topAffinities = affinities.slice(0, 4);
@@ -66,10 +72,16 @@ export function TasteProfileCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Sparkles className="h-4 w-4" />
-          Your Taste Profile
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Sparkles className="h-4 w-4" />
+            {isCouple ? 'Your Shared Taste' : 'Your Taste Profile'}
+          </CardTitle>
+          <Badge variant="secondary" className="gap-1.5 text-xs font-normal">
+            <UnitIcon className="h-3 w-3" />
+            {isCouple ? 'Couple' : 'Personal'}
+          </Badge>
+        </div>
         <CardDescription>
           Based on {totalSignals} saved place{totalSignals !== 1 ? 's' : ''}
         </CardDescription>
