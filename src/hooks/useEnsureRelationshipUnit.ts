@@ -49,7 +49,9 @@ export const useEnsureRelationshipUnit = () => {
       console.debug('[useEnsureRelationshipUnit] Creating relationship unit...');
 
       // Call atomic backend function
-      const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user');
+      const { data: coupleId, error } = await supabase.rpc('create_couple_for_current_user', {
+        unit_type: 'individual'
+      });
 
       if (error) {
         console.error('[useEnsureRelationshipUnit] Creation error:', error);
