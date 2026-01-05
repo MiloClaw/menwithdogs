@@ -806,6 +806,7 @@ export type Database = {
           opening_hours: Json | null
           phone_number: string | null
           photos: Json | null
+          photos_stored_at: string | null
           price_level: number | null
           primary_category: string
           rating: number | null
@@ -813,6 +814,7 @@ export type Database = {
           source: Database["public"]["Enums"]["place_source"]
           state: string | null
           status: Database["public"]["Enums"]["place_status"]
+          stored_photo_urls: string[] | null
           submitted_by: string | null
           updated_at: string
           user_ratings_total: number | null
@@ -847,6 +849,7 @@ export type Database = {
           opening_hours?: Json | null
           phone_number?: string | null
           photos?: Json | null
+          photos_stored_at?: string | null
           price_level?: number | null
           primary_category: string
           rating?: number | null
@@ -854,6 +857,7 @@ export type Database = {
           source?: Database["public"]["Enums"]["place_source"]
           state?: string | null
           status?: Database["public"]["Enums"]["place_status"]
+          stored_photo_urls?: string[] | null
           submitted_by?: string | null
           updated_at?: string
           user_ratings_total?: number | null
@@ -888,6 +892,7 @@ export type Database = {
           opening_hours?: Json | null
           phone_number?: string | null
           photos?: Json | null
+          photos_stored_at?: string | null
           price_level?: number | null
           primary_category?: string
           rating?: number | null
@@ -895,6 +900,7 @@ export type Database = {
           source?: Database["public"]["Enums"]["place_source"]
           state?: string | null
           status?: Database["public"]["Enums"]["place_status"]
+          stored_photo_urls?: string[] | null
           submitted_by?: string | null
           updated_at?: string
           user_ratings_total?: number | null

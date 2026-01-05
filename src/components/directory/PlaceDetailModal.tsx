@@ -17,11 +17,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceUpcomingEvents from '@/components/directory/PlaceUpcomingEvents';
-import type { Json } from '@/integrations/supabase/types';
 
 export interface PlaceDetail {
   id: string;
@@ -33,11 +31,12 @@ export interface PlaceDetail {
   rating: number | null;
   user_ratings_total: number | null;
   price_level: number | null;
-  photos: Json | null;
+  photos: unknown;
+  stored_photo_urls: string[] | null;
   website_url: string | null;
   google_maps_url: string | null;
   phone_number: string | null;
-  opening_hours: Json | null;
+  opening_hours: unknown;
   distance?: number;
 }
 
@@ -46,13 +45,6 @@ interface PlaceDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const getPhotos = (photos: Json | null): PhotoReference[] => {
-  if (!photos || !Array.isArray(photos)) {
-    return [];
-  }
-  return photos as unknown as PhotoReference[];
-};
 
 const getPriceIndicator = (priceLevel: number | null): string => {
   if (!priceLevel) return '';
@@ -64,7 +56,7 @@ interface OpeningHoursParsed {
   openNow?: boolean;
 }
 
-const getOpeningHours = (hours: Json | null): OpeningHoursParsed => {
+const getOpeningHours = (hours: unknown): OpeningHoursParsed => {
   if (!hours || typeof hours !== 'object') return { weekdayDescriptions: [] };
   const hoursObj = hours as Record<string, unknown>;
   return {
@@ -80,12 +72,8 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   const [hoursExpanded, setHoursExpanded] = useState(false);
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
 
-  const photos = getPhotos(place?.photos ?? null);
-  const { photoUrls, isLoading: photosLoading } = usePlacePhotos(photos, { 
-    maxWidth: 800, 
-    maxHeight: 600,
-    maxPhotos: 5 
-  });
+  // Use stored photo URLs directly (no API calls needed)
+  const storedPhotos = place?.stored_photo_urls || [];
 
   // Reset photo index when place changes
   useEffect(() => {
@@ -93,7 +81,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
     setHoursExpanded(false);
   }, [place?.id]);
 
-  const openingHoursData = useMemo(() => 
+  const openingHoursData = useMemo(() =>
     getOpeningHours(place?.opening_hours ?? null), 
     [place?.opening_hours]
   );
@@ -103,14 +91,13 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
   const saved = isFavorited(place.id);
-  const validPhotoUrls = photoUrls.filter((url): url is string => url !== null);
 
   const nextPhoto = () => {
-    setCurrentPhotoIndex((prev) => (prev + 1) % validPhotoUrls.length);
+    setCurrentPhotoIndex((prev) => (prev + 1) % storedPhotos.length);
   };
 
   const prevPhoto = () => {
-    setCurrentPhotoIndex((prev) => (prev - 1 + validPhotoUrls.length) % validPhotoUrls.length);
+    setCurrentPhotoIndex((prev) => (prev - 1 + storedPhotos.length) % storedPhotos.length);
   };
 
   return (
@@ -118,20 +105,16 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
         {/* Photo Gallery */}
         <div className="relative aspect-[16/9] bg-muted">
-          {photosLoading ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
-            </div>
-          ) : validPhotoUrls.length > 0 ? (
+          {storedPhotos.length > 0 ? (
             <>
               <img
-                src={validPhotoUrls[currentPhotoIndex]}
+                src={storedPhotos[currentPhotoIndex]}
                 alt={`${place.name} - Photo ${currentPhotoIndex + 1}`}
                 className="w-full h-full object-cover"
               />
               
               {/* Photo Navigation */}
-              {validPhotoUrls.length > 1 && (
+              {storedPhotos.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
@@ -152,7 +135,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                   
                   {/* Photo Counter */}
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm">
-                    {currentPhotoIndex + 1} / {validPhotoUrls.length}
+                    {currentPhotoIndex + 1} / {storedPhotos.length}
                   </div>
                 </>
               )}
