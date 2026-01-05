@@ -1,28 +1,37 @@
 project_id = "pgaduiukijwoenibybvq"
 
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+
+[functions.compute-place-taxonomy]
+verify_jwt = false
+
+[functions.discover-events]
+verify_jwt = false
+
 [functions.google-places-autocomplete]
 verify_jwt = false
 
 [functions.google-places-details]
 verify_jwt = false
 
-[functions.google-places-photo]
-verify_jwt = false
-
-[functions.discover-events]
-verify_jwt = false
-
 [functions.google-places-nearby]
 verify_jwt = false
 
-[functions.seed-city-places]
+[functions.google-places-photo]
 verify_jwt = false
 
 [functions.refresh-places]
 verify_jwt = false
 
-[functions.compute-place-taxonomy]
+[functions.seed-city-places]
 verify_jwt = false
 
 [functions.store-place-photos]
+verify_jwt = false
+
+[functions.migrate-place-photos]
 verify_jwt = false
