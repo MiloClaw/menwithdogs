@@ -1,15 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Calendar, MapPin, MapPinOff, X } from 'lucide-react';
+import { MapPin, MapPinOff, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import PageLayout from '@/components/PageLayout';
 import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
-import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
-import EventDetailModal from '@/components/directory/EventDetailModal';
 import CityPickerModal, { CityPickerMode } from '@/components/directory/CityPickerModal';
 import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
 import { CitySuggestionModal } from '@/components/directory/CitySuggestionModal';
@@ -18,7 +15,6 @@ import LocationContextBanner from '@/components/directory/LocationContextBanner'
 import WhatsHappening from '@/components/directory/WhatsHappening';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePublicPlaces } from '@/hooks/usePublicPlaces';
-import { useEventsPublic, DateFilter, PublicEvent } from '@/hooks/useEventsPublic';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -40,12 +36,6 @@ const RADIUS_OPTIONS = [
   { label: '50 mi', value: 50 },
 ];
 
-const DATE_FILTER_OPTIONS: { label: string; value: DateFilter }[] = [
-  { label: 'Today', value: 'today' },
-  { label: 'This week', value: 'this_week' },
-  { label: 'This month', value: 'this_month' },
-  { label: 'Upcoming', value: 'upcoming' },
-];
 
 const Places = () => {
   // URL params for exploration mode
@@ -86,7 +76,6 @@ const Places = () => {
   const hasUserLocation = userLat != null && userLng != null;
   
   // Shared state
-  const [activeTab, setActiveTab] = useState<'places' | 'events'>('places');
   const [searchTerm, setSearchTerm] = useState('');
   const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
   
@@ -105,10 +94,6 @@ const Places = () => {
   const [selectedGoogleCity, setSelectedGoogleCity] = useState<PlaceDetails | null>(null);
   const { submitSuggestion: submitCitySuggestion, isSubmitting: isSuggestingCity } = useCitySuggestion();
   
-  // Events state
-  const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
-  const [selectedEvent, setSelectedEvent] = useState<PublicEvent | null>(null);
-  const [eventModalOpen, setEventModalOpen] = useState(false);
 
   // Show city picker for authenticated users without location (once per session)
   // Only show when NOT in exploration mode
@@ -175,12 +160,6 @@ const Places = () => {
       ? { city: exploringCity!, state: exploringState }
       : { lat: userLat, lng: userLng, radiusMiles: 100 }
   );
-  const { data: events, isLoading: eventsLoading } = useEventsPublic({
-    dateFilter,
-    radiusFilter,
-    searchTerm: activeTab === 'events' ? searchTerm : '',
-  });
-
   // Get unique place categories
   const placeCategories = useMemo(() => {
     if (!places) return [];
@@ -226,12 +205,6 @@ const Places = () => {
       return a.name.localeCompare(b.name);
     });
   }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
-
-  // Process events
-  const processedEvents = useMemo(() => {
-    if (!events) return [];
-    return events;
-  }, [events]);
 
   const handlePlaceClick = (place: DirectoryPlace) => {
     setSelectedPlace(place);
@@ -303,11 +276,6 @@ const Places = () => {
     }
   };
 
-  const handleEventClick = (event: PublicEvent) => {
-    setSelectedEvent(event);
-    setEventModalOpen(true);
-  };
-
   // Check if any filters are active
   const hasActiveFilters = searchTerm || selectedCategory || radiusFilter;
 
@@ -330,276 +298,173 @@ const Places = () => {
           </p>
         </header>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'places' | 'events')}>
-          <TabsList className="grid w-full max-w-xs grid-cols-2">
-            <TabsTrigger value="places" className="min-h-[44px]">
-              <MapPin className="h-4 w-4 mr-2" />
-              Places
-            </TabsTrigger>
-            <TabsTrigger value="events" className="min-h-[44px]">
-              <Calendar className="h-4 w-4 mr-2" />
-              Events
-            </TabsTrigger>
-          </TabsList>
+        {/* Search */}
+        <div className="max-w-md">
+          <GooglePlacesAutocomplete
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onPlaceSelect={handleSearchPlaceSelect}
+            placeholder="Search places..."
+            types="establishment"
+            locationBias={hasUserLocation ? { lat: userLat!, lng: userLng! } : undefined}
+          />
+        </div>
 
-          {/* Search */}
-          <div className="max-w-md mt-6">
-            {activeTab === 'places' ? (
-              <GooglePlacesAutocomplete
-                value={searchTerm}
-                onChange={setSearchTerm}
-                onPlaceSelect={handleSearchPlaceSelect}
-                placeholder="Search places..."
-                types="establishment"
-                locationBias={hasUserLocation ? { lat: userLat!, lng: userLng! } : undefined}
-              />
-            ) : (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search events..."
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9 pr-9"
-                />
-                {searchTerm && (
-                  <button 
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
+        {/* Location Context Banner */}
+        <LocationContextBanner
+          hasLocation={hasUserLocation}
+          locationSource={isExplorationMode ? 'exploration' : locationSource}
+          exploringCity={exploringCity}
+          exploringState={exploringState}
+          profileCity={memberProfile?.city}
+          isLoading={locationLoading}
+          onRequestLocation={requestBrowserLocation}
+          onExploreCity={handleExploreCity}
+          onClearExploration={handleClearExploration}
+        />
+
+        {/* Distance Filter */}
+        {hasUserLocation && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground font-medium">Distance</p>
+            <div className="flex flex-wrap gap-2">
+              {RADIUS_OPTIONS.map(option => (
+                <Badge
+                  key={option.label}
+                  variant={radiusFilter === option.value ? 'default' : 'outline'}
+                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                  onClick={() => setRadiusFilter(option.value)}
+                >
+                  {option.label}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* What's Happening Section - City-scoped posts */}
+        {(isExplorationMode || memberProfile?.city) && (
+          <WhatsHappening 
+            cityName={isExplorationMode ? exploringCity : memberProfile?.city || null}
+            state={isExplorationMode ? exploringState : memberProfile?.state || null}
+          />
+        )}
+
+        {/* Category Filters */}
+        {placeCategories.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground font-medium">Category</p>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant={selectedCategory === null ? 'default' : 'outline'}
+                className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                onClick={() => setSelectedCategory(null)}
+              >
+                All
+              </Badge>
+              {placeCategories.map(category => (
+                <Badge
+                  key={category}
+                  variant={selectedCategory === category ? 'default' : 'outline'}
+                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+                  onClick={() => setSelectedCategory(
+                    selectedCategory === category ? null : category
+                  )}
+                >
+                  {category}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Results Count & Clear Filters */}
+        {!placesLoading && (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
+            </p>
+            {hasActiveFilters && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={clearAllFilters}
+                className="text-muted-foreground hover:text-foreground h-auto py-1 px-2"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Clear filters
+              </Button>
             )}
           </div>
+        )}
 
-          {/* Location Context Banner */}
-          <div className="mt-4">
-            <LocationContextBanner
-              hasLocation={hasUserLocation}
-              locationSource={isExplorationMode ? 'exploration' : locationSource}
-              exploringCity={exploringCity}
-              exploringState={exploringState}
-              profileCity={memberProfile?.city}
-              isLoading={locationLoading}
-              onRequestLocation={requestBrowserLocation}
-              onExploreCity={handleExploreCity}
-              onClearExploration={handleClearExploration}
-            />
+        {/* Places Grid */}
+        {placesLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-[4/3] w-full rounded-lg" />
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
           </div>
-
-          {/* Distance Filter (shared) */}
-          {hasUserLocation && (
-            <div className="space-y-2 mt-4">
-              <p className="text-sm text-muted-foreground font-medium">Distance</p>
-              <div className="flex flex-wrap gap-2">
-                {RADIUS_OPTIONS.map(option => (
-                  <Badge
-                    key={option.label}
-                    variant={radiusFilter === option.value ? 'default' : 'outline'}
-                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                    onClick={() => setRadiusFilter(option.value)}
-                  >
-                    {option.label}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* What's Happening Section - City-scoped posts */}
-          {(isExplorationMode || memberProfile?.city) && (
-            <div className="mt-6">
-              <WhatsHappening 
-                cityName={isExplorationMode ? exploringCity : memberProfile?.city || null}
-                state={isExplorationMode ? exploringState : memberProfile?.state || null}
-              />
-            </div>
-          )}
-
-          {/* Places Tab */}
-          <TabsContent value="places" className="space-y-6 mt-6">
-            {/* Category Filters */}
-            {placeCategories.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground font-medium">Category</p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge
-                    variant={selectedCategory === null ? 'default' : 'outline'}
-                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                    onClick={() => setSelectedCategory(null)}
-                  >
-                    All
-                  </Badge>
-                  {placeCategories.map(category => (
-                    <Badge
-                      key={category}
-                      variant={selectedCategory === category ? 'default' : 'outline'}
-                      className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                      onClick={() => setSelectedCategory(
-                        selectedCategory === category ? null : category
-                      )}
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Results Count & Clear Filters */}
-            {!placesLoading && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
-                </p>
-                {hasActiveFilters && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={clearAllFilters}
-                    className="text-muted-foreground hover:text-foreground h-auto py-1 px-2"
-                  >
-                    <X className="h-3 w-3 mr-1" />
-                    Clear filters
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {/* Places Grid */}
-            {placesLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="space-y-3">
-                    <Skeleton className="aspect-[4/3] w-full rounded-lg" />
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                ))}
-              </div>
-            ) : isSwitchingLocation ? (
-              <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
-                <p className="text-sm text-muted-foreground">
-                  Finding places in {exploringCity || 'new location'}...
-                </p>
-              </div>
-            ) : processedPlaces.length === 0 ? (
-              <div className="text-center py-20 space-y-4">
-                <MapPinOff className="h-12 w-12 mx-auto text-muted-foreground/30" />
-                <div className="space-y-2">
-                  <p className="font-medium">
-                    {hasActiveFilters 
-                      ? 'No matches found' 
-                      : isExplorationMode 
-                        ? `No places in ${exploringCity} yet`
-                        : 'Your area is coming soon'}
-                  </p>
-                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                    {hasActiveFilters
-                      ? 'Try adjusting your filters to see more results'
-                      : isExplorationMode
-                        ? 'Be the first to suggest a spot in this city!'
-                        : "We're curating the best spots in your area. Add your city to be notified."}
-                  </p>
-                </div>
-                {hasActiveFilters ? (
-                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
-                    Clear all filters
-                  </Button>
-                ) : isExplorationMode ? (
-                  <Button variant="outline" size="sm" onClick={handleClearExploration}>
-                    ← Back to your location
-                  </Button>
-                ) : !hasUserLocation && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowCityPicker(true)}
-                  >
-                    Add Your City
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {processedPlaces.map(place => (
-                  <DirectoryPlaceCard 
-                    key={place.id} 
-                    place={place} 
-                    onClick={() => handlePlaceClick(place)}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Events Tab */}
-          <TabsContent value="events" className="space-y-6 mt-6">
-            {/* Date Filters */}
+        ) : isSwitchingLocation ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+            <p className="text-sm text-muted-foreground">
+              Finding places in {exploringCity || 'new location'}...
+            </p>
+          </div>
+        ) : processedPlaces.length === 0 ? (
+          <div className="text-center py-20 space-y-4">
+            <MapPinOff className="h-12 w-12 mx-auto text-muted-foreground/30" />
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground font-medium">When</p>
-              <div className="flex flex-wrap gap-2">
-                {DATE_FILTER_OPTIONS.map(option => (
-                  <Badge
-                    key={option.value}
-                    variant={dateFilter === option.value ? 'default' : 'outline'}
-                    className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                    onClick={() => setDateFilter(option.value)}
-                  >
-                    {option.label}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Results Count */}
-            {!eventsLoading && (
-              <p className="text-sm text-muted-foreground">
-                {processedEvents.length} {processedEvents.length === 1 ? 'event' : 'events'} found
+              <p className="font-medium">
+                {hasActiveFilters 
+                  ? 'No matches found' 
+                  : isExplorationMode 
+                    ? `No places in ${exploringCity} yet`
+                    : 'Your area is coming soon'}
               </p>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                {hasActiveFilters
+                  ? 'Try adjusting your filters to see more results'
+                  : isExplorationMode
+                    ? 'Be the first to suggest a spot in this city!'
+                    : "We're curating the best spots in your area. Add your city to be notified."}
+              </p>
+            </div>
+            {hasActiveFilters ? (
+              <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                Clear all filters
+              </Button>
+            ) : isExplorationMode ? (
+              <Button variant="outline" size="sm" onClick={handleClearExploration}>
+                ← Back to your location
+              </Button>
+            ) : !hasUserLocation && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowCityPicker(true)}
+              >
+                Add Your City
+              </Button>
             )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {processedPlaces.map(place => (
+              <DirectoryPlaceCard 
+                key={place.id} 
+                place={place} 
+                onClick={() => handlePlaceClick(place)}
+              />
+            ))}
+          </div>
+        )}
 
-            {/* Events Grid */}
-            {eventsLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="space-y-3">
-                    <Skeleton className="h-40 w-full rounded-lg" />
-                  </div>
-                ))}
-              </div>
-            ) : processedEvents.length === 0 ? (
-              <div className="text-center py-20 space-y-4">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground/30" />
-                <div className="space-y-2">
-                  <p className="font-medium">
-                    {hasActiveFilters ? 'No events match' : 'Events coming soon'}
-                  </p>
-                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                    {hasActiveFilters
-                      ? 'Try a different time range to see more events'
-                      : 'This city is just getting started. New events are added weekly.'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {processedEvents.map(event => (
-                  <DirectoryEventCard 
-                    key={event.id} 
-                    event={event} 
-                    onClick={() => handleEventClick(event)}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
       </div>
 
       {/* Modals */}
@@ -607,11 +472,6 @@ const Places = () => {
         place={selectedPlace}
         open={placeModalOpen}
         onOpenChange={setPlaceModalOpen}
-      />
-      <EventDetailModal 
-        event={selectedEvent}
-        open={eventModalOpen}
-        onOpenChange={setEventModalOpen}
       />
       <CityPickerModal
         open={showCityPicker}
