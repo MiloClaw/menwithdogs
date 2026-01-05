@@ -41,6 +41,7 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
           user_ratings_total,
           price_level,
           photos,
+          stored_photo_urls,
           website_url,
           google_maps_url,
           phone_number,

@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.compute-place-taxonomy]
 verify_jwt = false
+
+[functions.store-place-photos]
+verify_jwt = false

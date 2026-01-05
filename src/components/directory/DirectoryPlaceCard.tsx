@@ -1,11 +1,8 @@
 import { Star, MapPin, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
-import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
-import type { Json } from '@/integrations/supabase/types';
 
 export interface DirectoryPlace {
   id: string;
@@ -18,11 +15,12 @@ export interface DirectoryPlace {
   rating: number | null;
   user_ratings_total: number | null;
   price_level: number | null;
-  photos: Json | null;
+  photos: unknown;
+  stored_photo_urls: string[] | null;
   website_url: string | null;
   google_maps_url: string | null;
   phone_number: string | null;
-  opening_hours: Json | null;
+  opening_hours: unknown;
   lat: number | null;
   lng: number | null;
   distance?: number;
@@ -33,13 +31,6 @@ interface DirectoryPlaceCardProps {
   onClick?: () => void;
 }
 
-const getPhotos = (photos: Json | null): PhotoReference[] => {
-  if (!photos || !Array.isArray(photos)) {
-    return [];
-  }
-  return photos as unknown as PhotoReference[];
-};
-
 const getPriceIndicator = (priceLevel: number | null): string => {
   if (!priceLevel) return '';
   return '$'.repeat(priceLevel);
@@ -47,13 +38,9 @@ const getPriceIndicator = (priceLevel: number | null): string => {
 
 const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
-  const photos = getPhotos(place.photos);
-  const { photoUrls, isLoading: isLoadingPhoto } = usePlacePhotos(photos, { 
-    maxWidth: 600, 
-    maxHeight: 400, 
-    maxPhotos: 1 
-  });
-  const photoUrl = photoUrls[0] || null;
+  
+  // Use stored photo URLs directly (no API calls needed)
+  const photoUrl = place.stored_photo_urls?.[0] || null;
   const location = [place.city, place.state].filter(Boolean).join(', ');
   const priceIndicator = getPriceIndicator(place.price_level);
   const saved = isFavorited(place.id);
@@ -70,9 +57,7 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
     >
       {/* Photo Section */}
       <div className="aspect-[4/3] relative bg-muted overflow-hidden">
-        {isLoadingPhoto ? (
-          <Skeleton className="w-full h-full" />
-        ) : photoUrl ? (
+        {photoUrl ? (
           <img
             src={photoUrl}
             alt={place.name}
