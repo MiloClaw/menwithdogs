@@ -1019,6 +1019,48 @@ export type Database = {
           },
         ]
       }
+      preference_definitions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          domain: string
+          id: string
+          is_active: boolean | null
+          label: string
+          maps_to_primary_categories: string[] | null
+          maps_to_taxonomy_slugs: string[] | null
+          preference_key: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          domain: string
+          id?: string
+          is_active?: boolean | null
+          label: string
+          maps_to_primary_categories?: string[] | null
+          maps_to_taxonomy_slugs?: string[] | null
+          preference_key: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          domain?: string
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          maps_to_primary_categories?: string[] | null
+          maps_to_taxonomy_slugs?: string[] | null
+          preference_key?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       taxonomy_nodes: {
         Row: {
           created_at: string | null
@@ -1065,6 +1107,83 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_place_affinity: {
+        Row: {
+          affinity_score: number
+          confidence: number | null
+          id: string
+          last_updated: string | null
+          place_category: string
+          supporting_signals_count: number | null
+          taxonomy_node_id: string | null
+          user_id: string
+        }
+        Insert: {
+          affinity_score?: number
+          confidence?: number | null
+          id?: string
+          last_updated?: string | null
+          place_category: string
+          supporting_signals_count?: number | null
+          taxonomy_node_id?: string | null
+          user_id: string
+        }
+        Update: {
+          affinity_score?: number
+          confidence?: number | null
+          id?: string
+          last_updated?: string | null
+          place_category?: string
+          supporting_signals_count?: number | null
+          taxonomy_node_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_place_affinity_taxonomy_node_id_fkey"
+            columns: ["taxonomy_node_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preference_profiles: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          derived_from: string
+          id: string
+          last_computed_at: string | null
+          preference_domain: string
+          preference_key: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          derived_from?: string
+          id?: string
+          last_computed_at?: string | null
+          preference_domain: string
+          preference_key: string
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          derived_from?: string
+          id?: string
+          last_computed_at?: string | null
+          preference_domain?: string
+          preference_key?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {
@@ -1126,6 +1245,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_signals: {
+        Row: {
+          confidence: number | null
+          context_json: Json | null
+          created_at: string
+          id: string
+          signal_key: string
+          signal_type: string
+          signal_value: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          context_json?: Json | null
+          created_at?: string
+          id?: string
+          signal_key: string
+          signal_type: string
+          signal_value?: string | null
+          source?: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number | null
+          context_json?: Json | null
+          created_at?: string
+          id?: string
+          signal_key?: string
+          signal_type?: string
+          signal_value?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       city_seeding_progress: {
@@ -1163,6 +1318,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_user_signal: {
+        Args: {
+          _confidence?: number
+          _context?: Json
+          _signal_key: string
+          _signal_type: string
+          _signal_value?: string
+          _source?: string
+        }
+        Returns: string
       }
     }
     Enums: {

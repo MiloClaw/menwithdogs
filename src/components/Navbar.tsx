@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, Heart } from "lucide-react";
+import { Menu, X, LogOut, Shield, Heart, Settings } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,8 +45,9 @@ const Navbar = () => {
                   Admin
                 </Link>
               )}
-              <Link to="/preferences" className={navLinkClasses}>
-                Preferences
+              <Link to="/settings" className={`${navLinkClasses} flex items-center gap-1`}>
+                <Settings className="w-4 h-4" />
+                Settings
               </Link>
               <Link to="/places" className={navLinkClasses}>
                 Places
@@ -102,11 +103,12 @@ const Navbar = () => {
                   </Link>
                 )}
                 <Link 
-                  to="/preferences"
-                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
+                  to="/settings"
+                  className="flex items-center gap-2 py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Preferences
+                  <Settings className="w-4 h-4" />
+                  Settings
                 </Link>
                 <Link 
                   to="/places" 
