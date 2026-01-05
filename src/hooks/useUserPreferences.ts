@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { PromptType } from '@/lib/preference-prompts';
+import { recordSignal } from '@/hooks/useUserSignals';
 
 export interface UserPreferences {
   id: string;
@@ -70,6 +71,7 @@ export function useUserPreferences() {
         .eq('user_id', userId)
         .maybeSingle();
 
+      let result;
       if (existing) {
         // Update existing
         const { data, error } = await supabase
@@ -80,7 +82,7 @@ export function useUserPreferences() {
           .single();
 
         if (error) throw error;
-        return data;
+        result = data;
       } else {
         // Insert new
         const { data, error } = await supabase
@@ -90,8 +92,27 @@ export function useUserPreferences() {
           .single();
 
         if (error) throw error;
-        return data;
+        result = data;
       }
+
+      // Record signals for preference changes (excluding prompts_shown)
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== null && key !== 'prompts_shown') {
+          try {
+            await recordSignal(
+              'explicit_preference',
+              key,
+              Array.isArray(value) ? JSON.stringify(value) : String(value),
+              'user'
+            );
+          } catch {
+            // Signal recording is non-critical, don't fail the mutation
+            console.warn('Failed to record preference signal:', key);
+          }
+        }
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-preferences', userId] });

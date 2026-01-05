@@ -18,6 +18,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
+import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import PostManagement from "./pages/admin/PostManagement";
@@ -60,7 +61,8 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/saved" element={<Saved />} />
               
-              {/* Preferences (optional profile editing - not a gate) */}
+              {/* Settings & Preferences */}
+              <Route path="/settings" element={<Settings />} />
               <Route path="/preferences" element={<Preferences />} />
               
               {/* Legacy routes - all redirect to /places */}
