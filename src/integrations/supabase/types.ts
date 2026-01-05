@@ -1308,6 +1308,7 @@ export type Database = {
     }
     Functions: {
       compute_place_aggregates: { Args: never; Returns: undefined }
+      compute_user_affinity: { Args: { _user_id: string }; Returns: undefined }
       create_couple_for_current_user:
         | { Args: never; Returns: string }
         | { Args: { unit_type?: string }; Returns: string }
