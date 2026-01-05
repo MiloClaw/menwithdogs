@@ -565,7 +565,7 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
           const details = detailsData.details;
 
           // Insert place with pending status
-          const { error: insertError } = await supabase.from('places').insert({
+          const { data: insertedPlace, error: insertError } = await supabase.from('places').insert({
             google_place_id: candidate.place_id,
             name: details.name || candidate.name,
             formatted_address: details.formatted_address || candidate.formatted_address,
@@ -587,7 +587,7 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
             primary_category: 'restaurant', // Default, can be refined later
             source: 'google_places',
             status: 'pending',
-          });
+          }).select('id').single();
 
           if (insertError) {
             // Check for duplicate constraint
@@ -599,6 +599,21 @@ export function useCitySeedWizard(cityId: string, cityName: string, defaultLat?:
             results.failed++;
           } else {
             results.success++;
+            
+            // Store photos in background (fire-and-forget)
+            const photosToStore = details.photos || candidate.photos;
+            if (insertedPlace?.id && photosToStore?.length > 0) {
+              supabase.functions.invoke('store-place-photos', {
+                body: {
+                  placeId: insertedPlace.id,
+                  photos: photosToStore.slice(0, 5),
+                  maxWidth: 800,
+                  maxHeight: 600,
+                },
+              }).catch(err => {
+                console.warn(`Photo storage failed for ${candidate.name}:`, err);
+              });
+            }
           }
         } catch (err) {
           console.error(`Error processing ${candidate.name}:`, err);

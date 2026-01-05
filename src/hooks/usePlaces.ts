@@ -156,10 +156,25 @@ export const usePlaces = () => {
       if (error) throw error;
       return data as Place;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
       queryClient.invalidateQueries({ queryKey: ['places', 'public'] });
       toast({ title: 'Place created successfully' });
+      
+      // Store photos in background (fire-and-forget)
+      const photos = getPhotos(data.photos);
+      if (photos.length > 0) {
+        supabase.functions.invoke('store-place-photos', {
+          body: {
+            placeId: data.id,
+            photos: photos.slice(0, 5),
+            maxWidth: 800,
+            maxHeight: 600,
+          },
+        }).catch(err => {
+          console.warn('Photo storage failed:', err);
+        });
+      }
     },
     onError: (error) => {
       toast({
