@@ -68,8 +68,8 @@ const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDet
       {/* Content */}
       <div className="flex-1 overflow-auto p-4 space-y-6">
         {/* Photo Gallery */}
-        {photos.length > 0 && (
-          <PlacePhotoGallery photos={photos} placeName={place.name} />
+        {place.stored_photo_urls && place.stored_photo_urls.length > 0 && (
+          <PlacePhotoGallery storedPhotoUrls={place.stored_photo_urls} placeName={place.name} />
         )}
 
         {/* Quick Actions */}

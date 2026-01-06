@@ -1,31 +1,30 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ImageOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { usePlacePhotos, PhotoReference } from '@/hooks/usePlacePhotos';
 import { cn } from '@/lib/utils';
 
 interface EventPhotoGalleryProps {
-  photos: PhotoReference[] | null | undefined;
+  /** Array of stored photo URLs (from stored_photo_urls) */
+  photoUrls: string[] | null | undefined;
   venueName?: string;
   maxPhotos?: number;
   className?: string;
 }
 
+/**
+ * Photo gallery component for events using stored photo URLs.
+ * Photos are pre-stored in Supabase Storage, eliminating Google API costs.
+ */
 const EventPhotoGallery = ({ 
-  photos, 
+  photoUrls, 
   venueName = 'Venue',
   maxPhotos = 3,
   className 
 }: EventPhotoGalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { photoUrls, isLoading, hasPhotos } = usePlacePhotos(photos, {
-    maxWidth: 800,
-    maxHeight: 600,
-    maxPhotos,
-  });
 
-  const validPhotos = photoUrls.filter(Boolean);
+  const validPhotos = (photoUrls || []).slice(0, maxPhotos).filter(Boolean);
+  const hasPhotos = validPhotos.length > 0;
   const hasMultiple = validPhotos.length > 1;
 
   const goToPrevious = () => {
@@ -51,33 +50,11 @@ const EventPhotoGallery = ({
     );
   }
 
-  // Loading state
-  if (isLoading && validPhotos.length === 0) {
-    return (
-      <Skeleton className={cn('w-full aspect-video rounded-lg', className)} />
-    );
-  }
-
-  // Photos loaded but all failed
-  if (!isLoading && validPhotos.length === 0) {
-    return (
-      <div className={cn(
-        'relative w-full aspect-video bg-muted rounded-lg flex items-center justify-center',
-        className
-      )}>
-        <div className="text-center text-muted-foreground">
-          <ImageOff className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Photos unavailable</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={cn('relative w-full aspect-video rounded-lg overflow-hidden', className)}>
       {/* Current photo */}
       <img
-        src={validPhotos[currentIndex] || ''}
+        src={validPhotos[currentIndex]}
         alt={`${venueName} photo ${currentIndex + 1}`}
         className="w-full h-full object-cover"
       />
@@ -118,13 +95,6 @@ const EventPhotoGallery = ({
               aria-label={`Go to photo ${idx + 1}`}
             />
           ))}
-        </div>
-      )}
-
-      {/* Loading overlay for additional photos */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-background/20 flex items-center justify-center">
-          <div className="animate-pulse text-sm text-white/80">Loading...</div>
         </div>
       )}
     </div>

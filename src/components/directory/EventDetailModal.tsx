@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { formatDistance } from '@/lib/distance';
 import EventPhotoGallery from './EventPhotoGallery';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
-import type { PublicEvent, VenuePhoto } from '@/hooks/useEventsPublic';
+import type { PublicEvent } from '@/hooks/useEventsPublic';
 
 interface EventDetailModalProps {
   event: PublicEvent | null;
@@ -43,8 +43,8 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
   const location = [event.venue?.city, event.venue?.state].filter(Boolean).join(', ');
   const saved = isFavorited(event.id);
   
-  // Get venue photos (safely cast from JSON)
-  const venuePhotos = event.venue?.photos as VenuePhoto[] | null | undefined;
+  // Get stored venue photo URLs (no proxy needed)
+  const storedPhotoUrls = event.venue?.stored_photo_urls;
   
   // Build Google Maps URL for venue
   const mapsUrl = event.venue?.formatted_address 
@@ -56,7 +56,7 @@ const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Venue Photo Gallery */}
         <EventPhotoGallery 
-          photos={venuePhotos} 
+          photoUrls={storedPhotoUrls} 
           venueName={event.venue?.name}
           maxPhotos={3}
           className="-mx-6 -mt-6 mb-2 rounded-t-lg rounded-b-none"
