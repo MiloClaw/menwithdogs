@@ -287,7 +287,13 @@ function CandidateCard({ candidate, onToggle, onScanReviews, hasKeywords }: Cand
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState(false);
 
-  // Load photo on mount
+  /**
+   * ADMIN-ONLY PHOTO PROXY: This is the only legitimate use of the google-places-photo
+   * edge function. Seed candidates are unsaved places from Google search results,
+   * so they don't have stored_photo_urls yet. The proxy is needed to preview
+   * photos during the selection process before importing. Cost is negligible
+   * since this is only used by admins during city seeding operations.
+   */
   useState(() => {
     const photoName = candidate.photos?.[0]?.name;
     if (photoName && !photoError) {

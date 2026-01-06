@@ -1,13 +1,11 @@
-import { Calendar, MapPin, Clock, Heart, Zap, DollarSign, ImageOff } from 'lucide-react';
+import { Calendar, MapPin, Heart, Zap, DollarSign, ImageOff } from 'lucide-react';
 import { format, isSameDay, isPast } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistance } from '@/lib/distance';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
-import { usePlacePhotos } from '@/hooks/usePlacePhotos';
 import { getEventTypeLabel, getCostTypeLabel } from '@/lib/event-taxonomy';
-import type { PublicEvent, VenuePhoto } from '@/hooks/useEventsPublic';
+import type { PublicEvent } from '@/hooks/useEventsPublic';
 
 interface DirectoryEventCardProps {
   event: PublicEvent;
@@ -36,14 +34,9 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
   const isPastEvent = isPast(new Date(event.end_at || event.start_at));
   const saved = isFavorited(event.id);
   
-  // Get venue photos (limit to 1 for card)
-  const venuePhotos = event.venue?.photos as VenuePhoto[] | null | undefined;
-  const { photoUrls, isLoading: photoLoading } = usePlacePhotos(venuePhotos, {
-    maxWidth: 400,
-    maxHeight: 300,
-    maxPhotos: 1,
-  });
-  const primaryPhoto = photoUrls[0];
+  // Use stored photo URLs directly (no proxy needed)
+  const storedPhotos = event.venue?.stored_photo_urls;
+  const primaryPhoto = storedPhotos?.[0] || null;
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -59,9 +52,7 @@ const DirectoryEventCard = ({ event, onClick }: DirectoryEventCardProps) => {
     >
       {/* Photo thumbnail or placeholder */}
       <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-        {photoLoading ? (
-          <Skeleton className="w-full h-full" />
-        ) : primaryPhoto ? (
+        {primaryPhoto ? (
           <img 
             src={primaryPhoto} 
             alt={event.venue?.name || event.name}

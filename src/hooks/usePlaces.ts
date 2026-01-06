@@ -37,6 +37,7 @@ export interface Place {
   formatted_address: string | null;
   opening_hours: Json | null;
   photos: Json | null;
+  stored_photo_urls: string[] | null;
   google_primary_type: string | null;
   google_primary_type_display: string | null;
   // Editorial vibe tags
