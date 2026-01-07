@@ -22,6 +22,7 @@ import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
 import { usePreferencePrompts } from '@/hooks/usePreferencePrompts';
 import { usePlaceSuggestion } from '@/hooks/usePlaceSuggestion';
 import { useCitySuggestion } from '@/hooks/useCitySuggestion';
+import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
 import { toast } from 'sonner';
@@ -94,6 +95,8 @@ const Places = () => {
   const [selectedGoogleCity, setSelectedGoogleCity] = useState<PlaceDetails | null>(null);
   const { submitSuggestion: submitCitySuggestion, isSubmitting: isSuggestingCity } = useCitySuggestion();
   
+  // Place favorites (for QR code save flow)
+  const { addFavorite, isFavorited } = usePlaceFavorites();
 
   // Show city picker for authenticated users without location (once per session)
   // Only show when NOT in exploration mode
@@ -108,6 +111,26 @@ const Places = () => {
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, hasUserLocation, hasShownCityPicker, locationLoading, isExplorationMode]);
+
+  // Handle pending save from QR code flow (?save=placeId)
+  useEffect(() => {
+    const saveParam = searchParams.get('save');
+    if (saveParam && isAuthenticated) {
+      // Clear the param from URL immediately
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('save');
+      setSearchParams(newParams, { replace: true });
+      
+      // Check if already saved
+      if (isFavorited(saveParam)) {
+        toast.success('Already saved!', { description: 'This place is in your favorites.' });
+        return;
+      }
+      
+      // Save the place
+      addFavorite(saveParam);
+    }
+  }, [searchParams, isAuthenticated, isFavorited, addFavorite, setSearchParams]);
 
   // Handle city selection from modal (home city only now)
   const handleCitySelect = async (details: PlaceDetails) => {
