@@ -8,6 +8,7 @@ import { CoupleProvider } from "@/contexts/CoupleContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Places from "./pages/Places";
+import LovePlace from "./pages/LovePlace";
 import ExploreCities from "./pages/ExploreCities";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -41,6 +42,7 @@ const App = () => (
           <CoupleProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/love/:placeId" element={<LovePlace />} />
               <Route path="/places" element={<Places />} />
               <Route path="/places/explore" element={<ExploreCities />} />
               <Route path="/directory" element={<Navigate to="/places" replace />} />

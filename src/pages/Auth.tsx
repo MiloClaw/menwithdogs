@@ -27,15 +27,25 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already authenticated - go directly to places
+  // Redirect if already authenticated - handle pending intents
   useEffect(() => {
     if (!loading && isAuthenticated) {
+      // Check for pending favorite (QR code flow)
+      const pendingPlaceId = sessionStorage.getItem('pending_favorite_place_id');
+      if (pendingPlaceId) {
+        sessionStorage.removeItem('pending_favorite_place_id');
+        navigate(`/places?save=${pendingPlaceId}`);
+        return;
+      }
+      
+      // Check for pending invite token
       const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
       if (pendingInviteToken) {
         navigate(`/invite/${pendingInviteToken}`);
-      } else {
-        navigate('/places');
+        return;
       }
+      
+      navigate('/places');
     }
   }, [isAuthenticated, loading, navigate]);
 
@@ -87,13 +97,20 @@ const Auth = () => {
           }
           return;
         }
-        // Check for pending intent (invite flow)
+        // Check for pending favorite (QR code flow)
+        const pendingPlaceId = sessionStorage.getItem('pending_favorite_place_id');
+        if (pendingPlaceId) {
+          sessionStorage.removeItem('pending_favorite_place_id');
+          navigate(`/places?save=${pendingPlaceId}`);
+          return;
+        }
+        // Check for pending invite token
         const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
         if (pendingInviteToken) {
           navigate(`/invite/${pendingInviteToken}`);
-        } else {
-          navigate('/places');
+          return;
         }
+        navigate('/places');
       } else {
         const { error } = await signUp(email, password);
         if (error) {
@@ -116,13 +133,20 @@ const Auth = () => {
           title: 'Welcome to the community',
           description: 'Start exploring places where real connection happens.',
         });
-        // Check for pending intent (invite flow)
+        // Check for pending favorite (QR code flow)
+        const pendingPlaceId = sessionStorage.getItem('pending_favorite_place_id');
+        if (pendingPlaceId) {
+          sessionStorage.removeItem('pending_favorite_place_id');
+          navigate(`/places?save=${pendingPlaceId}`);
+          return;
+        }
+        // Check for pending invite token
         const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
         if (pendingInviteToken) {
           navigate(`/invite/${pendingInviteToken}`);
-        } else {
-          navigate('/places');
+          return;
         }
+        navigate('/places');
       }
     } finally {
       setIsSubmitting(false);
