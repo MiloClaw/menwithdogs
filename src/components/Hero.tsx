@@ -43,12 +43,12 @@ const Hero = () => {
 
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-6 pb-12 md:pb-16">
-          <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-primary leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
+          <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-primary leading-tight mb-4 [text-shadow:_0_1px_2px_rgba(0,0,0,0.5),_0_4px_8px_rgba(0,0,0,0.3),_0_8px_16px_rgba(0,0,0,0.2)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
             Real Community.<br />
             Real Places.<br />
             Real Life — Again.
           </h1>
-          <p className="text-base md:text-lg text-foreground/90 font-medium drop-shadow-sm max-w-lg leading-relaxed">A platform for gay men—single or coupled—who want platonic, real-world connection, not endless scrolling, ghosting, or performative profiles.</p>
+          <p className="text-base md:text-lg text-foreground/90 font-medium [text-shadow:_0_1px_2px_rgba(0,0,0,0.4),_0_2px_6px_rgba(0,0,0,0.2)] max-w-lg leading-relaxed">A platform for gay men—single or coupled—who want platonic, real-world connection, not endless scrolling, ghosting, or performative profiles.</p>
         </div>
       </div>
 
