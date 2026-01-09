@@ -116,6 +116,8 @@ export function useUserPreferences() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-preferences', userId] });
+      // Invalidate affinity cache so personalization reflects new intent preferences immediately
+      queryClient.invalidateQueries({ queryKey: ['user-affinity', userId] });
     },
   });
 
