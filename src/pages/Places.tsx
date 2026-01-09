@@ -14,7 +14,7 @@ import PreferencePrompt from '@/components/preferences/PreferencePrompt';
 import LocationContextBanner from '@/components/directory/LocationContextBanner';
 import WhatsHappening from '@/components/directory/WhatsHappening';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
-import { usePublicPlaces } from '@/hooks/usePublicPlaces';
+import { usePersonalizedPlaces } from '@/hooks/usePersonalizedPlaces';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -179,7 +179,8 @@ const Places = () => {
   };
 
   // Data fetching - use city/state from URL params for exploration, lat/lng for normal mode
-  const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePublicPlaces(
+  // PHASE 2: usePersonalizedPlaces applies affinity-weighted sorting for authenticated users
+  const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePersonalizedPlaces(
     isExplorationMode
       ? { city: exploringCity!, state: exploringState }
       : { lat: userLat, lng: userLng, radiusMiles: 100 }

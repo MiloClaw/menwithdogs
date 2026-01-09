@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
 import { calculateDistanceMiles } from '@/lib/distance';
 
-interface UsePublicPlacesOptions {
+export interface UsePublicPlacesOptions {
   lat?: number | null;
   lng?: number | null;
   radiusMiles?: number;
