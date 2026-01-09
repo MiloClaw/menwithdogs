@@ -39,11 +39,11 @@ const Hero = () => {
         <img src={heroImage} alt="People enjoying a local café together" className="w-full h-[120%] object-cover object-top will-change-transform" style={{
         transform: parallaxTransform
       }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/60 to-primary/90" />
 
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-6 pb-12 md:pb-16">
-          <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-primary leading-tight mb-4 [text-shadow:_0_1px_2px_rgba(0,0,0,0.5),_0_4px_8px_rgba(0,0,0,0.3),_0_8px_16px_rgba(0,0,0,0.2)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
+          <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 [text-shadow:_0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
             Real Community.<br />
             Real Places.<br />
             Real Life — Again.
