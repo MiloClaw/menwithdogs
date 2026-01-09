@@ -4,25 +4,38 @@ import { useAuthContext } from './AuthContext';
 import { getRouteForState, CoupleStatus, MemberOnboardingStep } from '@/lib/routing/getRouteForState';
 import { useUserRole } from '@/hooks/useUserRole';
 
-// Conceptually a "relationship_unit" - named Couple for backward compatibility
+/**
+ * ARCHITECTURAL NOTE: "Couple" = "Preference Group" (Relationship Unit)
+ * 
+ * Despite legacy naming, this table represents a preference aggregation unit:
+ * - type: 'individual' = single user (default)
+ * - type: 'couple' = two users with shared preferences
+ * 
+ * This is NOT a social profile. Users train the system, not present themselves.
+ * The directory is the spine. All features resolve back to Places.
+ * 
+ * DEPRECATED COLUMNS (drift-locked, do not use):
+ * - display_name, about_us, profile_photo_url: Social profile artifacts
+ * - preferred_meetup_times: Social coordination field
+ * - social_settings, availability, energy_style: Personality/identity fields
+ */
 type UnitType = 'couple' | 'individual';
 type SubscriptionStatus = 'free' | 'trial' | 'active' | 'cancelled' | 'paused';
 
+// Core relationship unit interface - only include active fields
 interface Couple {
   id: string;
-  display_name: string | null;
-  about_us: string | null;
-  preferred_meetup_times: string | null;
-  partner_first_name: string | null;
-  profile_photo_url: string | null;
   is_complete: boolean;
   status: CoupleStatus;
   type: UnitType;
   subscription_status: SubscriptionStatus;
   created_at: string;
   updated_at: string;
+  // DEPRECATED: These exist in DB but should not be used
+  // display_name, about_us, profile_photo_url, preferred_meetup_times, partner_first_name
 }
 
+// Member profile interface - only include active fields
 interface MemberProfile {
   id: string;
   user_id: string;
@@ -34,13 +47,12 @@ interface MemberProfile {
   city_lat: number | null;
   city_lng: number | null;
   state: string | null;
-  social_settings: string | null;
-  availability: string | null;
-  energy_style: string | null;
   is_profile_complete: boolean;
   onboarding_step: MemberOnboardingStep;
   created_at: string;
   updated_at: string;
+  // DEPRECATED: These exist in DB but should not be used
+  // social_settings, availability, energy_style
 }
 
 interface CoupleContextValue {
