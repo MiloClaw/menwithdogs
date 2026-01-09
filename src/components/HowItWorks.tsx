@@ -12,28 +12,25 @@ const steps = [
     number: "02",
     icon: MapPin,
     title: "Discover Community-Centered Places",
-    description: "Our directory highlights places popular with the gay community, along with recommendations based on overlapping interests.",
-    bullets: [
-      "Coffee shops",
-      "Gyms",
-      "Bars",
-      "Events",
-      "Neighborhood spots",
-    ],
+    description:
+      "Our directory highlights places popular with your community, along with recommendations based on overlapping interests.",
+    bullets: ["Coffee shops", "Gyms", "Bars", "Events", "Neighborhood spots"],
     tagline: "Places where real life actually happens.",
   },
   {
     number: "03",
     icon: Eye,
     title: "Opt In — Only When You're Ready",
-    description: "Your information is private by default. If you choose to opt in, others won't see who you are—only that someone like them is open to saying hello at a specific place.",
+    description:
+      "Your information is private by default. If you choose to opt in, others won't see who you are—only that someone like them is open to saying hello at a specific place.",
     tagline: "No messaging pressure. No awkward intros. Just a clear signal that connection is welcome.",
   },
   {
     number: "04",
     icon: Users,
     title: "Grow Real Community, Naturally",
-    description: "The goal isn't to \"match.\" It's to make real-world interaction feel easier, safer, and more human again.",
+    description:
+      "The goal isn't to \"match.\" It's to make real-world interaction feel easier, safer, and more human again.",
     tagline: "A nod. A hello. A conversation that starts where you already are.",
   },
 ];
@@ -63,9 +60,7 @@ const HowItWorks = () => {
                   <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Icon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   </div>
-                  {index < steps.length - 1 && (
-                    <div className="w-px h-full min-h-[60px] bg-border mt-4" />
-                  )}
+                  {index < steps.length - 1 && <div className="w-px h-full min-h-[60px] bg-border mt-4" />}
                 </div>
 
                 {/* Content Column */}
