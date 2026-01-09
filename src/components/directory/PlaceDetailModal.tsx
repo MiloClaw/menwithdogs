@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
   ChevronLeft, ChevronRight, Heart, ChevronDown
@@ -20,6 +20,8 @@ import {
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceUpcomingEvents from '@/components/directory/PlaceUpcomingEvents';
+import { useAuth } from '@/hooks/useAuth';
+import { recordSignal } from '@/hooks/useUserSignals';
 
 export interface PlaceDetail {
   id: string;
@@ -71,9 +73,18 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [hoursExpanded, setHoursExpanded] = useState(false);
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
+  const { isAuthenticated } = useAuth();
 
   // Use stored photo URLs directly (no API calls needed)
   const storedPhotos = place?.stored_photo_urls || [];
+
+  // SIGNAL CAPTURE: Record view_place when modal opens (Rule 3.2)
+  useEffect(() => {
+    if (place && open && isAuthenticated) {
+      recordSignal('view_place', place.id, place.primary_category, 'implicit', 0.3)
+        .catch(console.error); // Silent failure - don't interrupt UX
+    }
+  }, [place?.id, open, isAuthenticated]);
 
   // Reset photo index when place changes
   useEffect(() => {
@@ -85,6 +96,15 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
     getOpeningHours(place?.opening_hours ?? null), 
     [place?.opening_hours]
   );
+
+  // SIGNAL CAPTURE: Record click_external for website/directions (Rule 3.2)
+  const handleExternalClick = useCallback((type: 'website' | 'directions', url: string) => {
+    if (isAuthenticated && place) {
+      recordSignal('click_external', place.id, type, 'implicit', 0.5)
+        .catch(console.error); // Silent failure
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, [isAuthenticated, place]);
 
   if (!place) return null;
 
@@ -293,22 +313,25 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
           {/* Upcoming Events at this Place */}
           <PlaceUpcomingEvents placeId={place.id} placeName={place.name} />
 
-          {/* Action Buttons - Sticky on mobile */}
+          {/* Action Buttons - Sticky on mobile, with signal capture */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">
             {place.website_url && (
-              <Button asChild className="flex-1 min-h-[48px]">
-                <a href={place.website_url} target="_blank" rel="noopener noreferrer">
-                  <Globe className="h-4 w-4 mr-2" />
-                  Visit Website
-                </a>
+              <Button 
+                onClick={() => handleExternalClick('website', place.website_url!)}
+                className="flex-1 min-h-[48px]"
+              >
+                <Globe className="h-4 w-4 mr-2" />
+                Visit Website
               </Button>
             )}
             {place.google_maps_url && (
-              <Button variant="outline" asChild className="flex-1 min-h-[48px]">
-                <a href={place.google_maps_url} target="_blank" rel="noopener noreferrer">
-                  <Navigation className="h-4 w-4 mr-2" />
-                  Directions
-                </a>
+              <Button 
+                variant="outline"
+                onClick={() => handleExternalClick('directions', place.google_maps_url!)}
+                className="flex-1 min-h-[48px]"
+              >
+                <Navigation className="h-4 w-4 mr-2" />
+                Directions
               </Button>
             )}
           </div>

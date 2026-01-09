@@ -82,8 +82,9 @@ export function TasteProfileCard() {
             {isCouple ? 'Couple' : 'Personal'}
           </Badge>
         </div>
+        {/* RULE 7: No signal counts or numeric metrics shown to users */}
         <CardDescription>
-          Based on {totalSignals} saved place{totalSignals !== 1 ? 's' : ''}
+          Learned from your activity
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -92,7 +93,6 @@ export function TasteProfileCard() {
             key={affinity.id}
             category={affinity.place_category}
             score={affinity.affinity_score}
-            signalCount={affinity.supporting_signals_count || undefined}
           />
         ))}
       </CardContent>

@@ -25,6 +25,7 @@ import { useCitySuggestion } from '@/hooks/useCitySuggestion';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
+import { recordSignal } from '@/hooks/useUserSignals';
 import { toast } from 'sonner';
 
 // Types that indicate a geographic area (city) vs a business
@@ -390,9 +391,15 @@ const Places = () => {
                   key={category}
                   variant={selectedCategory === category ? 'default' : 'outline'}
                   className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
-                  onClick={() => setSelectedCategory(
-                    selectedCategory === category ? null : category
-                  )}
+                  onClick={() => {
+                    const newCategory = selectedCategory === category ? null : category;
+                    setSelectedCategory(newCategory);
+                    // SIGNAL CAPTURE: Record filter_category selection (Rule 3.2)
+                    if (newCategory && isAuthenticated) {
+                      recordSignal('filter_category', newCategory, null, 'implicit', 0.4)
+                        .catch(console.error);
+                    }
+                  }}
                 >
                   {category}
                 </Badge>
