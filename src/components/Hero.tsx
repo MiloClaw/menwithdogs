@@ -48,7 +48,7 @@ const Hero = () => {
             Real Places.<br />
             Real Life — Again.
           </h1>
-          <p className="text-base md:text-lg text-foreground/90 font-medium [text-shadow:_0_1px_2px_rgba(0,0,0,0.4),_0_2px_6px_rgba(0,0,0,0.2)] max-w-lg leading-relaxed">A platform for gay men—single or coupled—who want platonic, real-world connection, not endless scrolling, ghosting, or performative profiles.</p>
+          
         </div>
       </div>
 
