@@ -1349,9 +1349,6 @@ export type Database = {
       place_cadence: "weekly" | "monthly" | "rare"
       place_source: "google_places" | "admin" | "user_submitted"
       place_status: "approved" | "pending" | "rejected"
-      presence_status: "interested" | "planning_to_attend" | "open_to_hello"
-      reveal_context: "place" | "event"
-      reveal_state: "eligible" | "revealed" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1488,9 +1485,6 @@ export const Constants = {
       place_cadence: ["weekly", "monthly", "rare"],
       place_source: ["google_places", "admin", "user_submitted"],
       place_status: ["approved", "pending", "rejected"],
-      presence_status: ["interested", "planning_to_attend", "open_to_hello"],
-      reveal_context: ["place", "event"],
-      reveal_state: ["eligible", "revealed", "expired"],
     },
   },
 } as const
