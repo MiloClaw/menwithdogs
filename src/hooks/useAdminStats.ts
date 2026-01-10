@@ -10,6 +10,19 @@ export interface CityStats {
   totalCount: number;
   inLaunchedCity: boolean;
   geoAreaId?: string;
+  metroId?: string;
+  metroName?: string;
+}
+
+export interface MetroStats {
+  metroId: string;
+  metroName: string;
+  cities: CityStats[];
+  pendingCount: number;
+  approvedCount: number;
+  userSubmittedCount: number;
+  totalCount: number;
+  hasEmergingCities: boolean;
 }
 
 interface AdminStats {
@@ -35,6 +48,7 @@ interface AdminStats {
   posts: number;
   members: number;
   placesByCity: CityStats[];
+  placesByMetro: MetroStats[];
   emergingCitiesCount: number;
 }
 
@@ -53,6 +67,7 @@ export const useAdminStats = () => {
         membersResult,
         citiesResult,
         placesByCityResult,
+        geoAreasResult,
       ] = await Promise.all([
         supabase.from('couples').select('id', { count: 'exact', head: true }),
         supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_complete', true),
@@ -65,6 +80,8 @@ export const useAdminStats = () => {
         supabase.from('city_seeding_progress').select('*'),
         // Get all places with city info
         supabase.from('places').select('city, state, status, source'),
+        // Get geo_areas with parent relationships for metro rollup
+        supabase.from('geo_areas').select('id, name, type, parent_id').eq('is_active', true),
       ]);
 
       // Calculate city stats from the view data
@@ -84,6 +101,28 @@ export const useAdminStats = () => {
           .map(c => `${c.name?.toLowerCase()}|${c.state?.toLowerCase() || ''}`)
       );
 
+      // Build geo_areas lookup
+      const geoAreas = geoAreasResult.data || [];
+      const localityToMetro = new Map<string, { metroId: string; metroName: string }>();
+      const metrosById = new Map<string, string>();
+      
+      // First pass: identify metros
+      for (const area of geoAreas) {
+        if (area.type === 'metro') {
+          metrosById.set(area.id, area.name);
+        }
+      }
+      
+      // Second pass: map localities to their parent metros
+      for (const area of geoAreas) {
+        if (area.type === 'locality' && area.parent_id && metrosById.has(area.parent_id)) {
+          localityToMetro.set(area.name.toLowerCase(), {
+            metroId: area.parent_id,
+            metroName: metrosById.get(area.parent_id)!,
+          });
+        }
+      }
+
       // Aggregate places by city
       const placesData = placesByCityResult.data || [];
       const cityAggregates = new Map<string, CityStats>();
@@ -96,6 +135,9 @@ export const useAdminStats = () => {
         
         const cityLookupKey = `${place.city.toLowerCase()}|${place.state?.toLowerCase() || ''}`;
         const inLaunchedCity = launchedCities.has(cityLookupKey);
+        
+        // Look up metro from geo_areas
+        const metroInfo = localityToMetro.get(place.city.toLowerCase());
 
         if (existing) {
           existing.totalCount++;
@@ -111,6 +153,8 @@ export const useAdminStats = () => {
             userSubmittedCount: place.source === 'user_submitted' ? 1 : 0,
             totalCount: 1,
             inLaunchedCity,
+            metroId: metroInfo?.metroId,
+            metroName: metroInfo?.metroName,
           });
         }
       }
@@ -123,6 +167,46 @@ export const useAdminStats = () => {
             return b.userSubmittedCount - a.userSubmittedCount;
           }
           // Secondary: pending count descending
+          return b.pendingCount - a.pendingCount;
+        });
+
+      // Aggregate by metro
+      const metroAggregates = new Map<string, MetroStats>();
+      
+      for (const cityData of placesByCity) {
+        if (cityData.metroId && cityData.metroName) {
+          const existing = metroAggregates.get(cityData.metroId);
+          
+          if (existing) {
+            existing.cities.push(cityData);
+            existing.pendingCount += cityData.pendingCount;
+            existing.approvedCount += cityData.approvedCount;
+            existing.userSubmittedCount += cityData.userSubmittedCount;
+            existing.totalCount += cityData.totalCount;
+            if (!cityData.inLaunchedCity && cityData.userSubmittedCount > 0) {
+              existing.hasEmergingCities = true;
+            }
+          } else {
+            metroAggregates.set(cityData.metroId, {
+              metroId: cityData.metroId,
+              metroName: cityData.metroName,
+              cities: [cityData],
+              pendingCount: cityData.pendingCount,
+              approvedCount: cityData.approvedCount,
+              userSubmittedCount: cityData.userSubmittedCount,
+              totalCount: cityData.totalCount,
+              hasEmergingCities: !cityData.inLaunchedCity && cityData.userSubmittedCount > 0,
+            });
+          }
+        }
+      }
+      
+      // Sort metros by user-submitted count
+      const placesByMetro = Array.from(metroAggregates.values())
+        .sort((a, b) => {
+          if (b.userSubmittedCount !== a.userSubmittedCount) {
+            return b.userSubmittedCount - a.userSubmittedCount;
+          }
           return b.pendingCount - a.pendingCount;
         });
 
@@ -148,6 +232,7 @@ export const useAdminStats = () => {
         posts: postsResult.count ?? 0,
         members: membersResult.count ?? 0,
         placesByCity,
+        placesByMetro,
         emergingCitiesCount,
       };
     },
