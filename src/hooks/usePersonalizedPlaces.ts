@@ -81,6 +81,24 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
     return null;
   }, [options.lat, options.lng, options.referenceCoords, isExplorationMode, exploredCityCoords]);
   
+  // Phase 2: Distance preference weight multiplier
+  const distanceWeight = useMemo(() => {
+    const pref = preferences?.distance_preference;
+    switch (pref) {
+      case 'close': return 2.0;    // Penalize distance more heavily
+      case 'medium': return 1.0;   // Normal weighting
+      case 'far': return 0.5;      // Distance matters less
+      default: return 1.0;
+    }
+  }, [preferences?.distance_preference]);
+  
+  // TODO: Phase 3 - When places have time_of_day_affinity or opening_hours parsing,
+  // use preferences.time_preference to boost places that are:
+  // - 'mornings': cafes, breakfast spots, parks
+  // - 'evenings': bars, restaurants, entertainment
+  // - 'weekends': activities, outdoor venues
+  // This maps to Google Place opening_hours field.
+  
   const personalizedPlaces = useMemo(() => {
     if (!places) return [];
     
@@ -146,25 +164,25 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
       };
     });
     
-    // Sort: relevance boost + distance
+    // Sort: relevance boost + distance (with user preference weight)
     // Scale factor ensures relevance matters but doesn't override proximity entirely
     return scored.sort((a, b) => {
       const RELEVANCE_WEIGHT = 30; // Miles equivalent for max relevance
-      const DISTANCE_WEIGHT = 1;
       
       // Calculate effective distance (lower is better)
+      // Apply user's distance preference as a weight multiplier
       const aEffective = 
-        (a.distance ?? 100) * DISTANCE_WEIGHT - 
+        (a.distance ?? 100) * distanceWeight - 
         (a._relevanceScore || 0) * RELEVANCE_WEIGHT;
       
       const bEffective = 
-        (b.distance ?? 100) * DISTANCE_WEIGHT - 
+        (b.distance ?? 100) * distanceWeight - 
         (b._relevanceScore || 0) * RELEVANCE_WEIGHT;
       
       return aEffective - bEffective;
     }).map(({ _relevanceScore, ...place }) => place) as PersonalizedPlace[];
     
-  }, [places, isAuthenticated, affinities, preferences?.intent_preferences, referencePoint]);
+  }, [places, isAuthenticated, affinities, preferences?.intent_preferences, referencePoint, distanceWeight]);
   
   return {
     data: personalizedPlaces,

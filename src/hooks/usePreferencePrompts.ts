@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
@@ -26,12 +28,30 @@ const PROMPT_COOLDOWN_MS = 5 * 60 * 1000;
  * Only one prompt at a time, with cooldown between prompts.
  */
 export function usePreferencePrompts() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { preferences, hasPromptBeenShown, markPromptShown, updatePreferences } = useUserPreferences();
   const { favorites } = usePlaceFavorites();
   
   const [currentPrompt, setCurrentPrompt] = useState<PromptDefinition | null>(null);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
+
+  // Phase 1 Fix: Query real view_place signal count instead of approximation
+  const { data: viewSignalCount = 0 } = useQuery({
+    queryKey: ['view-signal-count', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count, error } = await supabase
+        .from('user_signals')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('signal_type', 'view_place');
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user?.id && isAuthenticated,
+    staleTime: 60 * 1000, // 1 min cache
+  });
 
   // Track session count
   const getSessionCount = useCallback((): number => {
@@ -61,8 +81,8 @@ export function usePreferencePrompts() {
 
     const saveCount = favorites.length;
     const sessionCount = getSessionCount();
-    // For now, browse count is approximated by saves * 3
-    const browseCount = saveCount * 3;
+    // Phase 1 Fix: Use actual view_place signal count
+    const browseCount = viewSignalCount;
 
     for (const trigger of PROMPT_TRIGGERS) {
       // Skip if already shown
@@ -80,7 +100,7 @@ export function usePreferencePrompts() {
     }
 
     return null;
-  }, [isAuthenticated, favorites.length, getSessionCount, isOnCooldown, hasPromptBeenShown]);
+  }, [isAuthenticated, favorites.length, getSessionCount, isOnCooldown, hasPromptBeenShown, viewSignalCount]);
 
   // Check for eligible prompt when conditions change
   useEffect(() => {

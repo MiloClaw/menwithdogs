@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Check, Clock, Ruler, Zap, Search } from 'lucide-react';
+import { MapPin, Check, Clock, Ruler, Search } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 import {
   TIME_PROMPT,
   DISTANCE_PROMPT,
-  VIBE_PROMPT,
   INTENT_PROMPT,
   PromptOption,
 } from '@/lib/preference-prompts';
@@ -23,7 +22,6 @@ import { PersonalizationSummary } from './PersonalizationSummary';
 const SECTION_ICONS = {
   time: Clock,
   distance: Ruler,
-  vibe: Zap,
   intent: Search,
 };
 
@@ -193,7 +191,7 @@ const SettingsPreferencesTab = () => {
       {/* Taste Profile - Intelligence visualization */}
       <TasteProfileCard />
 
-      {/* Browsing Preferences */}
+      {/* Browsing Preferences - Phase 2 Free Tuning */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -228,22 +226,27 @@ const SettingsPreferencesTab = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Zap className="h-4 w-4" />
-            {VIBE_PROMPT.question}
-          </CardTitle>
-          <CardDescription>{VIBE_PROMPT.footer}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {renderChipOptions(
-            VIBE_PROMPT.options,
-            preferences?.vibe_preference,
-            (v) => handleSingleSelect('vibe_preference', v)
-          )}
-        </CardContent>
-      </Card>
+      {/* 
+        Phase 3: Vibe tuning requires vibe_energy data on places.
+        Currently hidden until taxonomy_nodes are populated with vibe metadata.
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Zap className="h-4 w-4" />
+              {VIBE_PROMPT.question}
+            </CardTitle>
+            <CardDescription>{VIBE_PROMPT.footer}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {renderChipOptions(
+              VIBE_PROMPT.options,
+              preferences?.vibe_preference,
+              (v) => handleSingleSelect('vibe_preference', v)
+            )}
+          </CardContent>
+        </Card>
+      */}
 
       {/* Intent Preferences (multi-select grid) */}
       <Card>

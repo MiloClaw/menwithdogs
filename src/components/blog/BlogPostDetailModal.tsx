@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { MapPin, ExternalLink } from "lucide-react";
 import {
   Dialog,
@@ -6,6 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/hooks/useAuth";
+import { queueSignal } from "@/hooks/useUserSignals";
 import type { BlogPost } from "@/hooks/useBlogPosts";
 
 interface BlogPostDetailModalProps {
@@ -15,6 +18,25 @@ interface BlogPostDetailModalProps {
 }
 
 export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetailModalProps) {
+  const { isAuthenticated } = useAuth();
+  
+  // Emit view_blog_post signal when modal opens
+  useEffect(() => {
+    if (post && open && isAuthenticated) {
+      queueSignal(
+        'view_blog_post',
+        post.id,
+        null,
+        'implicit',
+        0.2,
+        { 
+          place_id: post.place?.id || null, 
+          city_id: post.city?.id || null 
+        }
+      );
+    }
+  }, [post?.id, open, isAuthenticated]);
+  
   if (!post) return null;
 
   const readingTime = post.body 
