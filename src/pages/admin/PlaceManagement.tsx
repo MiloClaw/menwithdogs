@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Plus, Search, Trash2, ChevronRight, X, MapPin } from 'lucide-react';
+import { Plus, Search, Trash2, ChevronRight, X, MapPin, List, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Toggle } from '@/components/ui/toggle';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -20,18 +21,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import AdminLayout from '@/components/admin/AdminLayout';
 import PlaceListPane from '@/components/admin/places/PlaceListPane';
 import PlaceDetailPane, { PlaceDetailMode } from '@/components/admin/places/PlaceDetailPane';
 import { usePlaces, Place } from '@/hooks/usePlaces';
 
 type StatusFilter = 'all' | 'approved' | 'pending' | 'rejected';
+type ViewMode = 'flat' | 'grouped';
 
 const PlaceManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('flat');
   
   // Read city filter from URL
   const cityFilter = searchParams.get('city') || '';
@@ -122,6 +130,13 @@ const PlaceManagement = () => {
   const handleSelectPlace = useCallback((id: string) => {
     setDetailMode({ type: 'viewing', placeId: id });
   }, []);
+
+  // Handle city filter from grouped view
+  const handleCityFilter = useCallback((city: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('city', city);
+    setSearchParams(params, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   // Handle mode changes
   const handleModeChange = useCallback((mode: PlaceDetailMode) => {
@@ -250,6 +265,38 @@ const PlaceManagement = () => {
                 className="pl-8"
               />
             </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center border rounded-md">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Toggle
+                    size="sm"
+                    pressed={viewMode === 'flat'}
+                    onPressedChange={() => setViewMode('flat')}
+                    className="rounded-r-none data-[state=on]:bg-muted"
+                    aria-label="Flat view"
+                  >
+                    <List className="h-4 w-4" />
+                  </Toggle>
+                </TooltipTrigger>
+                <TooltipContent>Flat view</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Toggle
+                    size="sm"
+                    pressed={viewMode === 'grouped'}
+                    onPressedChange={() => setViewMode('grouped')}
+                    className="rounded-l-none border-l data-[state=on]:bg-muted"
+                    aria-label="Group by city"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Toggle>
+                </TooltipTrigger>
+                <TooltipContent>Group by city</TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
@@ -265,7 +312,9 @@ const PlaceManagement = () => {
                     : null
                 }
                 onSelectPlace={handleSelectPlace}
+                onCityFilter={handleCityFilter}
                 isLoading={isLoading}
+                groupBy={viewMode === 'grouped' ? 'city' : undefined}
               />
             </ResizablePanel>
             
