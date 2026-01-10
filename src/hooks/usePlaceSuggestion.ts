@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { PlaceDetails } from '@/hooks/useGooglePlaces';
-import type { Json } from '@/integrations/supabase/types';
 
 export const usePlaceSuggestion = () => {
   const { toast } = useToast();
@@ -27,15 +26,16 @@ export const usePlaceSuggestion = () => {
   };
 
   /**
-   * Submit a place suggestion from Google Places details
+   * Submit a place suggestion via backend function
+   * This avoids RLS SELECT conflicts by handling insert server-side
    */
   const submitSuggestion = async (details: PlaceDetails): Promise<boolean> => {
     setIsSubmitting(true);
 
     try {
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
+      // Get current session to ensure user is authenticated
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      if (authError || !session) {
         toast({
           title: 'Please sign in',
           description: 'You need to be signed in to suggest places.',
@@ -44,78 +44,60 @@ export const usePlaceSuggestion = () => {
         return false;
       }
 
-      // Check if place already exists
-      const exists = await checkExisting(details.place_id);
-      if (exists) {
-        toast({
-          title: 'Already in directory',
-          description: 'This place is already in our directory or pending review.',
-        });
-        return false;
-      }
-
-      // Prepare the insert data
-      const insertData = {
-        google_place_id: details.place_id,
-        name: details.name,
-        primary_category: details.google_primary_type_display || 'Uncategorized',
-        city: details.city || null,
-        state: details.state || null,
-        country: details.country || null,
-        lat: details.lat || null,
-        lng: details.lng || null,
-        source: 'user_submitted' as const,
-        status: 'pending' as const,
-        submitted_by: user.id,
-        // GBP enrichment fields
-        rating: details.rating || null,
-        user_ratings_total: details.user_ratings_total || null,
-        formatted_address: details.formatted_address || null,
-        website_url: details.website_url || null,
-        phone_number: details.phone_number || null,
-        google_maps_url: details.google_maps_url || null,
-        opening_hours: (details.opening_hours as Json) || null,
-        google_primary_type: details.google_primary_type || null,
-        google_primary_type_display: details.google_primary_type_display || null,
-        // Additional GBP fields (previously missing)
-        photos: (details.photos as unknown as Json) || null,
-        price_level: details.price_level || null,
-        google_types: details.google_types || null,
-        business_status: details.business_status || null,
-        utc_offset_minutes: details.utc_offset_minutes || null,
-        // Track data freshness
-        last_fetched_at: new Date().toISOString(),
-        fetch_version: 1,
-      };
-
-      const { data: insertedPlace, error } = await supabase
-        .from('places')
-        .insert(insertData)
-        .select('id')
-        .single();
+      // Call backend function to handle submission
+      const { data, error } = await supabase.functions.invoke('submit-place-suggestion', {
+        body: {
+          place_id: details.place_id,
+          name: details.name,
+          city: details.city,
+          state: details.state,
+          country: details.country,
+          lat: details.lat,
+          lng: details.lng,
+          rating: details.rating,
+          user_ratings_total: details.user_ratings_total,
+          formatted_address: details.formatted_address,
+          website_url: details.website_url,
+          phone_number: details.phone_number,
+          google_maps_url: details.google_maps_url,
+          opening_hours: details.opening_hours,
+          google_primary_type: details.google_primary_type,
+          google_primary_type_display: details.google_primary_type_display,
+          photos: details.photos,
+          price_level: details.price_level,
+          google_types: details.google_types,
+          business_status: details.business_status,
+          utc_offset_minutes: details.utc_offset_minutes,
+        },
+      });
 
       if (error) {
-        console.error('Error submitting place suggestion:', error);
+        console.error('Function invocation error:', error);
         toast({
           title: 'Submission failed',
-          description: 'There was an error submitting your suggestion. Please try again.',
+          description: 'Unable to connect to the server. Please try again.',
           variant: 'destructive',
         });
         return false;
       }
 
-      // Store photos in background (fire-and-forget)
-      if (insertedPlace?.id && details.photos?.length > 0) {
-        supabase.functions.invoke('store-place-photos', {
-          body: {
-            placeId: insertedPlace.id,
-            photos: details.photos.slice(0, 5),
-            maxWidth: 800,
-            maxHeight: 600,
-          },
-        }).catch(err => {
-          console.warn('Photo storage failed:', err);
+      // Handle response from backend
+      if (data?.error === 'duplicate') {
+        toast({
+          title: 'Already suggested',
+          description: data.message || 'This place is already in our directory or pending review.',
         });
+        return false;
+      }
+
+      if (data?.error) {
+        console.error('Backend error:', data);
+        toast({
+          title: 'Submission failed',
+          description: data.message || 'There was an error submitting your suggestion.',
+          variant: 'destructive',
+        });
+        return false;
       }
 
       toast({
@@ -123,6 +105,7 @@ export const usePlaceSuggestion = () => {
         description: 'Our team will review it shortly.',
       });
       return true;
+
     } catch (err) {
       console.error('Unexpected error:', err);
       toast({
