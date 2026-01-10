@@ -17,7 +17,6 @@ import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Blog from "./pages/Blog";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
 import Settings from "./pages/Settings";
@@ -46,7 +45,6 @@ const App = () => (
               <Route path="/love/:placeId" element={<LovePlace />} />
               <Route path="/places" element={<Places />} />
               <Route path="/places/explore" element={<ExploreCities />} />
-              <Route path="/directory" element={<Navigate to="/places" replace />} />
               
               {/* Blog for announcements */}
               <Route path="/blog" element={<Blog />} />
@@ -57,24 +55,18 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
               
-              {/* Auth & Onboarding */}
+              {/* Auth & User Routes */}
               <Route path="/auth" element={<Auth />} />
-              <Route path="/invite/:token" element={<Navigate to="/" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/saved" element={<Saved />} />
               
               {/* Settings & Preferences */}
               <Route path="/settings" element={<Settings />} />
               <Route path="/preferences" element={<Preferences />} />
               
-              {/* Legacy routes - all redirect to /places */}
-              <Route path="/onboarding" element={<Navigate to="/places" replace />} />
-              <Route path="/onboarding/my-profile" element={<Navigate to="/places" replace />} />
-              <Route path="/onboarding/path-selection" element={<Navigate to="/places" replace />} />
-              <Route path="/onboarding/create-couple" element={<Navigate to="/places" replace />} />
-              <Route path="/onboarding/invite-partner" element={<Navigate to="/places" replace />} />
-              <Route path="/onboarding/couple-profile" element={<Navigate to="/places" replace />} />
-              <Route path="/onboarding/confirm" element={<Navigate to="/places" replace />} />
+              {/* Legacy redirects - consolidated */}
+              <Route path="/directory" element={<Navigate to="/places" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/places" replace />} />
+              <Route path="/onboarding/*" element={<Navigate to="/places" replace />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
