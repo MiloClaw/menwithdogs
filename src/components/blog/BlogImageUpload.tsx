@@ -101,17 +101,34 @@ export const BlogImageUpload = ({ value, onChange }: BlogImageUploadProps) => {
             className="w-full aspect-video object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="absolute bottom-3 right-3"
-            onClick={handleRemove}
-          >
-            <X className="h-4 w-4 mr-1" />
-            Remove
-          </Button>
+          <div className="absolute bottom-3 right-3 flex gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => inputRef.current?.click()}
+            >
+              <Upload className="h-4 w-4 mr-1" />
+              Replace
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleRemove}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Remove
+            </Button>
+          </div>
         </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
         <p className="text-xs text-muted-foreground">
           Image will appear as the hero for this announcement
         </p>
