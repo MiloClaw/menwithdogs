@@ -1,5 +1,41 @@
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * SIGNAL NAMING CONVENTION (ARCHITECTURAL LOCK)
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * All signals MUST follow this naming pattern for consistent weighting:
+ * 
+ * PASSIVE SIGNALS (low weight 0.2-0.3):
+ *   view_place      - Place detail modal opened
+ *   view_event      - Event detail modal opened
+ *   view_blog_post  - Blog post modal opened
+ * 
+ * ACTIVE SIGNALS (medium weight 0.4-0.5):
+ *   click_external  - User clicked external link (maps, website, etc.)
+ *   filter_category - User filtered by category
+ * 
+ * STRONG POSITIVE SIGNALS (high weight 0.8-1.0):
+ *   save_place      - Place added to favorites
+ *   save_event      - Event added to favorites
+ *   explicit_preference - User explicitly set a preference
+ * 
+ * STRONG NEGATIVE SIGNALS (negative weight -0.5):
+ *   unsave_place    - Place removed from favorites
+ *   unsave_event    - Event removed from favorites
+ * 
+ * FUTURE RESERVED:
+ *   dismiss_*       - User dismisses suggestion (negative, lighter)
+ *   not_for_me      - Explicit negative feedback (strong negative)
+ * 
+ * ⚠️  Do NOT create signals that:
+ *     - Encode interpretation (e.g., "likes_cafes")
+ *     - Aggregate behavior (e.g., "active_user")
+ *     - Reference other users (e.g., "similar_to_*")
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
 interface QueuedSignal {
   signal_type: string;
   signal_key: string;
