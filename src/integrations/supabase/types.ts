@@ -1198,6 +1198,7 @@ export type Database = {
           geo_affinity: string | null
           id: string
           intent_preferences: Json | null
+          preferences_updated_at: string | null
           prompts_shown: Json | null
           time_preference: string | null
           updated_at: string
@@ -1210,6 +1211,7 @@ export type Database = {
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
+          preferences_updated_at?: string | null
           prompts_shown?: Json | null
           time_preference?: string | null
           updated_at?: string
@@ -1222,6 +1224,7 @@ export type Database = {
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
+          preferences_updated_at?: string | null
           prompts_shown?: Json | null
           time_preference?: string | null
           updated_at?: string

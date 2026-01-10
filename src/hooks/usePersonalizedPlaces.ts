@@ -18,24 +18,96 @@ import { useUserPreferences } from './useUserPreferences';
 import { useAuth } from './useAuth';
 import { getExpandedCategories } from '@/lib/category-aliases';
 import { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
+import { calculateDistanceMiles } from '@/lib/distance';
 
 interface PersonalizedPlace extends DirectoryPlace {
   distance?: number;
   isRelevant?: boolean; // For "For you" badge - never expose score
 }
 
-export function usePersonalizedPlaces(options: UsePublicPlacesOptions) {
+interface UsePersonalizedPlacesOptions extends UsePublicPlacesOptions {
+  // Reference coordinates for distance calculation (exploration mode)
+  referenceCoords?: { lat: number; lng: number } | null;
+}
+
+/**
+ * PHASE 2: Intelligence Activation - Personalized Places Hook
+ * 
+ * PHASE 1 FIX: Exploration mode now uses explored city coordinates
+ * for distance sorting, not user's home location.
+ */
+export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
   const { isAuthenticated } = useAuth();
   const { data: places, isLoading, isSwitchingLocation, ...rest } = usePublicPlaces(options);
   const { affinities } = useUserAffinity();
   const { preferences } = useUserPreferences();
   
+  // Determine if we're in exploration mode (viewing a different city)
+  const isExplorationMode = !!(options.city && options.state);
+  
+  // Find representative coordinates for the explored city
+  const exploredCityCoords = useMemo(() => {
+    if (!isExplorationMode || !places?.length) return null;
+    
+    // Use the first place in the filtered city as approximate center
+    const cityPlace = places.find(p => 
+      p.city?.toLowerCase() === options.city?.toLowerCase()
+    );
+    
+    if (cityPlace?.lat && cityPlace?.lng) {
+      return { lat: cityPlace.lat, lng: cityPlace.lng };
+    }
+    
+    return null;
+  }, [places, options.city, isExplorationMode]);
+  
+  // Determine reference point for distance calculation
+  const referencePoint = useMemo(() => {
+    // Explicit override from props
+    if (options.referenceCoords) {
+      return options.referenceCoords;
+    }
+    
+    // In exploration mode: use explored city center
+    if (isExplorationMode && exploredCityCoords) {
+      return exploredCityCoords;
+    }
+    
+    // Default: use provided lat/lng (user location)
+    if (options.lat != null && options.lng != null) {
+      return { lat: options.lat, lng: options.lng };
+    }
+    
+    return null;
+  }, [options.lat, options.lng, options.referenceCoords, isExplorationMode, exploredCityCoords]);
+  
   const personalizedPlaces = useMemo(() => {
     if (!places) return [];
     
+    // Calculate distances using appropriate reference point
+    const placesWithDistance = places.map(place => {
+      let distance: number | undefined;
+      if (referencePoint && place.lat != null && place.lng != null) {
+        distance = calculateDistanceMiles(
+          referencePoint.lat,
+          referencePoint.lng,
+          place.lat,
+          place.lng
+        );
+      }
+      return { ...place, distance };
+    });
+    
     // For unauthenticated users or no affinity data, return distance-sorted only
     if (!isAuthenticated || affinities.length === 0) {
-      return places as PersonalizedPlace[];
+      return placesWithDistance.sort((a, b) => {
+        if (a.distance !== undefined && b.distance !== undefined) {
+          return a.distance - b.distance;
+        }
+        if (a.distance !== undefined) return -1;
+        if (b.distance !== undefined) return 1;
+        return a.name.localeCompare(b.name);
+      }) as PersonalizedPlace[];
     }
     
     // Build affinity lookup map (category -> score)
@@ -48,7 +120,7 @@ export function usePersonalizedPlaces(options: UsePublicPlacesOptions) {
     const intentCategories = new Set(getExpandedCategories(intentPrefs));
     
     // Score and sort places
-    const scored = places.map(place => {
+    const scored = placesWithDistance.map(place => {
       const category = place.primary_category;
       
       // Calculate relevance boost (internal only, never exposed)
@@ -92,7 +164,7 @@ export function usePersonalizedPlaces(options: UsePublicPlacesOptions) {
       return aEffective - bEffective;
     }).map(({ _relevanceScore, ...place }) => place) as PersonalizedPlace[];
     
-  }, [places, isAuthenticated, affinities, preferences?.intent_preferences]);
+  }, [places, isAuthenticated, affinities, preferences?.intent_preferences, referencePoint]);
   
   return {
     data: personalizedPlaces,
