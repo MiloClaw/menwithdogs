@@ -1,5 +1,4 @@
 import { ExternalLink, MapPin } from "lucide-react";
-import { format } from "date-fns";
 import type { BlogPost } from "@/hooks/useBlogPosts";
 
 interface FeaturedBlogCardProps {
@@ -10,17 +9,9 @@ interface FeaturedBlogCardProps {
 
 export const FeaturedBlogCard = ({ post, onTagClick, onClick }: FeaturedBlogCardProps) => {
   const hasImage = !!post.cover_image_url;
-  const tags = post.tags?.slice(0, 2) || [];
-  const primaryTag = tags[0];
-  
   // Calculate reading time (rough estimate: 200 words per minute)
   const wordCount = (post.body || "").split(/\s+/).length;
   const readingTime = Math.max(1, Math.ceil(wordCount / 200));
-
-  // Format date as "January 10, 2026"
-  const formattedDate = post.created_at 
-    ? format(new Date(post.created_at), "MMMM d, yyyy")
-    : null;
 
   return (
     <article 
@@ -41,19 +32,6 @@ export const FeaturedBlogCard = ({ post, onTagClick, onClick }: FeaturedBlogCard
         
         {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 lg:p-10">
-          {/* Category Label */}
-          {primaryTag && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onTagClick?.(primaryTag.interest_id);
-              }}
-              className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-accent font-semibold mb-3 text-left hover:text-accent/80 transition-colors"
-            >
-              {primaryTag.interest?.label}
-            </button>
-          )}
-          
           {/* Title */}
           <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-[1.1] mb-4 max-w-3xl">
             {post.title}
@@ -76,16 +54,11 @@ export const FeaturedBlogCard = ({ post, onTagClick, onClick }: FeaturedBlogCard
               </div>
             )}
             
-            {/* Date */}
-            {formattedDate && (
-              <>
-                <span className="text-white/30">·</span>
-                <span>{formattedDate}</span>
-              </>
+            {(post.city?.name || post.place?.name) && (
+              <span className="text-white/30">·</span>
             )}
             
             {/* Reading Time */}
-            <span className="text-white/30">·</span>
             <span>{readingTime} min read</span>
             
             {/* Read More Link */}
