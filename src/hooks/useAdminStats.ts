@@ -1,6 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface CityStats {
+  city: string;
+  state: string | null;
+  pendingCount: number;
+  approvedCount: number;
+  userSubmittedCount: number;
+  totalCount: number;
+  inLaunchedCity: boolean;
+  geoAreaId?: string;
+}
+
 interface AdminStats {
   couples: {
     total: number;
@@ -23,6 +34,8 @@ interface AdminStats {
   };
   posts: number;
   members: number;
+  placesByCity: CityStats[];
+  emergingCitiesCount: number;
 }
 
 export const useAdminStats = () => {
@@ -39,6 +52,7 @@ export const useAdminStats = () => {
         postsResult,
         membersResult,
         citiesResult,
+        placesByCityResult,
       ] = await Promise.all([
         supabase.from('couples').select('id', { count: 'exact', head: true }),
         supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_complete', true),
@@ -49,6 +63,8 @@ export const useAdminStats = () => {
         supabase.from('posts').select('id', { count: 'exact', head: true }),
         supabase.from('member_profiles').select('id', { count: 'exact', head: true }),
         supabase.from('city_seeding_progress').select('*'),
+        // Get all places with city info
+        supabase.from('places').select('city, state, status, source'),
       ]);
 
       // Calculate city stats from the view data
@@ -60,6 +76,60 @@ export const useAdminStats = () => {
         paused: cities.filter(c => c.status === 'paused').length,
         readyToLaunch: cities.filter(c => c.status === 'draft' && c.is_ready_to_launch).length,
       };
+
+      // Build launched cities lookup (lowercase for comparison)
+      const launchedCities = new Set(
+        cities
+          .filter(c => c.status === 'launched')
+          .map(c => `${c.name?.toLowerCase()}|${c.state?.toLowerCase() || ''}`)
+      );
+
+      // Aggregate places by city
+      const placesData = placesByCityResult.data || [];
+      const cityAggregates = new Map<string, CityStats>();
+
+      for (const place of placesData) {
+        if (!place.city) continue;
+        
+        const key = `${place.city}|${place.state || ''}`;
+        const existing = cityAggregates.get(key);
+        
+        const cityLookupKey = `${place.city.toLowerCase()}|${place.state?.toLowerCase() || ''}`;
+        const inLaunchedCity = launchedCities.has(cityLookupKey);
+
+        if (existing) {
+          existing.totalCount++;
+          if (place.status === 'pending') existing.pendingCount++;
+          if (place.status === 'approved') existing.approvedCount++;
+          if (place.source === 'user_submitted') existing.userSubmittedCount++;
+        } else {
+          cityAggregates.set(key, {
+            city: place.city,
+            state: place.state,
+            pendingCount: place.status === 'pending' ? 1 : 0,
+            approvedCount: place.status === 'approved' ? 1 : 0,
+            userSubmittedCount: place.source === 'user_submitted' ? 1 : 0,
+            totalCount: 1,
+            inLaunchedCity,
+          });
+        }
+      }
+
+      // Convert to sorted array (user-submitted first, then pending)
+      const placesByCity = Array.from(cityAggregates.values())
+        .sort((a, b) => {
+          // Primary: user-submitted count descending
+          if (b.userSubmittedCount !== a.userSubmittedCount) {
+            return b.userSubmittedCount - a.userSubmittedCount;
+          }
+          // Secondary: pending count descending
+          return b.pendingCount - a.pendingCount;
+        });
+
+      // Count emerging cities (have submissions but not launched)
+      const emergingCitiesCount = placesByCity.filter(
+        c => c.userSubmittedCount > 0 && !c.inLaunchedCity
+      ).length;
 
       return {
         couples: {
@@ -77,6 +147,8 @@ export const useAdminStats = () => {
         cities: cityStats,
         posts: postsResult.count ?? 0,
         members: membersResult.count ?? 0,
+        placesByCity,
+        emergingCitiesCount,
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

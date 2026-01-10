@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Users, FileText, MapPin, Calendar, Sparkles, Tags, AlertTriangle, Info, Building2, Rocket } from 'lucide-react';
+import { Users, FileText, MapPin, Calendar, Sparkles, Tags, AlertTriangle, Info, Building2, Rocket, TrendingUp } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAdminStats } from '@/hooks/useAdminStats';
+import LocationSummaryCard from '@/components/admin/LocationSummaryCard';
 
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
@@ -101,6 +102,16 @@ const AdminDashboard = () => {
       href: '/admin/directory/cities?status=draft',
     });
   }
+
+  // Emerging markets alert (new)
+  if (stats?.emergingCitiesCount && stats.emergingCitiesCount > 0) {
+    needsAttention.push({
+      type: 'info',
+      message: `${stats.emergingCitiesCount} ${stats.emergingCitiesCount > 1 ? 'cities' : 'city'} with organic demand not yet launched`,
+      href: '/admin/directory/places?source=emerging',
+      icon: TrendingUp,
+    });
+  }
   
   if (stats?.places.pending && stats.places.pending > 0) {
     needsAttention.push({
@@ -170,36 +181,50 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Needs Attention Queue */}
-        {needsAttention.length > 0 && (
-          <div className="space-y-2">
-            <h2 className="text-lg font-semibold">Needs Attention</h2>
-            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-              {needsAttention.map((item, index) => (
-                <Link key={index} to={item.href}>
-                  <Card className={`hover:bg-accent/50 transition-colors cursor-pointer border-l-4 ${
-                    item.type === 'success'
-                      ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20'
-                      : item.type === 'warning' 
-                        ? 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' 
-                        : 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
-                  }`}>
-                    <CardContent className="py-3 flex items-center gap-3">
-                      {item.type === 'success' ? (
-                        <Rocket className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
-                      ) : item.type === 'warning' ? (
-                        <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
-                      ) : (
-                        <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      )}
-                      <span className="text-sm font-medium">{item.message}</span>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+        {/* Two-column layout for Needs Attention + Location Insights */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Needs Attention Queue */}
+          {needsAttention.length > 0 && (
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold">Needs Attention</h2>
+              <div className="space-y-2">
+                {needsAttention.map((item, index) => (
+                  <Link key={index} to={item.href}>
+                    <Card className={`hover:bg-accent/50 transition-colors cursor-pointer border-l-4 ${
+                      item.type === 'success'
+                        ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20'
+                        : item.type === 'warning' 
+                          ? 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20' 
+                          : 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+                    }`}>
+                      <CardContent className="py-3 flex items-center gap-3">
+                        {item.type === 'success' ? (
+                          <Rocket className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
+                        ) : item.type === 'warning' ? (
+                          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                        ) : 'icon' in item && item.icon ? (
+                          <item.icon className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                        ) : (
+                          <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                        )}
+                        <span className="text-sm font-medium">{item.message}</span>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             </div>
+          )}
+
+          {/* Location Insights Card */}
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Location Insights</h2>
+            <LocationSummaryCard 
+              placesByCity={stats?.placesByCity || []} 
+              isLoading={isLoading}
+            />
           </div>
-        )}
+        </div>
 
         {/* Quick Actions */}
         <div>
