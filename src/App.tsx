@@ -15,6 +15,7 @@ import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import Blog from "./pages/Blog";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Saved from "./pages/Saved";
@@ -47,9 +48,8 @@ const App = () => (
               <Route path="/places/explore" element={<ExploreCities />} />
               <Route path="/directory" element={<Navigate to="/places" replace />} />
               
-              {/* Legacy blog routes - redirect to places */}
-              <Route path="/blog" element={<Navigate to="/places" replace />} />
-              <Route path="/blog/:slug" element={<Navigate to="/places" replace />} />
+              {/* Blog for announcements */}
+              <Route path="/blog" element={<Blog />} />
               
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />

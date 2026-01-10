@@ -29,6 +29,7 @@ export interface Post {
   // Joined data
   city?: { id: string; name: string; state: string | null };
   place?: { id: string; name: string; formatted_address: string | null; city: string | null; website_url: string | null };
+  tags?: { interest_id: string; interest: { id: string; label: string; category_id: string } }[];
 }
 
 export interface PostInsert {
@@ -47,6 +48,54 @@ export interface PostInsert {
 
 export interface PostUpdate extends Partial<PostInsert> {
   id: string;
+}
+
+// Sync post tags - replaces all with new selection
+export async function syncPostTags(postId: string, interestIds: string[]): Promise<void> {
+  // Delete existing tags
+  const { error: deleteError } = await supabase
+    .from('post_tags')
+    .delete()
+    .eq('post_id', postId);
+
+  if (deleteError) throw deleteError;
+
+  // Insert new tags
+  if (interestIds.length > 0) {
+    const rows = interestIds.map(interest_id => ({
+      post_id: postId,
+      interest_id,
+    }));
+
+    const { error: insertError } = await supabase
+      .from('post_tags')
+      .insert(rows);
+
+    if (insertError) throw insertError;
+  }
+}
+
+// Hook to fetch post tags for a specific post
+export function usePostTags(postId: string | null) {
+  return useQuery({
+    queryKey: ['post-tags', postId],
+    queryFn: async () => {
+      if (!postId) return [];
+      
+      const { data, error } = await supabase
+        .from('post_tags')
+        .select(`
+          id,
+          interest_id,
+          interest:interests(id, label, category_id)
+        `)
+        .eq('post_id', postId);
+
+      if (error) throw error;
+      return (data || []).map(d => d.interest_id);
+    },
+    enabled: !!postId,
+  });
 }
 
 // Admin: Fetch all posts (for management)
