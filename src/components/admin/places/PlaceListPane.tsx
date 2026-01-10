@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Sparkles, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
+import { Sparkles, ChevronDown, ChevronRight, MapPin, Building2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Place } from '@/hooks/usePlaces';
@@ -14,7 +14,8 @@ interface PlaceListPaneProps {
   onSelectPlace: (id: string) => void;
   onCityFilter?: (city: string) => void;
   isLoading?: boolean;
-  groupBy?: 'city';
+  groupBy?: 'city' | 'metro';
+  metroMapping?: Record<string, string>;
 }
 
 const statusColors: Record<Place['status'], string> = {
@@ -30,6 +31,13 @@ interface CityGroup {
   pendingCount: number;
 }
 
+interface MetroGroup {
+  metro: string;
+  cities: Map<string, CityGroup>;
+  totalPlaces: number;
+  pendingCount: number;
+}
+
 const PlaceListPane = ({ 
   places, 
   selectedPlaceId, 
@@ -37,6 +45,7 @@ const PlaceListPane = ({
   onCityFilter,
   isLoading,
   groupBy,
+  metroMapping,
 }: PlaceListPaneProps) => {
   const sortedPlaces = useMemo(() => {
     return [...places].sort((a, b) => 
@@ -74,18 +83,76 @@ const PlaceListPane = ({
     });
   }, [sortedPlaces, groupBy]);
 
-  // Track which groups are expanded (default: those with pending items)
+  // Group places by metro when groupBy is 'metro'
+  const metroGroups = useMemo(() => {
+    if (groupBy !== 'metro') return null;
+
+    const groups = new Map<string, MetroGroup>();
+    
+    for (const place of sortedPlaces) {
+      const cityKey = place.city?.toLowerCase() || 'unknown';
+      const metroName = metroMapping?.[cityKey] || 'Other';
+      
+      if (!groups.has(metroName)) {
+        groups.set(metroName, {
+          metro: metroName,
+          cities: new Map(),
+          totalPlaces: 0,
+          pendingCount: 0,
+        });
+      }
+      
+      const metroGroup = groups.get(metroName)!;
+      const cityGroupKey = `${place.city || 'Unknown'}|${place.state || ''}`;
+      
+      if (!metroGroup.cities.has(cityGroupKey)) {
+        metroGroup.cities.set(cityGroupKey, {
+          city: place.city || 'Unknown',
+          state: place.state,
+          places: [],
+          pendingCount: 0,
+        });
+      }
+      
+      const cityGroup = metroGroup.cities.get(cityGroupKey)!;
+      cityGroup.places.push(place);
+      metroGroup.totalPlaces++;
+      
+      if (place.status === 'pending') {
+        cityGroup.pendingCount++;
+        metroGroup.pendingCount++;
+      }
+    }
+
+    // Sort metros by pending count desc, then total count desc
+    return Array.from(groups.values()).sort((a, b) => {
+      if (b.pendingCount !== a.pendingCount) return b.pendingCount - a.pendingCount;
+      return b.totalPlaces - a.totalPlaces;
+    });
+  }, [sortedPlaces, groupBy, metroMapping]);
+
+  // Track which groups are expanded
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    if (!cityGroups) return new Set();
-    return new Set(
-      cityGroups
-        .filter(g => g.pendingCount > 0)
-        .map(g => `${g.city}|${g.state || ''}`)
-    );
+    // For city view, expand pending groups
+    if (cityGroups) {
+      return new Set(
+        cityGroups
+          .filter(g => g.pendingCount > 0)
+          .map(g => `${g.city}|${g.state || ''}`)
+      );
+    }
+    // For metro view, expand pending metros
+    if (metroGroups) {
+      return new Set(
+        metroGroups
+          .filter(g => g.pendingCount > 0)
+          .map(g => g.metro)
+      );
+    }
+    return new Set();
   });
 
-  const toggleGroup = (city: string, state: string | null) => {
-    const key = `${city}|${state || ''}`;
+  const toggleGroup = (key: string) => {
     setExpandedGroups(prev => {
       const next = new Set(prev);
       if (next.has(key)) {
@@ -116,7 +183,122 @@ const PlaceListPane = ({
     );
   }
 
-  // Grouped view
+  // Metro grouped view
+  if (groupBy === 'metro' && metroGroups) {
+    return (
+      <ScrollArea className="h-full">
+        <div className="divide-y divide-border">
+          {metroGroups.map((metro) => {
+            const isMetroExpanded = expandedGroups.has(metro.metro);
+            const sortedCities = Array.from(metro.cities.values()).sort((a, b) => {
+              if (b.pendingCount !== a.pendingCount) return b.pendingCount - a.pendingCount;
+              return b.places.length - a.places.length;
+            });
+            
+            return (
+              <Collapsible
+                key={metro.metro}
+                open={isMetroExpanded}
+                onOpenChange={() => toggleGroup(metro.metro)}
+              >
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2">
+                      {isMetroExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium text-sm">{metro.metro}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {metro.pendingCount > 0 && (
+                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs">
+                          {metro.pendingCount} pending
+                        </Badge>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {metro.totalPlaces} places
+                      </span>
+                    </div>
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="border-t bg-muted/20">
+                    {sortedCities.map((cityGroup) => {
+                      const cityKey = `${metro.metro}|${cityGroup.city}|${cityGroup.state || ''}`;
+                      const isCityExpanded = expandedGroups.has(cityKey);
+                      
+                      return (
+                        <Collapsible
+                          key={cityKey}
+                          open={isCityExpanded}
+                          onOpenChange={() => toggleGroup(cityKey)}
+                        >
+                          <CollapsibleTrigger className="w-full">
+                            <div className="flex items-center justify-between px-4 pl-8 py-2 hover:bg-muted/50 transition-colors">
+                              <div className="flex items-center gap-2">
+                                {isCityExpanded ? (
+                                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                                )}
+                                <Building2 className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-sm">
+                                  {cityGroup.city}{cityGroup.state && `, ${cityGroup.state}`}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {cityGroup.pendingCount > 0 && (
+                                  <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs">
+                                    {cityGroup.pendingCount}
+                                  </Badge>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  {cityGroup.places.length}
+                                </span>
+                                {onCityFilter && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onCityFilter(cityGroup.city);
+                                    }}
+                                    className="text-xs text-primary hover:underline"
+                                  >
+                                    Filter
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="border-t border-border/50">
+                              {cityGroup.places.map((place) => (
+                                <PlaceListItem
+                                  key={place.id}
+                                  place={place}
+                                  isSelected={selectedPlaceId === place.id}
+                                  onSelect={onSelectPlace}
+                                  indentLevel={2}
+                                />
+                              ))}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    );
+  }
+
+  // City grouped view
   if (groupBy === 'city' && cityGroups) {
     return (
       <ScrollArea className="h-full">
@@ -129,7 +311,7 @@ const PlaceListPane = ({
               <Collapsible
                 key={key}
                 open={isExpanded}
-                onOpenChange={() => toggleGroup(group.city, group.state)}
+                onOpenChange={() => toggleGroup(key)}
               >
                 <CollapsibleTrigger className="w-full">
                   <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
@@ -139,7 +321,7 @@ const PlaceListPane = ({
                       ) : (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium text-sm">
                         {group.city}{group.state && `, ${group.state}`}
                       </span>
@@ -175,7 +357,7 @@ const PlaceListPane = ({
                         place={place}
                         isSelected={selectedPlaceId === place.id}
                         onSelect={onSelectPlace}
-                        indented
+                        indentLevel={1}
                       />
                     ))}
                   </div>
@@ -210,18 +392,20 @@ interface PlaceListItemProps {
   place: Place;
   isSelected: boolean;
   onSelect: (id: string) => void;
-  indented?: boolean;
+  indentLevel?: number;
 }
 
-const PlaceListItem = ({ place, isSelected, onSelect, indented }: PlaceListItemProps) => {
+const PlaceListItem = ({ place, isSelected, onSelect, indentLevel = 0 }: PlaceListItemProps) => {
+  const paddingLeft = indentLevel === 0 ? 'pl-4' : indentLevel === 1 ? 'pl-10' : 'pl-14';
+  
   return (
     <button
       onClick={() => onSelect(place.id)}
       className={`
-        w-full text-left px-4 py-3 transition-colors
+        w-full text-left pr-4 py-3 transition-colors
         hover:bg-muted/50 focus:outline-none focus:bg-muted/50
         ${isSelected ? 'bg-muted' : ''}
-        ${indented ? 'pl-10' : ''}
+        ${paddingLeft}
       `}
     >
       <div className="flex items-start justify-between gap-2">

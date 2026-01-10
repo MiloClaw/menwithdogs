@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Plus, Search, Trash2, ChevronRight, X, MapPin, List, LayoutGrid } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Plus, Search, Trash2, ChevronRight, X, MapPin, List, LayoutGrid, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -30,16 +31,17 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import PlaceListPane from '@/components/admin/places/PlaceListPane';
 import PlaceDetailPane, { PlaceDetailMode } from '@/components/admin/places/PlaceDetailPane';
 import { usePlaces, Place } from '@/hooks/usePlaces';
+import { supabase } from '@/integrations/supabase/client';
 
 type StatusFilter = 'all' | 'approved' | 'pending' | 'rejected';
-type ViewMode = 'flat' | 'grouped';
+type ViewMode = 'flat' | 'city' | 'metro';
 
 const PlaceManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('flat');
+  const [viewMode, setViewMode] = useState<ViewMode>('city');
   
   // Read city filter from URL
   const cityFilter = searchParams.get('city') || '';
@@ -54,6 +56,43 @@ const PlaceManagement = () => {
   }, [searchParams]);
   
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
+
+  // Fetch geo_areas to build metro mapping
+  const { data: geoAreas } = useQuery({
+    queryKey: ['geo-areas-metros'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('geo_areas')
+        .select('id, name, type, parent_id')
+        .in('type', ['metro', 'locality']);
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Build metro mapping: cityName (lowercase) → metroName
+  const metroMapping = useMemo(() => {
+    if (!geoAreas) return {};
+    
+    const metroMap: Record<string, string> = {};
+    const metrosById: Record<string, string> = {};
+    
+    // First pass: collect metros by ID
+    for (const area of geoAreas) {
+      if (area.type === 'metro') {
+        metrosById[area.id] = area.name;
+      }
+    }
+    
+    // Second pass: map localities to their parent metro
+    for (const area of geoAreas) {
+      if (area.type === 'locality' && area.parent_id && metrosById[area.parent_id]) {
+        metroMap[area.name.toLowerCase()] = metrosById[area.parent_id];
+      }
+    }
+    
+    return metroMap;
+  }, [geoAreas]);
 
   // Sync mode state with URL
   const [detailMode, setDetailMode] = useState<PlaceDetailMode>(() => {
@@ -286,15 +325,29 @@ const PlaceManagement = () => {
                 <TooltipTrigger asChild>
                   <Toggle
                     size="sm"
-                    pressed={viewMode === 'grouped'}
-                    onPressedChange={() => setViewMode('grouped')}
-                    className="rounded-l-none border-l data-[state=on]:bg-muted"
+                    pressed={viewMode === 'city'}
+                    onPressedChange={() => setViewMode('city')}
+                    className="rounded-none border-l data-[state=on]:bg-muted"
                     aria-label="Group by city"
                   >
-                    <LayoutGrid className="h-4 w-4" />
+                    <Building2 className="h-4 w-4" />
                   </Toggle>
                 </TooltipTrigger>
                 <TooltipContent>Group by city</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Toggle
+                    size="sm"
+                    pressed={viewMode === 'metro'}
+                    onPressedChange={() => setViewMode('metro')}
+                    className="rounded-l-none border-l data-[state=on]:bg-muted"
+                    aria-label="Group by metro"
+                  >
+                    <MapPin className="h-4 w-4" />
+                  </Toggle>
+                </TooltipTrigger>
+                <TooltipContent>Group by metro</TooltipContent>
               </Tooltip>
             </div>
           </div>
@@ -314,7 +367,8 @@ const PlaceManagement = () => {
                 onSelectPlace={handleSelectPlace}
                 onCityFilter={handleCityFilter}
                 isLoading={isLoading}
-                groupBy={viewMode === 'grouped' ? 'city' : undefined}
+                groupBy={viewMode === 'flat' ? undefined : viewMode}
+                metroMapping={metroMapping}
               />
             </ResizablePanel>
             
