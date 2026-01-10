@@ -15,7 +15,7 @@ interface RequireRoleProps {
 export function RequireRole({ 
   children, 
   role, 
-  fallbackPath = '/dashboard' 
+  fallbackPath = '/places' 
 }: RequireRoleProps) {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { hasRole, loading: roleLoading } = useUserRole();
