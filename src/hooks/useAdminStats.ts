@@ -25,6 +25,18 @@ export interface MetroStats {
   hasEmergingCities: boolean;
 }
 
+export interface CategoryBreakdown {
+  category: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TrendData {
+  signups: number[];
+  favorites: number[];
+  places: number[];
+}
+
 interface AdminStats {
   couples: {
     total: number;
@@ -50,12 +62,35 @@ interface AdminStats {
   placesByCity: CityStats[];
   placesByMetro: MetroStats[];
   emergingCitiesCount: number;
+  // New metrics
+  engagement: {
+    totalFavorites: number;
+    avgFavoritesPerUser: number;
+  };
+  trends: TrendData;
+  categoryBreakdown: CategoryBreakdown[];
+}
+
+// Helper to get dates for the last N days
+function getLastNDays(n: number): string[] {
+  const dates: string[] = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+  return dates;
 }
 
 export const useAdminStats = () => {
   return useQuery({
     queryKey: ['admin-stats'],
     queryFn: async (): Promise<AdminStats> => {
+      // Calculate date range for trends (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysAgoISO = sevenDaysAgo.toISOString();
+
       const [
         couplesResult,
         activeCouplesResult,
@@ -68,6 +103,12 @@ export const useAdminStats = () => {
         citiesResult,
         placesByCityResult,
         geoAreasResult,
+        // New queries for engagement and trends
+        favoritesResult,
+        recentMembersResult,
+        recentFavoritesResult,
+        recentPlacesResult,
+        allPlacesResult,
       ] = await Promise.all([
         supabase.from('couples').select('id', { count: 'exact', head: true }),
         supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_complete', true),
@@ -78,10 +119,18 @@ export const useAdminStats = () => {
         supabase.from('posts').select('id', { count: 'exact', head: true }),
         supabase.from('member_profiles').select('id', { count: 'exact', head: true }),
         supabase.from('city_seeding_progress').select('*'),
-        // Get all places with city info
         supabase.from('places').select('city, state, status, source'),
-        // Get geo_areas with parent relationships for metro rollup
         supabase.from('geo_areas').select('id, name, type, parent_id').eq('is_active', true),
+        // Engagement data
+        supabase.from('couple_favorites').select('id', { count: 'exact', head: true }),
+        // Recent signups (last 7 days)
+        supabase.from('member_profiles').select('created_at').gte('created_at', sevenDaysAgoISO),
+        // Recent favorites (last 7 days)
+        supabase.from('couple_favorites').select('created_at').gte('created_at', sevenDaysAgoISO),
+        // Recent places (last 7 days)
+        supabase.from('places').select('created_at').gte('created_at', sevenDaysAgoISO),
+        // All places with categories for breakdown
+        supabase.from('places').select('primary_category').eq('status', 'approved'),
       ]);
 
       // Calculate city stats from the view data
@@ -94,7 +143,7 @@ export const useAdminStats = () => {
         readyToLaunch: cities.filter(c => c.status === 'draft' && c.is_ready_to_launch).length,
       };
 
-      // Build launched cities lookup (lowercase for comparison)
+      // Build launched cities lookup
       const launchedCities = new Set(
         cities
           .filter(c => c.status === 'launched')
@@ -106,14 +155,12 @@ export const useAdminStats = () => {
       const localityToMetro = new Map<string, { metroId: string; metroName: string }>();
       const metrosById = new Map<string, string>();
       
-      // First pass: identify metros
       for (const area of geoAreas) {
         if (area.type === 'metro') {
           metrosById.set(area.id, area.name);
         }
       }
       
-      // Second pass: map localities to their parent metros
       for (const area of geoAreas) {
         if (area.type === 'locality' && area.parent_id && metrosById.has(area.parent_id)) {
           localityToMetro.set(area.name.toLowerCase(), {
@@ -135,8 +182,6 @@ export const useAdminStats = () => {
         
         const cityLookupKey = `${place.city.toLowerCase()}|${place.state?.toLowerCase() || ''}`;
         const inLaunchedCity = launchedCities.has(cityLookupKey);
-        
-        // Look up metro from geo_areas
         const metroInfo = localityToMetro.get(place.city.toLowerCase());
 
         if (existing) {
@@ -159,14 +204,11 @@ export const useAdminStats = () => {
         }
       }
 
-      // Convert to sorted array (user-submitted first, then pending)
       const placesByCity = Array.from(cityAggregates.values())
         .sort((a, b) => {
-          // Primary: user-submitted count descending
           if (b.userSubmittedCount !== a.userSubmittedCount) {
             return b.userSubmittedCount - a.userSubmittedCount;
           }
-          // Secondary: pending count descending
           return b.pendingCount - a.pendingCount;
         });
 
@@ -201,7 +243,6 @@ export const useAdminStats = () => {
         }
       }
       
-      // Sort metros by user-submitted count
       const placesByMetro = Array.from(metroAggregates.values())
         .sort((a, b) => {
           if (b.userSubmittedCount !== a.userSubmittedCount) {
@@ -210,10 +251,80 @@ export const useAdminStats = () => {
           return b.pendingCount - a.pendingCount;
         });
 
-      // Count emerging cities (have submissions but not launched)
       const emergingCitiesCount = placesByCity.filter(
         c => c.userSubmittedCount > 0 && !c.inLaunchedCity
       ).length;
+
+      // Calculate engagement metrics
+      const totalFavorites = favoritesResult.count ?? 0;
+      const activeUsers = activeCouplesResult.count ?? 1;
+      const avgFavoritesPerUser = activeUsers > 0 ? totalFavorites / activeUsers : 0;
+
+      // Calculate 7-day trends
+      const last7Days = getLastNDays(7);
+      
+      const signupsByDay = new Map<string, number>();
+      const favoritesByDay = new Map<string, number>();
+      const placesByDay = new Map<string, number>();
+      
+      // Initialize all days to 0
+      for (const day of last7Days) {
+        signupsByDay.set(day, 0);
+        favoritesByDay.set(day, 0);
+        placesByDay.set(day, 0);
+      }
+      
+      // Count signups per day
+      for (const member of recentMembersResult.data || []) {
+        const day = member.created_at.split('T')[0];
+        if (signupsByDay.has(day)) {
+          signupsByDay.set(day, (signupsByDay.get(day) || 0) + 1);
+        }
+      }
+      
+      // Count favorites per day
+      for (const fav of recentFavoritesResult.data || []) {
+        const day = fav.created_at.split('T')[0];
+        if (favoritesByDay.has(day)) {
+          favoritesByDay.set(day, (favoritesByDay.get(day) || 0) + 1);
+        }
+      }
+      
+      // Count places per day
+      for (const place of recentPlacesResult.data || []) {
+        const day = place.created_at.split('T')[0];
+        if (placesByDay.has(day)) {
+          placesByDay.set(day, (placesByDay.get(day) || 0) + 1);
+        }
+      }
+
+      const trends: TrendData = {
+        signups: last7Days.map(day => signupsByDay.get(day) || 0),
+        favorites: last7Days.map(day => favoritesByDay.get(day) || 0),
+        places: last7Days.map(day => placesByDay.get(day) || 0),
+      };
+
+      // Calculate category breakdown
+      const categoryCountMap = new Map<string, number>();
+      const approvedPlaces = allPlacesResult.data || [];
+      
+      for (const place of approvedPlaces) {
+        if (place.primary_category) {
+          categoryCountMap.set(
+            place.primary_category, 
+            (categoryCountMap.get(place.primary_category) || 0) + 1
+          );
+        }
+      }
+
+      const totalApprovedPlaces = approvedPlaces.length;
+      const categoryBreakdown: CategoryBreakdown[] = Array.from(categoryCountMap.entries())
+        .map(([category, count]) => ({
+          category,
+          count,
+          percentage: totalApprovedPlaces > 0 ? (count / totalApprovedPlaces) * 100 : 0,
+        }))
+        .sort((a, b) => b.count - a.count);
 
       return {
         couples: {
@@ -234,6 +345,12 @@ export const useAdminStats = () => {
         placesByCity,
         placesByMetro,
         emergingCitiesCount,
+        engagement: {
+          totalFavorites,
+          avgFavoritesPerUser,
+        },
+        trends,
+        categoryBreakdown,
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
