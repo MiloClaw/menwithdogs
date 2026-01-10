@@ -53,6 +53,7 @@ import { useCities } from '@/hooks/useCities';
 import { usePlaces } from '@/hooks/usePlaces';
 import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
 import VenuePicker from '@/components/admin/events/VenuePicker';
+import { BlogImageUpload } from '@/components/blog/BlogImageUpload';
 import { toast } from 'sonner';
 
 type PostType = 'announcement' | 'event';
@@ -85,6 +86,7 @@ interface PostFormData {
   recurrence_day: string; // day of week for recurring
   recurrence_frequency: string; // frequency pattern
   external_url: string;
+  cover_image_url: string | null;
   status: PostStatus;
   interest_tags: string[];
 }
@@ -100,6 +102,7 @@ const INITIAL_FORM: PostFormData = {
   recurrence_day: '',
   recurrence_frequency: 'weekly',
   external_url: '',
+  cover_image_url: null,
   status: 'draft',
   interest_tags: [],
 };
@@ -210,6 +213,7 @@ const PostManagement = () => {
       recurrence_day: recurrenceDay,
       recurrence_frequency: recurrenceFrequency,
       external_url: post.external_url || '',
+      cover_image_url: (post as any).cover_image_url || null,
       status: post.status,
       interest_tags: [],
     });
@@ -277,7 +281,7 @@ const PostManagement = () => {
       ? generateRecurrenceText(formData.recurrence_day, formData.recurrence_frequency)
       : null;
 
-    const postData: PostInsert = {
+    const postData: PostInsert & { cover_image_url?: string | null } = {
       type: formData.type,
       title: formData.title.trim(),
       body: formData.body.trim() || null,
@@ -291,6 +295,7 @@ const PostManagement = () => {
       is_recurring: formData.type === 'event' ? formData.is_recurring : false,
       recurrence_text: formData.type === 'event' ? recurrenceText : null,
       external_url: formData.external_url.trim() || null,
+      cover_image_url: formData.type === 'announcement' ? formData.cover_image_url : null,
       status: publish ? 'published' : 'draft',
     };
 
@@ -388,6 +393,12 @@ const PostManagement = () => {
 
   const renderAnnouncementStep2 = () => (
     <div className="space-y-5">
+      {/* Cover Image Upload */}
+      <BlogImageUpload
+        value={formData.cover_image_url}
+        onChange={(url) => setFormData(f => ({ ...f, cover_image_url: url }))}
+      />
+      
       {/* Title */}
       <div>
         <Label htmlFor="title">Title</Label>
@@ -730,6 +741,17 @@ const PostManagement = () => {
     
     return (
       <div className="space-y-4">
+        {/* Cover Image Preview for Announcements */}
+        {!isEventType && formData.cover_image_url && (
+          <div className="rounded-lg overflow-hidden border">
+            <img 
+              src={formData.cover_image_url} 
+              alt="Cover preview" 
+              className="w-full aspect-video object-cover"
+            />
+          </div>
+        )}
+        
         <div className="p-4 rounded-lg border bg-card">
           <div className="flex items-start gap-3">
             <div className={`p-2 rounded-lg ${isEventType ? 'bg-accent/10' : 'bg-primary/10'}`}>
