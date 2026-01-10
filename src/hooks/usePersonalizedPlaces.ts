@@ -164,6 +164,26 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
       };
     });
     
+    // ═══════════════════════════════════════════════════════════════════════
+    // ARCHITECTURAL GUARDRAIL: NO FILTERING ALLOWED
+    // ═══════════════════════════════════════════════════════════════════════
+    // 
+    // Preferences and affinities MUST only affect ORDERING, never EXCLUSION.
+    // 
+    // ✅ ALLOWED:
+    //    - Adjusting sort order based on affinity scores
+    //    - Boosting relevant places higher in results
+    //    - Applying distance weight multipliers
+    // 
+    // ❌ FORBIDDEN:
+    //    - Filtering out places with low affinity
+    //    - Excluding categories the user hasn't engaged with
+    //    - Hiding places that don't match preferences
+    // 
+    // Rationale: Discovery is a core product value. Users must be able to
+    // find places outside their established patterns. Serendipity > Optimization.
+    // ═══════════════════════════════════════════════════════════════════════
+    
     // Sort: relevance boost + distance (with user preference weight)
     // Scale factor ensures relevance matters but doesn't override proximity entirely
     return scored.sort((a, b) => {
