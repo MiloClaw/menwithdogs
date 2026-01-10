@@ -126,7 +126,7 @@ const AdminSidebar = () => {
       {/* Footer */}
       <div className="p-4 border-t border-border">
         <Button variant="ghost" size="sm" className="w-full justify-start gap-2" asChild>
-          <Link to="/dashboard">
+          <Link to="/places">
             <ArrowLeft className="h-4 w-4" />
             Back to App
           </Link>
