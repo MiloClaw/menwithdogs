@@ -117,12 +117,23 @@ const generateRecurrenceText = (day: string, frequency: string): string => {
   return freqOption.format(day);
 };
 
+interface FormErrors {
+  title?: string;
+  city_id?: string;
+  place_id?: string;
+  start_date?: string;
+  recurrence_day?: string;
+  external_url?: string;
+}
+
 const PostManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [formData, setFormData] = useState<PostFormData>(INITIAL_FORM);
   const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [attemptedProceed, setAttemptedProceed] = useState(false);
 
   const { data: posts, isLoading: postsLoading } = useAdminPosts(statusFilter);
   const { data: cities, isLoading: citiesLoading } = useCities();
@@ -148,6 +159,8 @@ const PostManagement = () => {
     setFormData(INITIAL_FORM);
     setEditingPost(null);
     setStep(1);
+    setErrors({});
+    setAttemptedProceed(false);
   };
 
   const openCreateDialog = () => {
@@ -320,31 +333,56 @@ const PostManagement = () => {
   // Events: 3 steps (Type → Event Info/Schedule → Review)
   const totalSteps = isEventType ? 3 : 4;
 
-  const canProceed = () => {
-    switch (step) {
-      case 1: 
-        return true; // Type selection always valid
-      case 2:
-        if (isEventType) {
-          // Event: need title, city, place, and schedule info
-          const hasBasicInfo = !!formData.title.trim() && !!formData.city_id && !!formData.place_id;
-          if (formData.is_recurring) {
-            return hasBasicInfo && !!formData.recurrence_day;
-          }
-          return hasBasicInfo && !!formData.start_date;
-        } else {
-          // Announcement: need title and city
-          return !!formData.title.trim() && !!formData.city_id;
+  // Validate current step and return errors
+  const validateStep = (): FormErrors => {
+    const newErrors: FormErrors = {};
+    
+    if (step === 2) {
+      if (!formData.title.trim()) {
+        newErrors.title = isEventType ? 'Event name is required' : 'Title is required';
+      }
+      if (!formData.city_id) {
+        newErrors.city_id = 'Please select a city';
+      }
+      
+      if (isEventType) {
+        if (!formData.place_id) {
+          newErrors.place_id = 'Please select a venue';
         }
-      case 3:
-        // For announcements: tags step (optional, always valid)
-        // For events: review step (already validated in step 2)
-        return true;
-      case 4:
-        // Announcements review step
-        return true;
-      default: 
-        return false;
+        if (formData.is_recurring) {
+          if (!formData.recurrence_day) {
+            newErrors.recurrence_day = 'Please select a day of the week';
+          }
+        } else {
+          if (!formData.start_date) {
+            newErrors.start_date = 'Please select an event date';
+          }
+        }
+      }
+      
+      // Validate external URL format if provided
+      if (formData.external_url.trim() && !formData.external_url.match(/^https?:\/\//)) {
+        newErrors.external_url = 'URL must start with http:// or https://';
+      }
+    }
+    
+    return newErrors;
+  };
+
+  const canProceed = () => {
+    const stepErrors = validateStep();
+    return Object.keys(stepErrors).length === 0;
+  };
+
+  const handleProceed = () => {
+    setAttemptedProceed(true);
+    const stepErrors = validateStep();
+    setErrors(stepErrors);
+    
+    if (Object.keys(stepErrors).length === 0) {
+      setAttemptedProceed(false);
+      setErrors({});
+      setStep(s => s + 1);
     }
   };
 
@@ -356,10 +394,19 @@ const PostManagement = () => {
         <Input
           id="title"
           value={formData.title}
-          onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
+          onChange={(e) => {
+            setFormData(f => ({ ...f, title: e.target.value }));
+            if (errors.title) setErrors(e => ({ ...e, title: undefined }));
+          }}
           placeholder="Welcome to Seattle!"
-          className="mt-1.5"
+          className={`mt-1.5 ${attemptedProceed && errors.title ? 'border-destructive' : ''}`}
         />
+        {attemptedProceed && errors.title && (
+          <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+            <AlertCircle className="h-3.5 w-3.5" />
+            {errors.title}
+          </p>
+        )}
       </div>
       
       {/* Body */}
@@ -383,9 +430,12 @@ const PostManagement = () => {
         ) : (
           <Select
             value={formData.city_id}
-            onValueChange={(v) => setFormData(f => ({ ...f, city_id: v, place_id: '' }))}
+            onValueChange={(v) => {
+              setFormData(f => ({ ...f, city_id: v, place_id: '' }));
+              if (errors.city_id) setErrors(e => ({ ...e, city_id: undefined }));
+            }}
           >
-            <SelectTrigger className="mt-1.5">
+            <SelectTrigger className={`mt-1.5 ${attemptedProceed && errors.city_id ? 'border-destructive' : ''}`}>
               <SelectValue placeholder="Choose a launched city" />
             </SelectTrigger>
             <SelectContent>
@@ -396,6 +446,12 @@ const PostManagement = () => {
               ))}
             </SelectContent>
           </Select>
+        )}
+        {attemptedProceed && errors.city_id && (
+          <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+            <AlertCircle className="h-3.5 w-3.5" />
+            {errors.city_id}
+          </p>
         )}
       </div>
       
@@ -430,10 +486,19 @@ const PostManagement = () => {
         <Input
           id="title"
           value={formData.title}
-          onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
+          onChange={(e) => {
+            setFormData(f => ({ ...f, title: e.target.value }));
+            if (errors.title) setErrors(e => ({ ...e, title: undefined }));
+          }}
           placeholder="Trivia Night"
-          className="mt-1.5"
+          className={`mt-1.5 ${attemptedProceed && errors.title ? 'border-destructive' : ''}`}
         />
+        {attemptedProceed && errors.title && (
+          <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+            <AlertCircle className="h-3.5 w-3.5" />
+            {errors.title}
+          </p>
+        )}
       </div>
       
       {/* Description */}
@@ -457,9 +522,12 @@ const PostManagement = () => {
         ) : (
           <Select
             value={formData.city_id}
-            onValueChange={(v) => setFormData(f => ({ ...f, city_id: v, place_id: '' }))}
+            onValueChange={(v) => {
+              setFormData(f => ({ ...f, city_id: v, place_id: '' }));
+              if (errors.city_id) setErrors(e => ({ ...e, city_id: undefined }));
+            }}
           >
-            <SelectTrigger className="mt-1.5">
+            <SelectTrigger className={`mt-1.5 ${attemptedProceed && errors.city_id ? 'border-destructive' : ''}`}>
               <SelectValue placeholder="Choose a city" />
             </SelectTrigger>
             <SelectContent>
@@ -471,27 +539,57 @@ const PostManagement = () => {
             </SelectContent>
           </Select>
         )}
+        {attemptedProceed && errors.city_id && (
+          <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+            <AlertCircle className="h-3.5 w-3.5" />
+            {errors.city_id}
+          </p>
+        )}
       </div>
       
       {/* Venue (Required) */}
-      {formData.city_id && (
-        <VenuePicker
-          value={formData.place_id}
-          onChange={(placeId) => setFormData(f => ({ ...f, place_id: placeId }))}
-        />
-      )}
+      <div>
+        {formData.city_id ? (
+          <>
+            <VenuePicker
+              value={formData.place_id}
+              onChange={(placeId) => {
+                setFormData(f => ({ ...f, place_id: placeId }));
+                if (errors.place_id) setErrors(e => ({ ...e, place_id: undefined }));
+              }}
+            />
+            {attemptedProceed && errors.place_id && (
+              <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.place_id}
+              </p>
+            )}
+          </>
+        ) : (
+          attemptedProceed && errors.place_id && (
+            <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+              <AlertCircle className="h-3.5 w-3.5" />
+              Please select a city first to choose a venue
+            </p>
+          )
+        )}
+      </div>
       
       {/* Schedule Type Toggle */}
       <div className="pt-2 border-t">
         <Label className="mb-3 block">Event Schedule</Label>
         <RadioGroup
           value={formData.is_recurring ? 'recurring' : 'onetime'}
-          onValueChange={(v) => setFormData(f => ({ 
-            ...f, 
-            is_recurring: v === 'recurring',
-            start_date: v === 'recurring' ? '' : f.start_date,
-            recurrence_day: v === 'onetime' ? '' : f.recurrence_day,
-          }))}
+          onValueChange={(v) => {
+            setFormData(f => ({ 
+              ...f, 
+              is_recurring: v === 'recurring',
+              start_date: v === 'recurring' ? '' : f.start_date,
+              recurrence_day: v === 'onetime' ? '' : f.recurrence_day,
+            }));
+            // Clear schedule-related errors when switching
+            setErrors(e => ({ ...e, start_date: undefined, recurrence_day: undefined }));
+          }}
           className="flex gap-4"
         >
           <div className="flex items-center space-x-2">
@@ -518,9 +616,12 @@ const PostManagement = () => {
             <Label>Day of Week</Label>
             <Select
               value={formData.recurrence_day}
-              onValueChange={(v) => setFormData(f => ({ ...f, recurrence_day: v }))}
+              onValueChange={(v) => {
+                setFormData(f => ({ ...f, recurrence_day: v }));
+                if (errors.recurrence_day) setErrors(e => ({ ...e, recurrence_day: undefined }));
+              }}
             >
-              <SelectTrigger className="mt-1.5">
+              <SelectTrigger className={`mt-1.5 ${attemptedProceed && errors.recurrence_day ? 'border-destructive' : ''}`}>
                 <SelectValue placeholder="Select a day" />
               </SelectTrigger>
               <SelectContent>
@@ -529,6 +630,12 @@ const PostManagement = () => {
                 ))}
               </SelectContent>
             </Select>
+            {attemptedProceed && errors.recurrence_day && (
+              <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.recurrence_day}
+              </p>
+            )}
           </div>
           
           {/* Frequency */}
@@ -572,9 +679,18 @@ const PostManagement = () => {
               id="start_date"
               type="date"
               value={formData.start_date}
-              onChange={(e) => setFormData(f => ({ ...f, start_date: e.target.value }))}
-              className="mt-1.5"
+              onChange={(e) => {
+                setFormData(f => ({ ...f, start_date: e.target.value }));
+                if (errors.start_date) setErrors(e => ({ ...e, start_date: undefined }));
+              }}
+              className={`mt-1.5 ${attemptedProceed && errors.start_date ? 'border-destructive' : ''}`}
             />
+            {attemptedProceed && errors.start_date && (
+              <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.start_date}
+              </p>
+            )}
           </div>
           
           {/* External URL for more details */}
@@ -584,14 +700,24 @@ const PostManagement = () => {
               id="external_url"
               type="url"
               value={formData.external_url}
-              onChange={(e) => setFormData(f => ({ ...f, external_url: e.target.value }))}
+              onChange={(e) => {
+                setFormData(f => ({ ...f, external_url: e.target.value }));
+                if (errors.external_url) setErrors(e => ({ ...e, external_url: undefined }));
+              }}
               placeholder="https://venue.com/event-details"
-              className="mt-1.5"
+              className={`mt-1.5 ${attemptedProceed && errors.external_url ? 'border-destructive' : ''}`}
             />
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <ExternalLink className="h-3 w-3" />
-              Link to event page for times and RSVP
-            </p>
+            {attemptedProceed && errors.external_url ? (
+              <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {errors.external_url}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <ExternalLink className="h-3 w-3" />
+                Link to event page for times and RSVP
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -925,10 +1051,7 @@ const PostManagement = () => {
             )}
             
             {step < totalSteps && !editingPost ? (
-              <Button 
-                onClick={() => setStep(s => s + 1)}
-                disabled={!canProceed()}
-              >
+              <Button onClick={step === 1 ? () => setStep(s => s + 1) : handleProceed}>
                 Continue
               </Button>
             ) : (
