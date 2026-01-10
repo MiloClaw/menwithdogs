@@ -1,5 +1,4 @@
 import { ExternalLink, MapPin } from "lucide-react";
-import { format } from "date-fns";
 import type { BlogPost } from "@/hooks/useBlogPosts";
 
 interface BlogPostCardProps {
@@ -10,17 +9,10 @@ interface BlogPostCardProps {
 
 export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) => {
   const hasImage = !!post.cover_image_url;
-  const tags = post.tags?.slice(0, 2) || [];
-  const primaryTag = tags[0];
   
   // Calculate reading time
   const wordCount = (post.body || "").split(/\s+/).length;
   const readingTime = Math.max(1, Math.ceil(wordCount / 200));
-
-  // Format date
-  const formattedDate = post.created_at 
-    ? format(new Date(post.created_at), "MMM d, yyyy")
-    : null;
 
   if (hasImage) {
     return (
@@ -39,19 +31,6 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
         
         {/* Content */}
         <div className="p-5 sm:p-6">
-          {/* Category Label */}
-          {primaryTag && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onTagClick?.(primaryTag.interest_id);
-              }}
-              className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold hover:text-accent/80 transition-colors mb-2 block"
-            >
-              {primaryTag.interest?.label}
-            </button>
-          )}
-          
           {/* Title */}
           <h3 className="font-serif text-lg sm:text-xl font-semibold leading-tight mb-2 group-hover:text-primary/80 transition-colors">
             {post.title}
@@ -73,14 +52,10 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
               </div>
             )}
             
-            {formattedDate && (
-              <>
-                <span className="text-muted-foreground/30">·</span>
-                <span>{formattedDate}</span>
-              </>
+            {(post.city?.name || post.place?.name) && (
+              <span className="text-muted-foreground/30">·</span>
             )}
             
-            <span className="text-muted-foreground/30">·</span>
             <span>{readingTime} min read</span>
             
             {post.external_url && (
@@ -107,19 +82,6 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
       className="group relative pl-5 border-l-2 border-accent/40 hover:border-accent transition-colors cursor-pointer"
       onClick={onClick}
     >
-      {/* Category Label */}
-      {primaryTag && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onTagClick?.(primaryTag.interest_id);
-          }}
-          className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold hover:text-accent/80 transition-colors mb-2 block"
-        >
-          {primaryTag.interest?.label}
-        </button>
-      )}
-      
       {/* Title */}
       <h3 className="font-serif text-lg sm:text-xl font-semibold leading-tight mb-2 group-hover:text-primary/80 transition-colors">
         {post.title}
@@ -141,14 +103,10 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
           </div>
         )}
         
-        {formattedDate && (
-          <>
-            <span className="text-muted-foreground/30">·</span>
-            <span>{formattedDate}</span>
-          </>
+        {(post.city?.name || post.place?.name) && (
+          <span className="text-muted-foreground/30">·</span>
         )}
         
-        <span className="text-muted-foreground/30">·</span>
         <span>{readingTime} min read</span>
         
         {post.external_url && (

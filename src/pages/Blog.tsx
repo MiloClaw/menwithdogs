@@ -41,17 +41,11 @@ const Blog = () => {
       <div className="min-h-screen bg-background">
         <div className="container max-w-5xl py-16 sm:py-20 px-4 sm:px-6">
           {/* Header */}
-          <header className="mb-6">
+          <header className="mb-10">
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
               From the Streets
             </h1>
-            <div className="mt-4 flex items-center gap-6">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-medium">
-                Issue 01 · January 2026
-              </span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
+            <div className="mt-4 h-px bg-border" />
           </header>
 
           {/* Filters */}

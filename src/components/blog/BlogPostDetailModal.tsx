@@ -1,12 +1,10 @@
-import { format } from "date-fns";
-import { MapPin, ExternalLink, X } from "lucide-react";
+import { MapPin, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { BlogPost } from "@/hooks/useBlogPosts";
 
@@ -22,12 +20,6 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
   const readingTime = post.body 
     ? Math.max(1, Math.ceil(post.body.split(/\s+/).length / 200))
     : 1;
-
-  const formattedDate = post.created_at 
-    ? format(new Date(post.created_at), "MMMM d, yyyy")
-    : null;
-
-  const primaryTag = post.tags?.[0];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -47,13 +39,6 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
           )}
 
           <div className="p-6 sm:p-8 space-y-6">
-            {/* Category Label */}
-            {primaryTag?.interest?.label && (
-              <span className="text-[10px] uppercase tracking-[0.2em] text-accent font-medium">
-                {primaryTag.interest.label}
-              </span>
-            )}
-
             {/* Title */}
             <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
               {post.title}
@@ -67,9 +52,6 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
                   {post.place?.name || post.city?.name}
                   {post.city?.state && `, ${post.city.state}`}
                 </span>
-              )}
-              {formattedDate && (
-                <span>{formattedDate}</span>
               )}
               <span>{readingTime} min read</span>
             </div>
@@ -88,26 +70,6 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
                   )
                 ))}
               </div>
-            )}
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <>
-                <div className="border-t border-border" />
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, index) => (
-                    tag.interest?.label && (
-                      <Badge 
-                        key={tag.interest_id || index} 
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {tag.interest.label}
-                      </Badge>
-                    )
-                  ))}
-                </div>
-              </>
             )}
 
             {/* External Link */}
