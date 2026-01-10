@@ -9,9 +9,6 @@ extra_search_path = ["public", "extensions"]
 [functions.compute-place-taxonomy]
 verify_jwt = false
 
-[functions.discover-events]
-verify_jwt = false
-
 [functions.google-places-autocomplete]
 verify_jwt = false
 

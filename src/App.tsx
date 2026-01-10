@@ -25,7 +25,6 @@ import UserManagement from "./pages/admin/UserManagement";
 import PostManagement from "./pages/admin/PostManagement";
 import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
-import EventDiscovery from "./pages/admin/EventDiscovery";
 import InterestManagement from "./pages/admin/InterestManagement";
 import CityManagement from "./pages/admin/CityManagement";
 import { RequireRole } from "./components/auth/RequireRole";
@@ -75,7 +74,6 @@ const App = () => (
               <Route path="/admin/directory/cities" element={<RequireRole role="admin"><CityManagement /></RequireRole>} />
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
-              <Route path="/admin/directory/events/discover" element={<RequireRole role="admin"><EventDiscovery /></RequireRole>} />
               <Route path="/admin/posts" element={<RequireRole role="admin"><PostManagement /></RequireRole>} />
               
               {/* Legacy admin blog route */}

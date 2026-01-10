@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, Sparkles, ChevronDown, Building2 } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -15,7 +15,6 @@ const directoryItems = [
   { title: 'Cities', href: '/admin/directory/cities', icon: Building2 },
   { title: 'Places', href: '/admin/directory/places', icon: MapPin },
   { title: 'Events', href: '/admin/directory/events', icon: Calendar },
-  { title: 'Discover', href: '/admin/directory/events/discover', icon: Sparkles, highlight: true },
 ];
 
 const bottomNavItems = [
@@ -106,7 +105,7 @@ const AdminSidebar = () => {
                 <ul className="ml-4 mt-1 space-y-1 border-l border-border pl-3">
                   {directoryItems.map((item) => (
                     <li key={item.href}>
-                      <NavItem href={item.href} icon={item.icon} title={item.title} highlight={item.highlight} />
+                      <NavItem href={item.href} icon={item.icon} title={item.title} />
                     </li>
                   ))}
                 </ul>
