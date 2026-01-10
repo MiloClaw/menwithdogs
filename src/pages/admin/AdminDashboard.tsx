@@ -220,7 +220,8 @@ const AdminDashboard = () => {
           <div>
             <h2 className="text-lg font-semibold mb-2">Location Insights</h2>
             <LocationSummaryCard 
-              placesByCity={stats?.placesByCity || []} 
+              placesByCity={stats?.placesByCity || []}
+              placesByMetro={stats?.placesByMetro || []}
               isLoading={isLoading}
             />
           </div>
