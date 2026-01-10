@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Plus, Megaphone, Calendar, Trash2, Edit, 
-  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw
+  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw, ImageIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -213,17 +213,13 @@ const PostManagement = () => {
       recurrence_day: recurrenceDay,
       recurrence_frequency: recurrenceFrequency,
       external_url: post.external_url || '',
-      cover_image_url: (post as any).cover_image_url || null,
+      cover_image_url: post.cover_image_url || null,
       status: post.status,
       interest_tags: [],
     });
     
-    // For editing, go to appropriate step based on type
-    if (post.type === 'announcement') {
-      setStep(4); // Review step for announcements
-    } else {
-      setStep(3); // Review step for events
-    }
+    // For editing, start at step 2 (skip type selection) to allow full navigation
+    setStep(2);
     setDialogOpen(true);
   };
 
@@ -281,7 +277,7 @@ const PostManagement = () => {
       ? generateRecurrenceText(formData.recurrence_day, formData.recurrence_frequency)
       : null;
 
-    const postData: PostInsert & { cover_image_url?: string | null } = {
+    const postData: PostInsert = {
       type: formData.type,
       title: formData.title.trim(),
       body: formData.body.trim() || null,
@@ -976,6 +972,12 @@ const PostManagement = () => {
                               Recurring
                             </Badge>
                           )}
+                          {post.cover_image_url && (
+                            <Badge variant="outline" className="text-xs">
+                              <ImageIcon className="h-3 w-3 mr-1" />
+                              Image
+                            </Badge>
+                          )}
                           <span className="text-xs text-muted-foreground">
                             {post.city?.name}{post.city?.state ? `, ${post.city.state}` : ''}
                           </span>
@@ -1053,7 +1055,10 @@ const PostManagement = () => {
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingPost ? 'Edit Post' : `New ${isEventType ? 'Event' : 'Announcement'} — Step ${step} of ${totalSteps}`}
+              {editingPost 
+                ? `Edit ${isEventType ? 'Event' : 'Announcement'} — Step ${step - 1} of ${totalSteps - 1}`
+                : `New ${isEventType ? 'Event' : 'Announcement'} — Step ${step} of ${totalSteps}`
+              }
             </DialogTitle>
           </DialogHeader>
           
@@ -1062,7 +1067,7 @@ const PostManagement = () => {
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            {step > 1 && !editingPost && (
+            {step > (editingPost ? 2 : 1) && (
               <Button 
                 variant="outline" 
                 onClick={() => setStep(s => s - 1)}
@@ -1072,7 +1077,7 @@ const PostManagement = () => {
               </Button>
             )}
             
-            {step < totalSteps && !editingPost ? (
+            {step < totalSteps && !(editingPost && step === totalSteps) ? (
               <Button onClick={step === 1 ? () => setStep(s => s + 1) : handleProceed}>
                 Continue
               </Button>

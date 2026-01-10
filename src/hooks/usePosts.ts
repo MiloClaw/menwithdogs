@@ -22,6 +22,7 @@ export interface Post {
   is_recurring: boolean;
   recurrence_text: string | null;
   external_url: string | null;
+  cover_image_url?: string | null;
   status: 'draft' | 'published' | 'expired';
   created_at: string;
   updated_at: string;
@@ -43,6 +44,7 @@ export interface PostInsert {
   is_recurring?: boolean;
   recurrence_text?: string | null;
   external_url?: string | null;
+  cover_image_url?: string | null;
   status?: 'draft' | 'published' | 'expired';
 }
 
