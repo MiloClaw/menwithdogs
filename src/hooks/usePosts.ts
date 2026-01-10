@@ -1,6 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Explicit columns for public queries (excludes created_by to hide admin UUIDs)
+const PUBLIC_POST_COLUMNS = `
+  id, type, title, body, city_id, place_id, 
+  start_date, end_date, is_recurring, recurrence_text, 
+  external_url, status, created_at, updated_at,
+  city:cities(id, name, state),
+  place:places(id, name, formatted_address, city, website_url)
+`;
+
 export interface Post {
   id: string;
   type: 'announcement' | 'event';
@@ -16,7 +25,7 @@ export interface Post {
   status: 'draft' | 'published' | 'expired';
   created_at: string;
   updated_at: string;
-  created_by: string | null;
+  created_by?: string | null; // Optional - only present in admin queries
   // Joined data
   city?: { id: string; name: string; state: string | null };
   place?: { id: string; name: string; formatted_address: string | null; city: string | null; website_url: string | null };
@@ -73,11 +82,7 @@ export const useCityPosts = (cityId: string | null) => {
       const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("posts")
-        .select(`
-          *,
-          city:cities(id, name, state),
-          place:places(id, name, formatted_address, city, website_url)
-        `)
+        .select(PUBLIC_POST_COLUMNS) // Explicit columns - no created_by
         .eq("city_id", cityId!)
         .eq("status", "published")
         .or(`end_date.is.null,end_date.gt.${now}`)
@@ -114,11 +119,7 @@ export const useCityPostsByName = (cityName: string | null, state: string | null
       const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("posts")
-        .select(`
-          *,
-          city:cities(id, name, state),
-          place:places(id, name, formatted_address, city, website_url)
-        `)
+        .select(PUBLIC_POST_COLUMNS) // Explicit columns - no created_by
         .eq("city_id", cities.id)
         .eq("status", "published")
         .or(`end_date.is.null,end_date.gt.${now}`)
@@ -132,6 +133,13 @@ export const useCityPostsByName = (cityName: string | null, state: string | null
   });
 };
 
+// Explicit columns for place events (no joins needed, excludes created_by)
+const PLACE_EVENT_COLUMNS = `
+  id, type, title, body, city_id, place_id, 
+  start_date, end_date, is_recurring, recurrence_text, 
+  external_url, status, created_at, updated_at
+`;
+
 // Public: Fetch upcoming event posts for a specific place
 export const usePlaceEvents = (placeId: string | null) => {
   return useQuery({
@@ -140,7 +148,7 @@ export const usePlaceEvents = (placeId: string | null) => {
       const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("posts")
-        .select("*")
+        .select(PLACE_EVENT_COLUMNS) // Explicit columns - no created_by
         .eq("place_id", placeId!)
         .eq("type", "event")
         .eq("status", "published")

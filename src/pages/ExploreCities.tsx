@@ -73,7 +73,7 @@ const ExploreCities = () => {
                     {city.name}{city.state ? `, ${city.state}` : ''}
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {city.approved_place_count} {city.approved_place_count === 1 ? 'place' : 'places'}
+                    {city.place_count} {city.place_count === 1 ? 'place' : 'places'}
                   </p>
                 </div>
               </button>

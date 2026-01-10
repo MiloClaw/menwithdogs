@@ -81,8 +81,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   // SIGNAL CAPTURE: Record view_place when modal opens (Rule 3.2)
   useEffect(() => {
     if (place && open && isAuthenticated) {
-      recordSignal('view_place', place.id, place.primary_category, 'implicit', 0.3)
-        .catch(console.error); // Silent failure - don't interrupt UX
+      recordSignal('view_place', place.id, place.primary_category, 'implicit', 0.3);
     }
   }, [place?.id, open, isAuthenticated]);
 
@@ -100,8 +99,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   // SIGNAL CAPTURE: Record click_external for website/directions (Rule 3.2)
   const handleExternalClick = useCallback((type: 'website' | 'directions', url: string) => {
     if (isAuthenticated && place) {
-      recordSignal('click_external', place.id, type, 'implicit', 0.5)
-        .catch(console.error); // Silent failure
+      recordSignal('click_external', place.id, type, 'implicit', 0.5);
     }
     window.open(url, '_blank', 'noopener,noreferrer');
   }, [isAuthenticated, place]);

@@ -387,8 +387,7 @@ const Places = () => {
                     setSelectedCategory(newCategory);
                     // SIGNAL CAPTURE: Record filter_category selection (Rule 3.2)
                     if (newCategory && isAuthenticated) {
-                      recordSignal('filter_category', newCategory, null, 'implicit', 0.4)
-                        .catch(console.error);
+                      recordSignal('filter_category', newCategory, null, 'implicit', 0.4);
                     }
                   }}
                 >

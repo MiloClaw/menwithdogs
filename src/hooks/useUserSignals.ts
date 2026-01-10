@@ -53,26 +53,24 @@ export function useUserSignals(signalType?: string, limit = 100) {
   };
 }
 
+import { queueSignal } from '@/lib/signal-batcher';
+
 /**
- * Helper to record a signal via RPC.
+ * Helper to record a signal via batching.
+ * Uses SignalBatcher for ~80% reduction in database writes.
+ * 
+ * @deprecated Use queueSignal directly from signal-batcher for new code.
  */
-export async function recordSignal(
+export function recordSignal(
   signalType: string,
   signalKey: string,
   signalValue?: string | null,
   source = 'user',
   confidence = 1.0,
   context?: Record<string, unknown>
-) {
-  const { data, error } = await supabase.rpc('record_user_signal', {
-    _signal_type: signalType,
-    _signal_key: signalKey,
-    _signal_value: signalValue ?? null,
-    _source: source,
-    _confidence: confidence,
-    _context: context ? JSON.parse(JSON.stringify(context)) : null,
-  });
-
-  if (error) throw error;
-  return data;
+): void {
+  queueSignal(signalType, signalKey, signalValue, source, confidence, context);
 }
+
+// Re-export for convenience
+export { queueSignal };

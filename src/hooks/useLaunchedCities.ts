@@ -5,22 +5,23 @@ export interface LaunchedCity {
   id: string;
   name: string;
   state: string | null;
-  approved_place_count: number | null;
+  place_count: number;
 }
 
 /**
  * Fetches cities with status='launched' that have at least one approved place.
+ * Uses the safe launched_cities_summary view (no business intelligence exposure).
  * Used for the "Explore another city" picker.
  */
 export const useLaunchedCities = () => {
   return useQuery({
     queryKey: ['cities', 'launched'],
     queryFn: async () => {
+      // Use the safe public view instead of city_seeding_progress
       const { data, error } = await supabase
-        .from('city_seeding_progress')
-        .select('id, name, state, approved_place_count')
-        .eq('status', 'launched')
-        .gt('approved_place_count', 0)
+        .from('launched_cities_summary')
+        .select('id, name, state, place_count')
+        .gt('place_count', 0)
         .order('name');
       
       if (error) throw error;
