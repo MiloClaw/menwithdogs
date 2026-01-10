@@ -4,11 +4,13 @@ import PageLayout from "@/components/PageLayout";
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
 import { FeaturedBlogCard } from "@/components/blog/FeaturedBlogCard";
 import { BlogFilters } from "@/components/blog/BlogFilters";
-import { useBlogPosts } from "@/hooks/useBlogPosts";
+import { BlogPostDetailModal } from "@/components/blog/BlogPostDetailModal";
+import { useBlogPosts, type BlogPost } from "@/hooks/useBlogPosts";
 
 const Blog = () => {
   const [selectedCityId, setSelectedCityId] = useState("");
   const [selectedInterestIds, setSelectedInterestIds] = useState<string[]>([]);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   const { data: posts = [], isLoading } = useBlogPosts({
     cityId: selectedCityId || undefined,
@@ -89,6 +91,7 @@ const Blog = () => {
                   <FeaturedBlogCard
                     post={featuredPost}
                     onTagClick={handleInterestToggle}
+                    onClick={() => setSelectedPost(featuredPost)}
                   />
                 </section>
               )}
@@ -112,6 +115,7 @@ const Blog = () => {
                       key={post.id}
                       post={post}
                       onTagClick={handleInterestToggle}
+                      onClick={() => setSelectedPost(post)}
                     />
                   ))}
                 </div>
@@ -120,6 +124,13 @@ const Blog = () => {
           )}
         </div>
       </div>
+
+      {/* Post Detail Modal */}
+      <BlogPostDetailModal
+        post={selectedPost}
+        open={!!selectedPost}
+        onOpenChange={(open) => !open && setSelectedPost(null)}
+      />
     </PageLayout>
   );
 };
