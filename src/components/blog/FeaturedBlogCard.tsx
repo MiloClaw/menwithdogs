@@ -5,9 +5,10 @@ import type { BlogPost } from "@/hooks/useBlogPosts";
 interface FeaturedBlogCardProps {
   post: BlogPost;
   onTagClick?: (interestId: string) => void;
+  onClick?: () => void;
 }
 
-export const FeaturedBlogCard = ({ post, onTagClick }: FeaturedBlogCardProps) => {
+export const FeaturedBlogCard = ({ post, onTagClick, onClick }: FeaturedBlogCardProps) => {
   const hasImage = !!post.cover_image_url;
   const tags = post.tags?.slice(0, 2) || [];
   const primaryTag = tags[0];
@@ -22,7 +23,10 @@ export const FeaturedBlogCard = ({ post, onTagClick }: FeaturedBlogCardProps) =>
     : null;
 
   return (
-    <article className="group relative overflow-hidden rounded-xl">
+    <article 
+      className="group relative overflow-hidden rounded-xl cursor-pointer"
+      onClick={onClick}
+    >
       {/* Background Image or Gradient */}
       <div 
         className="aspect-[3/2] sm:aspect-[2/1] lg:aspect-[21/9] bg-cover bg-center relative"
@@ -40,7 +44,10 @@ export const FeaturedBlogCard = ({ post, onTagClick }: FeaturedBlogCardProps) =>
           {/* Category Label */}
           {primaryTag && (
             <button
-              onClick={() => onTagClick?.(primaryTag.interest_id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTagClick?.(primaryTag.interest_id);
+              }}
               className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-accent font-semibold mb-3 text-left hover:text-accent/80 transition-colors"
             >
               {primaryTag.interest?.label}
@@ -89,6 +96,7 @@ export const FeaturedBlogCard = ({ post, onTagClick }: FeaturedBlogCardProps) =>
                   href={post.external_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center gap-1.5 text-white hover:text-accent transition-colors font-medium"
                 >
                   Read full story

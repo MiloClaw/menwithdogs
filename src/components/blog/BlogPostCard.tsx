@@ -5,9 +5,10 @@ import type { BlogPost } from "@/hooks/useBlogPosts";
 interface BlogPostCardProps {
   post: BlogPost;
   onTagClick?: (interestId: string) => void;
+  onClick?: () => void;
 }
 
-export const BlogPostCard = ({ post, onTagClick }: BlogPostCardProps) => {
+export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) => {
   const hasImage = !!post.cover_image_url;
   const tags = post.tags?.slice(0, 2) || [];
   const primaryTag = tags[0];
@@ -23,7 +24,10 @@ export const BlogPostCard = ({ post, onTagClick }: BlogPostCardProps) => {
 
   if (hasImage) {
     return (
-      <article className="group relative overflow-hidden rounded-lg bg-card border border-border/50 hover:border-border transition-all hover:shadow-lg hover:shadow-black/5">
+      <article 
+        className="group relative overflow-hidden rounded-lg bg-card border border-border/50 hover:border-border transition-all hover:shadow-lg hover:shadow-black/5 cursor-pointer"
+        onClick={onClick}
+      >
         {/* Image */}
         <div className="aspect-[16/10] overflow-hidden">
           <img
@@ -38,7 +42,10 @@ export const BlogPostCard = ({ post, onTagClick }: BlogPostCardProps) => {
           {/* Category Label */}
           {primaryTag && (
             <button
-              onClick={() => onTagClick?.(primaryTag.interest_id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTagClick?.(primaryTag.interest_id);
+              }}
               className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold hover:text-accent/80 transition-colors mb-2 block"
             >
               {primaryTag.interest?.label}
@@ -81,6 +88,7 @@ export const BlogPostCard = ({ post, onTagClick }: BlogPostCardProps) => {
                 href={post.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="ml-auto inline-flex items-center gap-1 text-foreground hover:text-accent transition-colors font-medium"
               >
                 Read
@@ -95,11 +103,17 @@ export const BlogPostCard = ({ post, onTagClick }: BlogPostCardProps) => {
 
   // Text-only card with left border accent
   return (
-    <article className="group relative pl-5 border-l-2 border-accent/40 hover:border-accent transition-colors">
+    <article 
+      className="group relative pl-5 border-l-2 border-accent/40 hover:border-accent transition-colors cursor-pointer"
+      onClick={onClick}
+    >
       {/* Category Label */}
       {primaryTag && (
         <button
-          onClick={() => onTagClick?.(primaryTag.interest_id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onTagClick?.(primaryTag.interest_id);
+          }}
           className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold hover:text-accent/80 transition-colors mb-2 block"
         >
           {primaryTag.interest?.label}
@@ -142,6 +156,7 @@ export const BlogPostCard = ({ post, onTagClick }: BlogPostCardProps) => {
             href={post.external_url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="ml-auto inline-flex items-center gap-1 text-foreground hover:text-accent transition-colors font-medium"
           >
             Read
