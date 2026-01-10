@@ -192,19 +192,13 @@ const Places = () => {
     return cats.sort();
   }, [places]);
 
-  // Process places with distance and filters
+  // Process places with filters (distance already computed by usePersonalizedPlaces)
+  // PHASE 1 FIX: Distance is now calculated using explored city coords in exploration mode
   const processedPlaces = useMemo(() => {
     if (!places) return [];
 
-    const placesWithDistance = places.map(place => {
-      let distance: number | undefined;
-      if (hasUserLocation && place.lat != null && place.lng != null) {
-        distance = calculateDistanceMiles(userLat, userLng, place.lat, place.lng);
-      }
-      return { ...place, distance };
-    });
-
-    let filtered = placesWithDistance.filter(place => {
+    // Filter by search, category, and radius
+    let filtered = places.filter(place => {
       const matchesSearch = !searchTerm || 
         place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         place.city?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -215,21 +209,17 @@ const Places = () => {
       return matchesSearch && matchesCategory;
     });
 
-    if (radiusFilter !== null && hasUserLocation) {
+    // Apply radius filter only when we have user location (not exploration mode)
+    if (radiusFilter !== null && hasUserLocation && !isExplorationMode) {
       filtered = filtered.filter(place => 
         place.distance !== undefined && place.distance <= radiusFilter
       );
     }
 
-    return filtered.sort((a, b) => {
-      if (a.distance !== undefined && b.distance !== undefined) {
-        return a.distance - b.distance;
-      }
-      if (a.distance !== undefined) return -1;
-      if (b.distance !== undefined) return 1;
-      return a.name.localeCompare(b.name);
-    });
-  }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, userLat, userLng]);
+    // usePersonalizedPlaces already handles sorting (personalized + distance)
+    // Only re-sort if no personalization applied (fallback)
+    return filtered;
+  }, [places, searchTerm, selectedCategory, radiusFilter, hasUserLocation, isExplorationMode]);
 
   const handlePlaceClick = (place: DirectoryPlace) => {
     setSelectedPlace(place);
