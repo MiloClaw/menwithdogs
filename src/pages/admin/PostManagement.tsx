@@ -307,14 +307,14 @@ const PostManagement = () => {
             <div className="space-y-4">
               <Label>Link to a Place? (Optional)</Label>
               <Select
-                value={formData.place_id}
-                onValueChange={(v) => setFormData(f => ({ ...f, place_id: v }))}
+                value={formData.place_id || "none"}
+                onValueChange={(v) => setFormData(f => ({ ...f, place_id: v === "none" ? "" : v }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="No place linked" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No place linked</SelectItem>
+                  <SelectItem value="none">No place linked</SelectItem>
                   {cityPlaces.map(place => (
                     <SelectItem key={place.id} value={place.id}>
                       {place.name}
