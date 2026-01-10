@@ -26,8 +26,8 @@ export interface PromptDefinition {
 export const TIME_PROMPT: PromptDefinition = {
   type: 'time',
   header: 'Quick question',
-  question: 'When should we usually prioritize suggestions?',
-  footer: 'This only tailors the places you see.',
+  question: 'When do you usually go out?',
+  footer: 'Helps prioritize places for you.',
   multiSelect: false,
   options: [
     { value: 'mornings', label: 'Mornings', icon: '☀️' },
@@ -41,8 +41,8 @@ export const TIME_PROMPT: PromptDefinition = {
 export const DISTANCE_PROMPT: PromptDefinition = {
   type: 'distance',
   header: 'One more thing',
-  question: 'How far do you usually go for a place you like?',
-  footer: 'This only tailors the places you see.',
+  question: 'How far will you travel?',
+  footer: 'Helps prioritize places for you.',
   multiSelect: false,
   options: [
     { value: 'close', label: 'Close by', icon: '📍' },
@@ -123,7 +123,8 @@ export interface PromptTriggerCondition {
 export const PROMPT_TRIGGERS: PromptTriggerCondition[] = [
   { type: 'time', minSaves: 1, minBrowses: 0, minSessions: 1 },
   { type: 'distance', minSaves: 2, minBrowses: 5, minSessions: 1 },
-  { type: 'vibe', minSaves: 3, minBrowses: 0, minSessions: 1 },
+  // Phase 3: Vibe prompt disabled until vibe_energy data is available on places
+  // { type: 'vibe', minSaves: 3, minBrowses: 0, minSessions: 1 },
   { type: 'intent', minSaves: 5, minBrowses: 0, minSessions: 2 },
   { type: 'geo', minSaves: 3, minBrowses: 10, minSessions: 2 },
 ];

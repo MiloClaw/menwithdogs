@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { format } from 'date-fns';
 import { 
   Calendar, MapPin, Navigation, Heart
@@ -14,6 +15,8 @@ import { Separator } from '@/components/ui/separator';
 import { formatDistance } from '@/lib/distance';
 import EventPhotoGallery from './EventPhotoGallery';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
+import { useAuth } from '@/hooks/useAuth';
+import { queueSignal } from '@/hooks/useUserSignals';
 import type { PublicEvent } from '@/hooks/useEventsPublic';
 
 interface EventDetailModalProps {
@@ -37,6 +40,21 @@ const formatEventDateTime = (startAt: string, endAt: string | null): string => {
 
 const EventDetailModal = ({ event, open, onOpenChange }: EventDetailModalProps) => {
   const { isFavorited, toggleFavorite, isUpdating } = useEventFavorites();
+  const { isAuthenticated } = useAuth();
+  
+  // Emit view_event signal when modal opens
+  useEffect(() => {
+    if (event && open && isAuthenticated) {
+      queueSignal(
+        'view_event',
+        event.id,
+        null, // Venue category not available in PublicEvent type
+        'implicit',
+        0.3,
+        { venue_id: event.venue?.id }
+      );
+    }
+  }, [event?.id, open, isAuthenticated, event?.venue?.id]);
   
   if (!event) return null;
 
