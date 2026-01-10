@@ -1,6 +1,5 @@
-import { formatDistanceToNow } from "date-fns";
-import { ExternalLink, MapPin, ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ExternalLink, MapPin } from "lucide-react";
+import { format } from "date-fns";
 import type { BlogPost } from "@/hooks/useBlogPosts";
 
 interface FeaturedBlogCardProps {
@@ -9,80 +8,93 @@ interface FeaturedBlogCardProps {
 }
 
 export const FeaturedBlogCard = ({ post, onTagClick }: FeaturedBlogCardProps) => {
-  const formattedDate = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
-  
-  const locationText = post.city 
-    ? `${post.city.name}${post.city.state ? `, ${post.city.state}` : ""}`
-    : "";
-
   const hasImage = !!post.cover_image_url;
+  const tags = post.tags?.slice(0, 2) || [];
+  const primaryTag = tags[0];
+  
+  // Calculate reading time (rough estimate: 200 words per minute)
+  const wordCount = (post.body || "").split(/\s+/).length;
+  const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+  // Format date as "January 10, 2026"
+  const formattedDate = post.created_at 
+    ? format(new Date(post.created_at), "MMMM d, yyyy")
+    : null;
 
   return (
-    <article className="group relative overflow-hidden rounded-xl border bg-card">
-      {/* Image or gradient background */}
-      <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
-        {hasImage ? (
-          <img
-            src={post.cover_image_url!}
-            alt={post.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20" />
-        )}
-        
-        {/* Gradient overlay for text readability */}
+    <article className="group relative overflow-hidden rounded-xl">
+      {/* Background Image or Gradient */}
+      <div 
+        className="aspect-[3/2] sm:aspect-[2/1] lg:aspect-[21/9] bg-cover bg-center relative"
+        style={{
+          backgroundImage: hasImage 
+            ? `url(${post.cover_image_url})`
+            : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%)'
+        }}
+      >
+        {/* Gradient Overlay - Lighter and more sophisticated */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         
-        {/* Content overlay */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
-          {/* Location and date */}
-          <div className="flex items-center gap-3 text-white/80 text-sm mb-3">
-            {locationText && (
-              <span className="flex items-center gap-1.5 font-mono uppercase tracking-wider text-xs">
-                <MapPin className="h-3.5 w-3.5" />
-                {locationText}
-              </span>
-            )}
-            <span className="text-white/60">·</span>
-            <span className="font-mono uppercase tracking-wider text-xs">{formattedDate}</span>
-          </div>
+        {/* Content */}
+        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 lg:p-10">
+          {/* Category Label */}
+          {primaryTag && (
+            <button
+              onClick={() => onTagClick?.(primaryTag.interest_id)}
+              className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-accent font-semibold mb-3 text-left hover:text-accent/80 transition-colors"
+            >
+              {primaryTag.interest?.label}
+            </button>
+          )}
           
           {/* Title */}
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-bold tracking-tight leading-tight mb-3 text-balance drop-shadow-lg">
+          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-[1.1] mb-4 max-w-3xl">
             {post.title}
           </h2>
           
-          {/* Body preview */}
+          {/* Body Preview */}
           {post.body && (
-            <p className="text-white/90 text-sm sm:text-base line-clamp-2 max-w-2xl mb-4">
+            <p className="text-white/80 text-sm sm:text-base leading-relaxed line-clamp-2 max-w-2xl mb-6">
               {post.body}
             </p>
           )}
           
-          {/* Tags and CTA */}
-          <div className="flex flex-wrap items-center gap-3">
-            {post.tags.slice(0, 3).map((tag) => (
-              <Badge
-                key={tag.interest_id}
-                variant="secondary"
-                className="bg-white/20 hover:bg-white/30 text-white border-0 cursor-pointer backdrop-blur-sm"
-                onClick={() => onTagClick?.(tag.interest_id)}
-              >
-                {tag.interest.label}
-              </Badge>
-            ))}
+          {/* Meta Row */}
+          <div className="flex flex-wrap items-center gap-4 text-white/60 text-xs sm:text-sm">
+            {/* Location */}
+            {(post.city?.name || post.place?.name) && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                <span>{post.place?.name || post.city?.name}</span>
+              </div>
+            )}
             
+            {/* Date */}
+            {formattedDate && (
+              <>
+                <span className="text-white/30">·</span>
+                <span>{formattedDate}</span>
+              </>
+            )}
+            
+            {/* Reading Time */}
+            <span className="text-white/30">·</span>
+            <span>{readingTime} min read</span>
+            
+            {/* Read More Link */}
             {post.external_url && (
-              <a 
-                href={post.external_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="ml-auto flex items-center gap-2 text-white/90 hover:text-white text-sm font-medium transition-colors group/link"
-              >
-                Read more
-                <ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
-              </a>
+              <>
+                <span className="text-white/30">·</span>
+                <a
+                  href={post.external_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-white hover:text-accent transition-colors font-medium"
+                >
+                  Read full story
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </>
             )}
           </div>
         </div>
