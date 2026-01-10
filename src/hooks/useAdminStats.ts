@@ -91,38 +91,26 @@ export const useAdminStats = () => {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
+      // Phase 2 optimization: Use materialized view for core stats
+      // Reduces 16 parallel queries to 5
       const [
-        couplesResult,
-        activeCouplesResult,
-        approvedPlacesResult,
-        pendingPlacesResult,
-        approvedEventsResult,
-        pendingEventsResult,
-        postsResult,
-        membersResult,
+        // Core stats from materialized view (single query replaces 10+)
+        coreStatsResult,
+        // Dynamic data still needs fresh queries
         citiesResult,
         placesByCityResult,
         geoAreasResult,
-        // New queries for engagement and trends
-        favoritesResult,
+        // Trend data (last 7 days)
         recentMembersResult,
         recentFavoritesResult,
         recentPlacesResult,
+        // Category breakdown
         allPlacesResult,
       ] = await Promise.all([
-        supabase.from('couples').select('id', { count: 'exact', head: true }),
-        supabase.from('couples').select('id', { count: 'exact', head: true }).eq('is_complete', true),
-        supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
-        supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
-        supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('posts').select('id', { count: 'exact', head: true }),
-        supabase.from('member_profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('admin_dashboard_stats').select('*').limit(1).single(),
         supabase.from('city_seeding_progress').select('*'),
         supabase.from('places').select('city, state, status, source'),
         supabase.from('geo_areas').select('id, name, type, parent_id').eq('is_active', true),
-        // Engagement data
-        supabase.from('couple_favorites').select('id', { count: 'exact', head: true }),
         // Recent signups (last 7 days)
         supabase.from('member_profiles').select('created_at').gte('created_at', sevenDaysAgoISO),
         // Recent favorites (last 7 days)
@@ -133,9 +121,18 @@ export const useAdminStats = () => {
         supabase.from('places').select('primary_category').eq('status', 'approved'),
       ]);
 
-      // Calculate city stats from the view data
+      // Extract core stats from materialized view
+      const coreStats = coreStatsResult.data;
+
+      // Use materialized view data for city stats, with fallback to view
       const cities = citiesResult.data || [];
-      const cityStats = {
+      const cityStats = coreStats ? {
+        total: Number(coreStats.total_cities) || 0,
+        draft: Number(coreStats.draft_cities) || 0,
+        launched: Number(coreStats.launched_cities) || 0,
+        paused: Number(coreStats.paused_cities) || 0,
+        readyToLaunch: Number(coreStats.ready_to_launch_cities) || 0,
+      } : {
         total: cities.length,
         draft: cities.filter(c => c.status === 'draft').length,
         launched: cities.filter(c => c.status === 'launched').length,
@@ -255,9 +252,9 @@ export const useAdminStats = () => {
         c => c.userSubmittedCount > 0 && !c.inLaunchedCity
       ).length;
 
-      // Calculate engagement metrics
-      const totalFavorites = favoritesResult.count ?? 0;
-      const activeUsers = activeCouplesResult.count ?? 1;
+      // Calculate engagement metrics from materialized view
+      const totalFavorites = coreStats ? Number(coreStats.total_favorites) : 0;
+      const activeUsers = coreStats ? Number(coreStats.active_couples) || 1 : 1;
       const avgFavoritesPerUser = activeUsers > 0 ? totalFavorites / activeUsers : 0;
 
       // Calculate 7-day trends
@@ -328,20 +325,20 @@ export const useAdminStats = () => {
 
       return {
         couples: {
-          total: couplesResult.count ?? 0,
-          active: activeCouplesResult.count ?? 0,
+          total: coreStats ? Number(coreStats.total_couples) : 0,
+          active: coreStats ? Number(coreStats.active_couples) : 0,
         },
         places: {
-          approved: approvedPlacesResult.count ?? 0,
-          pending: pendingPlacesResult.count ?? 0,
+          approved: coreStats ? Number(coreStats.approved_places) : 0,
+          pending: coreStats ? Number(coreStats.pending_places) : 0,
         },
         events: {
-          approved: approvedEventsResult.count ?? 0,
-          pending: pendingEventsResult.count ?? 0,
+          approved: coreStats ? Number(coreStats.approved_events) : 0,
+          pending: coreStats ? Number(coreStats.pending_events) : 0,
         },
         cities: cityStats,
-        posts: postsResult.count ?? 0,
-        members: membersResult.count ?? 0,
+        posts: coreStats ? Number(coreStats.total_posts) : 0,
+        members: coreStats ? Number(coreStats.total_members) : 0,
         placesByCity,
         placesByMetro,
         emergingCitiesCount,

@@ -1017,6 +1017,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "posts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "launched_cities_summary"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "posts_place_id_fkey"
             columns: ["place_id"]
             isOneToOne: false
@@ -1292,6 +1299,26 @@ export type Database = {
       }
     }
     Views: {
+      admin_dashboard_stats: {
+        Row: {
+          active_couples: number | null
+          approved_events: number | null
+          approved_places: number | null
+          computed_at: string | null
+          draft_cities: number | null
+          launched_cities: number | null
+          paused_cities: number | null
+          pending_events: number | null
+          pending_places: number | null
+          ready_to_launch_cities: number | null
+          total_cities: number | null
+          total_couples: number | null
+          total_favorites: number | null
+          total_members: number | null
+          total_posts: number | null
+        }
+        Relationships: []
+      }
       city_seeding_progress: {
         Row: {
           approved_place_count: number | null
@@ -1314,6 +1341,18 @@ export type Database = {
         }
         Relationships: []
       }
+      launched_cities_summary: {
+        Row: {
+          country: string | null
+          id: string | null
+          lat: number | null
+          lng: number | null
+          name: string | null
+          place_count: number | null
+          state: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       compute_place_aggregates: { Args: never; Returns: undefined }
@@ -1330,6 +1369,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      record_signals_batch: { Args: { _signals: Json }; Returns: number }
       record_user_signal: {
         Args: {
           _confidence?: number
@@ -1341,6 +1381,7 @@ export type Database = {
         }
         Returns: string
       }
+      refresh_admin_dashboard_stats: { Args: never; Returns: undefined }
     }
     Enums: {
       affinity_type: "regular" | "occasional" | "aspirational"
