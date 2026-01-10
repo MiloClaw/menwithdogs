@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Plus, Megaphone, Calendar, Trash2, Edit, 
   AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw
@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -52,10 +52,27 @@ import {
 import { useCities } from '@/hooks/useCities';
 import { usePlaces } from '@/hooks/usePlaces';
 import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
+import VenuePicker from '@/components/admin/events/VenuePicker';
 import { toast } from 'sonner';
 
 type PostType = 'announcement' | 'event';
 type PostStatus = 'draft' | 'published' | 'expired';
+
+// Day of week options
+const DAYS_OF_WEEK = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+// Frequency options for recurring events
+const FREQUENCY_OPTIONS = [
+  { value: 'weekly', label: 'Every week', format: (day: string) => `Every ${day}` },
+  { value: 'biweekly', label: 'Every other week', format: (day: string) => `Every other ${day}` },
+  { value: 'first', label: 'First of month', format: (day: string) => `First ${day} of each month` },
+  { value: 'second', label: 'Second of month', format: (day: string) => `Second ${day} of each month` },
+  { value: 'third', label: 'Third of month', format: (day: string) => `Third ${day} of each month` },
+  { value: 'fourth', label: 'Fourth of month', format: (day: string) => `Fourth ${day} of each month` },
+  { value: 'last', label: 'Last of month', format: (day: string) => `Last ${day} of each month` },
+];
 
 interface PostFormData {
   type: PostType;
@@ -63,13 +80,13 @@ interface PostFormData {
   body: string;
   city_id: string;
   place_id: string;
-  start_date: string;
-  end_date: string;
+  start_date: string; // date only for one-time events (YYYY-MM-DD)
   is_recurring: boolean;
-  recurrence_text: string;
+  recurrence_day: string; // day of week for recurring
+  recurrence_frequency: string; // frequency pattern
   external_url: string;
   status: PostStatus;
-  interest_tags: string[]; // Added for tagging
+  interest_tags: string[];
 }
 
 const INITIAL_FORM: PostFormData = {
@@ -79,18 +96,25 @@ const INITIAL_FORM: PostFormData = {
   city_id: '',
   place_id: '',
   start_date: '',
-  end_date: '',
   is_recurring: false,
-  recurrence_text: '',
+  recurrence_day: '',
+  recurrence_frequency: 'weekly',
   external_url: '',
   status: 'draft',
-  interest_tags: [], // Added for tagging
+  interest_tags: [],
 };
 
 const statusColors: Record<PostStatus, string> = {
   published: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   draft: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
   expired: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+};
+
+// Generate recurrence text from day + frequency
+const generateRecurrenceText = (day: string, frequency: string): string => {
+  const freqOption = FREQUENCY_OPTIONS.find(f => f.value === frequency);
+  if (!freqOption || !day) return '';
+  return freqOption.format(day);
 };
 
 const PostManagement = () => {
@@ -133,28 +157,65 @@ const PostManagement = () => {
 
   const openEditDialog = (post: Post) => {
     setEditingPost(post);
+    
+    // Parse recurrence_text back to day + frequency if recurring
+    let recurrenceDay = '';
+    let recurrenceFrequency = 'weekly';
+    
+    if (post.is_recurring && post.recurrence_text) {
+      // Try to extract day from recurrence text
+      for (const day of DAYS_OF_WEEK) {
+        if (post.recurrence_text.includes(day)) {
+          recurrenceDay = day;
+          break;
+        }
+      }
+      // Try to determine frequency
+      if (post.recurrence_text.startsWith('Every other')) {
+        recurrenceFrequency = 'biweekly';
+      } else if (post.recurrence_text.startsWith('First')) {
+        recurrenceFrequency = 'first';
+      } else if (post.recurrence_text.startsWith('Second')) {
+        recurrenceFrequency = 'second';
+      } else if (post.recurrence_text.startsWith('Third')) {
+        recurrenceFrequency = 'third';
+      } else if (post.recurrence_text.startsWith('Fourth')) {
+        recurrenceFrequency = 'fourth';
+      } else if (post.recurrence_text.startsWith('Last')) {
+        recurrenceFrequency = 'last';
+      }
+    }
+    
     setFormData({
       type: post.type,
       title: post.title,
       body: post.body || '',
       city_id: post.city_id,
       place_id: post.place_id || '',
-      start_date: post.start_date ? post.start_date.slice(0, 16) : '',
-      end_date: post.end_date ? post.end_date.slice(0, 16) : '',
+      start_date: post.start_date ? post.start_date.slice(0, 10) : '', // date only
       is_recurring: post.is_recurring || false,
-      recurrence_text: post.recurrence_text || '',
+      recurrence_day: recurrenceDay,
+      recurrence_frequency: recurrenceFrequency,
       external_url: post.external_url || '',
       status: post.status,
-      interest_tags: [], // Will be populated by usePostTags
+      interest_tags: [],
     });
-    setStep(4); // Skip to content step for editing
+    
+    // For editing, go to appropriate step based on type
+    if (post.type === 'announcement') {
+      setStep(4); // Review step for announcements
+    } else {
+      setStep(3); // Review step for events
+    }
     setDialogOpen(true);
   };
 
   // Update form with existing tags when they load
-  if (editingPost && existingTags.length > 0 && formData.interest_tags.length === 0) {
-    setFormData(f => ({ ...f, interest_tags: existingTags }));
-  }
+  useEffect(() => {
+    if (editingPost && existingTags.length > 0 && formData.interest_tags.length === 0) {
+      setFormData(f => ({ ...f, interest_tags: existingTags }));
+    }
+  }, [editingPost, existingTags, formData.interest_tags.length]);
 
   const handleTagToggle = (interestId: string) => {
     setFormData(f => ({
@@ -180,14 +241,14 @@ const PostManagement = () => {
         toast.error('Place is required for events');
         return;
       }
-      // For non-recurring events, require a date
+      // For one-time events, require a date
       if (!formData.is_recurring && !formData.start_date) {
-        toast.error('Event date is required for single-date events');
+        toast.error('Event date is required');
         return;
       }
-      // For recurring events, require recurrence text
-      if (formData.is_recurring && !formData.recurrence_text.trim()) {
-        toast.error('Recurrence description is required for recurring events');
+      // For recurring events, require day selection
+      if (formData.is_recurring && !formData.recurrence_day) {
+        toast.error('Please select a day of the week');
         return;
       }
     }
@@ -198,16 +259,24 @@ const PostManagement = () => {
       return;
     }
 
+    // Generate recurrence text for recurring events
+    const recurrenceText = formData.is_recurring 
+      ? generateRecurrenceText(formData.recurrence_day, formData.recurrence_frequency)
+      : null;
+
     const postData: PostInsert = {
       type: formData.type,
       title: formData.title.trim(),
       body: formData.body.trim() || null,
       city_id: formData.city_id,
-      place_id: formData.type === 'event' ? formData.place_id : null,
-      start_date: formData.type === 'event' && !formData.is_recurring ? formData.start_date : null,
-      end_date: formData.type === 'event' && formData.end_date ? formData.end_date : null,
+      place_id: formData.type === 'event' ? formData.place_id : (formData.place_id || null),
+      // For one-time events, store date with midnight time
+      start_date: formData.type === 'event' && !formData.is_recurring && formData.start_date
+        ? `${formData.start_date}T00:00:00`
+        : null,
+      end_date: null, // No longer using end_date
       is_recurring: formData.type === 'event' ? formData.is_recurring : false,
-      recurrence_text: formData.type === 'event' && formData.is_recurring ? formData.recurrence_text.trim() : null,
+      recurrence_text: formData.type === 'event' ? recurrenceText : null,
       external_url: formData.external_url.trim() || null,
       status: publish ? 'published' : 'draft',
     };
@@ -226,7 +295,7 @@ const PostManagement = () => {
       }
       
       // Sync tags for announcements
-      if (formData.type === 'announcement' && formData.interest_tags.length > 0) {
+      if (formData.type === 'announcement') {
         await syncPostTags(postId, formData.interest_tags);
       }
       
@@ -247,27 +316,372 @@ const PostManagement = () => {
   };
 
   const isEventType = formData.type === 'event';
-  // Announcements: 5 steps (type, city, place, content, tags)
-  // Events: 5 steps (type, city, place, content, schedule)
-  const totalSteps = 5;
+  // Announcements: 4 steps (Type → Content/Location → Tags → Review)
+  // Events: 3 steps (Type → Event Info/Schedule → Review)
+  const totalSteps = isEventType ? 3 : 4;
 
   const canProceed = () => {
     switch (step) {
-      case 1: return true;
-      case 2: return !!formData.city_id;
-      case 3: return !isEventType || !!formData.place_id;
-      case 4: return !!formData.title.trim();
-      case 5: 
-        // For events, check schedule; for announcements, tags are optional
+      case 1: 
+        return true; // Type selection always valid
+      case 2:
         if (isEventType) {
+          // Event: need title, city, place, and schedule info
+          const hasBasicInfo = !!formData.title.trim() && !!formData.city_id && !!formData.place_id;
           if (formData.is_recurring) {
-            return !!formData.recurrence_text.trim();
+            return hasBasicInfo && !!formData.recurrence_day;
           }
-          return !!formData.start_date;
+          return hasBasicInfo && !!formData.start_date;
+        } else {
+          // Announcement: need title and city
+          return !!formData.title.trim() && !!formData.city_id;
         }
-        return true; // Tags are optional for announcements
-      default: return false;
+      case 3:
+        // For announcements: tags step (optional, always valid)
+        // For events: review step (already validated in step 2)
+        return true;
+      case 4:
+        // Announcements review step
+        return true;
+      default: 
+        return false;
     }
+  };
+
+  const renderAnnouncementStep2 = () => (
+    <div className="space-y-5">
+      {/* Title */}
+      <div>
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          value={formData.title}
+          onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
+          placeholder="Welcome to Seattle!"
+          className="mt-1.5"
+        />
+      </div>
+      
+      {/* Body */}
+      <div>
+        <Label htmlFor="body">Body Text</Label>
+        <Textarea
+          id="body"
+          value={formData.body}
+          onChange={(e) => setFormData(f => ({ ...f, body: e.target.value }))}
+          placeholder="Share your announcement..."
+          rows={4}
+          className="mt-1.5"
+        />
+      </div>
+      
+      {/* City */}
+      <div>
+        <Label>City</Label>
+        {citiesLoading ? (
+          <Skeleton className="h-10 w-full mt-1.5" />
+        ) : (
+          <Select
+            value={formData.city_id}
+            onValueChange={(v) => setFormData(f => ({ ...f, city_id: v, place_id: '' }))}
+          >
+            <SelectTrigger className="mt-1.5">
+              <SelectValue placeholder="Choose a launched city" />
+            </SelectTrigger>
+            <SelectContent>
+              {launchedCities.map(city => (
+                <SelectItem key={city.id} value={city.id}>
+                  {city.name}{city.state ? `, ${city.state}` : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+      
+      {/* Optional Place Link */}
+      <div>
+        <Label>Link to a Place (Optional)</Label>
+        <Select
+          value={formData.place_id || "none"}
+          onValueChange={(v) => setFormData(f => ({ ...f, place_id: v === "none" ? "" : v }))}
+        >
+          <SelectTrigger className="mt-1.5">
+            <SelectValue placeholder="No place linked" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No place linked</SelectItem>
+            {cityPlaces.map(place => (
+              <SelectItem key={place.id} value={place.id}>
+                {place.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
+  const renderEventStep2 = () => (
+    <div className="space-y-5">
+      {/* Event Name */}
+      <div>
+        <Label htmlFor="title">Event Name</Label>
+        <Input
+          id="title"
+          value={formData.title}
+          onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
+          placeholder="Trivia Night"
+          className="mt-1.5"
+        />
+      </div>
+      
+      {/* Description */}
+      <div>
+        <Label htmlFor="body">Description (Optional)</Label>
+        <Textarea
+          id="body"
+          value={formData.body}
+          onChange={(e) => setFormData(f => ({ ...f, body: e.target.value }))}
+          placeholder="Brief description of the event..."
+          rows={2}
+          className="mt-1.5"
+        />
+      </div>
+      
+      {/* City Selection */}
+      <div>
+        <Label>City</Label>
+        {citiesLoading ? (
+          <Skeleton className="h-10 w-full mt-1.5" />
+        ) : (
+          <Select
+            value={formData.city_id}
+            onValueChange={(v) => setFormData(f => ({ ...f, city_id: v, place_id: '' }))}
+          >
+            <SelectTrigger className="mt-1.5">
+              <SelectValue placeholder="Choose a city" />
+            </SelectTrigger>
+            <SelectContent>
+              {launchedCities.map(city => (
+                <SelectItem key={city.id} value={city.id}>
+                  {city.name}{city.state ? `, ${city.state}` : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+      
+      {/* Venue (Required) */}
+      {formData.city_id && (
+        <VenuePicker
+          value={formData.place_id}
+          onChange={(placeId) => setFormData(f => ({ ...f, place_id: placeId }))}
+        />
+      )}
+      
+      {/* Schedule Type Toggle */}
+      <div className="pt-2 border-t">
+        <Label className="mb-3 block">Event Schedule</Label>
+        <RadioGroup
+          value={formData.is_recurring ? 'recurring' : 'onetime'}
+          onValueChange={(v) => setFormData(f => ({ 
+            ...f, 
+            is_recurring: v === 'recurring',
+            start_date: v === 'recurring' ? '' : f.start_date,
+            recurrence_day: v === 'onetime' ? '' : f.recurrence_day,
+          }))}
+          className="flex gap-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="onetime" id="onetime" />
+            <Label htmlFor="onetime" className="font-normal cursor-pointer">One-time event</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="recurring" id="recurring" />
+            <Label htmlFor="recurring" className="font-normal cursor-pointer">Recurring event</Label>
+          </div>
+        </RadioGroup>
+      </div>
+      
+      {/* Schedule Fields */}
+      {formData.is_recurring ? (
+        <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <RotateCcw className="h-4 w-4" />
+            <span>Set the recurring schedule</span>
+          </div>
+          
+          {/* Day of Week */}
+          <div>
+            <Label>Day of Week</Label>
+            <Select
+              value={formData.recurrence_day}
+              onValueChange={(v) => setFormData(f => ({ ...f, recurrence_day: v }))}
+            >
+              <SelectTrigger className="mt-1.5">
+                <SelectValue placeholder="Select a day" />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS_OF_WEEK.map(day => (
+                  <SelectItem key={day} value={day}>{day}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Frequency */}
+          <div>
+            <Label>Frequency</Label>
+            <Select
+              value={formData.recurrence_frequency}
+              onValueChange={(v) => setFormData(f => ({ ...f, recurrence_frequency: v }))}
+            >
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FREQUENCY_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Preview */}
+          {formData.recurrence_day && (
+            <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
+              <p className="text-sm font-medium text-primary">
+                Preview: {generateRecurrenceText(formData.recurrence_day, formData.recurrence_frequency)}
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4 p-4 rounded-lg bg-muted/30 border">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <Calendar className="h-4 w-4" />
+            <span>One-time event details</span>
+          </div>
+          
+          {/* Event Date (date only) */}
+          <div>
+            <Label htmlFor="start_date">Event Date</Label>
+            <Input
+              id="start_date"
+              type="date"
+              value={formData.start_date}
+              onChange={(e) => setFormData(f => ({ ...f, start_date: e.target.value }))}
+              className="mt-1.5"
+            />
+          </div>
+          
+          {/* External URL for more details */}
+          <div>
+            <Label htmlFor="external_url">More Details (URL)</Label>
+            <Input
+              id="external_url"
+              type="url"
+              value={formData.external_url}
+              onChange={(e) => setFormData(f => ({ ...f, external_url: e.target.value }))}
+              placeholder="https://venue.com/event-details"
+              className="mt-1.5"
+            />
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <ExternalLink className="h-3 w-3" />
+              Link to event page for times and RSVP
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderReviewStep = () => {
+    const selectedCity = launchedCities.find(c => c.id === formData.city_id);
+    const selectedPlace = places?.find(p => p.id === formData.place_id);
+    
+    return (
+      <div className="space-y-4">
+        <div className="p-4 rounded-lg border bg-card">
+          <div className="flex items-start gap-3">
+            <div className={`p-2 rounded-lg ${isEventType ? 'bg-accent/10' : 'bg-primary/10'}`}>
+              {isEventType ? (
+                formData.is_recurring ? (
+                  <RotateCcw className="h-5 w-5 text-accent" />
+                ) : (
+                  <Calendar className="h-5 w-5 text-accent" />
+                )
+              ) : (
+                <Megaphone className="h-5 w-5 text-primary" />
+              )}
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Badge variant="outline" className="text-xs">
+                  {isEventType ? 'Event' : 'Announcement'}
+                </Badge>
+                {formData.is_recurring && (
+                  <Badge variant="outline" className="text-xs">Recurring</Badge>
+                )}
+              </div>
+              <h3 className="font-semibold text-lg">{formData.title || 'Untitled'}</h3>
+              {formData.body && (
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{formData.body}</p>
+              )}
+              
+              <div className="mt-3 space-y-1 text-sm">
+                <p className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {selectedCity?.name}{selectedCity?.state ? `, ${selectedCity.state}` : ''}
+                  {selectedPlace && ` — ${selectedPlace.name}`}
+                </p>
+                
+                {isEventType && (
+                  <p className="flex items-center gap-2 text-muted-foreground">
+                    {formData.is_recurring ? <RotateCcw className="h-3.5 w-3.5" /> : <Calendar className="h-3.5 w-3.5" />}
+                    {formData.is_recurring 
+                      ? generateRecurrenceText(formData.recurrence_day, formData.recurrence_frequency)
+                      : formData.start_date 
+                        ? format(new Date(formData.start_date), 'EEEE, MMMM d, yyyy')
+                        : 'No date set'
+                    }
+                  </p>
+                )}
+                
+                {formData.external_url && (
+                  <p className="flex items-center gap-2">
+                    <ExternalLink className="h-3.5 w-3.5 text-primary" />
+                    <a href={formData.external_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">
+                      {formData.external_url}
+                    </a>
+                  </p>
+                )}
+              </div>
+              
+              {!isEventType && formData.interest_tags.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-xs text-muted-foreground mb-1">Tags ({formData.interest_tags.length})</p>
+                  <div className="flex flex-wrap gap-1">
+                    {formData.interest_tags.slice(0, 5).map(tag => (
+                      <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                    ))}
+                    {formData.interest_tags.length > 5 && (
+                      <Badge variant="secondary" className="text-xs">+{formData.interest_tags.length - 5} more</Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <p className="text-sm text-muted-foreground text-center">
+          Ready to publish or save as draft.
+        </p>
+      </div>
+    );
   };
 
   const renderStep = () => {
@@ -278,7 +692,7 @@ const PostManagement = () => {
             <Label>What type of post?</Label>
             <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => setFormData(f => ({ ...f, type: 'announcement' }))}
+                onClick={() => setFormData(f => ({ ...INITIAL_FORM, type: 'announcement' }))}
                 className={`p-4 rounded-lg border-2 text-left transition-colors ${
                   formData.type === 'announcement' 
                     ? 'border-primary bg-primary/5' 
@@ -292,7 +706,7 @@ const PostManagement = () => {
                 </p>
               </button>
               <button
-                onClick={() => setFormData(f => ({ ...f, type: 'event' }))}
+                onClick={() => setFormData(f => ({ ...INITIAL_FORM, type: 'event' }))}
                 className={`p-4 rounded-lg border-2 text-left transition-colors ${
                   formData.type === 'event' 
                     ? 'border-primary bg-primary/5' 
@@ -310,212 +724,24 @@ const PostManagement = () => {
         );
       
       case 2:
-        return (
-          <div className="space-y-4">
-            <Label>Select City</Label>
-            {citiesLoading ? (
-              <Skeleton className="h-10 w-full" />
-            ) : (
-              <Select
-                value={formData.city_id}
-                onValueChange={(v) => setFormData(f => ({ ...f, city_id: v, place_id: '' }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a launched city" />
-                </SelectTrigger>
-                <SelectContent>
-                  {launchedCities.map(city => (
-                    <SelectItem key={city.id} value={city.id}>
-                      {city.name}{city.state ? `, ${city.state}` : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            {launchedCities.length === 0 && !citiesLoading && (
-              <p className="text-sm text-muted-foreground">
-                No launched cities available. Launch a city first.
-              </p>
-            )}
-          </div>
-        );
+        return isEventType ? renderEventStep2() : renderAnnouncementStep2();
       
       case 3:
-        if (!isEventType) {
-          return (
-            <div className="space-y-4">
-              <Label>Link to a Place? (Optional)</Label>
-              <Select
-                value={formData.place_id || "none"}
-                onValueChange={(v) => setFormData(f => ({ ...f, place_id: v === "none" ? "" : v }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="No place linked" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No place linked</SelectItem>
-                  {cityPlaces.map(place => (
-                    <SelectItem key={place.id} value={place.id}>
-                      {place.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          );
+        // For announcements: tags step
+        // For events: review step
+        if (isEventType) {
+          return renderReviewStep();
         }
         return (
-          <div className="space-y-4">
-            <Label>Select Venue (Required)</Label>
-            <Select
-              value={formData.place_id}
-              onValueChange={(v) => setFormData(f => ({ ...f, place_id: v }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a venue" />
-              </SelectTrigger>
-              <SelectContent>
-                {cityPlaces.map(place => (
-                  <SelectItem key={place.id} value={place.id}>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-3 w-3" />
-                      {place.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {cityPlaces.length === 0 && (
-              <p className="text-sm text-amber-600 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                No approved places in this city yet
-              </p>
-            )}
-          </div>
+          <PostTagsStep
+            selectedTags={formData.interest_tags}
+            onToggleTag={handleTagToggle}
+          />
         );
       
       case 4:
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
-                placeholder={isEventType ? "Trivia Night" : "Welcome to Seattle!"}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="body">Description (Optional)</Label>
-              <Textarea
-                id="body"
-                value={formData.body}
-                onChange={(e) => setFormData(f => ({ ...f, body: e.target.value }))}
-                placeholder="Short, factual description..."
-                rows={3}
-                className="mt-1.5"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Keep it brief. Users will visit the venue website for details.
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="external_url">Venue Website URL (Optional)</Label>
-              <Input
-                id="external_url"
-                type="url"
-                value={formData.external_url}
-                onChange={(e) => setFormData(f => ({ ...f, external_url: e.target.value }))}
-                placeholder="https://venue.com/event"
-                className="mt-1.5"
-              />
-              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <ExternalLink className="h-3 w-3" />
-                Where users can confirm details or RSVP
-              </p>
-            </div>
-          </div>
-        );
-      
-      case 5:
-        // For announcements: show tags step
-        if (!isEventType) {
-          return (
-            <PostTagsStep
-              selectedTags={formData.interest_tags}
-              onToggleTag={handleTagToggle}
-            />
-          );
-        }
-        // For events: show schedule step
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Event Schedule</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Recurring</span>
-                <Switch
-                  checked={formData.is_recurring}
-                  onCheckedChange={(checked) => setFormData(f => ({ 
-                    ...f, 
-                    is_recurring: checked,
-                    start_date: checked ? '' : f.start_date,
-                    recurrence_text: checked ? f.recurrence_text : ''
-                  }))}
-                />
-              </div>
-            </div>
-
-            {formData.is_recurring ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <RotateCcw className="h-4 w-4" />
-                  <span>Describe the recurring schedule</span>
-                </div>
-                <Input
-                  value={formData.recurrence_text}
-                  onChange={(e) => setFormData(f => ({ ...f, recurrence_text: e.target.value }))}
-                  placeholder="Every Wednesday at 7pm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Examples: "Every Friday night", "First Saturday of each month"
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="start_date">Event Date & Time</Label>
-                  <Input
-                    id="start_date"
-                    type="datetime-local"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData(f => ({ ...f, start_date: e.target.value }))}
-                    className="mt-1.5"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="end_date">End Date & Time (Optional)</Label>
-                  <Input
-                    id="end_date"
-                    type="datetime-local"
-                    value={formData.end_date}
-                    onChange={(e) => setFormData(f => ({ ...f, end_date: e.target.value }))}
-                    className="mt-1.5"
-                  />
-                </div>
-              </div>
-            )}
-
-            {!formData.is_recurring && formData.end_date && new Date(formData.end_date) < new Date() && (
-              <p className="text-sm text-amber-600 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                This event has already ended
-              </p>
-            )}
-          </div>
-        );
+        // Announcements review step
+        return renderReviewStep();
       
       default:
         return null;
@@ -527,11 +753,7 @@ const PostManagement = () => {
       return post.recurrence_text;
     }
     if (post.start_date) {
-      const formatted = format(new Date(post.start_date), 'EEE MMM d, h:mm a');
-      if (post.end_date) {
-        return `${formatted} – ${format(new Date(post.end_date), 'h:mm a')}`;
-      }
-      return formatted;
+      return format(new Date(post.start_date), 'EEE, MMM d, yyyy');
     }
     return '';
   };
@@ -680,10 +902,10 @@ const PostManagement = () => {
         setDialogOpen(open);
         if (!open) resetForm();
       }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingPost ? 'Edit Post' : `New Post — Step ${step} of ${totalSteps}`}
+              {editingPost ? 'Edit Post' : `New ${isEventType ? 'Event' : 'Announcement'} — Step ${step} of ${totalSteps}`}
             </DialogTitle>
           </DialogHeader>
           
