@@ -52,6 +52,9 @@ const Navbar = () => {
               <Link to="/places" className={navLinkClasses}>
                 Places
               </Link>
+              <Link to="/blog" className={navLinkClasses}>
+                Blog
+              </Link>
               <Link to="/saved" className={`${navLinkClasses} flex items-center gap-1`}>
                 <Heart className="w-4 h-4" />
                 Saved
@@ -65,6 +68,9 @@ const Navbar = () => {
             <>
               <Link to="/places" className={navLinkClasses}>
                 Places
+              </Link>
+              <Link to="/blog" className={navLinkClasses}>
+                Blog
               </Link>
               <Link to="/#how-it-works" className={navLinkClasses}>
                 How It Works
@@ -118,6 +124,13 @@ const Navbar = () => {
                   Places
                 </Link>
                 <Link 
+                  to="/blog" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
+                </Link>
+                <Link 
                   to="/saved" 
                   className="flex items-center gap-2 py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
@@ -143,6 +156,13 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Places
+                </Link>
+                <Link 
+                  to="/blog" 
+                  className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
                 </Link>
                 <Link 
                   to="/#how-it-works" 

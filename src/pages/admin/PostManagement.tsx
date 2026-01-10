@@ -44,11 +44,14 @@ import {
   useCreatePost, 
   useUpdatePost, 
   useDeletePost,
+  usePostTags,
+  syncPostTags,
   Post,
   PostInsert
 } from '@/hooks/usePosts';
 import { useCities } from '@/hooks/useCities';
 import { usePlaces } from '@/hooks/usePlaces';
+import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
 import { toast } from 'sonner';
 
 type PostType = 'announcement' | 'event';
@@ -66,6 +69,7 @@ interface PostFormData {
   recurrence_text: string;
   external_url: string;
   status: PostStatus;
+  interest_tags: string[]; // Added for tagging
 }
 
 const INITIAL_FORM: PostFormData = {
@@ -80,6 +84,7 @@ const INITIAL_FORM: PostFormData = {
   recurrence_text: '',
   external_url: '',
   status: 'draft',
+  interest_tags: [], // Added for tagging
 };
 
 const statusColors: Record<PostStatus, string> = {
@@ -112,6 +117,9 @@ const PostManagement = () => {
     p.city === selectedCityName
   ) || [];
 
+  // Fetch existing tags when editing
+  const { data: existingTags = [] } = usePostTags(editingPost?.id ?? null);
+
   const resetForm = () => {
     setFormData(INITIAL_FORM);
     setEditingPost(null);
@@ -137,9 +145,24 @@ const PostManagement = () => {
       recurrence_text: post.recurrence_text || '',
       external_url: post.external_url || '',
       status: post.status,
+      interest_tags: [], // Will be populated by usePostTags
     });
     setStep(4); // Skip to content step for editing
     setDialogOpen(true);
+  };
+
+  // Update form with existing tags when they load
+  if (editingPost && existingTags.length > 0 && formData.interest_tags.length === 0) {
+    setFormData(f => ({ ...f, interest_tags: existingTags }));
+  }
+
+  const handleTagToggle = (interestId: string) => {
+    setFormData(f => ({
+      ...f,
+      interest_tags: f.interest_tags.includes(interestId)
+        ? f.interest_tags.filter(id => id !== interestId)
+        : [...f.interest_tags, interestId]
+    }));
   };
 
   const handleSubmit = async (publish: boolean) => {
@@ -190,13 +213,23 @@ const PostManagement = () => {
     };
 
     try {
+      let postId: string;
+      
       if (editingPost) {
         await updatePost.mutateAsync({ id: editingPost.id, ...postData });
+        postId = editingPost.id;
         toast.success('Post updated');
       } else {
-        await createPost.mutateAsync(postData);
+        const created = await createPost.mutateAsync(postData);
+        postId = created.id;
         toast.success(publish ? 'Post published' : 'Draft saved');
       }
+      
+      // Sync tags for announcements
+      if (formData.type === 'announcement' && formData.interest_tags.length > 0) {
+        await syncPostTags(postId, formData.interest_tags);
+      }
+      
       setDialogOpen(false);
       resetForm();
     } catch (error) {
@@ -214,7 +247,9 @@ const PostManagement = () => {
   };
 
   const isEventType = formData.type === 'event';
-  const totalSteps = isEventType ? 5 : 4;
+  // Announcements: 5 steps (type, city, place, content, tags)
+  // Events: 5 steps (type, city, place, content, schedule)
+  const totalSteps = 5;
 
   const canProceed = () => {
     switch (step) {
@@ -223,10 +258,14 @@ const PostManagement = () => {
       case 3: return !isEventType || !!formData.place_id;
       case 4: return !!formData.title.trim();
       case 5: 
-        if (formData.is_recurring) {
-          return !!formData.recurrence_text.trim();
+        // For events, check schedule; for announcements, tags are optional
+        if (isEventType) {
+          if (formData.is_recurring) {
+            return !!formData.recurrence_text.trim();
+          }
+          return !!formData.start_date;
         }
-        return !!formData.start_date;
+        return true; // Tags are optional for announcements
       default: return false;
     }
   };
@@ -401,6 +440,16 @@ const PostManagement = () => {
         );
       
       case 5:
+        // For announcements: show tags step
+        if (!isEventType) {
+          return (
+            <PostTagsStep
+              selectedTags={formData.interest_tags}
+              onToggleTag={handleTagToggle}
+            />
+          );
+        }
+        // For events: show schedule step
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -431,7 +480,7 @@ const PostManagement = () => {
                   placeholder="Every Wednesday at 7pm"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Examples: "Every Friday night", "First Saturday of each month", "Tuesdays & Thursdays at 8pm"
+                  Examples: "Every Friday night", "First Saturday of each month"
                 </p>
               </div>
             ) : (
@@ -455,9 +504,6 @@ const PostManagement = () => {
                     onChange={(e) => setFormData(f => ({ ...f, end_date: e.target.value }))}
                     className="mt-1.5"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    For multi-day events or to control when it disappears from the feed
-                  </p>
                 </div>
               </div>
             )}
