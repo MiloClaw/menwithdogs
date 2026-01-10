@@ -8,6 +8,7 @@ export interface BlogPost {
   city_id: string;
   place_id: string | null;
   external_url: string | null;
+  cover_image_url: string | null;
   start_date: string | null;
   end_date: string | null;
   is_recurring: boolean;
@@ -57,6 +58,7 @@ export const useBlogPosts = (filters: BlogFilters = {}) => {
           city_id,
           place_id,
           external_url,
+          cover_image_url,
           start_date,
           end_date,
           is_recurring,

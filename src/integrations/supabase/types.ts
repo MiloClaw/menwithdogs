@@ -989,6 +989,7 @@ export type Database = {
         Row: {
           body: string | null
           city_id: string
+          cover_image_url: string | null
           created_at: string
           created_by: string | null
           end_date: string | null
@@ -1006,6 +1007,7 @@ export type Database = {
         Insert: {
           body?: string | null
           city_id: string
+          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
           end_date?: string | null
@@ -1023,6 +1025,7 @@ export type Database = {
         Update: {
           body?: string | null
           city_id?: string
+          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
           end_date?: string | null
