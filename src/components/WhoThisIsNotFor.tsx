@@ -11,7 +11,7 @@ const WhoThisIsNotFor = () => {
       <div className="container">
         <div className="max-w-4xl mx-auto">
           {/* Bold contrarian statement */}
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-center mb-16 md:mb-20">
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-center mb-16 md:mb-20 text-balance">
             Real community doesn't happen in an app.
           </h2>
 
