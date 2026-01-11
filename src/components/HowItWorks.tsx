@@ -1,37 +1,23 @@
-import { User, MapPin, Eye, Users } from "lucide-react";
+import { MapPin, Bookmark, Sparkles } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: User,
-    title: "Understand Your Real-World Patterns",
-    description: "You tell us what you enjoy—your interests, routines, and the kinds of places you like to spend time.",
-    tagline: "No bios. No performance. Just context.",
+    icon: MapPin,
+    title: "Explore",
+    description: "Browse places in your city. Filter by what you're in the mood for.",
   },
   {
     number: "02",
-    icon: MapPin,
-    title: "Discover Community-Centered Places",
-    description:
-      "Our directory highlights places popular with your community, along with recommendations based on overlapping interests.",
-    bullets: ["Coffee shops", "Gyms", "Bars", "Events", "Neighborhood spots"],
-    tagline: "Places where real life actually happens.",
+    icon: Bookmark,
+    title: "Save",
+    description: "Bookmark spots that catch your interest.",
   },
   {
     number: "03",
-    icon: Eye,
-    title: "Opt In — Only When You're Ready",
-    description:
-      "Your information is private by default. If you choose to opt in, others won't see who you are—only that someone like them is open to saying hello at a specific place.",
-    tagline: "No messaging pressure. No awkward intros. Just a clear signal that connection is welcome.",
-  },
-  {
-    number: "04",
-    icon: Users,
-    title: "Grow Real Community, Naturally",
-    description:
-      "The goal isn't to \"match.\" It's to make real-world interaction feel easier, safer, and more human again.",
-    tagline: "A nod. A hello. A conversation that starts where you already are.",
+    icon: Sparkles,
+    title: "See",
+    description: "The directory gets better the more you use it. Your saved places inform what surfaces next.",
   },
 ];
 
@@ -71,25 +57,6 @@ const HowItWorks = () => {
                   <p className="text-sm md:text-[15px] text-muted-foreground leading-[1.7] max-w-prose">
                     {step.description}
                   </p>
-
-                  {step.bullets && (
-                    <div className="mt-3.5 flex flex-wrap gap-2">
-                      {step.bullets.map((bullet, bulletIndex) => (
-                        <span
-                          key={bulletIndex}
-                          className="text-xs md:text-sm text-muted-foreground bg-background px-3 py-1 rounded-full"
-                        >
-                          {bullet}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {step.tagline && (
-                    <p className="mt-4 text-[13px] md:text-sm text-muted-foreground/80 leading-relaxed italic">
-                      {step.tagline}
-                    </p>
-                  )}
                 </div>
               </div>
             );
