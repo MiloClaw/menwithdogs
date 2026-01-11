@@ -1671,6 +1671,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      rebuild_place_context_density: {
+        Args: { _city_id?: string }
+        Returns: undefined
+      }
       record_signals_batch: { Args: { _signals: Json }; Returns: number }
       record_user_signal: {
         Args: {
