@@ -1,10 +1,17 @@
 const ValueProposition = () => {
   return (
-    <section className="py-28 md:py-40 bg-surface/50">
+    <section className="py-28 md:py-40 bg-surface/50 relative overflow-hidden">
       <div className="container">
-        <div className="max-w-5xl mx-auto">
-          {/* Accent bar */}
-          <div className="w-20 h-1 bg-accent mb-10 md:mb-14" />
+        <div className="max-w-5xl mx-auto relative">
+          {/* Ghost number */}
+          <span className="absolute -top-16 -left-8 md:-top-20 md:-left-12 text-[10rem] md:text-[14rem] font-serif font-bold text-muted-foreground/[0.04] leading-none select-none pointer-events-none">
+            01
+          </span>
+
+          {/* Mono label */}
+          <span className="text-xs font-medium text-muted-foreground/50 tracking-[0.2em] uppercase mb-8 block">
+            What This Is
+          </span>
 
           {/* Split layout */}
           <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
