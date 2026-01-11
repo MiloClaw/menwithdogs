@@ -27,24 +27,24 @@ interface UserProContextState {
  */
 const DOMAIN_LABELS: Record<string, { title: string; description: string }> = {
   demographic: {
-    title: 'About You',
-    description: 'Contexts that help personalize place relevance',
+    title: 'Your Style',
+    description: 'What kind of spaces feel like home',
   },
   community: {
-    title: 'Community',
-    description: 'Groups and communities you identify with',
+    title: 'Vibe',
+    description: "The atmosphere you're usually around",
   },
   lifestyle: {
     title: 'Lifestyle',
-    description: 'How you prefer to spend your time',
+    description: 'How you prefer to spend your time out',
   },
   faith: {
-    title: 'Faith & Values',
-    description: 'Spiritual and cultural preferences',
+    title: 'Values',
+    description: 'Spaces that align with what matters to you',
   },
   activity: {
     title: 'Activities',
-    description: 'What you like to do when you go out',
+    description: "What you're hoping your week includes",
   },
 };
 
