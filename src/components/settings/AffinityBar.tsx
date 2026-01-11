@@ -22,11 +22,12 @@ interface AffinityBarProps {
 }
 
 /**
- * Visual affinity indicator for taste profile.
+ * Muted visual affinity indicator for taste profile.
  * 
- * RULE 7 COMPLIANCE:
- * - No numeric scores, percentages, or signal counts are shown
- * - Progress bar provides relative visual feedback only
+ * PHASE 2 COMPLIANCE:
+ * - Reduced visual weight (thinner bar, muted colors)
+ * - No numeric scores, percentages, or signal counts shown
+ * - Progress bar is subtle, not the focal point
  * - Users never see internal AI metrics
  */
 export function AffinityBar({ category, score }: AffinityBarProps) {
@@ -40,16 +41,16 @@ export function AffinityBar({ category, score }: AffinityBarProps) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-lg w-6 text-center flex-shrink-0">{config.icon}</span>
+      <span className="text-base w-5 text-center flex-shrink-0 opacity-70">{config.icon}</span>
       <div className="flex-1 min-w-0">
-        <span className="text-sm font-medium text-foreground truncate block mb-1">
+        <span className="text-sm text-muted-foreground truncate block mb-1">
           {config.label}
         </span>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div className="h-1 bg-muted rounded-full overflow-hidden">
           <div
             className={cn(
               "h-full rounded-full transition-all duration-500 ease-out",
-              "bg-primary"
+              "bg-muted-foreground/30"
             )}
             style={{ width: `${percentage}%` }}
           />
