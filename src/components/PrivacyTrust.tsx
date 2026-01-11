@@ -1,10 +1,3 @@
-const privacyPoints = [
-  "Nothing is public by default",
-  "No one can see what you've saved",
-  "Your browsing history stays private",
-  "Your activity shapes your own view only",
-];
-
 const PrivacyTrust = () => {
   return (
     <section className="py-28 md:py-40 bg-surface/30">
@@ -15,25 +8,18 @@ const PrivacyTrust = () => {
             {/* Left: Bold statement */}
             <div>
               <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-[1.15]">
-                Your activity is yours.
+                Your preferences are private.
               </h2>
-              <p className="text-muted-foreground text-lg mt-6 md:mt-8">
-                You're in control. Always.
-              </p>
             </div>
 
-            {/* Right: Privacy points with accent border */}
+            {/* Right: Privacy explanation as prose */}
             <div className="border-l-4 border-accent pl-8 md:pl-10">
-              <ul className="space-y-5 md:space-y-6">
-                {privacyPoints.map((point, index) => (
-                  <li
-                    key={index}
-                    className="text-foreground text-base md:text-lg leading-relaxed"
-                  >
-                    {point}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-foreground text-base md:text-lg leading-relaxed mb-6">
+                What you save and how you browse shapes only your view — never a public profile. No one sees your list. No one knows where you've been.
+              </p>
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                This is how personalization should work.
+              </p>
             </div>
           </div>
         </div>

@@ -10,17 +10,17 @@ const ValueProposition = () => {
           <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
             {/* Left: Display headline */}
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight leading-[1.1] text-balance">
-              A curated directory of places worth knowing.
+              Find places where you'll actually want to spend time.
             </h2>
 
             {/* Right: Supporting text */}
             <div className="space-y-6 md:pt-2">
               <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
-                Browse local spots—cafés, restaurants, parks, gyms, bars. Save the ones that interest you. The places you save shape what you see first.
+                A personalized directory of local spots — cafés, restaurants, parks, gyms, bars — surfaced based on what matters to you. The more you explore, the more relevant your view becomes.
               </p>
 
               <p className="text-muted-foreground/70 text-base md:text-lg">
-                No setup. No profile. Just explore.
+                Better places. Better chances of running into your people.
               </p>
             </div>
           </div>
