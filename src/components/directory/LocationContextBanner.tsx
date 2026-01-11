@@ -16,10 +16,11 @@ interface LocationContextBannerProps {
 
 /**
  * Unified location context banner for the directory.
- * Shows current location state with appropriate actions:
- * - Exploration mode: City name + "Back to my location"
- * - Home mode with location: City name + "Explore another city"
- * - No location: Enable location UI
+ * 
+ * PHASE 3 UX RULES:
+ * - Place-first language (describe places, not system state)
+ * - Calm, minimal design
+ * - No algorithm language
  */
 const LocationContextBanner = ({
   hasLocation,
@@ -39,18 +40,18 @@ const LocationContextBanner = ({
       : exploringCity;
     
     return (
-      <div className="flex items-center justify-between gap-4 text-sm bg-accent/50 border border-accent px-4 py-3 rounded-lg">
-        <div className="flex items-center gap-2 text-accent-foreground">
-          <Globe className="h-4 w-4 flex-shrink-0" />
-          <span className="font-medium">Exploring: {displayName}</span>
+      <div className="flex items-center justify-between gap-4 text-sm bg-muted/30 px-4 py-3 rounded-lg">
+        <div className="flex items-center gap-2 text-foreground">
+          <Globe className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+          <span>Browsing {displayName}</span>
         </div>
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onClearExploration}
-          className="h-auto py-1.5 px-3 text-accent-foreground hover:text-foreground"
+          className="h-auto py-1.5 px-3 text-muted-foreground hover:text-foreground"
         >
-          ← Back to my location
+          ← Back
         </Button>
       </div>
     );
@@ -63,18 +64,18 @@ const LocationContextBanner = ({
       : 'Near you';
     
     return (
-      <div className="flex items-center justify-between gap-4 text-sm bg-muted/50 px-4 py-3 rounded-lg">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <MapPin className="h-4 w-4 flex-shrink-0" />
+      <div className="flex items-center justify-between gap-4 text-sm bg-muted/30 px-4 py-3 rounded-lg">
+        <div className="flex items-center gap-2 text-foreground">
+          <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
           <span>{locationLabel}</span>
         </div>
         <Button 
-          variant="link" 
+          variant="ghost" 
           size="sm" 
           onClick={onExploreCity}
           className="h-auto py-1.5 px-3 text-muted-foreground hover:text-foreground"
         >
-          Explore another city
+          Browse elsewhere
         </Button>
       </div>
     );
@@ -82,10 +83,10 @@ const LocationContextBanner = ({
 
   // No location
   return (
-    <div className="flex items-center justify-between gap-4 text-sm bg-muted/50 px-4 py-3 rounded-lg">
+    <div className="flex items-center justify-between gap-4 text-sm bg-muted/30 px-4 py-3 rounded-lg">
       <div className="flex items-center gap-2 text-muted-foreground">
         <MapPinOff className="h-4 w-4 flex-shrink-0" />
-        <span>Enable location to see nearby places</span>
+        <span>Set your city to see nearby places</span>
       </div>
       <div className="flex items-center gap-2">
         <Button 
@@ -93,7 +94,7 @@ const LocationContextBanner = ({
           size="sm" 
           onClick={onRequestLocation}
           disabled={isLoading}
-          className="h-auto py-1.5 px-3"
+          className="h-auto py-1.5 px-3 min-h-[44px]"
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -102,12 +103,12 @@ const LocationContextBanner = ({
           )}
         </Button>
         <Button 
-          variant="link" 
+          variant="ghost" 
           size="sm" 
           onClick={onExploreCity}
-          className="h-auto py-1.5 px-3"
+          className="h-auto py-1.5 px-3 min-h-[44px] text-muted-foreground hover:text-foreground"
         >
-          Add City
+          Set city
         </Button>
       </div>
     </div>
