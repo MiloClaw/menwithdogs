@@ -1715,6 +1715,48 @@ export type Database = {
           total_posts: number
         }[]
       }
+      get_public_events: {
+        Args: { _limit?: number; _status?: string; _venue_place_id?: string }
+        Returns: {
+          category_tags: string[]
+          commitment_level: number
+          cost_type: string
+          created_at: string
+          description: string
+          end_at: string
+          event_format: string
+          event_type: string
+          id: string
+          is_recurring: boolean
+          name: string
+          social_energy_level: number
+          source: Database["public"]["Enums"]["place_source"]
+          start_at: string
+          status: Database["public"]["Enums"]["event_status"]
+          updated_at: string
+          venue_place_id: string
+        }[]
+      }
+      get_public_posts: {
+        Args: { _city_id?: string; _limit?: number }
+        Returns: {
+          body: string
+          city_id: string
+          cover_image_url: string
+          created_at: string
+          end_date: string
+          external_url: string
+          id: string
+          is_recurring: boolean
+          place_id: string
+          recurrence_text: string
+          start_date: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }[]
+      }
       get_user_couple_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
