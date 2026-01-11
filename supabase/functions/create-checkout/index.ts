@@ -52,7 +52,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1SoCFO3Z5TtwrbktpoXz26BC", // MainStreetIRL Pro Monthly
+          price: "price_1SoCRr3Z5TtwrbktT3NwVLwc", // Pro Personalization $4.99/month
           quantity: 1,
         },
       ],
