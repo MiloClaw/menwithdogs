@@ -282,6 +282,36 @@ export type Database = {
           },
         ]
       }
+      cron_job_runs: {
+        Row: {
+          cities_processed: number | null
+          completed_at: string | null
+          error_message: string | null
+          id: string
+          job_name: string
+          started_at: string
+          status: string | null
+        }
+        Insert: {
+          cities_processed?: number | null
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_name: string
+          started_at?: string
+          status?: string | null
+        }
+        Update: {
+          cities_processed?: number | null
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_name?: string
+          started_at?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
       event_favorites: {
         Row: {
           couple_id: string
@@ -1673,6 +1703,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      nightly_rebuild_context_density: { Args: never; Returns: undefined }
       rebuild_place_context_density: {
         Args: { _city_id?: string }
         Returns: undefined
