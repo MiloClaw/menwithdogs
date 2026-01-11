@@ -17,7 +17,7 @@ const steps = [
     number: "03",
     icon: RotateCcw,
     title: "Return",
-    description: "The places that matter to you rise to the top. Less searching, more going.",
+    description: "Your saved places shape what you see. The more you save, the more relevant your view becomes.",
   },
 ];
 
