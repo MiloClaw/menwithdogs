@@ -657,6 +657,48 @@ export type Database = {
           },
         ]
       }
+      paid_tuning_definitions: {
+        Row: {
+          confidence_cap: number | null
+          created_at: string | null
+          description: string | null
+          domain: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          label: string
+          maps_to_categories: string[]
+          sort_order: number | null
+          tuning_key: string
+        }
+        Insert: {
+          confidence_cap?: number | null
+          created_at?: string | null
+          description?: string | null
+          domain: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          label: string
+          maps_to_categories: string[]
+          sort_order?: number | null
+          tuning_key: string
+        }
+        Update: {
+          confidence_cap?: number | null
+          created_at?: string | null
+          description?: string | null
+          domain?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          maps_to_categories?: string[]
+          sort_order?: number | null
+          tuning_key?: string
+        }
+        Relationships: []
+      }
       place_aggregates: {
         Row: {
           computed_at: string | null
@@ -1113,6 +1155,56 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          canceled_at: string | null
+          couple_id: string
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          canceled_at?: string | null
+          couple_id: string
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          canceled_at?: string | null
+          couple_id?: string
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: true
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       taxonomy_nodes: {
         Row: {
           created_at: string | null
@@ -1166,6 +1258,7 @@ export type Database = {
           confidence: number | null
           id: string
           last_updated: string | null
+          overlap_boost: number | null
           place_category: string
           supporting_signals_count: number | null
           taxonomy_node_id: string | null
@@ -1176,6 +1269,7 @@ export type Database = {
           confidence?: number | null
           id?: string
           last_updated?: string | null
+          overlap_boost?: number | null
           place_category: string
           supporting_signals_count?: number | null
           taxonomy_node_id?: string | null
@@ -1186,6 +1280,7 @@ export type Database = {
           confidence?: number | null
           id?: string
           last_updated?: string | null
+          overlap_boost?: number | null
           place_category?: string
           supporting_signals_count?: number | null
           taxonomy_node_id?: string | null
