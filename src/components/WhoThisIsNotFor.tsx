@@ -9,7 +9,7 @@ const exclusions = [
 
 const WhoThisIsNotFor = () => {
   return (
-    <section className="py-16 md:py-20 bg-background border-y border-border">
+    <section className="py-20 md:py-28 bg-background border-y border-border">
       <div className="container max-w-xl">
         <h2 className="font-serif text-lg md:text-xl font-semibold text-foreground text-center mb-8 tracking-tight">
           What this isn't

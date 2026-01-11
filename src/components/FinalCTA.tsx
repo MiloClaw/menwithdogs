@@ -6,7 +6,7 @@ const FinalCTA = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 md:py-32 bg-background border-t border-border">
+    <section className="py-20 md:py-28 bg-background border-t border-border">
       <div className="container">
         <div className="text-center max-w-md mx-auto">
           <div className="w-12 h-px bg-border mx-auto mb-10" />
@@ -22,7 +22,7 @@ const FinalCTA = () => {
           </Button>
 
           <p className="text-muted-foreground text-sm mt-6">
-            Free to use. Upgrade only if you want deeper personalization.
+            Free to browse. Optional upgrade for finer control.
           </p>
         </div>
       </div>
