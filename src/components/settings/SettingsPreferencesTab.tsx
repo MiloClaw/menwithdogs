@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Check, Clock, Ruler, Search, Lock, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MapPin, Check, Clock, Ruler, Heart, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -20,12 +20,6 @@ import { cn } from '@/lib/utils';
 import { TasteProfileCard } from './TasteProfileCard';
 import { PersonalizationSummary } from './PersonalizationSummary';
 import PaidTuningInputs from './PaidTuningInputs';
-
-const SECTION_ICONS = {
-  time: Clock,
-  distance: Ruler,
-  intent: Search,
-};
 
 const SettingsPreferencesTab = () => {
   const { toast } = useToast();
@@ -119,7 +113,7 @@ const SettingsPreferencesTab = () => {
             key={opt.value}
             variant={isSelected ? 'default' : 'outline'}
             className={cn(
-              'h-auto py-3 flex-col gap-1',
+              'h-auto py-3 flex-col gap-1 relative',
               isSelected && 'ring-2 ring-primary/20 ring-offset-2'
             )}
             onClick={() => handleIntentToggle(opt.value)}
@@ -137,173 +131,156 @@ const SettingsPreferencesTab = () => {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Location */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MapPin className="h-4 w-4" />
-            Location
-          </CardTitle>
-          <CardDescription>
+    <div className="space-y-8">
+      {/* Location Section */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-medium text-foreground">
             Where are you exploring?
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {memberProfile?.city && !editingCity ? (
-            <div className="flex items-center justify-between">
-              <span className="font-medium">
-                {memberProfile.city}{memberProfile.state ? `, ${memberProfile.state}` : ''}
-              </span>
+          </h3>
+        </div>
+        
+        {memberProfile?.city && !editingCity ? (
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+            <span className="font-medium">
+              {memberProfile.city}{memberProfile.state ? `, ${memberProfile.state}` : ''}
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="min-h-[44px] text-muted-foreground"
+              onClick={() => setEditingCity(true)}
+            >
+              Change
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <GooglePlacesAutocomplete
+              value={cityInput}
+              onChange={setCityInput}
+              onPlaceSelect={handleCitySelect}
+              placeholder="Search your city..."
+              types="(cities)"
+            />
+            {editingCity && memberProfile?.city && (
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm"
                 className="min-h-[44px]"
-                onClick={() => setEditingCity(true)}
+                onClick={() => {
+                  setEditingCity(false);
+                  setCityInput('');
+                }}
               >
-                Change
+                Cancel
               </Button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <GooglePlacesAutocomplete
-                value={cityInput}
-                onChange={setCityInput}
-                onPlaceSelect={handleCitySelect}
-                placeholder="Search your city..."
-                types="(cities)"
-              />
-              {editingCity && memberProfile?.city && (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="min-h-[44px]"
-                  onClick={() => {
-                    setEditingCity(false);
-                    setCityInput('');
-                  }}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </div>
+        )}
+      </section>
 
-      {/* Taste Profile - Intelligence visualization */}
+      <Separator />
+
+      {/* Taste Profile - Muted visual weight */}
       <TasteProfileCard />
 
-      {/* Browsing Preferences - Phase 2 Free Tuning */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Clock className="h-4 w-4" />
-            {TIME_PROMPT.question}
-          </CardTitle>
-          <CardDescription>{TIME_PROMPT.footer}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {renderChipOptions(
-            TIME_PROMPT.options,
-            preferences?.time_preference,
-            (v) => handleSingleSelect('time_preference', v)
-          )}
-        </CardContent>
-      </Card>
+      <Separator />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Ruler className="h-4 w-4" />
-            {DISTANCE_PROMPT.question}
-          </CardTitle>
-          <CardDescription>{DISTANCE_PROMPT.footer}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {renderChipOptions(
-            DISTANCE_PROMPT.options,
-            preferences?.distance_preference,
-            (v) => handleSingleSelect('distance_preference', v)
-          )}
-        </CardContent>
-      </Card>
+      {/* Time Preference - Place-first language */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-medium text-foreground">
+            When do you usually go out?
+          </h3>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Helps show places open when you need them.
+        </p>
+        {renderChipOptions(
+          TIME_PROMPT.options,
+          preferences?.time_preference,
+          (v) => handleSingleSelect('time_preference', v)
+        )}
+      </section>
 
-      {/* 
-        Phase 3: Vibe tuning requires vibe_energy data on places.
-        Currently hidden until taxonomy_nodes are populated with vibe metadata.
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Zap className="h-4 w-4" />
-              {VIBE_PROMPT.question}
-            </CardTitle>
-            <CardDescription>{VIBE_PROMPT.footer}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {renderChipOptions(
-              VIBE_PROMPT.options,
-              preferences?.vibe_preference,
-              (v) => handleSingleSelect('vibe_preference', v)
-            )}
-          </CardContent>
-        </Card>
-      */}
+      <Separator />
 
-      {/* Intent Preferences (multi-select grid) */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Search className="h-4 w-4" />
-            {INTENT_PROMPT.header}
-          </CardTitle>
-          <CardDescription>{INTENT_PROMPT.footer}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {renderIntentGrid(INTENT_PROMPT.options)}
-        </CardContent>
-      </Card>
+      {/* Distance Preference - Place-first language */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Ruler className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-medium text-foreground">
+            How far will you go for a good spot?
+          </h3>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Balances convenience with variety.
+        </p>
+        {renderChipOptions(
+          DISTANCE_PROMPT.options,
+          preferences?.distance_preference,
+          (v) => handleSingleSelect('distance_preference', v)
+        )}
+      </section>
 
-      {/* Deeper Personalization (Paid Tuning) */}
-      <Card className={cn(!hasPaidTuning && 'border-dashed')}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            {hasPaidTuning ? (
-              <Sparkles className="h-4 w-4 text-primary" />
-            ) : (
-              <Lock className="h-4 w-4 text-muted-foreground" />
-            )}
-            Deeper Personalization
-          </CardTitle>
-          <CardDescription>
-            {hasPaidTuning 
-              ? 'Add more context to improve your recommendations'
-              : 'Unlock advanced personalization with Pro'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Separator />
+
+      {/* Intent Preferences - Place-first language */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Heart className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-medium text-foreground">
+            What kind of places do you look for?
+          </h3>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Select all that apply.
+        </p>
+        {renderIntentGrid(INTENT_PROMPT.options)}
+      </section>
+
+      <Separator />
+
+      {/* Deeper Personalization - Pro Section */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
           {hasPaidTuning ? (
-            <PaidTuningInputs />
+            <Heart className="h-4 w-4 text-primary" />
           ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Pro members can fine-tune recommendations with lifestyle preferences, 
-                activity patterns, and environment settings.
-              </p>
-              <Button
-                onClick={() => createCheckout()}
-                disabled={isCreatingCheckout}
-                className="min-h-[44px]"
-              >
-                {isCreatingCheckout ? 'Loading...' : 'Upgrade to Pro'}
-              </Button>
-            </div>
+            <Lock className="h-4 w-4 text-muted-foreground" />
           )}
-        </CardContent>
-      </Card>
+          <h3 className="text-sm font-medium text-foreground">
+            {hasPaidTuning ? 'More about you' : 'Go deeper'}
+          </h3>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {hasPaidTuning 
+            ? 'Add context to see more relevant places.'
+            : 'Pro members can add lifestyle context for finer results.'}
+        </p>
+        
+        {hasPaidTuning ? (
+          <PaidTuningInputs />
+        ) : (
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              onClick={() => createCheckout()}
+              disabled={isCreatingCheckout}
+              className="min-h-[44px]"
+            >
+              {isCreatingCheckout ? 'Loading...' : 'Upgrade to Pro'}
+            </Button>
+          </div>
+        )}
+      </section>
 
-      {/* Personalization Summary */}
+      <Separator />
+
+      {/* Summary - Removed algorithm language */}
       <PersonalizationSummary />
     </div>
   );
