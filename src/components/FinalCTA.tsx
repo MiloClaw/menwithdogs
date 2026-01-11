@@ -4,13 +4,6 @@ import { MapPin } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
-const scrollToHowItWorks = () => {
-  const element = document.getElementById('how-it-works');
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth' });
-  }
-};
-
 const FinalCTA = () => {
   const navigate = useNavigate();
   const sectionRef = useRef<HTMLElement>(null);
@@ -70,19 +63,19 @@ const FinalCTA = () => {
               variant="accent"
               size="lg"
               className="w-full sm:w-auto text-base px-8"
-              onClick={() => navigate('/places')}
+              onClick={() => navigate('/auth?mode=signup')}
             >
-              <MapPin className="w-4 h-4 mr-2" />
-              Start Exploring
+              Create Free Account
             </Button>
 
             <Button
               variant="ghost"
               size="lg"
               className="w-full sm:w-auto text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={scrollToHowItWorks}
+              onClick={() => navigate('/places')}
             >
-              See How It Works
+              <MapPin className="w-4 h-4 mr-2" />
+              Explore Places
             </Button>
           </motion.div>
         </div>
