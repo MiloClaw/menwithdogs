@@ -65,29 +65,70 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
-
-    const hasActiveSub = subscriptions.data.length > 0;
+    let hasActiveSub = false;
     let subscriptionEnd: string | null = null;
     let productId: string | null = null;
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      productId = subscription.items.data[0].price.product as string;
-      logStep("Active subscription found", { 
-        subscriptionId: subscription.id, 
-        endDate: subscriptionEnd,
-        productId 
+    try {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "active",
+        limit: 1,
       });
-    } else {
-      logStep("No active subscription found");
+
+      hasActiveSub = subscriptions.data.length > 0;
+
+      if (hasActiveSub) {
+        const subscription = subscriptions.data[0];
+        productId = String(subscription.items.data[0]?.price?.product ?? '');
+        
+        // Safe date parsing - handle various formats
+        try {
+          const endTimestamp = subscription.current_period_end;
+          if (endTimestamp && typeof endTimestamp === 'number' && !isNaN(endTimestamp)) {
+            const endDate = new Date(endTimestamp * 1000);
+            if (!isNaN(endDate.getTime())) {
+              subscriptionEnd = endDate.toISOString();
+            }
+          } else if (typeof endTimestamp === 'string') {
+            const endDate = new Date(endTimestamp);
+            if (!isNaN(endDate.getTime())) {
+              subscriptionEnd = endDate.toISOString();
+            }
+          }
+        } catch (dateError) {
+          logStep("Warning: Could not parse subscription end date", { 
+            rawValue: subscription.current_period_end,
+            error: dateError instanceof Error ? dateError.message : String(dateError)
+          });
+          // Don't throw - continue with null subscriptionEnd
+        }
+        
+        logStep("Active subscription found", { 
+          subscriptionId: subscription.id, 
+          endDate: subscriptionEnd,
+          productId 
+        });
+      } else {
+        logStep("No active subscription found");
+      }
+    } catch (stripeError) {
+      logStep("ERROR fetching subscriptions from Stripe", { 
+        message: stripeError instanceof Error ? stripeError.message : String(stripeError) 
+      });
+      // On Stripe API error, return free tier gracefully
+      return new Response(JSON.stringify({ 
+        subscribed: false,
+        plan: "free",
+        has_paid_tuning: false,
+        error: "Unable to verify subscription status"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
+    // Successfully checked subscription - return actual status
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       plan: hasActiveSub ? "pro" : "free",
