@@ -33,12 +33,111 @@ interface SeedResult {
   places: PlaceResult[];
 }
 
+// Input validation
+function validateRequest(body: unknown): { valid: true; data: SeedRequest } | { valid: false; error: string } {
+  if (!body || typeof body !== 'object') {
+    return { valid: false, error: 'Request body must be a JSON object' };
+  }
+  
+  const data = body as Record<string, unknown>;
+  
+  if (typeof data.city_name !== 'string' || data.city_name.length < 1 || data.city_name.length > 200) {
+    return { valid: false, error: 'city_name must be a string between 1-200 characters' };
+  }
+  
+  if (typeof data.lat !== 'number' || data.lat < -90 || data.lat > 90) {
+    return { valid: false, error: 'lat must be a number between -90 and 90' };
+  }
+  
+  if (typeof data.lng !== 'number' || data.lng < -180 || data.lng > 180) {
+    return { valid: false, error: 'lng must be a number between -180 and 180' };
+  }
+  
+  if (!Array.isArray(data.google_types) || data.google_types.length === 0 || data.google_types.length > 50) {
+    return { valid: false, error: 'google_types must be an array with 1-50 items' };
+  }
+  
+  for (const type of data.google_types) {
+    if (typeof type !== 'string' || type.length > 100) {
+      return { valid: false, error: 'Each google_type must be a string under 100 characters' };
+    }
+  }
+  
+  const radius_meters = typeof data.radius_meters === 'number' ? data.radius_meters : 5000;
+  if (radius_meters < 100 || radius_meters > 50000) {
+    return { valid: false, error: 'radius_meters must be between 100 and 50000' };
+  }
+  
+  const max_results_per_type = typeof data.max_results_per_type === 'number' ? data.max_results_per_type : 20;
+  if (max_results_per_type < 1 || max_results_per_type > 60) {
+    return { valid: false, error: 'max_results_per_type must be between 1 and 60' };
+  }
+  
+  return {
+    valid: true,
+    data: {
+      city_name: data.city_name,
+      lat: data.lat,
+      lng: data.lng,
+      radius_meters,
+      google_types: data.google_types as string[],
+      max_results_per_type,
+    }
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // ========== AUTHENTICATION: Admin Only ==========
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Verify user and check admin role
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claims.claims.sub as string;
+    
+    // Check admin role using service client
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    
+    const { data: roleData } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: Admin access required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ========== END AUTHENTICATION ==========
+
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) {
       console.error("GOOGLE_PLACES_API_KEY not configured");
@@ -48,27 +147,19 @@ serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { 
-      city_name, 
-      lat, 
-      lng, 
-      radius_meters = 5000, 
-      google_types,
-      max_results_per_type = 20 
-    }: SeedRequest = await req.json();
-
-    if (!city_name || !lat || !lng || !google_types?.length) {
+    // Validate input
+    const rawBody = await req.json().catch(() => null);
+    const validation = validateRequest(rawBody);
+    if (!validation.valid) {
       return new Response(
-        JSON.stringify({ error: "city_name, lat, lng, and google_types are required" }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Seeding places for ${city_name} at (${lat}, ${lng}) with radius ${radius_meters}m`);
+    const { city_name, lat, lng, radius_meters, google_types, max_results_per_type } = validation.data;
+
+    console.log(`Admin ${userId} seeding places for ${city_name} at (${lat}, ${lng}) with radius ${radius_meters}m`);
     console.log(`Google types to search: ${google_types.join(", ")}`);
 
     const result: SeedResult = {
@@ -79,7 +170,7 @@ serve(async (req) => {
     };
 
     // Fetch existing google_place_ids to avoid duplicates
-    const { data: existingPlaces } = await supabase
+    const { data: existingPlaces } = await supabaseAdmin
       .from("places")
       .select("google_place_id");
     
@@ -90,7 +181,6 @@ serve(async (req) => {
       try {
         console.log(`Searching for type: ${googleType}`);
         
-        // Use Google Places API (New) Nearby Search
         const searchUrl = "https://places.googleapis.com/v1/places:searchNearby";
         const searchBody = {
           includedTypes: [googleType],
@@ -127,7 +217,6 @@ serve(async (req) => {
         for (const place of places) {
           const placeId = place.id;
           
-          // Skip if already exists
           if (existingIds.has(placeId)) {
             result.skipped_count++;
             continue;
@@ -145,7 +234,7 @@ serve(async (req) => {
           };
 
           result.places.push(placeResult);
-          existingIds.add(placeId); // Track to avoid duplicates within this batch
+          existingIds.add(placeId);
         }
       } catch (typeError) {
         console.error(`Error processing type ${googleType}:`, typeError);

@@ -18,19 +18,109 @@ interface TaxonomyResult {
   errors: string[];
 }
 
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Input validation
+function validateRequest(body: unknown): { valid: true; data: TaxonomyRequest } | { valid: false; error: string } {
+  if (body === null || body === undefined) {
+    return { valid: true, data: {} };
+  }
+  
+  if (typeof body !== 'object') {
+    return { valid: false, error: 'Request body must be a JSON object' };
+  }
+  
+  const data = body as Record<string, unknown>;
+  const result: TaxonomyRequest = {};
+  
+  if (data.place_id !== undefined) {
+    if (typeof data.place_id !== 'string' || !UUID_REGEX.test(data.place_id)) {
+      return { valid: false, error: 'place_id must be a valid UUID' };
+    }
+    result.place_id = data.place_id;
+  }
+  
+  if (data.city !== undefined) {
+    if (typeof data.city !== 'string' || data.city.length < 1 || data.city.length > 200) {
+      return { valid: false, error: 'city must be a string between 1-200 characters' };
+    }
+    result.city = data.city;
+  }
+  
+  if (data.recompute_all !== undefined) {
+    if (typeof data.recompute_all !== 'boolean') {
+      return { valid: false, error: 'recompute_all must be a boolean' };
+    }
+    result.recompute_all = data.recompute_all;
+  }
+  
+  return { valid: true, data: result };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // ========== AUTHENTICATION: Admin Only ==========
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claims.claims.sub as string;
+    
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    
+    const { data: roleData } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
 
-    const { place_id, city, recompute_all }: TaxonomyRequest = await req.json().catch(() => ({}));
+    if (!roleData) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: Admin access required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ========== END AUTHENTICATION ==========
 
-    console.log(`Computing taxonomy: place_id=${place_id}, city=${city}, recompute_all=${recompute_all}`);
+    // Validate input
+    const rawBody = await req.json().catch(() => null);
+    const validation = validateRequest(rawBody);
+    if (!validation.valid) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { place_id, city, recompute_all } = validation.data;
+
+    console.log(`Admin ${userId} computing taxonomy: place_id=${place_id}, city=${city}, recompute_all=${recompute_all}`);
 
     const result: TaxonomyResult = {
       processed_count: 0,
@@ -39,7 +129,7 @@ serve(async (req) => {
     };
 
     // Fetch active google_type_mappings
-    const { data: mappings, error: mappingsError } = await supabase
+    const { data: mappings, error: mappingsError } = await supabaseAdmin
       .from("google_type_mappings")
       .select("google_type, taxonomy_node_id, weight")
       .eq("is_active", true);
@@ -67,7 +157,7 @@ serve(async (req) => {
     console.log(`Loaded ${mappings.length} mappings for ${Object.keys(typeToNodes).length} Google types`);
 
     // Build places query
-    let placesQuery = supabase
+    let placesQuery = supabaseAdmin
       .from("places")
       .select("id, google_types")
       .eq("is_active", true);
@@ -78,7 +168,6 @@ serve(async (req) => {
       placesQuery = placesQuery.eq("city", city);
     }
 
-    // Limit if recomputing all to avoid timeout
     if (recompute_all) {
       placesQuery = placesQuery.limit(500);
     }
@@ -112,7 +201,6 @@ serve(async (req) => {
           continue;
         }
 
-        // Calculate taxonomy assignments with weighted confidence
         const nodeConfidences: Record<string, number> = {};
         
         for (const gType of googleTypes) {
@@ -120,20 +208,17 @@ serve(async (req) => {
           if (nodeAssignments) {
             for (const assignment of nodeAssignments) {
               const currentConfidence = nodeConfidences[assignment.taxonomy_node_id] || 0;
-              // Use max weight if same node mapped multiple times
               nodeConfidences[assignment.taxonomy_node_id] = Math.max(currentConfidence, assignment.weight);
             }
           }
         }
 
-        // Delete existing google_type_map assignments for this place
-        await supabase
+        await supabaseAdmin
           .from("place_taxonomy")
           .delete()
           .eq("place_id", place.id)
           .eq("source", "google_type_map");
 
-        // Insert new assignments
         const assignments = Object.entries(nodeConfidences).map(([taxonomy_node_id, confidence]) => ({
           place_id: place.id,
           taxonomy_node_id,
@@ -143,7 +228,7 @@ serve(async (req) => {
         }));
 
         if (assignments.length > 0) {
-          const { error: insertError } = await supabase
+          const { error: insertError } = await supabaseAdmin
             .from("place_taxonomy")
             .upsert(assignments, { onConflict: "place_id,taxonomy_node_id" });
 

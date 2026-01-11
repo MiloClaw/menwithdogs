@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,7 +33,6 @@ interface PlaceDetails {
   country: string | null;
   lat: number | null;
   lng: number | null;
-  // GBP enrichment fields
   rating: number | null;
   user_ratings_total: number | null;
   price_level: number | null;
@@ -43,16 +43,44 @@ interface PlaceDetails {
   photos: PhotoReference[] | null;
   google_primary_type: string | null;
   google_primary_type_display: string | null;
-  // All Google place types for taxonomy mapping
   google_types: string[];
-  // Business status from Google
   business_status: string | null;
-  // UTC offset for timezone handling
   utc_offset_minutes: number | null;
-  // Optional reviews for keyword scanning
   reviews?: Review[];
-  // Raw response for snapshot storage
   raw_response?: Record<string, unknown>;
+}
+
+// Input validation
+function validateRequest(body: unknown): { valid: true; data: DetailsRequest } | { valid: false; error: string } {
+  if (!body || typeof body !== 'object') {
+    return { valid: false, error: 'Request body must be a JSON object' };
+  }
+  
+  const data = body as Record<string, unknown>;
+  
+  if (typeof data.place_id !== 'string' || data.place_id.length < 1 || data.place_id.length > 500) {
+    return { valid: false, error: 'place_id must be a string between 1-500 characters' };
+  }
+  
+  // Validate place_id format (Google place IDs start with ChIJ or similar patterns)
+  if (!/^[A-Za-z0-9_-]+$/.test(data.place_id)) {
+    return { valid: false, error: 'place_id contains invalid characters' };
+  }
+  
+  const sessionToken = typeof data.sessionToken === 'string' && data.sessionToken.length < 200 
+    ? data.sessionToken 
+    : undefined;
+  
+  const includeReviews = typeof data.includeReviews === 'boolean' ? data.includeReviews : false;
+  
+  return {
+    valid: true,
+    data: {
+      place_id: data.place_id,
+      sessionToken,
+      includeReviews,
+    }
+  };
 }
 
 serve(async (req) => {
@@ -62,6 +90,31 @@ serve(async (req) => {
   }
 
   try {
+    // ========== AUTHENTICATION: Require authenticated user ==========
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ========== END AUTHENTICATION ==========
+
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) {
       console.error("GOOGLE_PLACES_API_KEY not configured");
@@ -71,18 +124,21 @@ serve(async (req) => {
       );
     }
 
-    const { place_id, sessionToken, includeReviews }: DetailsRequest = await req.json();
-
-    if (!place_id) {
+    // Validate input
+    const rawBody = await req.json().catch(() => null);
+    const validation = validateRequest(rawBody);
+    if (!validation.valid) {
       return new Response(
-        JSON.stringify({ error: "place_id is required" }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    const { place_id, sessionToken, includeReviews } = validation.data;
+
     console.log(`Fetching details for place_id: ${place_id}, includeReviews: ${includeReviews}`);
 
-    // Build field mask - add reviews if requested (Enterprise + Atmosphere SKU)
+    // Build field mask
     const fields = [
       "id",
       "displayName",
@@ -112,7 +168,6 @@ serve(async (req) => {
 
     let url = `https://places.googleapis.com/v1/places/${place_id}?languageCode=en`;
     
-    // Add session token if provided (completes the billing session)
     if (sessionToken) {
       url += `&sessionToken=${sessionToken}`;
     }
@@ -135,7 +190,7 @@ serve(async (req) => {
       );
     }
 
-    // Parse address components (new API format)
+    // Parse address components
     let city: string | null = null;
     let state: string | null = null;
     let country: string | null = null;
@@ -151,7 +206,6 @@ serve(async (req) => {
       }
     }
 
-    // Fallback for city if no locality found
     if (!city) {
       for (const component of data.addressComponents || []) {
         const types = component.types || [];
@@ -162,10 +216,10 @@ serve(async (req) => {
       }
     }
 
-    // Parse photos - extract up to 5 photo references
+    // Parse photos
     let photos: PhotoReference[] | null = null;
     if (data.photos && Array.isArray(data.photos) && data.photos.length > 0) {
-      photos = data.photos.slice(0, 5).map((photo: any) => ({
+      photos = data.photos.slice(0, 5).map((photo: { name: string; widthPx?: number; heightPx?: number }) => ({
         name: photo.name,
         widthPx: photo.widthPx || 0,
         heightPx: photo.heightPx || 0,
@@ -180,7 +234,7 @@ serve(async (req) => {
       };
     }
 
-    // Map price level from string to number
+    // Map price level
     let price_level: number | null = null;
     if (data.priceLevel) {
       const priceLevelMap: Record<string, number> = {
@@ -193,28 +247,19 @@ serve(async (req) => {
       price_level = priceLevelMap[data.priceLevel] ?? null;
     }
 
-    // Parse reviews if included
+    // Parse reviews
     let reviews: Review[] | undefined = undefined;
     if (includeReviews && data.reviews && Array.isArray(data.reviews)) {
-      reviews = data.reviews.slice(0, 5).map((review: any) => ({
+      reviews = data.reviews.slice(0, 5).map((review: { text?: { text?: string }; originalText?: { text?: string }; rating?: number; relativePublishTimeDescription?: string }) => ({
         text: review.text?.text || review.originalText?.text || "",
         rating: review.rating ?? 0,
         relativePublishTimeDescription: review.relativePublishTimeDescription,
       }));
-      console.log(`Parsed ${reviews!.length} reviews for keyword scanning`);
+      console.log(`Parsed ${reviews!.length} reviews`);
     }
 
-    // Extract all Google place types (for taxonomy mapping)
     const google_types: string[] = data.types || [];
-    
-    // Business status mapping
-    let business_status: string | null = null;
-    if (data.businessStatus) {
-      // Map enum to readable value: OPERATIONAL, CLOSED_TEMPORARILY, CLOSED_PERMANENTLY
-      business_status = data.businessStatus;
-    }
-
-    // UTC offset for timezone handling
+    const business_status: string | null = data.businessStatus || null;
     const utc_offset_minutes: number | null = data.utcOffsetMinutes ?? null;
 
     const details: PlaceDetails = {
@@ -226,7 +271,6 @@ serve(async (req) => {
       country,
       lat: data.location?.latitude ?? null,
       lng: data.location?.longitude ?? null,
-      // GBP fields
       rating: data.rating ?? null,
       user_ratings_total: data.userRatingCount ?? null,
       price_level,
@@ -237,16 +281,14 @@ serve(async (req) => {
       photos,
       google_primary_type: data.primaryType ?? null,
       google_primary_type_display: data.primaryTypeDisplayName?.text ?? null,
-      // New fields for directory foundation
       google_types,
       business_status,
       utc_offset_minutes,
       reviews,
-      // Include raw response for snapshot storage
       raw_response: data,
     };
 
-    console.log(`Returning enriched details for: ${details.name} (rating: ${details.rating}, photos: ${photos?.length || 0}, reviews: ${reviews?.length || 0}, types: ${google_types.length})`);
+    console.log(`Returning details for: ${details.name}`);
 
     return new Response(
       JSON.stringify({ details }),
