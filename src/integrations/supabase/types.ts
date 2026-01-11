@@ -740,6 +740,138 @@ export type Database = {
           },
         ]
       }
+      place_context_density: {
+        Row: {
+          city_id: string
+          context_key: string
+          density_score: number
+          id: string
+          last_updated: string | null
+          meets_k_threshold: boolean
+          place_id: string
+        }
+        Insert: {
+          city_id: string
+          context_key: string
+          density_score?: number
+          id?: string
+          last_updated?: string | null
+          meets_k_threshold?: boolean
+          place_id: string
+        }
+        Update: {
+          city_id?: string
+          context_key?: string
+          density_score?: number
+          id?: string
+          last_updated?: string | null
+          meets_k_threshold?: boolean
+          place_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_context_density_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_density_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city_seeding_progress"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_density_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "launched_cities_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_density_context_key_fkey"
+            columns: ["context_key"]
+            isOneToOne: false
+            referencedRelation: "pro_context_definitions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "place_context_density_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      place_context_priors: {
+        Row: {
+          city_id: string
+          confidence: number
+          context_key: string
+          created_at: string | null
+          id: string
+          place_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          city_id: string
+          confidence: number
+          context_key: string
+          created_at?: string | null
+          id?: string
+          place_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          city_id?: string
+          confidence?: number
+          context_key?: string
+          created_at?: string | null
+          id?: string
+          place_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_context_priors_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_priors_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city_seeding_progress"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_priors_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "launched_cities_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_priors_context_key_fkey"
+            columns: ["context_key"]
+            isOneToOne: false
+            referencedRelation: "pro_context_definitions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "place_context_priors_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       place_geo_areas: {
         Row: {
           confidence: number | null
@@ -1151,6 +1283,42 @@ export type Database = {
           maps_to_taxonomy_slugs?: string[] | null
           preference_key?: string
           sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      pro_context_definitions: {
+        Row: {
+          created_at: string | null
+          default_confidence_cap: number
+          description: string | null
+          domain: string
+          id: string
+          is_active: boolean | null
+          is_sensitive: boolean | null
+          key: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_confidence_cap?: number
+          description?: string | null
+          domain: string
+          id?: string
+          is_active?: boolean | null
+          is_sensitive?: boolean | null
+          key: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          default_confidence_cap?: number
+          description?: string | null
+          domain?: string
+          id?: string
+          is_active?: boolean | null
+          is_sensitive?: boolean | null
+          key?: string
           updated_at?: string | null
         }
         Relationships: []
