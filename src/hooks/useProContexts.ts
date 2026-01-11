@@ -26,29 +26,26 @@ interface UserProContextState {
  * Used to group and label context options in the UI.
  */
 const DOMAIN_LABELS: Record<string, { title: string; description: string }> = {
-  demographic: {
-    title: 'Your Style',
-    description: 'What kind of spaces feel like home',
-  },
-  community: {
-    title: 'Vibe',
-    description: "The atmosphere you're usually around",
+  activity: {
+    title: 'Life Rhythm',
+    description: 'When and how you like to be out',
   },
   lifestyle: {
-    title: 'Lifestyle',
-    description: 'How you prefer to spend your time out',
+    title: 'Environment',
+    description: 'The kind of spaces that feel right',
   },
   faith: {
     title: 'Values',
     description: 'Spaces that align with what matters to you',
   },
-  activity: {
-    title: 'Activities',
-    description: "What you're hoping your week includes",
+  community: {
+    title: 'Community-Centered Spaces',
+    description: 'Spaces that center specific communities',
   },
 };
 
-const DOMAIN_ORDER = ['lifestyle', 'activity', 'community', 'demographic', 'faith'];
+// Hierarchical order: largest audience first, niche/optional last
+const DOMAIN_ORDER = ['activity', 'lifestyle', 'faith', 'community'];
 
 /**
  * Hook to fetch Pro context definitions and manage user's context signals.
