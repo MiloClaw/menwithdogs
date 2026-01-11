@@ -16,9 +16,9 @@ const Settings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   
-  // Initialize tab from URL param or default to 'account'
+  // Initialize tab from URL param or default to 'preferences' (product value first)
   const tabParam = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabParam === 'preferences' ? 'preferences' : 'account');
+  const [activeTab, setActiveTab] = useState(tabParam === 'account' ? 'account' : 'preferences');
 
   // Show success toast after returning from Stripe checkout
   useEffect(() => {
