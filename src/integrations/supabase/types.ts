@@ -1323,10 +1323,18 @@ export type Database = {
           default_confidence_cap: number
           description: string | null
           domain: string
+          icon: string | null
           id: string
+          influence_mode: string
+          input_type: string | null
           is_active: boolean | null
           is_sensitive: boolean | null
           key: string
+          label: string | null
+          section: string | null
+          show_condition: Json | null
+          sort_order: number | null
+          step: number | null
           updated_at: string | null
         }
         Insert: {
@@ -1334,10 +1342,18 @@ export type Database = {
           default_confidence_cap?: number
           description?: string | null
           domain: string
+          icon?: string | null
           id?: string
+          influence_mode?: string
+          input_type?: string | null
           is_active?: boolean | null
           is_sensitive?: boolean | null
           key: string
+          label?: string | null
+          section?: string | null
+          show_condition?: Json | null
+          sort_order?: number | null
+          step?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -1345,10 +1361,18 @@ export type Database = {
           default_confidence_cap?: number
           description?: string | null
           domain?: string
+          icon?: string | null
           id?: string
+          influence_mode?: string
+          input_type?: string | null
           is_active?: boolean | null
           is_sensitive?: boolean | null
           key?: string
+          label?: string | null
+          section?: string | null
+          show_condition?: Json | null
+          sort_order?: number | null
+          step?: number | null
           updated_at?: string | null
         }
         Relationships: []
