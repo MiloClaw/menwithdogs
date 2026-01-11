@@ -5,19 +5,19 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import ProContextInputs from './ProContextInputs';
 
-// Place-first domain labels - describe places, not user configuration
+// Place-first domain labels - outcome-focused, not mechanism-focused
 const DOMAIN_LABELS: Record<string, { title: string; description: string }> = {
   context: {
-    title: 'Your rhythm',
-    description: 'What kind of schedule fits your life?',
+    title: 'Social energy',
+    description: 'The energy that feels natural to you.',
   },
   activity: {
-    title: 'What you enjoy',
-    description: 'Places that match your interests.',
+    title: 'How you connect',
+    description: 'The kind of interaction that feels comfortable.',
   },
   environment: {
-    title: 'Your vibe',
-    description: 'The feel of places you prefer.',
+    title: 'The spaces you prefer',
+    description: 'What feels comfortable.',
   },
 };
 
@@ -54,7 +54,7 @@ export function PaidTuningInputs() {
 
   return (
     <div className="space-y-6 pt-2">
-      {/* Existing paid tuning inputs */}
+      {/* Paid tuning inputs by domain */}
       {DOMAIN_ORDER.map((domain) => {
         const definitions = groupedDefinitions[domain];
         if (!definitions?.length) return null;
@@ -106,11 +106,11 @@ export function PaidTuningInputs() {
       {/* Separator before Pro Contexts */}
       <Separator />
 
-      {/* Pro Context Inputs */}
+      {/* Pro Context Inputs (Optional: Shared spaces) */}
       <ProContextInputs />
 
       <p className="text-xs text-muted-foreground">
-        You can change these anytime.
+        You can change these anytime. Private by default.
       </p>
     </div>
   );

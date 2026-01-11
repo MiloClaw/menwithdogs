@@ -76,7 +76,7 @@ export function TasteProfileCard() {
         </Badge>
       </div>
       <p className="text-xs text-muted-foreground">
-        Based on what you've saved.
+        Based on what you've saved and viewed.
       </p>
       <div className="space-y-3 py-1">
         {topAffinities.map(affinity => (

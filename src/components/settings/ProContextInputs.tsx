@@ -51,11 +51,11 @@ export function ProContextInputs() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h3 className="text-base font-medium text-foreground">
-          Personalize Your Places
+        <h3 className="text-sm font-medium text-foreground">
+          Optional: Shared spaces
         </h3>
-        <p className="text-sm text-muted-foreground">
-          Tell us about the vibe you're looking for and we'll surface places that feel right.
+        <p className="text-xs text-muted-foreground">
+          Some places center specific communities or values. These are private and optional.
         </p>
       </div>
 
@@ -110,8 +110,8 @@ export function ProContextInputs() {
         );
       })}
 
-      <p className="text-xs text-muted-foreground pt-2">
-        This shapes which places feel right for you — never shared with anyone, never visible to others.
+      <p className="text-xs text-muted-foreground/80 pt-1">
+        Private by default. Never shared. Never visible to others.
       </p>
     </div>
   );
