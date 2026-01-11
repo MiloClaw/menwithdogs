@@ -1,4 +1,4 @@
-import { MapPin, Bookmark, Sparkles } from "lucide-react";
+import { MapPin, Bookmark, Eye } from "lucide-react";
 
 const steps = [
   {
@@ -15,9 +15,9 @@ const steps = [
   },
   {
     number: "03",
-    icon: Sparkles,
+    icon: Eye,
     title: "See",
-    description: "The directory gets better the more you use it. Your saved places inform what surfaces next.",
+    description: "Your saved places shape what appears first. The more you use it, the more relevant it feels.",
   },
 ];
 

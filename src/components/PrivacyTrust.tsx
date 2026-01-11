@@ -4,7 +4,7 @@ const privacyPoints = [
   "Nothing is public by default",
   "No one can see what you've saved",
   "Your browsing history stays private",
-  "Used only to improve your experience",
+  "Your activity shapes your own view only",
 ];
 
 const PrivacyTrust = () => {
