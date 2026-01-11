@@ -27,6 +27,14 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Store redirect param in sessionStorage if present
+  useEffect(() => {
+    const redirect = searchParams.get('redirect');
+    if (redirect) {
+      sessionStorage.setItem('pending_redirect', redirect);
+    }
+  }, [searchParams]);
+
   // Redirect if already authenticated - handle pending intents
   useEffect(() => {
     if (!loading && isAuthenticated) {
@@ -42,6 +50,14 @@ const Auth = () => {
       const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
       if (pendingInviteToken) {
         navigate(`/invite/${pendingInviteToken}`);
+        return;
+      }
+      
+      // Check for general redirect (e.g., pricing page)
+      const pendingRedirect = sessionStorage.getItem('pending_redirect');
+      if (pendingRedirect) {
+        sessionStorage.removeItem('pending_redirect');
+        navigate(`/${pendingRedirect}?checkout=true`);
         return;
       }
       
@@ -110,6 +126,13 @@ const Auth = () => {
           navigate(`/invite/${pendingInviteToken}`);
           return;
         }
+        // Check for general redirect (e.g., pricing page)
+        const pendingRedirect = sessionStorage.getItem('pending_redirect');
+        if (pendingRedirect) {
+          sessionStorage.removeItem('pending_redirect');
+          navigate(`/${pendingRedirect}?checkout=true`);
+          return;
+        }
         navigate('/places');
       } else {
         const { error } = await signUp(email, password);
@@ -144,6 +167,13 @@ const Auth = () => {
         const pendingInviteToken = sessionStorage.getItem('pending_invite_token');
         if (pendingInviteToken) {
           navigate(`/invite/${pendingInviteToken}`);
+          return;
+        }
+        // Check for general redirect (e.g., pricing page)
+        const pendingRedirect = sessionStorage.getItem('pending_redirect');
+        if (pendingRedirect) {
+          sessionStorage.removeItem('pending_redirect');
+          navigate(`/${pendingRedirect}?checkout=true`);
           return;
         }
         navigate('/places');

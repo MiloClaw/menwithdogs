@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -26,8 +27,21 @@ const proFeatures = [
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
-  const { createCheckout, isCreatingCheckout, isPro } = useSubscription();
+  const { createCheckout, isCreatingCheckout, isPro, isLoading } = useSubscription();
+  const hasTriggeredCheckout = useRef(false);
+
+  // Auto-trigger checkout if returning from auth with checkout=true
+  useEffect(() => {
+    const shouldCheckout = searchParams.get('checkout') === 'true';
+    if (shouldCheckout && user && !isPro && !isLoading && !hasTriggeredCheckout.current) {
+      hasTriggeredCheckout.current = true;
+      // Clear the param to prevent re-triggering
+      setSearchParams({}, { replace: true });
+      createCheckout();
+    }
+  }, [searchParams, user, isPro, isLoading, createCheckout, setSearchParams]);
 
   const handleFreeCTA = () => {
     if (user) {
