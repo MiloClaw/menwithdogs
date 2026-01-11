@@ -67,17 +67,7 @@ const Hero = () => {
       </div>
 
       {/* Tagline */}
-      <div className="text-center py-10 bg-background border-t border-border">
-        <p className="font-serif text-lg md:text-xl text-foreground font-medium">
-          This is not a dating app.
-        </p>
-        <p className="text-base text-muted-foreground mt-2">
-          It's a community layer for real life.
-        </p>
-        <button onClick={scrollToHowItWorks} className="mt-4 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
-          See how it works
-        </button>
-      </div>
+      
     </section>;
 };
 export default Hero;
