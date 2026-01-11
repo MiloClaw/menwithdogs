@@ -78,11 +78,11 @@ const SettingsAccountTab = () => {
         <CardContent className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Badge variant={isPro ? 'default' : 'secondary'}>
-              {isPro ? 'Pro' : 'Free'}
+              {isPro ? 'Pro Personalization' : 'Free'}
             </Badge>
             {isPro && (
               <span className="text-sm text-muted-foreground">
-                $9.99/month
+                $4.99/month
               </span>
             )}
           </div>
@@ -106,7 +106,7 @@ const SettingsAccountTab = () => {
               onClick={() => createCheckout()}
               disabled={isCreatingCheckout}
             >
-              {isCreatingCheckout ? 'Loading...' : 'Upgrade to Pro'}
+              {isCreatingCheckout ? 'Loading...' : 'Add personalization'}
             </Button>
           )}
         </CardContent>
