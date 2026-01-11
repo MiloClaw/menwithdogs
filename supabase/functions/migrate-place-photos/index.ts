@@ -8,6 +8,7 @@ const corsHeaders = {
 /**
  * One-time migration to store photos for all existing places.
  * Finds places with photos but no stored_photo_urls and calls store-place-photos for each.
+ * ADMIN ONLY - requires authentication and admin role.
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,20 +16,54 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    // ========== AUTHENTICATION: Admin Only ==========
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claims.claims.sub as string;
+    
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    const { data: roleData } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: Admin access required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ========== END AUTHENTICATION ==========
+
+    console.log(`Admin ${userId} starting photo migration`);
 
     // Find places with photos but no stored URLs
-    const { data: places, error: fetchError } = await supabase
+    const { data: places, error: fetchError } = await supabaseAdmin
       .from('places')
       .select('id, google_place_id, name, photos')
       .not('photos', 'is', null)
@@ -66,8 +101,7 @@ Deno.serve(async (req) => {
 
         console.log(`Processing ${place.name} with ${photos.length} photos...`);
 
-        // Call store-place-photos function
-        const { data, error } = await supabase.functions.invoke('store-place-photos', {
+        const { data, error } = await supabaseAdmin.functions.invoke('store-place-photos', {
           body: {
             placeId: place.id,
             photos: photos,

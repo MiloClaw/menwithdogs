@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,6 +24,56 @@ const TYPE_MAPPINGS: Record<string, string[]> = {
   // For "establishment", we don't restrict types - allows searching all venue types
 };
 
+// Input validation
+function validateRequest(body: unknown): { valid: true; data: AutocompleteRequest } | { valid: false; error: string } {
+  if (!body || typeof body !== 'object') {
+    return { valid: false, error: 'Request body must be a JSON object' };
+  }
+  
+  const data = body as Record<string, unknown>;
+  
+  if (typeof data.input !== 'string' || data.input.trim().length < 1) {
+    return { valid: true, data: { input: '', types: '(cities)' } }; // Return empty predictions
+  }
+  
+  if (data.input.length > 500) {
+    return { valid: false, error: 'input must be under 500 characters' };
+  }
+  
+  const types = typeof data.types === 'string' ? data.types : '(cities)';
+  if (types.length > 100) {
+    return { valid: false, error: 'types must be under 100 characters' };
+  }
+  
+  const sessionToken = typeof data.sessionToken === 'string' && data.sessionToken.length < 200 
+    ? data.sessionToken 
+    : undefined;
+  
+  let locationBias: AutocompleteRequest['locationBias'] = undefined;
+  if (data.locationBias && typeof data.locationBias === 'object') {
+    const lb = data.locationBias as Record<string, unknown>;
+    if (typeof lb.lat === 'number' && typeof lb.lng === 'number') {
+      if (lb.lat >= -90 && lb.lat <= 90 && lb.lng >= -180 && lb.lng <= 180) {
+        locationBias = {
+          lat: lb.lat,
+          lng: lb.lng,
+          radius: typeof lb.radius === 'number' ? Math.min(Math.max(lb.radius, 1000), 100000) : 50000,
+        };
+      }
+    }
+  }
+  
+  return {
+    valid: true,
+    data: {
+      input: data.input.trim(),
+      types,
+      sessionToken,
+      locationBias,
+    }
+  };
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -30,6 +81,31 @@ serve(async (req) => {
   }
 
   try {
+    // ========== AUTHENTICATION: Require authenticated user ==========
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ========== END AUTHENTICATION ==========
+
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) {
       console.error("GOOGLE_PLACES_API_KEY not configured");
@@ -39,9 +115,19 @@ serve(async (req) => {
       );
     }
 
-    const { input, types = "(cities)", sessionToken, locationBias }: AutocompleteRequest = await req.json();
+    // Validate input
+    const rawBody = await req.json().catch(() => null);
+    const validation = validateRequest(rawBody);
+    if (!validation.valid) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    if (!input || input.trim().length < 1) {
+    const { input, types, sessionToken, locationBias } = validation.data;
+
+    if (!input) {
       return new Response(
         JSON.stringify({ predictions: [] }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -52,12 +138,12 @@ serve(async (req) => {
 
     // Build request body for new API
     const requestBody: Record<string, unknown> = {
-      input: input.trim(),
+      input,
       languageCode: "en",
     };
 
     // Map legacy types to new format
-    const includedTypes = TYPE_MAPPINGS[types];
+    const includedTypes = TYPE_MAPPINGS[types || "(cities)"];
     if (includedTypes) {
       requestBody.includedPrimaryTypes = includedTypes;
     }
@@ -75,7 +161,7 @@ serve(async (req) => {
             latitude: locationBias.lat,
             longitude: locationBias.lng,
           },
-          radius: locationBias.radius || 50000, // Default 50km
+          radius: locationBias.radius || 50000,
         },
       };
     }

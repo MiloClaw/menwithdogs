@@ -17,12 +17,81 @@ interface RefreshResult {
   errors: string[];
 }
 
+// Input validation
+function validateRequest(body: unknown): { valid: true; data: RefreshRequest } | { valid: false; error: string } {
+  if (body === null || body === undefined) {
+    return { valid: true, data: { batch_size: 50, max_age_days: 7 } };
+  }
+  
+  if (typeof body !== 'object') {
+    return { valid: false, error: 'Request body must be a JSON object' };
+  }
+  
+  const data = body as Record<string, unknown>;
+  
+  const batch_size = typeof data.batch_size === 'number' ? data.batch_size : 50;
+  if (batch_size < 1 || batch_size > 500) {
+    return { valid: false, error: 'batch_size must be between 1 and 500' };
+  }
+  
+  const max_age_days = typeof data.max_age_days === 'number' ? data.max_age_days : 7;
+  if (max_age_days < 1 || max_age_days > 365) {
+    return { valid: false, error: 'max_age_days must be between 1 and 365' };
+  }
+  
+  return { valid: true, data: { batch_size, max_age_days } };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // ========== AUTHENTICATION: Admin Only ==========
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claims?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claims.claims.sub as string;
+    
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    
+    const { data: roleData } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: Admin access required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ========== END AUTHENTICATION ==========
+
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) {
       console.error("GOOGLE_PLACES_API_KEY not configured");
@@ -32,24 +101,30 @@ serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Validate input
+    const rawBody = await req.json().catch(() => null);
+    const validation = validateRequest(rawBody);
+    if (!validation.valid) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    const { batch_size = 50, max_age_days = 7 }: RefreshRequest = await req.json().catch(() => ({}));
+    const { batch_size, max_age_days } = validation.data;
 
-    console.log(`Refreshing places older than ${max_age_days} days, batch size: ${batch_size}`);
+    console.log(`Admin ${userId} refreshing places older than ${max_age_days} days, batch size: ${batch_size}`);
 
     // Find stale places
     const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - max_age_days);
+    cutoffDate.setDate(cutoffDate.getDate() - max_age_days!);
 
-    const { data: stalePlaces, error: fetchError } = await supabase
+    const { data: stalePlaces, error: fetchError } = await supabaseAdmin
       .from("places")
       .select("id, google_place_id, name")
       .eq("is_active", true)
       .or(`last_fetched_at.is.null,last_fetched_at.lt.${cutoffDate.toISOString()}`)
-      .limit(batch_size);
+      .limit(batch_size!);
 
     if (fetchError) {
       console.error("Error fetching stale places:", fetchError);
@@ -77,7 +152,6 @@ serve(async (req) => {
 
     for (const place of stalePlaces) {
       try {
-        // Fetch fresh details from Google
         const fieldMask = [
           "id", "displayName", "formattedAddress", "addressComponents",
           "location", "rating", "userRatingCount", "priceLevel",
@@ -105,7 +179,6 @@ serve(async (req) => {
           continue;
         }
 
-        // Parse address components
         let city: string | null = null;
         let state: string | null = null;
         let country: string | null = null;
@@ -121,17 +194,15 @@ serve(async (req) => {
           }
         }
 
-        // Parse photos
         let photos = null;
         if (data.photos && Array.isArray(data.photos) && data.photos.length > 0) {
-          photos = data.photos.slice(0, 5).map((photo: any) => ({
+          photos = data.photos.slice(0, 5).map((photo: { name: string; widthPx?: number; heightPx?: number }) => ({
             name: photo.name,
             widthPx: photo.widthPx || 0,
             heightPx: photo.heightPx || 0,
           }));
         }
 
-        // Parse opening hours
         let opening_hours = null;
         if (data.regularOpeningHours?.weekdayDescriptions) {
           opening_hours = {
@@ -139,7 +210,6 @@ serve(async (req) => {
           };
         }
 
-        // Map price level
         let price_level: number | null = null;
         if (data.priceLevel) {
           const priceLevelMap: Record<string, number> = {
@@ -152,8 +222,7 @@ serve(async (req) => {
           price_level = priceLevelMap[data.priceLevel] ?? null;
         }
 
-        // Update the place with fresh Google data only (not admin metadata)
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseAdmin
           .from("places")
           .update({
             name: data.displayName?.text || place.name,
@@ -177,7 +246,7 @@ serve(async (req) => {
             business_status: data.businessStatus,
             utc_offset_minutes: data.utcOffsetMinutes,
             last_fetched_at: new Date().toISOString(),
-            fetch_version: 2, // Increment version
+            fetch_version: 2,
           })
           .eq("id", place.id);
 
@@ -188,8 +257,7 @@ serve(async (req) => {
           continue;
         }
 
-        // Store snapshot for audit
-        await supabase
+        await supabaseAdmin
           .from("places_google_snapshots")
           .insert({
             place_id: place.id,
