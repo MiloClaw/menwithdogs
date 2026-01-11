@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { Mail, Lock, CreditCard, AlertTriangle, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mail, Lock, CreditCard, Sparkles, User, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import DeleteAccountDialog from './DeleteAccountDialog';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const SettingsAccountTab = () => {
   const { user } = useAuth();
@@ -22,117 +25,128 @@ const SettingsAccountTab = () => {
   } = useSubscription();
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [actionsExpanded, setActionsExpanded] = useState(false);
 
   return (
     <div className="space-y-6">
-      {/* Email */}
-      <Card>
+      {/* Unified Account Card */}
+      <Card className={isPro ? 'border-primary/30' : ''}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Mail className="h-4 w-4" />
-            Email
+            <User className="h-4 w-4" />
+            Your Account
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-foreground">{user?.email || 'Not available'}</p>
-        </CardContent>
-      </Card>
-
-      {/* Password */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Lock className="h-4 w-4" />
-            Password
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between">
-          <span className="text-muted-foreground">••••••••</span>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setPasswordDialogOpen(true)}
-          >
-            Change Password
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Subscription */}
-      <Card className={isPro ? 'border-primary/50' : ''}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            {isPro ? (
-              <Sparkles className="h-4 w-4 text-primary" />
-            ) : (
-              <CreditCard className="h-4 w-4" />
-            )}
-            Subscription
-          </CardTitle>
-          {isPro && subscriptionEnd && (
-            <CardDescription>
-              Renews {format(new Date(subscriptionEnd), 'MMM d, yyyy')}
-            </CardDescription>
-          )}
-        </CardHeader>
-        <CardContent className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Badge variant={isPro ? 'default' : 'secondary'}>
-              {isPro ? 'Pro Personalization' : 'Free'}
-            </Badge>
-            {isPro && (
-              <span className="text-sm text-muted-foreground">
-                $4.99/month
-              </span>
-            )}
+        <CardContent className="space-y-1">
+          {/* Email row */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Mail className="h-4 w-4" />
+              <span>Email</span>
+            </div>
+            <span className="text-sm">{user?.email || 'Not available'}</span>
           </div>
           
-          {isLoadingSubscription ? (
-            <span className="text-sm text-muted-foreground">Loading...</span>
-          ) : isPro ? (
-            <Button
-              variant="outline"
+          <Separator />
+          
+          {/* Password row */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Lock className="h-4 w-4" />
+              <span>Password</span>
+            </div>
+            <Button 
+              variant="ghost" 
               size="sm"
-              className="min-h-[44px]"
-              onClick={() => openCustomerPortal()}
-              disabled={isOpeningPortal}
+              className="h-8 text-sm"
+              onClick={() => setPasswordDialogOpen(true)}
             >
-              {isOpeningPortal ? 'Loading...' : 'Manage'}
+              Change
             </Button>
-          ) : (
-            <Button
-              size="sm"
-              className="min-h-[44px]"
-              onClick={() => createCheckout()}
-              disabled={isCreatingCheckout}
-            >
-              {isCreatingCheckout ? 'Loading...' : 'Add personalization'}
-            </Button>
-          )}
+          </div>
+          
+          <Separator />
+          
+          {/* Subscription row */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {isPro ? (
+                <Sparkles className="h-4 w-4 text-primary" />
+              ) : (
+                <CreditCard className="h-4 w-4" />
+              )}
+              <span>Plan</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end gap-0.5">
+                <Badge variant={isPro ? 'default' : 'secondary'}>
+                  {isPro ? 'Pro' : 'Free'}
+                </Badge>
+                {isPro && subscriptionEnd && (
+                  <span className="text-xs text-muted-foreground">
+                    Renews {format(new Date(subscriptionEnd), 'MMM d')}
+                  </span>
+                )}
+              </div>
+              {isLoadingSubscription ? (
+                <span className="text-xs text-muted-foreground">...</span>
+              ) : isPro ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-sm"
+                  onClick={() => openCustomerPortal()}
+                  disabled={isOpeningPortal}
+                >
+                  {isOpeningPortal ? '...' : 'Manage'}
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-sm"
+                  onClick={() => createCheckout()}
+                  disabled={isCreatingCheckout}
+                >
+                  {isCreatingCheckout ? '...' : 'Upgrade'}
+                </Button>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg text-destructive">
-            <AlertTriangle className="h-4 w-4" />
-            Danger Zone
-          </CardTitle>
-          <CardDescription>
-            Irreversible actions that affect your account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Collapsible Account Actions */}
+      <Collapsible open={actionsExpanded} onOpenChange={setActionsExpanded}>
+        <CollapsibleTrigger asChild>
           <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={() => setDeleteDialogOpen(true)}
+            variant="ghost" 
+            className="w-full justify-between h-12 text-muted-foreground hover:text-foreground"
           >
-            Delete Account
+            <span className="text-sm">Account actions</span>
+            <ChevronRight className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              actionsExpanded && "rotate-90"
+            )} />
           </Button>
-        </CardContent>
-      </Card>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-2">
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <p className="text-sm text-muted-foreground mb-4">
+                Permanently delete your account and all associated data.
+              </p>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete Account
+              </Button>
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Dialogs */}
       <ChangePasswordDialog 
