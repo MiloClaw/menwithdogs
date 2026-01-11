@@ -208,11 +208,18 @@ export function PlacePriorEditor() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          Seed places with weak context priors for early Pro value. Priors decay in 90 days and are overridden by real density.
-        </p>
+      {/* Header with guardrail */}
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-start">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">
+              Seed places with weak context priors for early Pro value.
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded inline-block">
+              ⚠️ Place priors are temporary scaffolding. They decay quickly (90-day half-life) and should only be used when culturally obvious. Real user signals will override these.
+            </p>
+          </div>
+        </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => { resetForm(); setIsCreateOpen(true); }}>
