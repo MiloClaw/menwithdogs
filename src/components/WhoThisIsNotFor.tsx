@@ -2,10 +2,10 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 const exclusions = [
-  { num: "01", text: "No profiles to maintain." },
-  { num: "02", text: "No followers to count." },
-  { num: "03", text: "No feed to scroll." },
-  { num: "04", text: "No likes to chase." },
+  "No profiles to maintain.",
+  "No followers to count.",
+  "No feed to scroll.",
+  "No likes to chase.",
 ];
 
 const WhoThisIsNotFor = () => {
@@ -45,22 +45,17 @@ const WhoThisIsNotFor = () => {
 
           {/* Numbered exclusions */}
           <div className="grid sm:grid-cols-2 gap-x-12 gap-y-6 md:gap-y-8 max-w-2xl mx-auto">
-            {exclusions.map((item, i) => (
-              <motion.div
+            {exclusions.map((text, i) => (
+              <motion.p
                 key={i}
                 initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="flex items-baseline gap-4 text-center sm:text-left justify-center sm:justify-start"
+                className="text-primary-foreground/70 text-lg md:text-xl font-medium text-center sm:text-left"
               >
-                <span className="text-xs font-medium text-primary-foreground/30 tracking-[0.2em] font-mono">
-                  {item.num}
-                </span>
-                <p className="text-primary-foreground/70 text-lg md:text-xl font-medium">
-                  {item.text}
-                </p>
-              </motion.div>
+                {text}
+              </motion.p>
             ))}
           </div>
 
