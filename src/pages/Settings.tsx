@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Settings as SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import PageLayout from '@/components/PageLayout';
 import SettingsAccountTab from '@/components/settings/SettingsAccountTab';
 import SettingsPreferencesTab from '@/components/settings/SettingsPreferencesTab';
@@ -12,7 +13,25 @@ import SettingsPreferencesTab from '@/components/settings/SettingsPreferencesTab
  */
 const Settings = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('account');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { toast } = useToast();
+  
+  // Initialize tab from URL param or default to 'account'
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam === 'preferences' ? 'preferences' : 'account');
+
+  // Show success toast after returning from Stripe checkout
+  useEffect(() => {
+    if (searchParams.get('subscription') === 'success') {
+      toast({
+        title: 'Welcome to Pro Personalization',
+        description: 'Your subscription is now active. Enjoy deeper personalization.',
+      });
+      // Clear the param to prevent re-triggering
+      searchParams.delete('subscription');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams, toast]);
 
   return (
     <PageLayout>
