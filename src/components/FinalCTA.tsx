@@ -2,6 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 
+const scrollToHowItWorks = () => {
+  const element = document.getElementById('how-it-works');
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 const FinalCTA = () => {
   const navigate = useNavigate();
 
@@ -11,7 +18,7 @@ const FinalCTA = () => {
         <div className="max-w-2xl mx-auto text-center">
           {/* Large inviting headline */}
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 md:mb-12">
-            Find your places.
+            Ready to find your places?
           </h2>
 
           {/* CTA buttons */}
@@ -23,16 +30,16 @@ const FinalCTA = () => {
               onClick={() => navigate('/places')}
             >
               <MapPin className="w-4 h-4 mr-2" />
-              Explore your city
+              Start Exploring
             </Button>
 
             <Button
               variant="ghost"
               size="lg"
               className="w-full sm:w-auto text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={() => navigate('/about')}
+              onClick={scrollToHowItWorks}
             >
-              Learn more
+              See How It Works
             </Button>
           </div>
         </div>

@@ -1,8 +1,8 @@
 const exclusions = [
-  "Not a social network",
-  "Not a dating app",
-  "Not a feed",
-  "No profiles, no followers, no likes",
+  "No profiles to maintain.",
+  "No followers to count.",
+  "No feed to scroll.",
+  "No likes to chase.",
 ];
 
 const WhoThisIsNotFor = () => {
@@ -12,7 +12,7 @@ const WhoThisIsNotFor = () => {
         <div className="max-w-4xl mx-auto">
           {/* Bold contrarian statement */}
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-center mb-16 md:mb-20">
-            We don't do social.
+            Real community doesn't happen in an app.
           </h2>
 
           {/* Large, spaced exclusions */}
@@ -26,6 +26,11 @@ const WhoThisIsNotFor = () => {
               </p>
             ))}
           </div>
+
+          {/* Closing statement */}
+          <p className="text-primary-foreground/90 text-lg md:text-xl text-center mt-12 md:mt-16 max-w-xl mx-auto">
+            Just a smarter way to find where to go — so you can actually be there.
+          </p>
         </div>
       </div>
     </section>

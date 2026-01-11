@@ -1,23 +1,23 @@
-import { MapPin, Bookmark, Eye } from "lucide-react";
+import { MapPin, Bookmark, RotateCcw } from "lucide-react";
 
 const steps = [
   {
     number: "01",
     icon: MapPin,
-    title: "Explore",
-    description: "Browse places in your city. Filter by what you're in the mood for.",
+    title: "Browse",
+    description: "Explore places in your area. Filter by distance, category, or vibe.",
   },
   {
     number: "02",
     icon: Bookmark,
     title: "Save",
-    description: "Bookmark spots that catch your interest.",
+    description: "Bookmark spots that fit your life.",
   },
   {
     number: "03",
-    icon: Eye,
-    title: "See",
-    description: "Your saved places shape what appears first. The more you use it, the more relevant it feels.",
+    icon: RotateCcw,
+    title: "Return",
+    description: "The places that matter to you rise to the top. Less searching, more going.",
   },
 ];
 
