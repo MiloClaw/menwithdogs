@@ -303,13 +303,13 @@ const Places = () => {
   return (
     <PageLayout>
       <div className="container py-8 md:py-12 space-y-8">
-        {/* Header */}
-        <header className="space-y-3 max-w-2xl">
+        {/* Header - Place-first language */}
+        <header className="space-y-2 max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-balance">
-            Discover Places
+            Places
           </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            Curated spots and community signals in your city
+          <p className="text-muted-foreground text-base md:text-lg">
+            Browse spots worth knowing in your area.
           </p>
         </header>
 
@@ -338,20 +338,24 @@ const Places = () => {
           onClearExploration={handleClearExploration}
         />
 
-        {/* Distance Filter */}
+        {/* Distance Filter - Distinct rounded style */}
         {hasUserLocation && (
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground font-medium">Distance</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">How far?</p>
             <div className="flex flex-wrap gap-2">
               {RADIUS_OPTIONS.map(option => (
-                <Badge
+                <button
                   key={option.label}
-                  variant={radiusFilter === option.value ? 'default' : 'outline'}
-                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
                   onClick={() => setRadiusFilter(option.value)}
+                  className={`
+                    min-h-[44px] px-4 rounded-full text-sm font-medium transition-all
+                    ${radiusFilter === option.value 
+                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/20' 
+                      : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent'}
+                  `}
                 >
                   {option.label}
-                </Badge>
+                </button>
               ))}
             </div>
           </div>
@@ -365,23 +369,25 @@ const Places = () => {
           />
         )}
 
-        {/* Category Filters */}
+        {/* Category Filters - Distinct squared/pill style */}
         {placeCategories.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground font-medium">Category</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">What kind?</p>
             <div className="flex flex-wrap gap-2">
-              <Badge
-                variant={selectedCategory === null ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
+              <button
                 onClick={() => setSelectedCategory(null)}
+                className={`
+                  min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
+                  ${selectedCategory === null 
+                    ? 'bg-foreground text-background border-foreground' 
+                    : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
+                `}
               >
                 All
-              </Badge>
+              </button>
               {placeCategories.map(category => (
-                <Badge
+                <button
                   key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  className="cursor-pointer hover:bg-primary/90 min-h-[44px] px-4 flex items-center"
                   onClick={() => {
                     const newCategory = selectedCategory === category ? null : category;
                     setSelectedCategory(newCategory);
@@ -390,9 +396,15 @@ const Places = () => {
                       recordSignal('filter_category', newCategory, null, 'implicit', 0.4);
                     }
                   }}
+                  className={`
+                    min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
+                    ${selectedCategory === category 
+                      ? 'bg-foreground text-background border-foreground' 
+                      : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
+                  `}
                 >
                   {category}
-                </Badge>
+                </button>
               ))}
             </div>
           </div>
