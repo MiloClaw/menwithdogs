@@ -27,6 +27,7 @@ import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import InterestManagement from "./pages/admin/InterestManagement";
 import CityManagement from "./pages/admin/CityManagement";
+import ProContextManagement from "./pages/admin/ProContextManagement";
 import { RequireRole } from "./components/auth/RequireRole";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
               <Route path="/admin/posts" element={<RequireRole role="admin"><PostManagement /></RequireRole>} />
+              <Route path="/admin/pro-contexts" element={<RequireRole role="admin"><ProContextManagement /></RequireRole>} />
               
               {/* Legacy admin blog route */}
               <Route path="/admin/blog" element={<Navigate to="/admin/posts" replace />} />

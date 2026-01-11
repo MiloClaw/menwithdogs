@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 
 export interface UserAffinity {
   id: string;
@@ -24,9 +25,10 @@ export interface UserAffinity {
  */
 export function useUserAffinity() {
   const { user } = useAuth();
+  const { hasPaidTuning } = useSubscription();
 
   const { data: affinities, isLoading, refetch } = useQuery({
-    queryKey: ['user-affinity', user?.id],
+    queryKey: ['user-affinity', user?.id, hasPaidTuning],
     queryFn: async () => {
       if (!user?.id) return [];
 
@@ -59,9 +61,12 @@ export function useUserAffinity() {
         lastComputed < oneHourAgo ||
         (prefsChanged && prefsChanged > lastComputed);
 
-      // Step 2: Only recompute if needed
+      // Step 2: Only recompute if needed - pass _is_pro for Pro context density
       if (needsRecompute) {
-        await supabase.rpc('compute_user_affinity', { _user_id: user.id });
+        await supabase.rpc('compute_user_affinity', { 
+          _user_id: user.id,
+          _is_pro: hasPaidTuning, // NEW: Enable Pro context density for subscribers
+        });
       }
 
       // Step 3: Fetch current affinities
