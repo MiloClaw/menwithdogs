@@ -65,8 +65,8 @@ export function PersonalizationSummary() {
 
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-medium text-muted-foreground">
-        What you'll see
+      <h3 className="text-sm font-medium text-foreground">
+        What shapes your places
       </h3>
       <div className="space-y-2 py-1">
         {bullets.map((bullet, i) => (
@@ -80,7 +80,7 @@ export function PersonalizationSummary() {
         ))}
       </div>
       <p className="text-xs text-muted-foreground/70">
-        This adjusts as you explore.
+        This adjusts as you explore. You're always in control.
       </p>
     </section>
   );

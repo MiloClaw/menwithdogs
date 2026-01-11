@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Check, Clock, Ruler, Heart, Lock } from 'lucide-react';
+import { MapPin, Check, Clock, Heart, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
@@ -132,12 +132,12 @@ const SettingsPreferencesTab = () => {
 
   return (
     <div className="space-y-8">
-      {/* Location Section */}
+      {/* Section 1: Location - Geographic anchor */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-medium text-foreground">
-            Where are you exploring?
+            Where you're exploring
           </h3>
         </div>
         
@@ -183,83 +183,82 @@ const SettingsPreferencesTab = () => {
 
       <Separator />
 
-      {/* Taste Profile - Muted visual weight */}
-      <TasteProfileCard />
-
-      <Separator />
-
-      {/* Time Preference - Place-first language */}
-      <section className="space-y-3">
+      {/* Section 2: Your Rhythm - Time + Distance combined */}
+      <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-medium text-foreground">
-            When do you usually go out?
+            Your rhythm
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Helps show places open when you need them.
+        <p className="text-xs text-muted-foreground -mt-2">
+          When you tend to go out — and how far feels reasonable.
         </p>
-        {renderChipOptions(
-          TIME_PROMPT.options,
-          preferences?.time_preference,
-          (v) => handleSingleSelect('time_preference', v)
-        )}
+
+        {/* When you go out */}
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            When you go out
+          </span>
+          {renderChipOptions(
+            TIME_PROMPT.options,
+            preferences?.time_preference,
+            (v) => handleSingleSelect('time_preference', v)
+          )}
+        </div>
+
+        {/* How far you'll travel */}
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            How far you'll travel
+          </span>
+          {renderChipOptions(
+            DISTANCE_PROMPT.options,
+            preferences?.distance_preference,
+            (v) => handleSingleSelect('distance_preference', v)
+          )}
+        </div>
       </section>
 
       <Separator />
 
-      {/* Distance Preference - Place-first language */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Ruler className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-medium text-foreground">
-            How far will you go for a good spot?
-          </h3>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Balances convenience with variety.
-        </p>
-        {renderChipOptions(
-          DISTANCE_PROMPT.options,
-          preferences?.distance_preference,
-          (v) => handleSingleSelect('distance_preference', v)
-        )}
-      </section>
-
-      <Separator />
-
-      {/* Intent Preferences - Place-first language */}
+      {/* Section 3: What you're in the mood for - Intent */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <Heart className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-medium text-foreground">
-            What kind of places do you look for?
+            What you're in the mood for
           </h3>
         </div>
         <p className="text-xs text-muted-foreground">
-          Select all that apply.
+          Select any that speak to you.
         </p>
         {renderIntentGrid(INTENT_PROMPT.options)}
       </section>
 
       <Separator />
 
-      {/* Deeper Personalization - Pro Section */}
+      {/* Section 4: Places you gravitate toward - Taste Profile (moved down) */}
+      <TasteProfileCard />
+
+      <Separator />
+
+      {/* Section 5: Spaces that feel right - Pro Section */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           {hasPaidTuning ? (
-            <Heart className="h-4 w-4 text-primary" />
+            <Sparkles className="h-4 w-4 text-primary" />
           ) : (
             <Lock className="h-4 w-4 text-muted-foreground" />
           )}
           <h3 className="text-sm font-medium text-foreground">
-            {hasPaidTuning ? 'More about you' : 'Go deeper'}
+            Spaces that feel right
           </h3>
         </div>
         <p className="text-xs text-muted-foreground">
           {hasPaidTuning 
-            ? 'Add context to see more relevant places.'
-            : 'Pro members can add lifestyle context for finer results.'}
+            ? 'Gently nudges the kinds of places we surface.'
+            : 'Pro members can add context so places align with how you live — not just what you click.'}
         </p>
         
         {hasPaidTuning ? (
@@ -272,7 +271,7 @@ const SettingsPreferencesTab = () => {
               disabled={isCreatingCheckout}
               className="min-h-[44px]"
             >
-              {isCreatingCheckout ? 'Loading...' : 'Upgrade to Pro'}
+              {isCreatingCheckout ? 'Loading...' : 'Unlock Pro — $4.99/mo'}
             </Button>
           </div>
         )}
@@ -280,7 +279,7 @@ const SettingsPreferencesTab = () => {
 
       <Separator />
 
-      {/* Summary - Removed algorithm language */}
+      {/* Section 6: Summary - What shapes your places */}
       <PersonalizationSummary />
     </div>
   );
