@@ -52,10 +52,10 @@ export function ProContextInputs() {
     <div className="space-y-6">
       <div className="space-y-1">
         <h3 className="text-base font-medium text-foreground">
-          Context Personalization
+          Personalize Your Places
         </h3>
         <p className="text-sm text-muted-foreground">
-          Help us understand what matters to you for better place recommendations.
+          Tell us about the vibe you're looking for and we'll surface places that feel right.
         </p>
       </div>
 
@@ -111,8 +111,7 @@ export function ProContextInputs() {
       })}
 
       <p className="text-xs text-muted-foreground pt-2">
-        These selections are private and help personalize your recommendations.
-        They are never shared or visible to others.
+        This shapes which places feel right for you — never shared with anyone, never visible to others.
       </p>
     </div>
   );
