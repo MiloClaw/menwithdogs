@@ -1,14 +1,25 @@
 import { useState } from 'react';
-import { Mail, Lock, CreditCard, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, CreditCard, AlertTriangle, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import DeleteAccountDialog from './DeleteAccountDialog';
+import { format } from 'date-fns';
 
 const SettingsAccountTab = () => {
   const { user } = useAuth();
+  const { 
+    isPro, 
+    subscriptionEnd, 
+    createCheckout, 
+    isCreatingCheckout,
+    openCustomerPortal,
+    isOpeningPortal,
+    isLoading: isLoadingSubscription 
+  } = useSubscription();
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -47,17 +58,57 @@ const SettingsAccountTab = () => {
         </CardContent>
       </Card>
 
-      {/* Subscription Placeholder */}
-      <Card className="opacity-60">
+      {/* Subscription */}
+      <Card className={isPro ? 'border-primary/50' : ''}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <CreditCard className="h-4 w-4" />
+            {isPro ? (
+              <Sparkles className="h-4 w-4 text-primary" />
+            ) : (
+              <CreditCard className="h-4 w-4" />
+            )}
             Subscription
           </CardTitle>
-          <CardDescription>Coming soon</CardDescription>
+          {isPro && subscriptionEnd && (
+            <CardDescription>
+              Renews {format(new Date(subscriptionEnd), 'MMM d, yyyy')}
+            </CardDescription>
+          )}
         </CardHeader>
-        <CardContent>
-          <Badge variant="secondary">Free Plan</Badge>
+        <CardContent className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Badge variant={isPro ? 'default' : 'secondary'}>
+              {isPro ? 'Pro' : 'Free'}
+            </Badge>
+            {isPro && (
+              <span className="text-sm text-muted-foreground">
+                $9.99/month
+              </span>
+            )}
+          </div>
+          
+          {isLoadingSubscription ? (
+            <span className="text-sm text-muted-foreground">Loading...</span>
+          ) : isPro ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-h-[44px]"
+              onClick={() => openCustomerPortal()}
+              disabled={isOpeningPortal}
+            >
+              {isOpeningPortal ? 'Loading...' : 'Manage'}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="min-h-[44px]"
+              onClick={() => createCheckout()}
+              disabled={isCreatingCheckout}
+            >
+              {isCreatingCheckout ? 'Loading...' : 'Upgrade to Pro'}
+            </Button>
+          )}
         </CardContent>
       </Card>
 
