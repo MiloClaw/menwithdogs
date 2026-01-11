@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Check, Clock, Ruler, Search } from 'lucide-react';
+import { MapPin, Check, Clock, Ruler, Search, Lock, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
+import { useSubscription } from '@/hooks/useSubscription';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -18,6 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { TasteProfileCard } from './TasteProfileCard';
 import { PersonalizationSummary } from './PersonalizationSummary';
+import PaidTuningInputs from './PaidTuningInputs';
 
 const SECTION_ICONS = {
   time: Clock,
@@ -31,6 +33,7 @@ const SettingsPreferencesTab = () => {
   const { memberProfile, updateMemberProfile, refetch } = useCouple();
   const { preferences, updatePreferences, isUpdating } = useUserPreferences();
   const { ensureRelationshipUnit } = useEnsureRelationshipUnit();
+  const { hasPaidTuning, createCheckout, isCreatingCheckout } = useSubscription();
   
   const [cityInput, setCityInput] = useState('');
   const [editingCity, setEditingCity] = useState(false);
@@ -259,6 +262,44 @@ const SettingsPreferencesTab = () => {
         </CardHeader>
         <CardContent>
           {renderIntentGrid(INTENT_PROMPT.options)}
+        </CardContent>
+      </Card>
+
+      {/* Deeper Personalization (Paid Tuning) */}
+      <Card className={cn(!hasPaidTuning && 'border-dashed')}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            {hasPaidTuning ? (
+              <Sparkles className="h-4 w-4 text-primary" />
+            ) : (
+              <Lock className="h-4 w-4 text-muted-foreground" />
+            )}
+            Deeper Personalization
+          </CardTitle>
+          <CardDescription>
+            {hasPaidTuning 
+              ? 'Add more context to improve your recommendations'
+              : 'Unlock advanced personalization with Pro'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {hasPaidTuning ? (
+            <PaidTuningInputs />
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Pro members can fine-tune recommendations with lifestyle preferences, 
+                activity patterns, and environment settings.
+              </p>
+              <Button
+                onClick={() => createCheckout()}
+                disabled={isCreatingCheckout}
+                className="min-h-[44px]"
+              >
+                {isCreatingCheckout ? 'Loading...' : 'Upgrade to Pro'}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
