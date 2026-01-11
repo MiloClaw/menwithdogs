@@ -7,7 +7,7 @@ const PrivacyTrust = () => {
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
             {/* Left: Bold statement */}
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-[1.15]">
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-[1.15] text-balance">
                 Your preferences are private.
               </h2>
             </div>

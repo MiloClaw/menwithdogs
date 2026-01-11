@@ -28,7 +28,7 @@ const WhoThisIsNotFor = () => {
           </div>
 
           {/* Closing statement */}
-          <p className="text-primary-foreground/90 text-lg md:text-xl text-center mt-12 md:mt-16 max-w-xl mx-auto">
+          <p className="text-primary-foreground/90 text-lg md:text-xl text-center mt-12 md:mt-16 max-w-xl mx-auto text-balance">
             Just a smarter way to find where to go — so you can actually be there.
           </p>
         </div>

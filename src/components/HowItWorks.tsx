@@ -17,7 +17,7 @@ const steps = [
     number: "03",
     icon: RotateCcw,
     title: "Return",
-    description: "Your saved places shape what you see. The more you save, the more relevant your view becomes.",
+    description: "Your saves shape what you see. The more you save, the more relevant it gets.",
   },
 ];
 
