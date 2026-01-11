@@ -4,6 +4,7 @@ import { useCouple } from './useCouple';
 import { useAuth } from './useAuth';
 import { useEnsureRelationshipUnit } from './useEnsureRelationshipUnit';
 import { useToast } from './use-toast';
+import { queueSignal } from '@/lib/signal-batcher';
 
 interface PlaceFavorite {
   id: string;
@@ -71,11 +72,15 @@ export function usePlaceFavorites() {
       return data;
     },
     onSuccess: (_, placeId) => {
+      // Emit save_place signal - minimal semantics, room for future richness
+      queueSignal('save_place', placeId, null, 'user', 1.0, { source: 'favorite_button' });
+      
       // Invalidate favorites cache
       queryClient.invalidateQueries({ queryKey: ['place-favorites'] });
-      // Invalidate affinity cache so Taste Profile updates
+      // Invalidate and immediately refetch affinity for snappy personalization
       if (user?.id) {
         queryClient.invalidateQueries({ queryKey: ['user-affinity', user.id] });
+        queryClient.refetchQueries({ queryKey: ['user-affinity', user.id] });
       }
       // Refetch couple data in case it was just created
       refetchCouple();
@@ -116,12 +121,16 @@ export function usePlaceFavorites() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, placeId) => {
+      // Emit unsave_place signal
+      queueSignal('unsave_place', placeId, null, 'user', 1.0, { source: 'favorite_button' });
+      
       // Invalidate favorites cache
       queryClient.invalidateQueries({ queryKey: ['place-favorites'] });
-      // Invalidate affinity cache so Taste Profile updates
+      // Invalidate and immediately refetch affinity for snappy personalization
       if (user?.id) {
         queryClient.invalidateQueries({ queryKey: ['user-affinity', user.id] });
+        queryClient.refetchQueries({ queryKey: ['user-affinity', user.id] });
       }
       
       toast({

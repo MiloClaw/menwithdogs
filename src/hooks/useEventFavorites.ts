@@ -4,6 +4,7 @@ import { useCouple } from './useCouple';
 import { useAuth } from './useAuth';
 import { useEnsureRelationshipUnit } from './useEnsureRelationshipUnit';
 import { useToast } from './use-toast';
+import { queueSignal } from '@/lib/signal-batcher';
 
 interface EventFavorite {
   id: string;
@@ -70,12 +71,16 @@ export function useEventFavorites() {
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, eventId) => {
+      // Emit save_event signal - minimal semantics, room for future richness
+      queueSignal('save_event', eventId, null, 'user', 1.0, { source: 'favorite_button' });
+      
       // Invalidate favorites cache
       queryClient.invalidateQueries({ queryKey: ['event-favorites'] });
-      // Invalidate affinity cache
+      // Invalidate and immediately refetch affinity for snappy personalization
       if (user?.id) {
         queryClient.invalidateQueries({ queryKey: ['user-affinity', user.id] });
+        queryClient.refetchQueries({ queryKey: ['user-affinity', user.id] });
       }
       // Refetch couple data in case it was just created
       refetchCouple();
@@ -116,12 +121,16 @@ export function useEventFavorites() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, eventId) => {
+      // Emit unsave_event signal
+      queueSignal('unsave_event', eventId, null, 'user', 1.0, { source: 'favorite_button' });
+      
       // Invalidate favorites cache
       queryClient.invalidateQueries({ queryKey: ['event-favorites'] });
-      // Invalidate affinity cache
+      // Invalidate and immediately refetch affinity for snappy personalization
       if (user?.id) {
         queryClient.invalidateQueries({ queryKey: ['user-affinity', user.id] });
+        queryClient.refetchQueries({ queryKey: ['user-affinity', user.id] });
       }
       
       toast({

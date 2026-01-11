@@ -25,6 +25,57 @@ interface PersonalizedPlace extends DirectoryPlace {
   isRelevant?: boolean; // For "For you" badge - never expose score
 }
 
+/**
+ * Parse opening_hours weekday_text to determine if place is open during time window.
+ * Returns boost multiplier (0 = not a match, 0.2 = good match).
+ */
+function getTimeRelevanceBoost(
+  openingHours: { weekday_text?: string[] } | null | undefined,
+  timePreference: string | null
+): number {
+  if (!openingHours?.weekday_text || !timePreference || timePreference === 'mixed') {
+    return 0;
+  }
+
+  const now = new Date();
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const todayName = dayNames[now.getDay()];
+  const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+
+  // Find today's hours
+  const todayHours = openingHours.weekday_text.find(h => h.startsWith(todayName));
+  if (!todayHours) return 0;
+
+  // Simple time window matching
+  const hourText = todayHours.toLowerCase();
+  
+  switch (timePreference) {
+    case 'mornings':
+      // Boost if opens before 11am
+      if (hourText.includes('8:') || hourText.includes('9:') || hourText.includes('10:') ||
+          hourText.includes('7:') || hourText.includes('6:')) {
+        return 0.2;
+      }
+      break;
+    case 'evenings':
+      // Boost if open past 8pm
+      if (hourText.includes('9:00 pm') || hourText.includes('10:00 pm') || 
+          hourText.includes('11:') || hourText.includes('12:00 am') ||
+          hourText.includes('1:00 am') || hourText.includes('2:00 am')) {
+        return 0.2;
+      }
+      break;
+    case 'weekends':
+      // Boost if it's a weekend and place is open
+      if (isWeekend && !hourText.includes('closed')) {
+        return 0.2;
+      }
+      break;
+  }
+  
+  return 0;
+}
+
 interface UsePersonalizedPlacesOptions extends UsePublicPlacesOptions {
   // Reference coordinates for distance calculation (exploration mode)
   referenceCoords?: { lat: number; lng: number } | null;
@@ -92,13 +143,6 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
     }
   }, [preferences?.distance_preference]);
   
-  // TODO: Phase 3 - When places have time_of_day_affinity or opening_hours parsing,
-  // use preferences.time_preference to boost places that are:
-  // - 'mornings': cafes, breakfast spots, parks
-  // - 'evenings': bars, restaurants, entertainment
-  // - 'weekends': activities, outdoor venues
-  // This maps to Google Place opening_hours field.
-  
   const personalizedPlaces = useMemo(() => {
     if (!places) return [];
     
@@ -153,6 +197,13 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
       if (category && intentCategories.has(category)) {
         relevanceScore += 0.4;
       }
+      
+      // 3. Time preference match (based on opening_hours)
+      const timeBoost = getTimeRelevanceBoost(
+        place.opening_hours as { weekday_text?: string[] } | null,
+        preferences?.time_preference || null
+      );
+      relevanceScore += timeBoost;
       
       // Determine if this place is "relevant" for badge (threshold)
       const isRelevant = relevanceScore >= 0.3;
