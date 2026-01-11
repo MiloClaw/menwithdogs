@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, Heart, Settings } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Menu, X, LogOut, Shield, Heart, Settings, Sparkles } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,6 +13,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, signOut, loading } = useAuth();
   const { isAdmin } = useUserRole();
+  const { isPro } = useSubscription();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,6 +51,12 @@ const Navbar = () => {
               <Link to="/settings" className={`${navLinkClasses} flex items-center gap-1`}>
                 <Settings className="w-4 h-4" />
                 Settings
+                {isPro && (
+                  <Badge variant="default" className="ml-1 px-1.5 py-0 text-[10px] font-medium flex items-center gap-0.5">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    Pro
+                  </Badge>
+                )}
               </Link>
               <Link to="/places" className={navLinkClasses}>
                 Places
@@ -115,6 +124,12 @@ const Navbar = () => {
                 >
                   <Settings className="w-4 h-4" />
                   Settings
+                  {isPro && (
+                    <Badge variant="default" className="ml-1 px-1.5 py-0 text-[10px] font-medium flex items-center gap-0.5">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Pro
+                    </Badge>
+                  )}
                 </Link>
                 <Link 
                   to="/places" 
