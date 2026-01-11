@@ -1,20 +1,20 @@
 import { Shield } from "lucide-react";
 
 const privacyPoints = [
-  "No public profiles",
-  "No searchable users",
-  "No shared personal details without explicit opt-in",
-  "No selling or indexing of your data",
+  "Nothing is public by default",
+  "No one can see what you've saved",
+  "Your browsing history stays private",
+  "Used only to improve your experience",
 ];
 
 const PrivacyTrust = () => {
   return (
-    <section className="py-20 md:py-28 bg-background border-t border-border">
+    <section className="py-20 md:py-28 bg-surface/50 border-t border-border">
       <div className="container max-w-xl">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <Shield className="w-6 h-6 text-primary" />
+          <Shield className="w-5 h-5 text-primary" />
           <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground tracking-tight">
-            Privacy & Trust, by Design
+            Your activity is yours.
           </h2>
         </div>
 
@@ -30,7 +30,7 @@ const PrivacyTrust = () => {
         </ul>
 
         <p className="text-muted-foreground text-center mt-8 text-sm md:text-base font-medium">
-          You control when, where, and how you're visible—always.
+          You're in control. Always.
         </p>
       </div>
     </section>
