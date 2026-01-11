@@ -6,24 +6,35 @@ const FinalCTA = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-20 md:py-28 bg-background border-t border-border">
+    <section className="py-28 md:py-40 bg-primary text-primary-foreground">
       <div className="container">
-        <div className="text-center max-w-md mx-auto">
-          <div className="w-12 h-px bg-border mx-auto mb-10" />
+        <div className="max-w-2xl mx-auto text-center">
+          {/* Large inviting headline */}
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 md:mb-12">
+            Find your places.
+          </h2>
 
-          <Button
-            variant="accent"
-            size="lg"
-            className="tracking-wide"
-            onClick={() => navigate('/places')}
-          >
-            <MapPin className="w-4 h-4 mr-2" />
-            Explore places in your city
-          </Button>
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button
+              variant="accent"
+              size="lg"
+              className="w-full sm:w-auto text-base px-8"
+              onClick={() => navigate('/places')}
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              Explore your city
+            </Button>
 
-          <p className="text-muted-foreground text-sm mt-6">
-            Free to browse. Optional upgrade for finer control.
-          </p>
+            <Button
+              variant="ghost"
+              size="lg"
+              className="w-full sm:w-auto text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={() => navigate('/about')}
+            >
+              Learn more
+            </Button>
+          </div>
         </div>
       </div>
     </section>
