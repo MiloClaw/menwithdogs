@@ -437,41 +437,43 @@ const Places = () => {
             </p>
           </div>
         ) : processedPlaces.length === 0 ? (
-          <div className="text-center py-20 space-y-4">
-            <MapPinOff className="h-12 w-12 mx-auto text-muted-foreground/30" />
+          <div className="text-center py-20 space-y-5">
+            <MapPinOff className="h-10 w-10 mx-auto text-muted-foreground/40" />
             <div className="space-y-2">
-              <p className="font-medium">
+              <p className="font-serif text-lg">
                 {hasActiveFilters 
-                  ? 'No matches found' 
+                  ? 'Nothing matches those filters' 
                   : isExplorationMode 
                     ? `No places in ${exploringCity} yet`
-                    : 'Your area is coming soon'}
+                    : 'Your area is on the way'}
               </p>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                 {hasActiveFilters
-                  ? 'Try adjusting your filters to see more results'
+                  ? 'Try broadening your search or clearing filters.'
                   : isExplorationMode
-                    ? 'Be the first to suggest a spot in this city!'
-                    : "We're curating the best spots in your area. Add your city to be notified."}
+                    ? 'Know a good spot here? Suggest it below.'
+                    : "We're working on curating places nearby. Set your city to be notified when it's ready."}
               </p>
             </div>
-            {hasActiveFilters ? (
-              <Button variant="outline" size="sm" onClick={clearAllFilters}>
-                Clear all filters
-              </Button>
-            ) : isExplorationMode ? (
-              <Button variant="outline" size="sm" onClick={handleClearExploration}>
-                ← Back to your location
-              </Button>
-            ) : !hasUserLocation && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowCityPicker(true)}
-              >
-                Add Your City
-              </Button>
-            )}
+            <div className="pt-2">
+              {hasActiveFilters ? (
+                <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                  Clear all filters
+                </Button>
+              ) : isExplorationMode ? (
+                <Button variant="outline" size="sm" onClick={handleClearExploration}>
+                  ← Back to your location
+                </Button>
+              ) : !hasUserLocation && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowCityPicker(true)}
+                >
+                  Set your city
+                </Button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
