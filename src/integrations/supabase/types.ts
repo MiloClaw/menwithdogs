@@ -1695,6 +1695,26 @@ export type Database = {
         Args: { unit_type?: string }
         Returns: string
       }
+      get_admin_dashboard_stats: {
+        Args: never
+        Returns: {
+          active_couples: number
+          approved_events: number
+          approved_places: number
+          computed_at: string
+          draft_cities: number
+          launched_cities: number
+          paused_cities: number
+          pending_events: number
+          pending_places: number
+          ready_to_launch_cities: number
+          total_cities: number
+          total_couples: number
+          total_favorites: number
+          total_members: number
+          total_posts: number
+        }[]
+      }
       get_user_couple_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {

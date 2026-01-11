@@ -107,7 +107,8 @@ export const useAdminStats = () => {
         // Category breakdown
         allPlacesResult,
       ] = await Promise.all([
-        supabase.from('admin_dashboard_stats').select('*').limit(1).single(),
+        // Use secure RPC function instead of direct materialized view query
+        supabase.rpc('get_admin_dashboard_stats').single(),
         supabase.from('city_seeding_progress').select('*'),
         supabase.from('places').select('city, state, status, source'),
         supabase.from('geo_areas').select('id, name, type, parent_id').eq('is_active', true),
