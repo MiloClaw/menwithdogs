@@ -17,7 +17,7 @@ const FinalCTA = () => {
       <div className="container">
         <div className="max-w-2xl mx-auto text-center">
           {/* Large inviting headline */}
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 md:mb-12">
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 md:mb-12 text-balance">
             Ready to find your places?
           </h2>
 

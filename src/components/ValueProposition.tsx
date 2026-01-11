@@ -9,12 +9,12 @@ const ValueProposition = () => {
           {/* Split layout */}
           <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
             {/* Left: Display headline */}
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight leading-[1.1] text-balance">
+            <h2 className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight leading-[1.1] text-balance">
               Find places where you'll actually want to spend time.
             </h2>
 
             {/* Right: Supporting text */}
-            <div className="space-y-6 md:pt-2">
+            <div className="space-y-6 md:pt-2 max-w-prose">
               <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
                 A personalized directory of local spots — cafés, restaurants, parks, gyms, bars — surfaced based on what matters to you. Save what catches your eye, and similar spots rise to the top.
               </p>

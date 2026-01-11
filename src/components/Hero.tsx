@@ -54,7 +54,7 @@ const Hero = () => {
 
       {/* CTA Section */}
       <div className="py-8 bg-background border-t border-border">
-        <div className="flex flex-col sm:flex-row gap-4 justify-center px-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-6">
           <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
             Join the Community
             <ChevronRight className="w-4 h-4" />
