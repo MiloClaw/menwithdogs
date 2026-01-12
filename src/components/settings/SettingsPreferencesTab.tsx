@@ -205,17 +205,19 @@ const SettingsPreferencesTab = () => {
             </span>
           </div>
 
-          {/* When you go out */}
-          <div className="space-y-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              When you go out
-            </span>
-            {renderChipOptions(
-              TIME_PROMPT.options,
-              preferences?.time_preference,
-              (v) => handleSingleSelect('time_preference', v)
-            )}
-          </div>
+          {/* When you go out - hide for Pro users (covered in Pro Step 4: style.timing) */}
+          {!hasPaidTuning && (
+            <div className="space-y-2">
+              <span className="text-xs font-medium text-muted-foreground">
+                When you go out
+              </span>
+              {renderChipOptions(
+                TIME_PROMPT.options,
+                preferences?.time_preference,
+                (v) => handleSingleSelect('time_preference', v)
+              )}
+            </div>
+          )}
 
           {/* How far you'll travel */}
           <div className="space-y-2">
