@@ -234,7 +234,7 @@ export function useProSettings() {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['pro-selections', user?.id] });
+      // Only invalidate affinity, trust optimistic state for selections
       queryClient.invalidateQueries({ queryKey: ['user-affinity', user?.id] });
     },
   });
@@ -274,7 +274,7 @@ export function useProSettings() {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['pro-selections', user?.id] });
+      // Only invalidate affinity, trust optimistic state for selections
       queryClient.invalidateQueries({ queryKey: ['user-affinity', user?.id] });
     },
   });
