@@ -275,16 +275,26 @@ const SettingsPreferencesTab = () => {
             Spaces that feel right
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {hasPaidTuning 
-            ? 'Gently nudges the kinds of places we surface.'
-            : 'With a bit more context, we can surface places that feel more like you.'}
-        </p>
         
         {hasPaidTuning ? (
-          <ProSettingsFlow />
+          <>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              When people with similar routines, comfort levels, and interests spend time in the same places, 
+              patterns emerge. Pro uses these patterns to highlight places that tend to feel right for people 
+              who move through the world the way you do.
+            </p>
+            <p className="text-xs text-muted-foreground/70 italic">
+              This works at the place level — not the person level.
+            </p>
+            <ProSettingsFlow />
+          </>
         ) : (
-          <div className="py-4 space-y-4">
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              When people with similar routines, comfort levels, and interests spend time in the same places, 
+              patterns emerge. Pro helps the directory recognize these patterns — so place suggestions feel 
+              more grounded and less random.
+            </p>
             <ul className="text-sm text-muted-foreground/80 space-y-2">
               <li className="flex items-center gap-2">
                 <span className="text-xs opacity-60">•</span>
@@ -296,7 +306,7 @@ const SettingsPreferencesTab = () => {
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-xs opacity-60">•</span>
-                Places where you're more likely to feel at ease
+                Places where shared patterns already exist
               </li>
             </ul>
             <Button

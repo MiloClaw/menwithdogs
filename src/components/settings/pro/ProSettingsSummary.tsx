@@ -51,14 +51,14 @@ export function ProSettingsSummary() {
   // Community focus
   if (bySection['seeking.community']?.length) {
     const labels = bySection['seeking.community'].join(', ');
-    summaryBullets.push({ icon: '👥', text: `Emphasizing places popular with ${labels.toLowerCase()}` });
+    summaryBullets.push({ icon: '👥', text: `Highlighting places where ${labels.toLowerCase()} community patterns emerge` });
   }
 
   // Relationship context
   if (bySection['seeking.relationship_context']?.length) {
     const label = bySection['seeking.relationship_context'][0];
     if (label.toLowerCase().includes('couples')) {
-      summaryBullets.push({ icon: '💑', text: 'Favoring spots where couples tend to return' });
+      summaryBullets.push({ icon: '💑', text: 'Surfacing places with strong return patterns from couples' });
     }
   }
 
