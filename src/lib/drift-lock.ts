@@ -90,4 +90,13 @@ export const DRIFT_LOCK = {
     'unsave_place',    // Already negative, no further decay
     'unsave_event',    // Already negative, no further decay
   ],
+  
+  /**
+   * Pro Settings signal types (emitted from Pro Settings flow).
+   * Subject to 180-day decay. Gated by influence_mode at interpretation.
+   */
+  PRO_SELECTION_SIGNALS: [
+    'pro_selection',   // User-selected Pro context options
+    'pro_context',     // Legacy/computed Pro context signals
+  ],
 } as const;
