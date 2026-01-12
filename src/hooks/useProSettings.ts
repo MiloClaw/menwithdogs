@@ -79,15 +79,15 @@ const SECTION_META: Record<string, SectionMeta> = {
     helperText: '',
   },
   'style.energy': {
-    title: 'Social energy',
+    title: 'What kind of energy feels right',
     helperText: '',
   },
   'style.environment': {
-    title: 'Environment',
+    title: 'Features you appreciate in a space',
     helperText: '',
   },
   'style.timing': {
-    title: 'Timing & rhythm',
+    title: 'When you tend to go out',
     helperText: '',
   },
 };
@@ -312,6 +312,25 @@ export function useProSettings() {
   // Select/deselect an option
   const select = (option: ProSettingsOption) => {
     const inputType = option.input_type ?? 'single';
+    
+    // Special case: "Doesn't matter" clears other comfort selections
+    if (option.key === 'comfort_any' && option.section === 'seeking.comfort') {
+      const comfortOptions = options.filter(
+        o => o.section === 'seeking.comfort' && o.key !== 'comfort_any'
+      );
+      comfortOptions.forEach(o => {
+        if (isSelected(o.key)) {
+          deselectMutation.mutate({ optionKey: o.key });
+        }
+      });
+    }
+    
+    // If selecting a specific comfort option, deselect "doesn't matter"
+    if (option.section === 'seeking.comfort' && option.key !== 'comfort_any') {
+      if (isSelected('comfort_any')) {
+        deselectMutation.mutate({ optionKey: 'comfort_any' });
+      }
+    }
     
     if (inputType === 'multi' && isSelected(option.key)) {
       // Toggle off for multi-select
