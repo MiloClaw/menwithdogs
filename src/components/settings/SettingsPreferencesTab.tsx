@@ -321,8 +321,8 @@ const SettingsPreferencesTab = () => {
         )}
       </section>
 
-      {/* Summary - What shapes your places */}
-      <PersonalizationSummary />
+      {/* Summary - What shapes your places (free users only, Pro gets it in ProSettingsSummary) */}
+      {!hasPaidTuning && <PersonalizationSummary />}
     </div>
   );
 };

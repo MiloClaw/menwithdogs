@@ -1,5 +1,13 @@
 import { useProSettings } from '@/hooks/useProSettings';
 import { useCouple } from '@/hooks/useCouple';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useUserAffinity } from '@/hooks/useUserAffinity';
+
+const DISTANCE_LABELS: Record<string, string> = {
+  close: 'nearby places',
+  medium: 'within 15 minutes',
+  far: 'worth the trip',
+};
 
 /**
  * Dynamic summary of Pro settings selections.
@@ -13,6 +21,8 @@ import { useCouple } from '@/hooks/useCouple';
 export function ProSettingsSummary() {
   const { getBoostSelectedOptions } = useProSettings();
   const { memberProfile } = useCouple();
+  const { preferences } = useUserPreferences();
+  const { affinities } = useUserAffinity();
 
   const selectedOptions = getBoostSelectedOptions();
 
@@ -90,6 +100,23 @@ export function ProSettingsSummary() {
     } else if (timing.includes('weekend')) {
       summaryBullets.push({ icon: '📅', text: 'Focusing on weekend-friendly places' });
     }
+  }
+
+  // Distance preference (from free-tier settings)
+  if (preferences?.distance_preference) {
+    summaryBullets.push({
+      icon: '📏',
+      text: `Including ${DISTANCE_LABELS[preferences.distance_preference] || preferences.distance_preference}`,
+    });
+  }
+
+  // Top category affinity (from behavioral signals)
+  if (affinities?.length > 0) {
+    const topCategory = affinities[0].place_category.replace(/_/g, ' ').toLowerCase();
+    summaryBullets.push({
+      icon: '🧭',
+      text: `More ${topCategory} based on your saves`,
+    });
   }
 
   if (summaryBullets.length === 0) {
