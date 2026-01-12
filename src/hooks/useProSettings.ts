@@ -154,7 +154,7 @@ export function useProSettings() {
 
       const { data, error } = await supabase
         .from('user_signals')
-        .select('signal_key, created_at')
+        .select('signal_key, signal_value, created_at')
         .eq('user_id', user.id)
         .eq('signal_type', 'pro_selection')
         .order('created_at', { ascending: false });
@@ -162,11 +162,15 @@ export function useProSettings() {
       if (error) throw error;
 
       // Build state map from most recent signals per key
+      // Only mark as selected if signal_value is 'true'
       const state: UserProSelectionsState = {};
       const seenKeys = new Set<string>();
       for (const signal of data || []) {
         if (!seenKeys.has(signal.signal_key)) {
-          state[signal.signal_key] = true;
+          // Only consider this key "selected" if the most recent signal_value is 'true'
+          if (signal.signal_value === 'true') {
+            state[signal.signal_key] = true;
+          }
           seenKeys.add(signal.signal_key);
         }
       }
@@ -190,6 +194,22 @@ export function useProSettings() {
       inputType: 'single' | 'multi';
     }) => {
       if (!user) throw new Error('Must be logged in');
+
+      // For single-select, explicitly deselect other options in same section
+      if (inputType === 'single') {
+        const sectionOptions = options.filter(o => o.section === section && o.key !== optionKey);
+        for (const opt of sectionOptions) {
+          // Queue explicit deselection signal
+          queueSignal(
+            'pro_selection',
+            opt.key,
+            'false',
+            'user',
+            1.0,
+            null
+          );
+        }
+      }
 
       // Queue signal with pro_selection type
       queueSignal(
@@ -309,6 +329,26 @@ export function useProSettings() {
     return userSelections[optionKey] ?? false;
   };
 
+  // Helper to check if option should show based on current selections state
+  const shouldShowWithState = (option: ProSettingsOption, state: UserProSelectionsState): boolean => {
+    if (!option.show_condition) return true;
+    const { requires, requires_all, requires_any } = option.show_condition;
+    if (requires && !requires.every(k => state[k])) return false;
+    if (requires_all && !requires_all.every(k => state[k])) return false;
+    if (requires_any && !requires_any.some(k => state[k])) return false;
+    return true;
+  };
+
+  // Deselect options that no longer meet their show_condition
+  const cleanupOrphanedSelections = (newState: UserProSelectionsState) => {
+    const selectedOptions = options.filter(opt => newState[opt.key]);
+    for (const opt of selectedOptions) {
+      if (!shouldShowWithState(opt, newState)) {
+        deselectMutation.mutate({ optionKey: opt.key });
+      }
+    }
+  };
+
   // Select/deselect an option
   const select = (option: ProSettingsOption) => {
     const inputType = option.input_type ?? 'single';
@@ -342,6 +382,15 @@ export function useProSettings() {
         step: option.step ?? 1,
         section: option.section ?? 'default',
         inputType,
+      }, {
+        onSuccess: () => {
+          // After selection, compute new state and cleanup orphaned selections
+          const currentState = queryClient.getQueryData<UserProSelectionsState>(['pro-selections', user?.id]) ?? {};
+          // Schedule cleanup after a short delay to allow optimistic update to settle
+          setTimeout(() => {
+            cleanupOrphanedSelections(currentState);
+          }, 50);
+        }
       });
     }
   };
