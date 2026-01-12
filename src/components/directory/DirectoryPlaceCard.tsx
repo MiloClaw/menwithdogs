@@ -68,7 +68,7 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
           <img
             src={photoUrl}
             alt={place.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -109,7 +109,8 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
               className={`h-4 w-4 transition-colors ${saved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
             />
           </button>
-          {place.distance !== undefined && (
+          {/* Only show distance for places >5mi to reduce comparison scanning */}
+          {place.distance !== undefined && place.distance > 5 && (
             <Badge 
               variant="outline" 
               className="bg-background/90 backdrop-blur-sm text-xs font-medium"
