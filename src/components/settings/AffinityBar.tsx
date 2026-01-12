@@ -36,8 +36,9 @@ export function AffinityBar({ category, score }: AffinityBarProps) {
     label: category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, ' '),
   };
   
-  // Internal calculation only - never displayed
-  const percentage = Math.round(score * 100);
+  // DRIFT-LOCK: Visual range capped to 30-90% to prevent score inference
+  // Users should not be able to deduce relative affinity weights from bar widths
+  const clampedPercentage = Math.max(30, Math.min(90, Math.round(score * 100)));
 
   return (
     <div className="flex items-center gap-3">
@@ -52,7 +53,7 @@ export function AffinityBar({ category, score }: AffinityBarProps) {
               "h-full rounded-full transition-all duration-500 ease-out",
               "bg-muted-foreground/30"
             )}
-            style={{ width: `${percentage}%` }}
+            style={{ width: `${clampedPercentage}%` }}
           />
         </div>
       </div>
