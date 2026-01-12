@@ -32,7 +32,7 @@ export function ProStepIntent() {
                 {meta.title}
               </span>
             )}
-            <ProOptionChips options={options} />
+            <ProOptionChips options={options} inputType={options[0]?.input_type as 'single' | 'multi' ?? 'multi'} />
           </div>
         );
       })}
