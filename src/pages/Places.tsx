@@ -12,7 +12,7 @@ import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
 import { CitySuggestionModal } from '@/components/directory/CitySuggestionModal';
 import PreferencePrompt from '@/components/preferences/PreferencePrompt';
 import LocationContextBanner from '@/components/directory/LocationContextBanner';
-import WhatsHappening from '@/components/directory/WhatsHappening';
+
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePersonalizedPlaces } from '@/hooks/usePersonalizedPlaces';
 import { useUserLocation } from '@/hooks/useUserLocation';
@@ -367,13 +367,6 @@ const Places = () => {
           </div>
         )}
 
-        {/* What's Happening Section - City-scoped posts */}
-        {(isExplorationMode || memberProfile?.city) && (
-          <WhatsHappening 
-            cityName={isExplorationMode ? exploringCity : memberProfile?.city || null}
-            state={isExplorationMode ? exploringState : memberProfile?.state || null}
-          />
-        )}
 
         {/* Category Filters - Distinct squared/pill style */}
         {placeCategories.length > 0 && (

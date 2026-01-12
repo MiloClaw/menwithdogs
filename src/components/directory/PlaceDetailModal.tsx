@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/collapsible';
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
-import PlaceUpcomingEvents from '@/components/directory/PlaceUpcomingEvents';
+import PlaceLinkedContent from '@/components/directory/PlaceLinkedContent';
 import { useAuth } from '@/hooks/useAuth';
 import { recordSignal } from '@/hooks/useUserSignals';
 
@@ -308,8 +308,8 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
             </>
           )}
 
-          {/* Upcoming Events at this Place */}
-          <PlaceUpcomingEvents placeId={place.id} placeName={place.name} />
+          {/* Linked Content: Events & Announcements */}
+          <PlaceLinkedContent placeId={place.id} placeName={place.name} placeWebsite={place.website_url} />
 
           {/* Action Buttons - Sticky on mobile, with signal capture */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">

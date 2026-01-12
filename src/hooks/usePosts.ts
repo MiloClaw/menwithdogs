@@ -214,6 +214,28 @@ export const usePlaceEvents = (placeId: string | null) => {
   });
 };
 
+// Public: Fetch all published posts (events + announcements) for a specific place
+export const usePlacePosts = (placeId: string | null) => {
+  return useQuery({
+    queryKey: ["posts", "place-all", placeId],
+    queryFn: async () => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("posts")
+        .select(PLACE_EVENT_COLUMNS)
+        .eq("place_id", placeId!)
+        .eq("status", "published")
+        .or(`end_date.is.null,end_date.gt.${now}`)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data as Post[];
+    },
+    enabled: !!placeId,
+  });
+};
+
 // Admin: Create a post
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
