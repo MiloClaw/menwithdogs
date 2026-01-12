@@ -91,7 +91,7 @@ const Saved = () => {
       </h3>
       <p className="text-muted-foreground mb-6 max-w-sm">
         {type === 'places' 
-          ? 'Browse the directory to find great date spots and save your favorites.'
+          ? 'Browse the directory to find great local spots and save your favorites.'
           : 'Check out upcoming events in your area and save the ones you like.'
         }
       </p>

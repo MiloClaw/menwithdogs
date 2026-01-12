@@ -320,7 +320,7 @@ export function ContextDefinitionEditor() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              boost = affects rankings, overlap = couple matching only, neutral = no effect
+              boost = affects rankings, overlap = couple overlap modeling only, neutral = no effect
             </p>
           </div>
         </div>

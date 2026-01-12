@@ -39,7 +39,7 @@ const faqSections: FAQSection[] = [
         question: "Why is the platform focused specifically on gay men?",
         answer: [
           "We believe meaningful community is built through intentional design.",
-          "This platform focuses on gay men because the intake questions, matching logic, safety model, and community norms are designed around that shared experience. A focused scope allows us to create a calmer, clearer, and more respectful experience for everyone involved."
+          "This platform focuses on gay men because the intake questions, personalization model, safety approach, and community norms are designed around that shared experience. A focused scope allows us to create a calmer, clearer, and more respectful experience for everyone involved."
         ]
       },
       {
