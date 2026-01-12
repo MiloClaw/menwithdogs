@@ -25,18 +25,28 @@ export function ProStepAboutYou() {
 
   return (
     <div className="space-y-4">
-      {visibleSections.map((section) => {
+      {visibleSections.map((section, idx) => {
         const options = stepOptions[section] ?? [];
         const meta = sectionMeta[section];
+        const isOrientation = section === 'about.orientation';
 
         return (
-          <div key={section} className="space-y-2">
-            {meta?.title && (
-              <span className="text-xs font-medium text-muted-foreground">
-                {meta.title}
-              </span>
+          <div key={section}>
+            {isOrientation && idx > 0 && (
+              <div className="pt-2 pb-3">
+                <span className="text-xs text-muted-foreground/60">
+                  Optional — only if you'd like
+                </span>
+              </div>
             )}
-            <ProOptionChips options={options} />
+            <div className="space-y-2">
+              {meta?.title && (
+                <span className="text-xs font-medium text-muted-foreground">
+                  {meta.title}
+                </span>
+              )}
+              <ProOptionChips options={options} />
+            </div>
           </div>
         );
       })}

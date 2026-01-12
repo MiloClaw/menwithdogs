@@ -93,7 +93,16 @@ export function ProSettingsSummary() {
   }
 
   if (summaryBullets.length === 0) {
-    return null;
+    return (
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium text-foreground">
+          What shapes your places
+        </h4>
+        <p className="text-sm text-muted-foreground">
+          As you select preferences above, we'll adjust what the directory surfaces for you.
+        </p>
+      </div>
+    );
   }
 
   return (
