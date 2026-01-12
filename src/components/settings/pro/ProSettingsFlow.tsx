@@ -116,9 +116,9 @@ export function ProSettingsFlow() {
       {/* Summary */}
       <ProSettingsSummary />
 
-      {/* Privacy footer — refined */}
+      {/* Privacy footer — place-centric trust line */}
       <p className="text-xs text-muted-foreground/70 leading-relaxed">
-        Private by default. You can change these anytime.
+        Private by default. This works at the place level — not the person level. You can change these anytime.
       </p>
     </div>
   );

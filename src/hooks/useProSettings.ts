@@ -92,23 +92,23 @@ const SECTION_META: Record<string, SectionMeta> = {
   },
 };
 
-// Step metadata
+// Step metadata — place-centric copy
 const STEP_META: Record<number, { title: string; helperText: string }> = {
   1: {
     title: 'About you',
-    helperText: 'This helps us understand your perspective when you walk into a space. Private by default. Never shared.',
+    helperText: 'Helps the directory recognize places where people with similar patterns tend to gather. Private by default.',
   },
   2: {
     title: 'Who you feel most comfortable around',
-    helperText: 'Some places naturally attract certain communities. This helps us surface places where you\'re more likely to feel at ease.',
+    helperText: 'Some places naturally become hubs for certain routines and comfort levels. This helps surface spaces where overlap already exists.',
   },
   3: {
     title: "What you're hoping to find there",
-    helperText: 'This helps us understand why certain places feel meaningful to you.',
+    helperText: 'Helps the directory match your intent to places where similar goals tend to play out.',
   },
   4: {
     title: 'How you like to spend time out',
-    helperText: '',
+    helperText: 'Your energy and timing preferences help match places to your rhythm.',
   },
 };
 
