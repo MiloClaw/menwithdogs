@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,13 +9,21 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Shield, Eye, Layers } from 'lucide-react';
+import { Plus, Pencil, Trash2, Shield, Eye, Layers, Check, icons, type LucideIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 import type { Json } from '@/integrations/supabase/types';
+
+// Dynamic icon component for preview
+function DynamicIcon({ name, className }: { name: string; className?: string }) {
+  const IconComponent = icons[name as keyof typeof icons] as LucideIcon | undefined;
+  if (!IconComponent) return null;
+  return <IconComponent className={className} />;
+}
 
 interface ContextDefinition {
   id: string;
@@ -261,9 +269,10 @@ export function ContextDefinitionEditor() {
 
   const FormFields = ({ isEdit = false }: { isEdit?: boolean }) => (
     <Tabs defaultValue="basic" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="basic">Basic</TabsTrigger>
         <TabsTrigger value="ui">UI Metadata</TabsTrigger>
+        <TabsTrigger value="preview">Preview</TabsTrigger>
       </TabsList>
 
       <TabsContent value="basic" className="space-y-4 pt-4">
@@ -476,6 +485,100 @@ export function ContextDefinitionEditor() {
           <p className="text-xs text-muted-foreground">
             Optional. JSON object to conditionally show this option based on other selections.
           </p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="preview" className="space-y-6 pt-4">
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium">Chip Preview</Label>
+            <p className="text-xs text-muted-foreground mb-3">
+              How this option will appear in the Pro Settings flow
+            </p>
+          </div>
+
+          {/* Preview states */}
+          <div className="space-y-4 p-4 rounded-lg border bg-muted/20">
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Unselected State
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full min-h-[44px] px-4 gap-2 cursor-default"
+                  type="button"
+                >
+                  {formData.icon && <DynamicIcon name={formData.icon} className="h-4 w-4" />}
+                  <span>{formData.label || formData.key || 'Option Label'}</span>
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Selected State
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className={cn(
+                    'rounded-full min-h-[44px] px-4 gap-2 cursor-default',
+                    'ring-2 ring-primary/20 ring-offset-1'
+                  )}
+                  type="button"
+                >
+                  {formData.icon && <DynamicIcon name={formData.icon} className="h-4 w-4" />}
+                  <span>{formData.label || formData.key || 'Option Label'}</span>
+                  <Check className="h-3 w-3 ml-0.5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Context info */}
+          <Separator />
+          
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Step:</span>
+              <span className="font-medium">Step {formData.step}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Section:</span>
+              <span className="font-medium capitalize">{formData.section?.replace(/_/g, ' ') || '—'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Input Type:</span>
+              <span className="font-medium">{formData.input_type === 'single' ? 'Single Select' : 'Multi Select'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Influence:</span>
+              <Badge variant={formData.influence_mode === 'boost' ? 'default' : 'secondary'}>
+                {formData.influence_mode}
+              </Badge>
+            </div>
+            {formData.show_condition && (
+              <div className="flex justify-between items-start">
+                <span className="text-muted-foreground">Conditional:</span>
+                <Badge variant="outline" className="max-w-[200px] truncate">
+                  <Eye className="h-3 w-3 mr-1" />
+                  Has condition
+                </Badge>
+              </div>
+            )}
+          </div>
+
+          {/* Icon helper */}
+          {!formData.icon && (
+            <div className="p-3 rounded-lg border border-dashed bg-muted/10">
+              <p className="text-xs text-muted-foreground text-center">
+                💡 Add an icon name in UI Metadata tab (e.g., Heart, Users, Coffee)
+              </p>
+            </div>
+          )}
         </div>
       </TabsContent>
     </Tabs>
