@@ -71,8 +71,8 @@ const About = () => {
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
               We help you discover coffee shops, gyms, bars, events, and neighborhood spots. 
-              Places where real life actually happens. And if you choose to opt in, we gently 
-              surface moments where saying hello might make sense.
+              Places where real life actually happens. And over time, we help you find places 
+              where showing up feels natural.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               No messaging pressure. No awkward intros. Just a clear signal that connection 
