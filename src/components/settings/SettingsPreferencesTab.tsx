@@ -19,7 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { TasteProfileCard } from './TasteProfileCard';
 import { PersonalizationSummary } from './PersonalizationSummary';
-import PaidTuningInputs from './PaidTuningInputs';
+import { ProSettingsFlow } from './pro';
 
 const SettingsPreferencesTab = () => {
   const { toast } = useToast();
@@ -262,7 +262,7 @@ const SettingsPreferencesTab = () => {
         </p>
         
         {hasPaidTuning ? (
-          <PaidTuningInputs />
+          <ProSettingsFlow />
         ) : (
           <div className="pt-2">
             <Button
