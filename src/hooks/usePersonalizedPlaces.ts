@@ -205,8 +205,8 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
       );
       relevanceScore += timeBoost;
       
-      // Determine if this place is "relevant" for badge (threshold)
-      const isRelevant = relevanceScore >= 0.3;
+      // Determine if this place is "relevant" for badge (threshold raised to reduce badge inflation)
+      const isRelevant = relevanceScore >= 0.5;
       
       return {
         ...place,

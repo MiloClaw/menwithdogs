@@ -311,6 +311,12 @@ const Places = () => {
           <p className="text-muted-foreground text-base md:text-lg">
             Browse spots worth knowing in your area.
           </p>
+          {/* Subtle personalization context - observational, not algorithmic */}
+          {isAuthenticated && !placesLoading && processedPlaces.some(p => p.isRelevant) && (
+            <p className="text-sm text-muted-foreground/70">
+              Sorted by what you've been exploring.
+            </p>
+          )}
         </header>
 
         {/* Search */}
@@ -462,9 +468,9 @@ const Places = () => {
               <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                 {hasActiveFilters
                   ? 'Try broadening your search or clearing filters.'
-                  : isExplorationMode
-                    ? 'Know a good spot here? Suggest it below.'
-                    : "We're working on curating places nearby. Set your city to be notified when it's ready."}
+                    : isExplorationMode
+                      ? 'Know a good spot here? Suggest it below.'
+                      : 'Set your city to start discovering places.'}
               </p>
             </div>
             <div className="pt-2">
