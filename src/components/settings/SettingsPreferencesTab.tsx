@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Check, Clock, Heart, Lock, Sparkles } from 'lucide-react';
+import { MapPin, Check, Clock, Heart, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
@@ -89,8 +88,8 @@ const SettingsPreferencesTab = () => {
             variant={isSelected ? 'default' : 'outline'}
             size="sm"
             className={cn(
-              'min-h-[44px] gap-2',
-              isSelected && 'ring-2 ring-primary/20 ring-offset-2'
+              'min-h-[44px] gap-2 px-5 transition-all duration-200',
+              isSelected && 'ring-2 ring-primary/15 ring-offset-2 shadow-sm'
             )}
             onClick={() => onSelect(opt.value)}
             disabled={isUpdating}
@@ -113,8 +112,8 @@ const SettingsPreferencesTab = () => {
             key={opt.value}
             variant={isSelected ? 'default' : 'outline'}
             className={cn(
-              'h-auto py-3 flex-col gap-1 relative',
-              isSelected && 'ring-2 ring-primary/20 ring-offset-2'
+              'h-auto py-3 flex-col gap-1 relative transition-all duration-200 hover:scale-[1.02]',
+              isSelected && 'ring-2 ring-primary/15 ring-offset-2 shadow-sm'
             )}
             onClick={() => handleIntentToggle(opt.value)}
             disabled={isUpdating}
@@ -131,140 +130,173 @@ const SettingsPreferencesTab = () => {
   );
 
   return (
-    <div className="space-y-8">
-      {/* Section 1: Location - Geographic anchor */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-medium text-foreground">
-            Where you're exploring
+    <div className="space-y-10">
+      {/* Trust-building intro */}
+      <p className="text-sm text-muted-foreground">
+        These settings quietly shape what the directory surfaces for you. You can change them anytime.
+      </p>
+
+      {/* Domain Group 1: Context — Where and when you explore */}
+      <section className="bg-muted/30 rounded-xl p-6 space-y-6">
+        <div>
+          <h3 className="text-base font-medium tracking-wide text-foreground">
+            Context
           </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Where and when you explore
+          </p>
         </div>
-        
-        {memberProfile?.city && !editingCity ? (
-          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-            <span className="font-medium">
-              {memberProfile.city}{memberProfile.state ? `, ${memberProfile.state}` : ''}
+
+        {/* Location */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-muted-foreground/70" />
+            <span className="text-sm font-medium text-foreground">
+              Your city
             </span>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="min-h-[44px] text-muted-foreground"
-              onClick={() => setEditingCity(true)}
-            >
-              Change
-            </Button>
           </div>
-        ) : (
-          <div className="space-y-2">
-            <GooglePlacesAutocomplete
-              value={cityInput}
-              onChange={setCityInput}
-              onPlaceSelect={handleCitySelect}
-              placeholder="Search your city..."
-              types="(cities)"
-            />
-            {editingCity && memberProfile?.city && (
+          
+          {memberProfile?.city && !editingCity ? (
+            <div className="flex items-center justify-between p-4 bg-background rounded-lg border border-border/50">
+              <span className="font-medium">
+                {memberProfile.city}{memberProfile.state ? `, ${memberProfile.state}` : ''}
+              </span>
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="min-h-[44px]"
-                onClick={() => {
-                  setEditingCity(false);
-                  setCityInput('');
-                }}
+                className="min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setEditingCity(true)}
               >
-                Cancel
+                Change
               </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <GooglePlacesAutocomplete
+                value={cityInput}
+                onChange={setCityInput}
+                onPlaceSelect={handleCitySelect}
+                placeholder="Search your city..."
+                types="(cities)"
+              />
+              {editingCity && memberProfile?.city && (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="min-h-[44px]"
+                  onClick={() => {
+                    setEditingCity(false);
+                    setCityInput('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Rhythm: Time + Distance */}
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground/70" />
+            <span className="text-sm font-medium text-foreground">
+              Your rhythm
+            </span>
+          </div>
+
+          {/* When you go out */}
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              When you go out
+            </span>
+            {renderChipOptions(
+              TIME_PROMPT.options,
+              preferences?.time_preference,
+              (v) => handleSingleSelect('time_preference', v)
             )}
           </div>
-        )}
+
+          {/* How far you'll travel */}
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              How far you'll travel
+            </span>
+            {renderChipOptions(
+              DISTANCE_PROMPT.options,
+              preferences?.distance_preference,
+              (v) => handleSingleSelect('distance_preference', v)
+            )}
+          </div>
+        </div>
       </section>
 
-      <Separator />
-
-      {/* Section 2: Your Rhythm - Time + Distance combined */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-medium text-foreground">
-            Your rhythm
+      {/* Domain Group 2: Place Affinity — What draws you to certain places */}
+      <section className="bg-muted/30 rounded-xl p-6 space-y-6">
+        <div>
+          <h3 className="text-base font-medium tracking-wide text-foreground">
+            Place Affinity
           </h3>
-        </div>
-        <p className="text-xs text-muted-foreground -mt-2">
-          When you tend to go out — and how far feels reasonable.
-        </p>
-
-        {/* When you go out */}
-        <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground">
-            When you go out
-          </span>
-          {renderChipOptions(
-            TIME_PROMPT.options,
-            preferences?.time_preference,
-            (v) => handleSingleSelect('time_preference', v)
-          )}
+          <p className="text-xs text-muted-foreground mt-0.5">
+            What draws you to certain places
+          </p>
         </div>
 
-        {/* How far you'll travel */}
-        <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground">
-            How far you'll travel
-          </span>
-          {renderChipOptions(
-            DISTANCE_PROMPT.options,
-            preferences?.distance_preference,
-            (v) => handleSingleSelect('distance_preference', v)
-          )}
+        {/* Intent - What you're in the mood for */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Heart className="h-4 w-4 text-muted-foreground/70" />
+            <span className="text-sm font-medium text-foreground">
+              What you're in the mood for
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Select any that speak to you.
+          </p>
+          {renderIntentGrid(INTENT_PROMPT.options)}
+        </div>
+
+        {/* Taste Profile */}
+        <div className="pt-2">
+          <TasteProfileCard />
         </div>
       </section>
 
-      <Separator />
-
-      {/* Section 3: What you're in the mood for - Intent */}
-      <section className="space-y-3">
+      {/* Domain Group 3: Pro — Spaces that feel right */}
+      <section className="bg-muted/30 rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <Heart className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-medium text-foreground">
-            What you're in the mood for
-          </h3>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Select any that speak to you.
-        </p>
-        {renderIntentGrid(INTENT_PROMPT.options)}
-      </section>
-
-      <Separator />
-
-      {/* Section 4: Places you gravitate toward - Taste Profile (moved down) */}
-      <TasteProfileCard />
-
-      <Separator />
-
-      {/* Section 5: Spaces that feel right - Pro Section */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          {hasPaidTuning ? (
-            <Sparkles className="h-4 w-4 text-primary" />
-          ) : (
-            <Lock className="h-4 w-4 text-muted-foreground" />
-          )}
-          <h3 className="text-sm font-medium text-foreground">
+          <Sparkles className={cn(
+            "h-4 w-4",
+            hasPaidTuning ? "text-primary" : "text-muted-foreground/70"
+          )} />
+          <h3 className="text-base font-medium tracking-wide text-foreground">
             Spaces that feel right
           </h3>
         </div>
         <p className="text-xs text-muted-foreground">
           {hasPaidTuning 
             ? 'Gently nudges the kinds of places we surface.'
-            : 'Pro members can add context so places align with how you live — not just what you click.'}
+            : 'With a bit more context, we can surface places that feel more like you.'}
         </p>
         
         {hasPaidTuning ? (
           <ProSettingsFlow />
         ) : (
-          <div className="pt-2">
+          <div className="py-4 space-y-4">
+            <ul className="text-sm text-muted-foreground/80 space-y-2">
+              <li className="flex items-center gap-2">
+                <span className="text-xs opacity-60">•</span>
+                More precise neighborhood suggestions
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-xs opacity-60">•</span>
+                Better time-of-day relevance
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-xs opacity-60">•</span>
+                Places where you're more likely to feel at ease
+              </li>
+            </ul>
             <Button
               variant="outline"
               onClick={() => createCheckout()}
@@ -277,9 +309,7 @@ const SettingsPreferencesTab = () => {
         )}
       </section>
 
-      <Separator />
-
-      {/* Section 6: Summary - What shapes your places */}
+      {/* Summary - What shapes your places */}
       <PersonalizationSummary />
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -36,41 +36,44 @@ const Settings = () => {
   return (
     <PageLayout>
       <div className="container py-8 md:py-12 max-w-2xl">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        {/* Header - Elevated, editorial */}
+        <div className="mb-12">
           <Button 
             variant="ghost" 
             size="icon"
             onClick={() => navigate(-1)}
-            className="shrink-0"
+            className="mb-4 hover:bg-muted/50 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <SettingsIcon className="h-5 w-5 text-muted-foreground" />
-            <h1 className="text-2xl md:text-3xl font-serif font-medium">
-              Settings
-            </h1>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-serif font-medium tracking-tight">
+            Settings
+          </h1>
         </div>
 
-        {/* Tabs */}
+        {/* Premium underline-style tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="account" className="min-h-[44px]">
-              Account
-            </TabsTrigger>
-            <TabsTrigger value="preferences" className="min-h-[44px]">
+          <TabsList className="w-full bg-transparent border-b border-border rounded-none p-0 h-auto mb-10">
+            <TabsTrigger 
+              value="preferences" 
+              className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base transition-colors"
+            >
               Preferences
+            </TabsTrigger>
+            <TabsTrigger 
+              value="account" 
+              className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-base transition-colors"
+            >
+              Account
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="account" className="mt-0">
-            <SettingsAccountTab />
-          </TabsContent>
-
           <TabsContent value="preferences" className="mt-0">
             <SettingsPreferencesTab />
+          </TabsContent>
+
+          <TabsContent value="account" className="mt-0">
+            <SettingsAccountTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -15,6 +15,11 @@ interface ProOptionChipsProps {
  * - Minimum touch target 44px
  * - Pill/chip layout with wrapping
  * - Clear selected state
+ * 
+ * Micro-interaction principles:
+ * - Gentle, not gamified ("the system noticed" not "you scored something")
+ * - Slow transitions (200-300ms)
+ * - Subtle opacity and ring changes
  */
 export function ProOptionChips({ options }: ProOptionChipsProps) {
   const { select, isSelected, shouldShow, isUpdating } = useProSettings();
@@ -37,8 +42,9 @@ export function ProOptionChips({ options }: ProOptionChipsProps) {
             variant={selected ? 'default' : 'outline'}
             size="sm"
             className={cn(
-              'rounded-full min-h-[44px] px-4 transition-all gap-2',
-              selected && 'ring-2 ring-primary/20 ring-offset-1'
+              'rounded-full min-h-[44px] px-5 transition-all duration-200 ease-out gap-2',
+              selected && 'ring-2 ring-primary/15 ring-offset-1 shadow-sm',
+              !selected && 'hover:opacity-90'
             )}
             onClick={() => select(option)}
             disabled={isUpdating}

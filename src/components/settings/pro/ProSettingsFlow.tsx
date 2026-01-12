@@ -48,11 +48,11 @@ export function ProSettingsFlow() {
       {/* Step 1: About You */}
       <section className="space-y-4">
         <div>
-          <h4 className="text-sm font-medium text-foreground">
+          <h4 className="text-base font-medium text-foreground">
             {stepMeta[1]?.title}
           </h4>
           {stepMeta[1]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               {stepMeta[1].helperText}
             </p>
           )}
@@ -60,16 +60,16 @@ export function ProSettingsFlow() {
         <ProStepAboutYou />
       </section>
 
-      <Separator />
+      <Separator className="opacity-50" />
 
       {/* Step 2: Who You Feel Comfortable Around */}
       <section className="space-y-4">
         <div>
-          <h4 className="text-sm font-medium text-foreground">
+          <h4 className="text-base font-medium text-foreground">
             {stepMeta[2]?.title}
           </h4>
           {stepMeta[2]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               {stepMeta[2].helperText}
             </p>
           )}
@@ -77,16 +77,16 @@ export function ProSettingsFlow() {
         <ProStepComfort />
       </section>
 
-      <Separator />
+      <Separator className="opacity-50" />
 
       {/* Step 3: What You're Hoping to Find */}
       <section className="space-y-4">
         <div>
-          <h4 className="text-sm font-medium text-foreground">
+          <h4 className="text-base font-medium text-foreground">
             {stepMeta[3]?.title}
           </h4>
           {stepMeta[3]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               {stepMeta[3].helperText}
             </p>
           )}
@@ -94,16 +94,16 @@ export function ProSettingsFlow() {
         <ProStepIntent />
       </section>
 
-      <Separator />
+      <Separator className="opacity-50" />
 
       {/* Step 4: How You Like to Spend Time Out */}
       <section className="space-y-4">
         <div>
-          <h4 className="text-sm font-medium text-foreground">
+          <h4 className="text-base font-medium text-foreground">
             {stepMeta[4]?.title}
           </h4>
           {stepMeta[4]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               {stepMeta[4].helperText}
             </p>
           )}
@@ -111,13 +111,14 @@ export function ProSettingsFlow() {
         <ProStepSpacePreferences />
       </section>
 
-      <Separator />
+      <Separator className="opacity-50" />
 
       {/* Summary */}
       <ProSettingsSummary />
 
-      <p className="text-xs text-muted-foreground">
-        You can change these anytime. Private by default.
+      {/* Privacy footer — refined */}
+      <p className="text-xs text-muted-foreground/70 leading-relaxed">
+        Private by default. You can change these anytime.
       </p>
     </div>
   );

@@ -29,17 +29,20 @@ const SettingsAccountTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Unified Account Card */}
-      <Card className={isPro ? 'border-primary/30' : ''}>
-        <CardHeader>
+      {/* Unified Account Card — refined treatment */}
+      <Card className={cn(
+        'border-border/50',
+        isPro && 'border-primary/30 shadow-[0_0_15px_rgba(var(--primary),0.08)]'
+      )}>
+        <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="h-4 w-4" />
+            <User className="h-4 w-4 text-muted-foreground" />
             Your Account
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1">
+        <CardContent className="space-y-0">
           {/* Email row */}
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="h-4 w-4" />
               <span>Email</span>
@@ -47,10 +50,10 @@ const SettingsAccountTab = () => {
             <span className="text-sm">{user?.email || 'Not available'}</span>
           </div>
           
-          <Separator />
+          <Separator className="opacity-50" />
           
           {/* Password row */}
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Lock className="h-4 w-4" />
               <span>Password</span>
@@ -58,17 +61,17 @@ const SettingsAccountTab = () => {
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-8 text-sm"
+              className="h-9 text-sm hover:bg-muted/50 transition-colors"
               onClick={() => setPasswordDialogOpen(true)}
             >
               Change
             </Button>
           </div>
           
-          <Separator />
+          <Separator className="opacity-50" />
           
           {/* Subscription row */}
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {isPro ? (
                 <Sparkles className="h-4 w-4 text-primary" />
@@ -79,7 +82,10 @@ const SettingsAccountTab = () => {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex flex-col items-end gap-0.5">
-                <Badge variant={isPro ? 'default' : 'secondary'}>
+                <Badge 
+                  variant={isPro ? 'default' : 'secondary'}
+                  className={isPro ? 'shadow-sm' : ''}
+                >
                   {isPro ? 'Pro' : 'Free'}
                 </Badge>
                 {isPro && subscriptionEnd && (
@@ -94,7 +100,7 @@ const SettingsAccountTab = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 text-sm"
+                  className="h-9 text-sm hover:bg-muted/50 transition-colors"
                   onClick={() => openCustomerPortal()}
                   disabled={isOpeningPortal}
                 >
@@ -102,9 +108,9 @@ const SettingsAccountTab = () => {
                 </Button>
               ) : (
                 <Button
-                  variant="ghost"
+                  variant="default"
                   size="sm"
-                  className="h-8 text-sm"
+                  className="h-9 text-sm"
                   onClick={() => createCheckout()}
                   disabled={isCreatingCheckout}
                 >
@@ -121,7 +127,7 @@ const SettingsAccountTab = () => {
         <CollapsibleTrigger asChild>
           <Button 
             variant="ghost" 
-            className="w-full justify-between h-12 text-muted-foreground hover:text-foreground"
+            className="w-full justify-between h-12 text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="text-sm">Account actions</span>
             <ChevronRight className={cn(
@@ -131,7 +137,7 @@ const SettingsAccountTab = () => {
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2">
-          <Card>
+          <Card className="border-border/50">
             <CardContent className="pt-4 pb-4">
               <p className="text-sm text-muted-foreground mb-4">
                 Permanently delete your account and all associated data.
@@ -139,6 +145,7 @@ const SettingsAccountTab = () => {
               <Button 
                 variant="destructive" 
                 size="sm"
+                className="min-h-[44px]"
                 onClick={() => setDeleteDialogOpen(true)}
               >
                 Delete Account
