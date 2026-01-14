@@ -17,13 +17,28 @@ import { supabase } from '@/integrations/supabase/client';
  *   filter_category - User filtered by category
  * 
  * STRONG POSITIVE SIGNALS (high weight 0.8-1.0):
- *   save_place      - Place added to favorites
- *   save_event      - Event added to favorites
+ *   save_place      - Place added to favorites (audit trail)
+ *   save_event      - Event added to favorites (audit trail)
  *   explicit_preference - User explicitly set a preference
  * 
  * STRONG NEGATIVE SIGNALS (negative weight -0.5):
- *   unsave_place    - Place removed from favorites
- *   unsave_event    - Event removed from favorites
+ *   unsave_place    - Place removed from favorites (audit trail)
+ *   unsave_event    - Event removed from favorites (audit trail)
+ * 
+ * ═══════════════════════════════════════════════════════════════════════
+ * AFFINITY COMPUTATION NOTE:
+ * ═══════════════════════════════════════════════════════════════════════
+ * Favorites affect affinity via CURRENT-STATE JOINS to favorites tables
+ * (couple_favorites, event_favorites), not via signal decay.
+ * 
+ * The save_*/unsave_* signals in user_signals are retained for:
+ *   - Audit trail (when was a place saved/unsaved)
+ *   - Analytics (save patterns over time)
+ *   - Future ML training data
+ * 
+ * Negation is handled by unsave_* signals and current-state joins,
+ * not by time-based decay.
+ * ═══════════════════════════════════════════════════════════════════════
  * 
  * FUTURE RESERVED:
  *   dismiss_*       - User dismisses suggestion (negative, lighter)
