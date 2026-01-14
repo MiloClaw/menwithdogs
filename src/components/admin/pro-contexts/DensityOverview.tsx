@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, Users, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface DensityRow {
@@ -27,6 +27,14 @@ interface City {
 interface ContextDefinition {
   key: string;
   domain: string;
+  is_sensitive: boolean;
+}
+
+interface SignalWarmUpRow {
+  context_key: string;
+  unique_users: number;
+  k_threshold: number;
+  status: 'Met' | 'Pending';
 }
 
 /**
@@ -69,12 +77,78 @@ export function DensityOverview() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pro_context_definitions')
-        .select('key, domain')
+        .select('key, domain, is_sensitive')
         .order('domain')
         .order('key');
 
       if (error) throw error;
       return data as ContextDefinition[];
+    },
+  });
+
+  // Fetch signal warm-up status (progress toward k-threshold)
+  const { data: warmUpData = [], isLoading: isWarmUpLoading } = useQuery({
+    queryKey: ['admin-signal-warmup'],
+    queryFn: async () => {
+      // Get all pro_selection signals with their context definitions
+      const { data: signals, error: signalsError } = await supabase
+        .from('user_signals')
+        .select('signal_key, user_id')
+        .eq('signal_type', 'pro_selection');
+
+      if (signalsError) throw signalsError;
+
+      // Get context definitions to know k-thresholds
+      const { data: definitions, error: defsError } = await supabase
+        .from('pro_context_definitions')
+        .select('key, is_sensitive')
+        .eq('is_active', true);
+
+      if (defsError) throw defsError;
+
+      // Build a map of context_key -> is_sensitive
+      const sensitivityMap = new Map(definitions?.map(d => [d.key, d.is_sensitive]) || []);
+
+      // Aggregate by signal_key
+      const keyStats = new Map<string, Set<string>>();
+      signals?.forEach(s => {
+        if (!keyStats.has(s.signal_key)) {
+          keyStats.set(s.signal_key, new Set());
+        }
+        keyStats.get(s.signal_key)!.add(s.user_id);
+      });
+
+      // Convert to array with k-threshold info
+      const result: SignalWarmUpRow[] = [];
+      keyStats.forEach((users, key) => {
+        const isSensitive = sensitivityMap.get(key) ?? false;
+        const kThreshold = isSensitive ? 20 : 10;
+        const uniqueUsers = users.size;
+        result.push({
+          context_key: key,
+          unique_users: uniqueUsers,
+          k_threshold: kThreshold,
+          status: uniqueUsers >= kThreshold ? 'Met' : 'Pending',
+        });
+      });
+
+      // Sort by unique_users descending
+      return result.sort((a, b) => b.unique_users - a.unique_users);
+    },
+  });
+
+  // Calculate total unique Pro users
+  const { data: totalProUsers = 0 } = useQuery({
+    queryKey: ['admin-total-pro-users'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_signals')
+        .select('user_id')
+        .eq('signal_type', 'pro_selection');
+
+      if (error) throw error;
+      const uniqueUsers = new Set(data?.map(s => s.user_id) || []);
+      return uniqueUsers.size;
     },
   });
 
@@ -138,8 +212,77 @@ export function DensityOverview() {
     return acc;
   }, {} as Record<string, number>);
 
+  // Get keys that have met threshold
+  const metThreshold = warmUpData.filter(w => w.status === 'Met').length;
+  const topWarmUp = warmUpData.slice(0, 10);
+
   return (
     <div className="space-y-6">
+      {/* Signal Warm-Up Status Panel */}
+      <Card className="border-dashed">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-base">Signal Warm-Up Status</CardTitle>
+          </div>
+          <CardDescription>
+            Progress toward k-anonymity thresholds. Density becomes active when thresholds are met.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Summary row */}
+          <div className="flex items-center gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Unique Pro users:</span>
+              <span className="font-medium">{totalProUsers}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Contexts at threshold:</span>
+              <span className="font-medium">{metThreshold} / {warmUpData.length}</span>
+            </div>
+          </div>
+
+          {/* Top context keys progress */}
+          {isWarmUpLoading ? (
+            <div className="text-muted-foreground text-sm">Loading warm-up data...</div>
+          ) : topWarmUp.length === 0 ? (
+            <div className="text-muted-foreground text-sm">
+              No pro_selection signals yet. Density will build as Pro users configure settings.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                Top Context Keys (by adoption)
+              </div>
+              <div className="grid gap-2">
+                {topWarmUp.map((row) => (
+                  <div
+                    key={row.context_key}
+                    className="flex items-center justify-between p-2 rounded border bg-muted/30"
+                  >
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                        {row.context_key}
+                      </code>
+                      {row.status === 'Met' && (
+                        <Badge variant="default" className="text-xs">Met</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className={row.status === 'Met' ? 'text-primary font-medium' : 'text-muted-foreground'}>
+                        {row.unique_users} / {row.k_threshold}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Controls */}
       <div className="flex flex-wrap gap-4 items-end">
         <div className="space-y-2">

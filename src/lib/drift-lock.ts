@@ -57,14 +57,24 @@ export const DRIFT_LOCK = {
   ],
   
   /**
-   * Signal types that are reserved for paid tuning only.
-   * These are NOT decay-eligible (confidence-capped instead).
+   * @deprecated Legacy paid tuning signal types.
+   * Frontend no longer emits these. SQL may still consume for backward compatibility.
+   * Plan: Remove SQL consumption after confirming no active users rely on them.
    */
-  PAID_SIGNAL_TYPES: [
+  LEGACY_PAID_SIGNAL_TYPES: [
     'context_self_selected',
     'activity_pattern',
     'interest_cluster',
     'environment_preference',
+  ],
+  
+  /**
+   * @deprecated Transitional Pro signal type.
+   * May exist in older sessions. Not currently emitted by frontend.
+   * Retained for rollback safety. Safe to remove once migration confirmed.
+   */
+  LEGACY_PRO_CONTEXT: [
+    'pro_context',
   ],
   
   /**
@@ -85,18 +95,17 @@ export const DRIFT_LOCK = {
    */
   NO_DECAY_SIGNALS: [
     'explicit_preference',
-    'save_place',      // Decay via unsave, not time
-    'save_event',      // Decay via unsave, not time
-    'unsave_place',    // Already negative, no further decay
-    'unsave_event',    // Already negative, no further decay
+    'save_place',      // Audit trail only; affinity uses current-state joins
+    'save_event',      // Audit trail only; affinity uses current-state joins
+    'unsave_place',    // Audit trail only; negation via current-state
+    'unsave_event',    // Audit trail only; negation via current-state
   ],
   
   /**
-   * Pro Settings signal types (emitted from Pro Settings flow).
+   * Active Pro Settings signal types (emitted from 4-step Pro Settings flow).
    * Subject to 180-day decay. Gated by influence_mode at interpretation.
    */
   PRO_SELECTION_SIGNALS: [
-    'pro_selection',   // User-selected Pro context options
-    'pro_context',     // Legacy/computed Pro context signals
+    'pro_selection',
   ],
 } as const;
