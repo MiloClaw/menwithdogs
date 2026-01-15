@@ -121,9 +121,10 @@ export function usePreferencePrompts() {
   const handleAnswer = useCallback((value: string | string[]) => {
     if (!currentPrompt) return;
 
-    // Save the preference
+    // Save the preference - map prompt types to column names
     const updates: Record<string, string | string[] | null> = {};
     switch (currentPrompt.type) {
+      // Phase 1: Context
       case 'time':
         updates.time_preference = value as string;
         break;
@@ -133,11 +134,28 @@ export function usePreferencePrompts() {
       case 'vibe':
         updates.vibe_preference = value as string;
         break;
+      case 'geo':
+        updates.geo_affinity = value as string;
+        break;
+      // Phase 2: Intent
       case 'intent':
         updates.intent_preferences = value as string[];
         break;
-      case 'geo':
-        updates.geo_affinity = value as string;
+      // Phase 3: Decision-style meta-preferences
+      case 'choice_priority':
+        updates.choice_priority = value as string[];
+        break;
+      case 'uncertainty':
+        updates.uncertainty_tolerance = value as string;
+        break;
+      case 'return_pref':
+        updates.return_preference = value as string;
+        break;
+      case 'sensory':
+        updates.sensory_sensitivity = value as string[];
+        break;
+      case 'planning':
+        updates.planning_horizon = value as string;
         break;
     }
 

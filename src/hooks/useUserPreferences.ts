@@ -7,11 +7,20 @@ import { recordSignal } from '@/hooks/useUserSignals';
 export interface UserPreferences {
   id: string;
   user_id: string;
+  // Phase 1: Context
   time_preference: string | null;
   distance_preference: string | null;
   vibe_preference: string | null;
-  intent_preferences: string[];
   geo_affinity: string | null;
+  // Phase 2: Intent
+  intent_preferences: string[];
+  // Phase 3: Decision-style meta-preferences
+  choice_priority: string[];
+  uncertainty_tolerance: string | null;
+  return_preference: string | null;
+  sensory_sensitivity: string[];
+  planning_horizon: string | null;
+  // Meta
   prompts_shown: Record<string, string>; // { time: "2024-01-01", vibe: null }
   created_at: string;
   updated_at: string;
@@ -43,6 +52,12 @@ export function useUserPreferences() {
           intent_preferences: Array.isArray(data.intent_preferences) 
             ? data.intent_preferences as string[]
             : [],
+          choice_priority: Array.isArray(data.choice_priority)
+            ? data.choice_priority as string[]
+            : [],
+          sensory_sensitivity: Array.isArray(data.sensory_sensitivity)
+            ? data.sensory_sensitivity as string[]
+            : [],
           prompts_shown: data.prompts_shown as Record<string, string> || {},
         } as UserPreferences;
       }
@@ -55,11 +70,20 @@ export function useUserPreferences() {
   // Create or update preferences
   const updatePreferences = useMutation({
     mutationFn: async (updates: Partial<{
+      // Phase 1
       time_preference: string | null;
       distance_preference: string | null;
       vibe_preference: string | null;
-      intent_preferences: string[];
       geo_affinity: string | null;
+      // Phase 2
+      intent_preferences: string[];
+      // Phase 3: Decision-style
+      choice_priority: string[];
+      uncertainty_tolerance: string | null;
+      return_preference: string | null;
+      sensory_sensitivity: string[];
+      planning_horizon: string | null;
+      // Meta
       prompts_shown: Record<string, string>;
     }>) => {
       if (!userId) throw new Error('Not authenticated');
@@ -174,11 +198,19 @@ export function useUserPreferences() {
   const getPreference = (type: PromptType): string | string[] | null => {
     if (!preferences) return null;
     switch (type) {
+      // Phase 1
       case 'time': return preferences.time_preference;
       case 'distance': return preferences.distance_preference;
       case 'vibe': return preferences.vibe_preference;
-      case 'intent': return preferences.intent_preferences;
       case 'geo': return preferences.geo_affinity;
+      // Phase 2
+      case 'intent': return preferences.intent_preferences;
+      // Phase 3
+      case 'choice_priority': return preferences.choice_priority;
+      case 'uncertainty': return preferences.uncertainty_tolerance;
+      case 'return_pref': return preferences.return_preference;
+      case 'sensory': return preferences.sensory_sensitivity;
+      case 'planning': return preferences.planning_horizon;
       default: return null;
     }
   };

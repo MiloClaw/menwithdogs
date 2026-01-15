@@ -1556,40 +1556,55 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          choice_priority: Json | null
           created_at: string
           distance_preference: string | null
           geo_affinity: string | null
           id: string
           intent_preferences: Json | null
+          planning_horizon: string | null
           preferences_updated_at: string | null
           prompts_shown: Json | null
+          return_preference: string | null
+          sensory_sensitivity: Json | null
           time_preference: string | null
+          uncertainty_tolerance: string | null
           updated_at: string
           user_id: string
           vibe_preference: string | null
         }
         Insert: {
+          choice_priority?: Json | null
           created_at?: string
           distance_preference?: string | null
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
+          planning_horizon?: string | null
           preferences_updated_at?: string | null
           prompts_shown?: Json | null
+          return_preference?: string | null
+          sensory_sensitivity?: Json | null
           time_preference?: string | null
+          uncertainty_tolerance?: string | null
           updated_at?: string
           user_id: string
           vibe_preference?: string | null
         }
         Update: {
+          choice_priority?: Json | null
           created_at?: string
           distance_preference?: string | null
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
+          planning_horizon?: string | null
           preferences_updated_at?: string | null
           prompts_shown?: Json | null
+          return_preference?: string | null
+          sensory_sensitivity?: Json | null
           time_preference?: string | null
+          uncertainty_tolerance?: string | null
           updated_at?: string
           user_id?: string
           vibe_preference?: string | null
