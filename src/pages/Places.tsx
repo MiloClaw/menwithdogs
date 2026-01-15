@@ -12,6 +12,8 @@ import PlaceSuggestionModal from '@/components/directory/PlaceSuggestionModal';
 import { CitySuggestionModal } from '@/components/directory/CitySuggestionModal';
 import PreferencePrompt from '@/components/preferences/PreferencePrompt';
 import LocationContextBanner from '@/components/directory/LocationContextBanner';
+import { CategoryFilterSheet } from '@/components/directory/CategoryFilterSheet';
+import { PlacesEmptyState } from '@/components/directory/PlacesEmptyState';
 
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { usePersonalizedPlaces } from '@/hooks/usePersonalizedPlaces';
@@ -23,6 +25,7 @@ import { usePreferencePrompts } from '@/hooks/usePreferencePrompts';
 import { usePlaceSuggestion } from '@/hooks/usePlaceSuggestion';
 import { useCitySuggestion } from '@/hooks/useCitySuggestion';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
+import { usePlacesFilters, RADIUS_OPTIONS, MAX_RADIUS_MILES } from '@/hooks/usePlacesFilters';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
 import { recordSignal } from '@/hooks/useUserSignals';
@@ -31,13 +34,6 @@ import { toast } from 'sonner';
 // Types that indicate a geographic area (city) vs a business
 const CITY_TYPES = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'administrative_area_level_3', 'sublocality', 'postal_town'];
 const BUSINESS_TYPES = ['establishment', 'point_of_interest'];
-const RADIUS_OPTIONS = [
-  { label: 'All', value: null },
-  { label: '10 mi', value: 10 },
-  { label: '25 mi', value: 25 },
-  { label: '50 mi', value: 50 },
-];
-
 
 const Places = () => {
   // URL params for exploration mode
@@ -77,12 +73,19 @@ const Places = () => {
   } = useUserLocation();
   const hasUserLocation = userLat != null && userLng != null;
   
-  // Shared state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [radiusFilter, setRadiusFilter] = useState<number | null>(null);
+  // Extracted filter state (Priority 5)
+  const {
+    searchTerm,
+    setSearchTerm,
+    radiusFilter,
+    setRadiusFilter,
+    selectedCategory,
+    setSelectedCategory,
+    hasActiveFilters,
+    clearAllFilters,
+  } = usePlacesFilters();
   
   // Places state
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
   const [placeModalOpen, setPlaceModalOpen] = useState(false);
   
@@ -183,8 +186,9 @@ const Places = () => {
   const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePersonalizedPlaces(
     isExplorationMode
       ? { city: exploringCity!, state: exploringState }
-      : { lat: userLat, lng: userLng, radiusMiles: 100 }
+      : { lat: userLat, lng: userLng, radiusMiles: MAX_RADIUS_MILES }
   );
+  
   // Get unique place categories
   const placeCategories = useMemo(() => {
     if (!places) return [];
@@ -291,20 +295,26 @@ const Places = () => {
     }
   };
 
-  // Check if any filters are active
-  const hasActiveFilters = searchTerm || selectedCategory || radiusFilter;
+  // Handle category signal for filter selection
+  const handleCategorySignal = (category: string) => {
+    if (isAuthenticated) {
+      recordSignal('filter_category', category, null, 'implicit', 0.4);
+    }
+  };
 
-  const clearAllFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory(null);
-    setRadiusFilter(null);
+  // Determine empty state variant
+  const getEmptyStateVariant = (): 'filters' | 'exploration' | 'no-location' => {
+    if (hasActiveFilters) return 'filters';
+    if (isExplorationMode) return 'exploration';
+    return 'no-location';
   };
 
   return (
     <PageLayout>
-      <div className="container py-8 md:py-12 space-y-8">
-        {/* Header - Place-first language */}
-        <header className="space-y-2 max-w-2xl">
+      {/* Priority 3: Increased mobile padding py-10 */}
+      <div className="container py-10 md:py-12 space-y-8">
+        {/* Header - Place-first language, Priority 3: Increased spacing */}
+        <header className="space-y-3 max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-balance">
             Places
           </h1>
@@ -320,7 +330,7 @@ const Places = () => {
         </header>
 
         {/* Search */}
-        <div className="max-w-md">
+        <div className="max-w-md md:max-w-lg">
           <GooglePlacesAutocomplete
             value={searchTerm}
             onChange={setSearchTerm}
@@ -344,70 +354,83 @@ const Places = () => {
           onClearExploration={handleClearExploration}
         />
 
-        {/* Distance Filter - Distinct rounded style */}
-        {hasUserLocation && (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">How far?</p>
-            <div className="flex flex-wrap gap-2">
-              {RADIUS_OPTIONS.map(option => (
-                <button
-                  key={option.label}
-                  onClick={() => setRadiusFilter(option.value)}
-                  className={`
-                    min-h-[44px] px-4 rounded-full text-sm font-medium transition-all
-                    ${radiusFilter === option.value 
-                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/20' 
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent'}
-                  `}
-                >
-                  {option.label}
-                </button>
-              ))}
+        {/* Filters Row - Priority 1: Mobile category collapse */}
+        <div className="flex flex-wrap items-start gap-4">
+          {/* Distance Filter - Visible on all breakpoints */}
+          {hasUserLocation && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">How far?</p>
+              <div className="flex flex-wrap gap-2">
+                {RADIUS_OPTIONS.map(option => (
+                  <button
+                    key={option.label}
+                    onClick={() => setRadiusFilter(option.value)}
+                    className={`
+                      min-h-[44px] px-4 rounded-full text-sm font-medium transition-all
+                      ${radiusFilter === option.value 
+                        ? 'bg-primary text-primary-foreground ring-2 ring-primary/20' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent'}
+                    `}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
+          {/* Category Filter - Mobile: Sheet, Desktop: Inline */}
+          {placeCategories.length > 0 && (
+            <>
+              {/* Mobile: Category Filter Sheet */}
+              <div className="md:hidden space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">What kind?</p>
+                <CategoryFilterSheet
+                  categories={placeCategories}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  onCategorySignal={handleCategorySignal}
+                />
+              </div>
 
-        {/* Category Filters - Distinct squared/pill style */}
-        {placeCategories.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">What kind?</p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`
-                  min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
-                  ${selectedCategory === null 
-                    ? 'bg-foreground text-background border-foreground' 
-                    : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
-                `}
-              >
-                All
-              </button>
-              {placeCategories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    const newCategory = selectedCategory === category ? null : category;
-                    setSelectedCategory(newCategory);
-                    // SIGNAL CAPTURE: Record filter_category selection (Rule 3.2)
-                    if (newCategory && isAuthenticated) {
-                      recordSignal('filter_category', newCategory, null, 'implicit', 0.4);
-                    }
-                  }}
-                  className={`
-                    min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
-                    ${selectedCategory === category 
-                      ? 'bg-foreground text-background border-foreground' 
-                      : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
-                  `}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+              {/* Desktop: Inline Category Filters */}
+              <div className="hidden md:block space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">What kind?</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={`
+                      min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
+                      ${selectedCategory === null 
+                        ? 'bg-foreground text-background border-foreground' 
+                        : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
+                    `}
+                  >
+                    All
+                  </button>
+                  {placeCategories.map(category => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        const newCategory = selectedCategory === category ? null : category;
+                        setSelectedCategory(newCategory);
+                        if (newCategory) handleCategorySignal(newCategory);
+                      }}
+                      className={`
+                        min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
+                        ${selectedCategory === category 
+                          ? 'bg-foreground text-background border-foreground' 
+                          : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
+                      `}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Results Count & Clear Filters */}
         {!placesLoading && (
@@ -441,51 +464,22 @@ const Places = () => {
             ))}
           </div>
         ) : isSwitchingLocation ? (
+          // Priority 4: Warmer loading copy
           <div className="flex flex-col items-center justify-center py-20 space-y-3">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
             <p className="text-sm text-muted-foreground">
-              Finding places in {exploringCity || 'new location'}...
+              Getting to know {exploringCity || 'your area'}...
             </p>
           </div>
         ) : processedPlaces.length === 0 ? (
-          <div className="text-center py-20 space-y-5">
-            <MapPinOff className="h-10 w-10 mx-auto text-muted-foreground/40" />
-            <div className="space-y-2">
-              <p className="font-serif text-lg">
-                {hasActiveFilters 
-                  ? 'Nothing matches those filters' 
-                  : isExplorationMode 
-                    ? `No places in ${exploringCity} yet`
-                    : 'Your area is on the way'}
-              </p>
-              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                {hasActiveFilters
-                  ? 'Try broadening your search or clearing filters.'
-                    : isExplorationMode
-                      ? 'Know a good spot here? Suggest it below.'
-                      : 'Set your city to start discovering places.'}
-              </p>
-            </div>
-            <div className="pt-2">
-              {hasActiveFilters ? (
-                <Button variant="outline" size="sm" onClick={clearAllFilters}>
-                  Clear all filters
-                </Button>
-              ) : isExplorationMode ? (
-                <Button variant="outline" size="sm" onClick={handleClearExploration}>
-                  ← Back to your location
-                </Button>
-              ) : !hasUserLocation && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setShowCityPicker(true)}
-                >
-                  Set your city
-                </Button>
-              )}
-            </div>
-          </div>
+          // Priority 2 & 5: Extracted empty state component with promoted CTA
+          <PlacesEmptyState
+            variant={getEmptyStateVariant()}
+            exploringCity={exploringCity}
+            onClearFilters={clearAllFilters}
+            onClearExploration={handleClearExploration}
+            onSetCity={() => setShowCityPicker(true)}
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {processedPlaces.map(place => (
