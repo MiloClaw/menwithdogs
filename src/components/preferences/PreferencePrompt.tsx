@@ -4,7 +4,6 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerDescription,
   DrawerFooter,
 } from '@/components/ui/drawer';
 import {
@@ -12,7 +11,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -34,6 +32,8 @@ interface PreferencePromptProps {
  * Renders as a bottom drawer on mobile, modal on desktop.
  * Single-question format with structured options.
  * Always skippable with subtle reassurance copy.
+ * 
+ * Supports maxSelections for capped multi-select prompts.
  */
 const PreferencePrompt = ({
   prompt,
@@ -45,13 +45,22 @@ const PreferencePrompt = ({
   const isMobile = useIsMobile();
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
+  const maxSelections = prompt.maxSelections;
+  const isAtLimit = maxSelections !== undefined && selectedValues.length >= maxSelections;
+
   const handleOptionClick = (value: string) => {
     if (prompt.multiSelect) {
-      setSelectedValues(prev => 
-        prev.includes(value)
-          ? prev.filter(v => v !== value)
-          : [...prev, value]
-      );
+      setSelectedValues(prev => {
+        if (prev.includes(value)) {
+          // Always allow deselection
+          return prev.filter(v => v !== value);
+        } else if (isAtLimit) {
+          // At limit - don't allow more selections
+          return prev;
+        } else {
+          return [...prev, value];
+        }
+      });
     } else {
       // Single select - submit immediately
       onAnswer(value);
@@ -64,23 +73,43 @@ const PreferencePrompt = ({
     }
   };
 
+  // Reset selection when prompt changes
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setSelectedValues([]);
+    }
+    onOpenChange(newOpen);
+  };
+
   const content = (
     <div className="space-y-6">
+      {/* Selection counter for capped multi-select */}
+      {prompt.multiSelect && maxSelections && (
+        <p className="text-sm text-center text-muted-foreground">
+          {selectedValues.length} of {maxSelections} selected
+        </p>
+      )}
+
       {/* Options */}
       <div className="flex flex-wrap gap-2 justify-center">
         {prompt.options.map(option => {
           const isSelected = selectedValues.includes(option.value);
+          const isDisabled = !isSelected && isAtLimit;
+          
           return (
             <Button
               key={option.value}
               variant={isSelected ? 'default' : 'outline'}
               size="lg"
+              disabled={isDisabled}
               className={cn(
                 'min-h-[52px] px-6 text-base transition-all',
-                isSelected && 'ring-2 ring-primary ring-offset-2'
+                isSelected && 'ring-2 ring-primary ring-offset-2',
+                isDisabled && 'opacity-50 cursor-not-allowed'
               )}
               onClick={() => handleOptionClick(option.value)}
             >
+              {option.icon && <span className="mr-2">{option.icon}</span>}
               {option.label}
             </Button>
           );
@@ -118,7 +147,7 @@ const PreferencePrompt = ({
   // Mobile: use drawer (bottom sheet)
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
+      <Drawer open={open} onOpenChange={handleOpenChange}>
         <DrawerContent className="max-h-[85vh]">
           <DrawerHeader className="text-center">
             <p className="text-sm text-muted-foreground mb-1">{prompt.header}</p>
@@ -139,7 +168,7 @@ const PreferencePrompt = ({
 
   // Desktop: use dialog (modal)
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center space-y-2">
           <p className="text-sm text-muted-foreground">{prompt.header}</p>
