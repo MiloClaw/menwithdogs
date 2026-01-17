@@ -8,6 +8,8 @@ import {
   ChevronDown,
   Loader2,
   GripVertical,
+  Check,
+  ChevronDown as DropdownIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,9 +17,16 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { usePlaces } from "@/hooks/usePlaces";
 import { useGooglePlaces, PlacePrediction } from "@/hooks/useGooglePlaces";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export interface LinkedPlaceInput {
   place_id: string;
@@ -25,6 +34,7 @@ export interface LinkedPlaceInput {
   city: string | null;
   sort_order: number;
   context_note?: string;
+  status?: "approved" | "pending" | "rejected"; // Track status for inline approval
 }
 
 interface MultiPlacePickerProps {
@@ -49,7 +59,7 @@ export const MultiPlacePicker = ({
   onSearchTermChange,
   locationBias,
 }: MultiPlacePickerProps) => {
-  const { places, createPlace } = usePlaces();
+  const { places, createPlace, updatePlace } = usePlaces();
   const {
     predictions,
     isLoading: isLoadingGoogle,
@@ -61,7 +71,22 @@ export const MultiPlacePicker = ({
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm || "");
   const [isCreatingVenue, setIsCreatingVenue] = useState(false);
   const [editingContextIndex, setEditingContextIndex] = useState<number | null>(null);
+  const [approvingPlaceId, setApprovingPlaceId] = useState<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
+
+  // Get linked places with their current status from the places list
+  const linkedPlacesWithStatus = value.map((lp) => {
+    const place = places.find((p) => p.id === lp.place_id);
+    return {
+      ...lp,
+      status: place?.status || lp.status || "pending",
+    };
+  });
+
+  // Count pending places
+  const pendingCount = linkedPlacesWithStatus.filter(
+    (p) => p.status === "pending"
+  ).length;
 
   // Sync initial search term when it changes and trigger fetch
   useEffect(() => {
@@ -135,19 +160,24 @@ export const MultiPlacePicker = ({
     id: string;
     name: string;
     city: string | null;
+    status?: "approved" | "pending" | "rejected";
   }) => {
     const newPlace: LinkedPlaceInput = {
       place_id: place.id,
       name: place.name,
       city: place.city,
       sort_order: value.length,
+      status: place.status,
     };
     onChange([...value, newPlace]);
     setSearchTerm("");
     clearPredictions();
   };
 
-  const handleGooglePredictionSelect = async (prediction: PlacePrediction) => {
+  const handleGooglePredictionSelect = async (
+    prediction: PlacePrediction,
+    autoApprove: boolean = false
+  ) => {
     // Check if exists in DB
     const existingPlace = places.find(
       (p) => p.google_place_id === prediction.place_id
@@ -157,6 +187,7 @@ export const MultiPlacePicker = ({
         id: existingPlace.id,
         name: existingPlace.name,
         city: existingPlace.city,
+        status: existingPlace.status,
       });
       return;
     }
@@ -186,18 +217,67 @@ export const MultiPlacePicker = ({
         google_primary_type_display: details.google_primary_type_display,
         opening_hours: details.opening_hours as any,
         photos: details.photos as any,
-        status: "pending",
+        status: autoApprove ? "approved" : "pending",
       });
 
       handleAddPlace({
         id: result.id,
         name: result.name,
         city: result.city,
+        status: autoApprove ? "approved" : "pending",
       });
+
+      if (autoApprove) {
+        toast.success(`${result.name} added & approved`);
+      }
     } catch (error) {
       console.error("Failed to create venue:", error);
     } finally {
       setIsCreatingVenue(false);
+    }
+  };
+
+  // Inline approve a pending place
+  const handleApprovePlace = async (placeId: string) => {
+    setApprovingPlaceId(placeId);
+    try {
+      await updatePlace.mutateAsync({ id: placeId, status: "approved" });
+      // Update the linked places to reflect new status
+      onChange(
+        value.map((p) =>
+          p.place_id === placeId ? { ...p, status: "approved" } : p
+        )
+      );
+      toast.success("Place approved");
+    } catch (error) {
+      console.error("Failed to approve place:", error);
+      toast.error("Failed to approve place");
+    } finally {
+      setApprovingPlaceId(null);
+    }
+  };
+
+  // Approve all pending places at once
+  const handleApproveAll = async () => {
+    const pendingPlaces = linkedPlacesWithStatus.filter(
+      (p) => p.status === "pending"
+    );
+    if (pendingPlaces.length === 0) return;
+
+    setApprovingPlaceId("all");
+    try {
+      await Promise.all(
+        pendingPlaces.map((p) =>
+          updatePlace.mutateAsync({ id: p.place_id, status: "approved" })
+        )
+      );
+      onChange(value.map((p) => ({ ...p, status: "approved" })));
+      toast.success(`${pendingPlaces.length} places approved`);
+    } catch (error) {
+      console.error("Failed to approve places:", error);
+      toast.error("Failed to approve some places");
+    } finally {
+      setApprovingPlaceId(null);
     }
   };
 
@@ -234,15 +314,36 @@ export const MultiPlacePicker = ({
 
   return (
     <div className="space-y-3">
-      <Label>Featured Places (optional)</Label>
-      <p className="text-xs text-muted-foreground -mt-2">
-        Add places mentioned in this post for readers to explore
-      </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <Label>Featured Places (optional)</Label>
+          <p className="text-xs text-muted-foreground">
+            Add places mentioned in this post for readers to explore
+          </p>
+        </div>
+        {pendingCount > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleApproveAll}
+            disabled={approvingPlaceId === "all"}
+            className="text-xs"
+          >
+            {approvingPlaceId === "all" ? (
+              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+            ) : (
+              <Check className="h-3 w-3 mr-1" />
+            )}
+            Approve All ({pendingCount})
+          </Button>
+        )}
+      </div>
 
       {/* Selected places list */}
       {value.length > 0 && (
         <div className="border rounded-lg divide-y">
-          {value.map((place, index) => (
+          {linkedPlacesWithStatus.map((place, index) => (
             <div
               key={place.place_id}
               className="p-3 flex items-start gap-3 group"
@@ -255,7 +356,37 @@ export const MultiPlacePicker = ({
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">{place.name}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium truncate">{place.name}</p>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-[10px] shrink-0",
+                      statusColors[place.status] || statusColors.pending
+                    )}
+                  >
+                    {place.status}
+                  </Badge>
+                  {place.status === "pending" && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                      onClick={() => handleApprovePlace(place.place_id)}
+                      disabled={approvingPlaceId === place.place_id}
+                    >
+                      {approvingPlaceId === place.place_id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <>
+                          <Check className="h-3 w-3 mr-1" />
+                          Approve
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
                 {place.city && (
                   <p className="text-sm text-muted-foreground truncate">
                     {place.city}
@@ -385,12 +516,9 @@ export const MultiPlacePicker = ({
                   Add from Google
                 </p>
                 {newGooglePredictions.slice(0, 5).map((prediction) => (
-                  <button
+                  <div
                     key={prediction.place_id}
-                    type="button"
-                    disabled={isCreatingVenue}
-                    className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-accent text-left transition-colors disabled:opacity-50"
-                    onClick={() => handleGooglePredictionSelect(prediction)}
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent transition-colors"
                   >
                     <Plus className="h-4 w-4 text-primary flex-shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -402,7 +530,46 @@ export const MultiPlacePicker = ({
                         {prediction.structured_formatting?.secondary_text || ""}
                       </p>
                     </div>
-                  </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs shrink-0"
+                          disabled={isCreatingVenue}
+                        >
+                          {isCreatingVenue ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <>
+                              Add
+                              <DropdownIcon className="h-3 w-3 ml-1" />
+                            </>
+                          )}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleGooglePredictionSelect(prediction, false)
+                          }
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add as Pending
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleGooglePredictionSelect(prediction, true)
+                          }
+                          className="text-green-600"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Add & Approve
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 ))}
                 <div className="px-2 py-1 mt-2 border-t">
                   <p className="text-[10px] text-muted-foreground text-right">

@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import PageLayout from "@/components/PageLayout";
 import { Button } from "@/components/ui/button";
 import { useBlogPostBySlug } from "@/hooks/useBlogPostBySlug";
-import { usePostPlaces } from "@/hooks/usePostPlaces";
+import { usePublicPostPlaces } from "@/hooks/usePostPlaces";
 import { LinkedPlacesSection } from "@/components/blog/LinkedPlacesSection";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,8 +21,8 @@ const BlogPostPage = () => {
   const [selectedPlace, setSelectedPlace] = useState<PlaceDetail | null>(null);
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
 
-  // Fetch linked places for this post
-  const { data: linkedPlaces = [] } = usePostPlaces(post?.id ?? null);
+  // Fetch linked places for this post (public view - approved only)
+  const { data: linkedPlaces = [] } = usePublicPostPlaces(post?.id ?? null);
 
   // Handle place click - fetch place details and open modal
   const handlePlaceClick = async (placeId: string) => {
