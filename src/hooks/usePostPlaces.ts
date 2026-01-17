@@ -10,9 +10,10 @@ export interface LinkedPlace {
   primary_category: string;
   sort_order: number;
   context_note: string | null;
+  status?: "approved" | "pending" | "rejected";
 }
 
-// Fetch places linked to a post
+// Fetch places linked to a post (admin view - includes all statuses)
 export const usePostPlaces = (postId: string | null) => {
   return useQuery({
     queryKey: ["post-places", postId],
@@ -31,7 +32,8 @@ export const usePostPlaces = (postId: string | null) => {
             name,
             city,
             state,
-            primary_category
+            primary_category,
+            status
           )
         `)
         .eq("post_id", postId)
@@ -48,7 +50,54 @@ export const usePostPlaces = (postId: string | null) => {
         primary_category: (row.place as any)?.primary_category || "",
         sort_order: row.sort_order,
         context_note: row.context_note,
+        status: (row.place as any)?.status || "pending",
       })) as LinkedPlace[];
+    },
+    enabled: !!postId,
+  });
+};
+
+// Fetch ONLY approved places linked to a post (public view)
+export const usePublicPostPlaces = (postId: string | null) => {
+  return useQuery({
+    queryKey: ["post-places-public", postId],
+    queryFn: async () => {
+      if (!postId) return [];
+
+      const { data, error } = await supabase
+        .from("post_places")
+        .select(`
+          id,
+          place_id,
+          sort_order,
+          context_note,
+          place:places!post_places_place_id_fkey(
+            id,
+            name,
+            city,
+            state,
+            primary_category,
+            status
+          )
+        `)
+        .eq("post_id", postId)
+        .order("sort_order", { ascending: true });
+
+      if (error) throw error;
+
+      // Filter to only approved places for public display
+      return (data || [])
+        .filter((row) => (row.place as any)?.status === "approved")
+        .map((row) => ({
+          id: row.id,
+          place_id: row.place_id,
+          name: (row.place as any)?.name || "",
+          city: (row.place as any)?.city || null,
+          state: (row.place as any)?.state || null,
+          primary_category: (row.place as any)?.primary_category || "",
+          sort_order: row.sort_order,
+          context_note: row.context_note,
+        })) as LinkedPlace[];
     },
     enabled: !!postId,
   });

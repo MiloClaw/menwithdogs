@@ -167,11 +167,12 @@ const PostManagement = () => {
   const [unmatchedSuggestions, setUnmatchedSuggestions] = useState<SuggestedPlace[]>([]);
   const [areaRelatedPlaces, setAreaRelatedPlaces] = useState<AreaWithPlaces[]>([]);
   const [placePickerSearchTerm, setPlacePickerSearchTerm] = useState<string>('');
+  const [isApprovingAll, setIsApprovingAll] = useState(false);
 
   const { data: posts, isLoading: postsLoading } = useAdminPosts(statusFilter);
   const { data: cities, isLoading: citiesLoading } = useCities();
   const { data: metroAreas, isLoading: metroLoading } = useMetroAreas();
-  const { places } = usePlaces();
+  const { places, updatePlace } = usePlaces();
   
   const createPost = useCreatePost();
   const updatePost = useUpdatePost();
@@ -210,6 +211,37 @@ const PostManagement = () => {
     selectedCityName && 
     p.city === selectedCityName
   ) || [];
+
+  // Get pending places from linked places
+  const linkedPlacesWithStatus = formData.linked_places.map((lp) => {
+    const place = places.find((p) => p.id === lp.place_id);
+    return {
+      ...lp,
+      status: place?.status || "pending",
+    };
+  });
+  const pendingLinkedPlaces = linkedPlacesWithStatus.filter((p) => p.status === "pending");
+  const hasPendingPlaces = pendingLinkedPlaces.length > 0;
+
+  // Approve all pending linked places
+  const handleApproveAllLinkedPlaces = async () => {
+    if (pendingLinkedPlaces.length === 0) return;
+    
+    setIsApprovingAll(true);
+    try {
+      await Promise.all(
+        pendingLinkedPlaces.map((p) =>
+          updatePlace.mutateAsync({ id: p.place_id, status: "approved" })
+        )
+      );
+      toast.success(`${pendingLinkedPlaces.length} places approved`);
+    } catch (error) {
+      console.error("Failed to approve places:", error);
+      toast.error("Failed to approve some places");
+    } finally {
+      setIsApprovingAll(false);
+    }
+  };
 
   // Fetch existing tags when editing
   const { data: existingTags = [] } = usePostTags(editingPost?.id ?? null);
@@ -1180,8 +1212,35 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
           </div>
         </div>
         
+        {/* Pending Places Warning */}
+        {!isEventType && hasPendingPlaces && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  {pendingLinkedPlaces.length} linked place{pendingLinkedPlaces.length > 1 ? 's are' : ' is'} still pending approval
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                  Readers won't see these places until they're approved.
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {pendingLinkedPlaces.map((p) => (
+                    <Badge key={p.place_id} variant="outline" className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-600">
+                      {p.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <p className="text-sm text-muted-foreground text-center">
-          Ready to publish or save as draft.
+          {hasPendingPlaces 
+            ? "Approve pending places or publish anyway." 
+            : "Ready to publish or save as draft."
+          }
         </p>
       </div>
     );
@@ -1450,12 +1509,31 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
                   <Clock className="h-4 w-4 mr-2" />
                   Save Draft
                 </Button>
+                {/* Show Approve All & Publish when there are pending places */}
+                {!isEventType && hasPendingPlaces && (
+                  <Button 
+                    variant="default"
+                    onClick={async () => {
+                      await handleApproveAllLinkedPlaces();
+                      await handleSubmit(true);
+                    }}
+                    disabled={createPost.isPending || updatePost.isPending || isApprovingAll}
+                  >
+                    {isApprovingAll ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4 mr-2" />
+                    )}
+                    Approve All & Publish
+                  </Button>
+                )}
                 <Button 
                   onClick={() => handleSubmit(true)}
                   disabled={createPost.isPending || updatePost.isPending}
+                  variant={hasPendingPlaces ? "outline" : "default"}
                 >
                   <Check className="h-4 w-4 mr-2" />
-                  Publish
+                  {hasPendingPlaces ? "Publish Anyway" : "Publish"}
                 </Button>
               </>
             )}

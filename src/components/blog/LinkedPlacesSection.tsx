@@ -9,6 +9,7 @@ interface LinkedPlace {
   state: string | null;
   primary_category: string;
   context_note: string | null;
+  status?: "approved" | "pending" | "rejected";
 }
 
 interface LinkedPlacesSectionProps {
@@ -20,7 +21,12 @@ export const LinkedPlacesSection = ({
   places,
   onPlaceClick,
 }: LinkedPlacesSectionProps) => {
-  if (!places || places.length === 0) return null;
+  // Safety filter: only show approved places in public view
+  const approvedPlaces = places.filter(
+    (p) => !p.status || p.status === "approved"
+  );
+
+  if (!approvedPlaces || approvedPlaces.length === 0) return null;
 
   return (
     <section className="mt-12 pt-8 border-t border-border">
@@ -30,7 +36,7 @@ export const LinkedPlacesSection = ({
       </h2>
 
       <div className="grid gap-3">
-        {places.map((place) => (
+        {approvedPlaces.map((place) => (
           <div
             key={place.id}
             className="group flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
