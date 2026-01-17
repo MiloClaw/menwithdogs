@@ -1,11 +1,9 @@
 import { Link } from 'react-router-dom';
 import { 
   Building2, 
-  Sparkles, 
   MapPin, 
   Calendar, 
   Tags, 
-  FileText,
   Users,
   ChevronRight
 } from 'lucide-react';
@@ -35,14 +33,6 @@ interface QuickActionsProps {
 
 const QuickActions = ({ stats }: QuickActionsProps) => {
   const actions: QuickAction[] = [
-    {
-      title: 'Discover Events',
-      description: 'AI-powered event research',
-      href: '/admin/directory/events/discover',
-      icon: Sparkles,
-      isNew: true,
-      accentColor: true,
-    },
     {
       title: 'Manage Cities',
       description: 'City rollouts & seeding',
