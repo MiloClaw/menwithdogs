@@ -6,7 +6,7 @@ import TrendSparklines from '@/components/admin/dashboard/TrendSparklines';
 import CategoryHealthCard from '@/components/admin/dashboard/CategoryHealthCard';
 import LocationSummaryCard from '@/components/admin/LocationSummaryCard';
 import QuickActions from '@/components/admin/dashboard/QuickActions';
-
+import IntelligenceStatusCard from '@/components/admin/dashboard/IntelligenceStatusCard';
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
 
@@ -50,12 +50,13 @@ const AdminDashboard = () => {
           isLoading={isLoading}
         />
 
-        {/* Two-column: Action Queue + Trends */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* Three-column: Action Queue + Intelligence Status + Trends */}
+        <div className="grid gap-6 lg:grid-cols-3">
           <ActionQueue 
             items={actionItems}
             isLoading={isLoading}
           />
+          <IntelligenceStatusCard />
           <TrendSparklines 
             trends={trendData}
             isLoading={isLoading}
