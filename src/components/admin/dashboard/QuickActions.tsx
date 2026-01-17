@@ -4,6 +4,7 @@ import {
   MapPin, 
   Calendar, 
   Tags, 
+  FileText,
   Users,
   ChevronRight
 } from 'lucide-react';
@@ -67,6 +68,12 @@ const QuickActions = ({ stats }: QuickActionsProps) => {
       description: 'Taxonomy & mappings',
       href: '/admin/interests',
       icon: Tags,
+    },
+    {
+      title: 'Manage Posts',
+      description: 'Blog & announcements',
+      href: '/admin/posts',
+      icon: FileText,
     },
   ];
 
