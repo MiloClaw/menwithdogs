@@ -58,14 +58,16 @@ const HeroStatsBar = ({ stats, trends, isLoading }: HeroStatsBarProps) => {
       } : undefined,
     },
     {
-      label: 'Engagement',
+      label: 'Saves per User',
       value: stats.engagementRate.toFixed(1),
-      subtext: 'saves per user',
+      subtext: stats.engagementRate < 1 ? 'cold' : stats.engagementRate < 3 ? 'healthy' : 'strong',
       icon: Heart,
       trend: trends?.engagementTrend !== undefined ? {
         value: trends.engagementTrend,
         isPositive: trends.engagementTrend >= 0,
       } : undefined,
+      alert: stats.engagementRate < 1,
+      alertColor: stats.engagementRate < 1 ? 'text-amber-500' : stats.engagementRate >= 3 ? 'text-green-600 dark:text-green-400' : undefined,
     },
     {
       label: 'City Coverage',
