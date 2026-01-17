@@ -31,6 +31,7 @@ interface PlaceDetails {
   city: string | null;
   state: string | null;
   country: string | null;
+  county: string | null; // For metro rollup logic
   lat: number | null;
   lng: number | null;
   rating: number | null;
@@ -194,6 +195,7 @@ serve(async (req) => {
     let city: string | null = null;
     let state: string | null = null;
     let country: string | null = null;
+    let county: string | null = null; // For metro rollup logic
 
     for (const component of data.addressComponents || []) {
       const types = component.types || [];
@@ -201,6 +203,9 @@ serve(async (req) => {
         city = component.longText;
       } else if (types.includes("administrative_area_level_1")) {
         state = component.shortText;
+      } else if (types.includes("administrative_area_level_2")) {
+        // County (e.g., "Collin County", "Dallas County")
+        county = component.longText;
       } else if (types.includes("country")) {
         country = component.shortText;
       }
@@ -209,7 +214,7 @@ serve(async (req) => {
     if (!city) {
       for (const component of data.addressComponents || []) {
         const types = component.types || [];
-        if (types.includes("sublocality_level_1") || types.includes("administrative_area_level_2") || types.includes("postal_town")) {
+        if (types.includes("sublocality_level_1") || types.includes("postal_town")) {
           city = component.longText;
           break;
         }
@@ -269,6 +274,7 @@ serve(async (req) => {
       city,
       state,
       country,
+      county,
       lat: data.location?.latitude ?? null,
       lng: data.location?.longitude ?? null,
       rating: data.rating ?? null,

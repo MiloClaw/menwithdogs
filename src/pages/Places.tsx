@@ -23,7 +23,7 @@ import { useCouple } from '@/hooks/useCouple';
 import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
 import { usePreferencePrompts } from '@/hooks/usePreferencePrompts';
 import { usePlaceSuggestion } from '@/hooks/usePlaceSuggestion';
-import { useCitySuggestion } from '@/hooks/useCitySuggestion';
+import { useCitySuggestion, MetroInfo } from '@/hooks/useCitySuggestion';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { usePlacesFilters, RADIUS_OPTIONS, MAX_RADIUS_MILES } from '@/hooks/usePlacesFilters';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
@@ -36,11 +36,13 @@ const CITY_TYPES = ['locality', 'administrative_area_level_1', 'administrative_a
 const BUSINESS_TYPES = ['establishment', 'point_of_interest'];
 
 const Places = () => {
-  // URL params for exploration mode
+  // URL params for exploration mode and suburb bias
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const exploringCity = searchParams.get('city');
   const exploringState = searchParams.get('state');
+  const biasLat = searchParams.get('bias_lat');
+  const biasLng = searchParams.get('bias_lng');
   const isExplorationMode = !!exploringCity;
 
   // Auth & relationship state
@@ -97,7 +99,13 @@ const Places = () => {
   // City suggestion state
   const [citySuggestionModalOpen, setCitySuggestionModalOpen] = useState(false);
   const [selectedGoogleCity, setSelectedGoogleCity] = useState<PlaceDetails | null>(null);
-  const { submitSuggestion: submitCitySuggestion, isSubmitting: isSuggestingCity } = useCitySuggestion();
+  const [metroInfo, setMetroInfo] = useState<MetroInfo | null>(null);
+  const { 
+    submitSuggestion: submitCitySuggestion, 
+    isSubmitting: isSuggestingCity,
+    checkMetroMembership,
+    isCheckingMetro,
+  } = useCitySuggestion();
   
   // Place favorites (for QR code save flow)
   const { addFavorite, isFavorited } = usePlaceFavorites();
@@ -181,11 +189,23 @@ const Places = () => {
     setSearchParams({});
   };
 
+  // Parse suburb bias coordinates (from metro redirect)
+  const biasCoords = useMemo(() => {
+    if (biasLat && biasLng) {
+      const lat = parseFloat(biasLat);
+      const lng = parseFloat(biasLng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return { lat, lng };
+      }
+    }
+    return null;
+  }, [biasLat, biasLng]);
+
   // Data fetching - use city/state from URL params for exploration, lat/lng for normal mode
   // PHASE 2: usePersonalizedPlaces applies affinity-weighted sorting for authenticated users
   const { data: places, isLoading: placesLoading, isSwitchingLocation } = usePersonalizedPlaces(
     isExplorationMode
-      ? { city: exploringCity!, state: exploringState }
+      ? { city: exploringCity!, state: exploringState, biasCoords }
       : { lat: userLat, lng: userLng, radiusMiles: MAX_RADIUS_MILES }
   );
   
@@ -240,12 +260,21 @@ const Places = () => {
   };
 
   // Handle search autocomplete place selection
-  const handleSearchPlaceSelect = (details: PlaceDetails) => {
+  const handleSearchPlaceSelect = async (details: PlaceDetails) => {
     // First check if this is a city rather than a business
     if (isCity(details)) {
       if (isAuthenticated) {
         setSelectedGoogleCity(details);
         setCitySuggestionModalOpen(true);
+        
+        // Check metro membership in the background
+        // Only check if we have county info
+        if (details.county && details.state) {
+          const metro = await checkMetroMembership(details.county, details.state);
+          setMetroInfo(metro);
+        } else {
+          setMetroInfo(null);
+        }
       } else {
         toast.info('Sign in to suggest this city');
       }
@@ -291,8 +320,47 @@ const Places = () => {
     if (success) {
       setCitySuggestionModalOpen(false);
       setSelectedGoogleCity(null);
+      setMetroInfo(null);
       setSearchTerm('');
     }
+  };
+
+  // Handle metro redirect (when city is part of existing metro)
+  const handleExploreMetro = () => {
+    if (!metroInfo || !selectedGoogleCity) return;
+    
+    // Record signal that user was redirected (preserves original intent)
+    if (isAuthenticated) {
+      recordSignal(
+        'city_suggestion_redirected', 
+        selectedGoogleCity.name, 
+        metroInfo.metroName || null, 
+        'user', 
+        1.0, 
+        {
+          original_input: selectedGoogleCity.name,
+          original_state: selectedGoogleCity.state,
+          interpreted_metro: metroInfo.metroName,
+          suburb_lat: selectedGoogleCity.lat,
+          suburb_lng: selectedGoogleCity.lng,
+        }
+      );
+    }
+    
+    // Close modal and navigate with suburb bias
+    setCitySuggestionModalOpen(false);
+    setSelectedGoogleCity(null);
+    setMetroInfo(null);
+    setSearchTerm('');
+    
+    // Navigate to the metro's primary city with suburb bias for soft relevance boost
+    const params = new URLSearchParams();
+    if (metroInfo.primaryCity) params.set('city', metroInfo.primaryCity);
+    if (metroInfo.primaryState) params.set('state', metroInfo.primaryState);
+    if (selectedGoogleCity.lat) params.set('bias_lat', selectedGoogleCity.lat.toString());
+    if (selectedGoogleCity.lng) params.set('bias_lng', selectedGoogleCity.lng.toString());
+    
+    navigate(`/places?${params.toString()}`);
   };
 
   // Handle category signal for filter selection
@@ -516,10 +584,18 @@ const Places = () => {
       />
       <CitySuggestionModal
         open={citySuggestionModalOpen}
-        onOpenChange={setCitySuggestionModalOpen}
+        onOpenChange={(open) => {
+          setCitySuggestionModalOpen(open);
+          if (!open) {
+            setMetroInfo(null);
+          }
+        }}
         cityDetails={selectedGoogleCity}
         onConfirm={handleConfirmCitySuggestion}
         isSubmitting={isSuggestingCity}
+        metroInfo={metroInfo}
+        isCheckingMetro={isCheckingMetro}
+        onExploreMetro={handleExploreMetro}
       />
       
       {/* Behavioral Preference Prompt */}
