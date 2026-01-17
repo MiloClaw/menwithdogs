@@ -1306,11 +1306,14 @@ export type Database = {
           created_at: string
           created_by: string | null
           end_date: string | null
+          excerpt: string | null
           external_url: string | null
           id: string
           is_recurring: boolean
+          meta_description: string | null
           place_id: string | null
           recurrence_text: string | null
+          slug: string | null
           start_date: string | null
           status: string
           title: string
@@ -1324,11 +1327,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           end_date?: string | null
+          excerpt?: string | null
           external_url?: string | null
           id?: string
           is_recurring?: boolean
+          meta_description?: string | null
           place_id?: string | null
           recurrence_text?: string | null
+          slug?: string | null
           start_date?: string | null
           status?: string
           title: string
@@ -1342,11 +1348,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           end_date?: string | null
+          excerpt?: string | null
           external_url?: string | null
           id?: string
           is_recurring?: boolean
+          meta_description?: string | null
           place_id?: string | null
           recurrence_text?: string | null
+          slug?: string | null
           start_date?: string | null
           status?: string
           title?: string

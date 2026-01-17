@@ -36,10 +36,10 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
             {post.title}
           </h3>
           
-          {/* Body Preview */}
-          {post.body && (
+          {/* Body Preview - Use excerpt if available */}
+          {(post.excerpt || post.body) && (
             <p className="text-muted-foreground text-sm leading-relaxed line-clamp-1 mb-4">
-              {post.body}
+              {post.excerpt || post.body?.replace(/^#+\s*/gm, '').substring(0, 150)}
             </p>
           )}
           
@@ -87,10 +87,10 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
         {post.title}
       </h3>
       
-      {/* Body Preview */}
-      {post.body && (
+      {/* Body Preview - Use excerpt if available */}
+      {(post.excerpt || post.body) && (
         <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-4">
-          {post.body}
+          {post.excerpt || post.body?.replace(/^#+\s*/gm, '').substring(0, 150)}
         </p>
       )}
       

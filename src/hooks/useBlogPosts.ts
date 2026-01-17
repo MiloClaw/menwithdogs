@@ -5,6 +5,9 @@ export interface BlogPost {
   id: string;
   title: string;
   body: string | null;
+  slug: string | null;
+  excerpt: string | null;
+  meta_description: string | null;
   city_id: string;
   place_id: string | null;
   external_url: string | null;
@@ -55,6 +58,9 @@ export const useBlogPosts = (filters: BlogFilters = {}) => {
           id,
           title,
           body,
+          slug,
+          excerpt,
+          meta_description,
           city_id,
           place_id,
           external_url,

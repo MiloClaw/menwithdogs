@@ -16,6 +16,7 @@ import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Blog from "./pages/Blog";
+import BlogPostPage from "./pages/BlogPostPage";
 import Auth from "./pages/Auth";
 import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
@@ -49,6 +50,7 @@ const App = () => (
               
               {/* Blog for announcements */}
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
               
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />

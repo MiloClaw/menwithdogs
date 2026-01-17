@@ -54,7 +54,18 @@ import { usePlaces } from '@/hooks/usePlaces';
 import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
 import VenuePicker from '@/components/admin/events/VenuePicker';
 import { BlogImageUpload } from '@/components/blog/BlogImageUpload';
+import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
 import { toast } from 'sonner';
+
+// Generate slug from title
+const generateSlug = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 60);
+};
 
 type PostType = 'announcement' | 'event';
 type PostStatus = 'draft' | 'published' | 'expired';
@@ -79,6 +90,9 @@ interface PostFormData {
   type: PostType;
   title: string;
   body: string;
+  slug: string;
+  excerpt: string;
+  meta_description: string;
   city_id: string;
   place_id: string;
   start_date: string; // date only for one-time events (YYYY-MM-DD)
@@ -95,6 +109,9 @@ const INITIAL_FORM: PostFormData = {
   type: 'announcement',
   title: '',
   body: '',
+  slug: '',
+  excerpt: '',
+  meta_description: '',
   city_id: '',
   place_id: '',
   start_date: '',
@@ -206,6 +223,9 @@ const PostManagement = () => {
       type: post.type,
       title: post.title,
       body: post.body || '',
+      slug: (post as any).slug || '',
+      excerpt: (post as any).excerpt || '',
+      meta_description: (post as any).meta_description || '',
       city_id: post.city_id,
       place_id: post.place_id || '',
       start_date: post.start_date ? post.start_date.slice(0, 10) : '', // date only
@@ -277,10 +297,18 @@ const PostManagement = () => {
       ? generateRecurrenceText(formData.recurrence_day, formData.recurrence_frequency)
       : null;
 
+    // Generate slug if not provided (for announcements)
+    const slug = formData.type === 'announcement' 
+      ? (formData.slug.trim() || generateSlug(formData.title))
+      : null;
+
     const postData: PostInsert = {
       type: formData.type,
       title: formData.title.trim(),
       body: formData.body.trim() || null,
+      slug: slug,
+      excerpt: formData.type === 'announcement' ? (formData.excerpt.trim() || null) : null,
+      meta_description: formData.type === 'announcement' ? (formData.meta_description.trim() || null) : null,
       city_id: formData.city_id,
       place_id: formData.type === 'event' ? formData.place_id : (formData.place_id || null),
       // For one-time events, store date with midnight time
@@ -402,7 +430,13 @@ const PostManagement = () => {
           id="title"
           value={formData.title}
           onChange={(e) => {
-            setFormData(f => ({ ...f, title: e.target.value }));
+            const newTitle = e.target.value;
+            setFormData(f => ({ 
+              ...f, 
+              title: newTitle,
+              // Auto-generate slug if slug is empty or matches old auto-generated slug
+              slug: f.slug === '' || f.slug === generateSlug(f.title) ? generateSlug(newTitle) : f.slug
+            }));
             if (errors.title) setErrors(e => ({ ...e, title: undefined }));
           }}
           placeholder="Welcome to Seattle!"
@@ -416,17 +450,78 @@ const PostManagement = () => {
         )}
       </div>
       
-      {/* Body */}
+      {/* URL Slug */}
       <div>
-        <Label htmlFor="body">Body Text</Label>
+        <Label htmlFor="slug">URL Slug</Label>
+        <div className="flex items-center gap-2 mt-1.5">
+          <span className="text-sm text-muted-foreground">/blog/</span>
+          <Input
+            id="slug"
+            value={formData.slug}
+            onChange={(e) => setFormData(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))}
+            placeholder="your-post-slug"
+            className="flex-1"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">Auto-generated from title. Edit for custom URL.</p>
+      </div>
+      
+      {/* Excerpt */}
+      <div>
+        <Label htmlFor="excerpt">
+          Excerpt
+          <span className="text-muted-foreground font-normal ml-1">(shown on cards & social shares)</span>
+        </Label>
         <Textarea
-          id="body"
-          value={formData.body}
-          onChange={(e) => setFormData(f => ({ ...f, body: e.target.value }))}
-          placeholder="Share your announcement..."
-          rows={4}
+          id="excerpt"
+          value={formData.excerpt}
+          onChange={(e) => setFormData(f => ({ ...f, excerpt: e.target.value.slice(0, 200) }))}
+          placeholder="A brief summary of your post for previews..."
+          rows={2}
           className="mt-1.5"
         />
+        <p className={`text-xs mt-1 ${formData.excerpt.length > 180 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+          {formData.excerpt.length}/200 characters
+        </p>
+      </div>
+      
+      {/* Body with Markdown Editor */}
+      <div>
+        <Label htmlFor="body">Body Content</Label>
+        <MarkdownEditor
+          value={formData.body}
+          onChange={(value) => setFormData(f => ({ ...f, body: value }))}
+          placeholder="Write your post using Markdown...
+
+## Neighborhood Highlights
+
+Oak Lawn is where a lot of gay life in Dallas still runs quietly in the background...
+
+### What to expect
+- Morning coffee at familiar spots
+- Dog walking routines that become social rituals"
+          rows={10}
+          className="mt-1.5"
+        />
+      </div>
+      
+      {/* Meta Description */}
+      <div>
+        <Label htmlFor="meta_description">
+          Meta Description
+          <span className="text-muted-foreground font-normal ml-1">(SEO - optional)</span>
+        </Label>
+        <Textarea
+          id="meta_description"
+          value={formData.meta_description}
+          onChange={(e) => setFormData(f => ({ ...f, meta_description: e.target.value.slice(0, 160) }))}
+          placeholder="Defaults to excerpt if left empty..."
+          rows={2}
+          className="mt-1.5"
+        />
+        <p className={`text-xs mt-1 ${formData.meta_description.length > 150 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+          {formData.meta_description.length}/160 characters
+        </p>
       </div>
       
       {/* City */}

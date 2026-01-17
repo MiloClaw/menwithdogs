@@ -1,0 +1,155 @@
+import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { ArrowLeft, MapPin, ExternalLink, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import PageLayout from "@/components/PageLayout";
+import { Button } from "@/components/ui/button";
+import { useBlogPostBySlug } from "@/hooks/useBlogPostBySlug";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { queueSignal } from "@/hooks/useUserSignals";
+
+const BlogPostPage = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { data: post, isLoading, error } = useBlogPostBySlug(slug);
+  const { isAuthenticated } = useAuth();
+
+  // Emit view_blog_post signal
+  useEffect(() => {
+    if (post && isAuthenticated) {
+      queueSignal(
+        'view_blog_post',
+        post.id,
+        null,
+        'implicit',
+        0.2,
+        { 
+          place_id: post.place?.id || null, 
+          city_id: post.city?.id || null 
+        }
+      );
+    }
+  }, [post?.id, isAuthenticated]);
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <PageLayout>
+        <div className="min-h-screen flex flex-col items-center justify-center px-4">
+          <h1 className="font-serif text-3xl font-bold mb-4">Post not found</h1>
+          <p className="text-muted-foreground mb-6">The article you're looking for doesn't exist or has been removed.</p>
+          <Button onClick={() => navigate("/blog")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Blog
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  const readingTime = post.body 
+    ? Math.max(1, Math.ceil(post.body.split(/\s+/).length / 200))
+    : 1;
+
+  const metaDescription = post.meta_description || post.excerpt || (post.body?.slice(0, 160) + '...');
+  const canonicalUrl = `https://mainstreet-landing-glow.lovable.app/blog/${post.slug}`;
+
+  return (
+    <PageLayout>
+      <Helmet>
+        <title>{post.title} | MainStreetIRL</title>
+        <meta name="description" content={metaDescription} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.excerpt || metaDescription} />
+        {post.cover_image_url && <meta property="og:image" content={post.cover_image_url} />}
+        <meta property="og:type" content="article" />
+        <link rel="canonical" href={canonicalUrl} />
+      </Helmet>
+
+      <article className="min-h-screen bg-background">
+        {/* Cover Image */}
+        {post.cover_image_url && (
+          <div className="relative aspect-[21/9] max-h-[50vh] w-full overflow-hidden">
+            <img
+              src={post.cover_image_url}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+          </div>
+        )}
+
+        <div className="container max-w-3xl py-12 sm:py-16 px-4 sm:px-6">
+          {/* Back Button */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate("/blog")}
+            className="mb-8 -ml-2"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Blog
+          </Button>
+
+          {/* Title */}
+          <header className="mb-8">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-6">
+              {post.title}
+            </h1>
+
+            {/* Meta Info */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+              {(post.city?.name || post.place?.name) && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {post.place?.name || post.city?.name}
+                  {post.city?.state && `, ${post.city.state}`}
+                </span>
+              )}
+              <span>{readingTime} min read</span>
+            </div>
+          </header>
+
+          {/* Divider */}
+          <div className="border-t border-border mb-10" />
+
+          {/* Body Content - Markdown */}
+          {post.body && (
+            <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-primary prose-blockquote:italic prose-strong:font-semibold">
+              <ReactMarkdown>{post.body}</ReactMarkdown>
+            </div>
+          )}
+
+          {/* External Link */}
+          {post.external_url && (
+            <div className="mt-12 pt-8 border-t border-border">
+              <Button asChild variant="outline" size="lg">
+                <a 
+                  href={post.external_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  Read More
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
+          )}
+        </div>
+      </article>
+    </PageLayout>
+  );
+};
+
+export default BlogPostPage;
