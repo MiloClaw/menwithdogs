@@ -42,21 +42,31 @@ Output requirements:
 - slug: lowercase, hyphens only, max 60 chars, include SEO keywords from title
 - excerpt: 150-200 characters, compelling hook for social sharing cards
 - meta_description: 150-160 characters, search-optimized, distinct from excerpt
-- formatted_body: proper markdown with ## headers (not #), **bold** for emphasis, - bullet lists where appropriate, clean paragraph breaks
-- suggested_places: extract any business names, venue names, restaurant names, bar names, cafe names, or specific location names mentioned in the text. Include context about why it's mentioned.
+- formatted_body: Format for optimal mobile reading UX:
+  * Use ## for main sections, ### for subsections (never use #)
+  * Keep paragraphs SHORT - 2-4 sentences max for mobile readability
+  * Add blank lines between paragraphs for visual breathing room
+  * Use **bold** for venue/business names on FIRST mention only
+  * Convert lists of 3+ items to bullet points with - prefix
+  * Use > blockquotes for notable quotes or key insights
+  * Add transition sentences between sections for smooth reading flow
+  * Break up dense text - no wall-of-text paragraphs
+- suggested_places: Extract ALL business names, venue names, restaurant names, bar names, cafe names, or specific location names mentioned in the text. Be thorough - include every place mentioned even if just briefly. Include context about why it's mentioned.
 - reading_time_minutes: estimate based on ~200 words per minute
 - social_title: shorter punchy version of title for OG tags, max 60 chars
-- cover_image_alt: descriptive alt text for accessibility if city/topic context available`;
+- cover_image_alt: descriptive alt text for accessibility based on city/topic context`;
 
-    const userPrompt = `Please enhance this blog post for SEO and readability.
+    const userPrompt = `Please enhance this blog post for SEO and optimal reading experience.
 
 Title: ${title}
-${city_name ? `City: ${city_name}` : ''}
+${city_name ? `City/Region: ${city_name}` : ''}
 
 Body Content:
 ${body}
 
-Important: Extract ALL business/venue/restaurant/bar/cafe names mentioned in the body text for the suggested_places array.`;
+CRITICAL: 
+1. Format the body content for the best mobile reading experience - short paragraphs, clear sections, good visual hierarchy.
+2. Extract ALL business/venue/restaurant/bar/cafe names mentioned in the body text for the suggested_places array. Be thorough - even brief mentions count.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

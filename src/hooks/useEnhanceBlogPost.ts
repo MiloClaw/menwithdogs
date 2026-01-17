@@ -18,6 +18,9 @@ export interface EnhancedContent {
   reading_time_minutes?: number;
   social_title?: string;
   cover_image_alt?: string;
+  // Derived fields for UI
+  matched_places?: SuggestedPlace[];
+  unmatched_places?: SuggestedPlace[];
 }
 
 export interface EnhanceRequest {
@@ -54,17 +57,31 @@ export function useEnhanceBlogPost() {
         return null;
       }
 
+      // Separate matched vs unmatched places
+      const allPlaces = data?.suggested_places || [];
+      const matchedPlaces = allPlaces.filter((p: SuggestedPlace) => p.place_id);
+      const unmatchedPlaces = allPlaces.filter((p: SuggestedPlace) => !p.place_id);
+
+      // Add derived fields to response
+      const enhancedData: EnhancedContent = {
+        ...data,
+        matched_places: matchedPlaces,
+        unmatched_places: unmatchedPlaces,
+      };
+
       // Show success with place match info
-      const matchedPlaces = data?.suggested_places?.filter((p: SuggestedPlace) => p.place_id)?.length || 0;
-      const totalPlaces = data?.suggested_places?.length || 0;
+      const totalPlaces = allPlaces.length;
       
       if (totalPlaces > 0) {
-        toast.success(`Content enhanced! Found ${matchedPlaces}/${totalPlaces} places in directory.`);
+        toast.success(
+          `Content enhanced! Found ${matchedPlaces.length} places in directory` +
+          (unmatchedPlaces.length > 0 ? `, ${unmatchedPlaces.length} need to be added.` : '.')
+        );
       } else {
         toast.success('Content enhanced successfully');
       }
       
-      return data as EnhancedContent;
+      return enhancedData;
 
     } catch (err) {
       console.error('Enhancement failed:', err);
