@@ -687,6 +687,41 @@ export type Database = {
           },
         ]
       }
+      metro_counties: {
+        Row: {
+          country_code: string
+          county_name: string
+          created_at: string | null
+          id: string
+          metro_id: string
+          state_code: string
+        }
+        Insert: {
+          country_code?: string
+          county_name: string
+          created_at?: string | null
+          id?: string
+          metro_id: string
+          state_code: string
+        }
+        Update: {
+          country_code?: string
+          county_name?: string
+          created_at?: string | null
+          id?: string
+          metro_id?: string
+          state_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metro_counties_metro_id_fkey"
+            columns: ["metro_id"]
+            isOneToOne: false
+            referencedRelation: "geo_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       paid_tuning_definitions: {
         Row: {
           confidence_cap: number | null
@@ -1736,6 +1771,21 @@ export type Database = {
       create_couple_for_current_user: {
         Args: { unit_type?: string }
         Returns: string
+      }
+      find_metro_for_county: {
+        Args: {
+          _country_code?: string
+          _county_name: string
+          _state_code: string
+        }
+        Returns: {
+          metro_id: string
+          metro_lat: number
+          metro_lng: number
+          metro_name: string
+          primary_city_name: string
+          primary_city_state: string
+        }[]
       }
       get_admin_dashboard_stats: {
         Args: never
