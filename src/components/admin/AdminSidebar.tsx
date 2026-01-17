@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2, Sparkles, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -8,6 +8,7 @@ import { useState } from 'react';
 const navItems = [
   { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { title: 'Users', href: '/admin/users', icon: Users },
+  { title: 'Founders', href: '/admin/founders', icon: Crown },
   { title: 'Interests', href: '/admin/interests', icon: Tags },
   { title: 'Pro Contexts', href: '/admin/pro-contexts', icon: Sparkles },
 ];

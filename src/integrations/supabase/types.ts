@@ -1842,6 +1842,10 @@ export type Database = {
       compute_user_affinity:
         | { Args: { _user_id: string }; Returns: undefined }
         | { Args: { _is_pro?: boolean; _user_id: string }; Returns: undefined }
+      count_founders_redemptions: {
+        Args: { _city_id?: string }
+        Returns: number
+      }
       create_couple_for_current_user: {
         Args: { unit_type?: string }
         Returns: string
@@ -1879,6 +1883,22 @@ export type Database = {
           total_favorites: number
           total_members: number
           total_posts: number
+        }[]
+      }
+      get_founders_redemptions_with_emails: {
+        Args: { _city_id?: string; _limit?: number; _offset?: number }
+        Returns: {
+          city_id: string
+          city_name: string
+          city_state: string
+          couple_id: string
+          created_at: string
+          id: string
+          redeemed_at: string
+          stripe_promo_code_id: string
+          stripe_subscription_id: string
+          user_email: string
+          user_id: string
         }[]
       }
       get_public_events: {

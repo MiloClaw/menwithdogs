@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.migrate-place-photos]
 verify_jwt = false
+
+[functions.manage-founders-promo]
+verify_jwt = false
