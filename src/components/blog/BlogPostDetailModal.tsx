@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, ExternalLink } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import {
@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
 import { queueSignal } from "@/hooks/useUserSignals";
+import { usePublicPostPlaces } from "@/hooks/usePostPlaces";
+import { LinkedPlacesSection } from "./LinkedPlacesSection";
+import PlaceDetailModal from "@/components/directory/PlaceDetailModal";
+import { supabase } from "@/integrations/supabase/client";
 import type { BlogPost } from "@/hooks/useBlogPosts";
 
 interface BlogPostDetailModalProps {
@@ -20,6 +24,10 @@ interface BlogPostDetailModalProps {
 
 export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetailModalProps) {
   const { isAuthenticated } = useAuth();
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [placeModalOpen, setPlaceModalOpen] = useState(false);
+  
+  const { data: linkedPlaces = [] } = usePublicPostPlaces(post?.id || null);
   
   // Emit view_blog_post signal when modal opens
   useEffect(() => {
@@ -37,6 +45,19 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
       );
     }
   }, [post?.id, open, isAuthenticated]);
+
+  const handlePlaceClick = async (placeId: string) => {
+    const { data } = await supabase
+      .from("places")
+      .select("*")
+      .eq("id", placeId)
+      .single();
+    
+    if (data) {
+      setSelectedPlace(data);
+      setPlaceModalOpen(true);
+    }
+  };
   
   if (!post) return null;
 
@@ -84,10 +105,16 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
 
             {/* Body Content - Markdown */}
             {post.body && (
-              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-5 prose-li:my-2 prose-blockquote:my-8 prose-blockquote:border-l-primary prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold">
+              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-5 prose-li:my-2 prose-blockquote:my-8 prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:border-l-4 prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold">
                 <ReactMarkdown>{post.body}</ReactMarkdown>
               </div>
             )}
+
+            {/* Linked Places */}
+            <LinkedPlacesSection 
+              places={linkedPlaces} 
+              onPlaceClick={handlePlaceClick} 
+            />
 
             {/* External Link */}
             {post.external_url && (
@@ -105,6 +132,13 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
             )}
           </div>
         </ScrollArea>
+
+        {/* Place Detail Modal */}
+        <PlaceDetailModal
+          place={selectedPlace}
+          open={placeModalOpen}
+          onOpenChange={setPlaceModalOpen}
+        />
       </DialogContent>
     </Dialog>
   );
