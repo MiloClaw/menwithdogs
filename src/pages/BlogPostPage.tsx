@@ -164,7 +164,7 @@ const BlogPostPage = () => {
 
           {/* Body Content - Markdown */}
           {post.body && (
-            <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-primary prose-blockquote:italic prose-strong:font-semibold">
+            <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-5 prose-li:my-2 prose-blockquote:my-8 prose-blockquote:border-l-primary prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold">
               <ReactMarkdown>{post.body}</ReactMarkdown>
             </div>
           )}

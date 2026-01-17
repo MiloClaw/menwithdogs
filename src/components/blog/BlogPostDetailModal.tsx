@@ -84,7 +84,7 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
 
             {/* Body Content - Markdown */}
             {post.body && (
-              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-xl prose-h3:text-lg prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-primary prose-blockquote:italic">
+              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-p:leading-relaxed prose-p:mb-5 prose-ul:my-4 prose-li:my-1 prose-blockquote:my-6 prose-blockquote:border-l-primary prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
                 <ReactMarkdown>{post.body}</ReactMarkdown>
               </div>
             )}
