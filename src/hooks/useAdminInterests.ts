@@ -37,6 +37,15 @@ interface UpdateInterestParams {
   google_mappings?: GoogleMapping[];
 }
 
+interface CreateInterestParams {
+  id: string;
+  label: string;
+  category_id: string;
+  sort_order?: number;
+  is_active?: boolean;
+  google_mappings?: GoogleMapping[];
+}
+
 /**
  * Fetches ALL interests (including inactive) for admin management
  */
@@ -104,6 +113,26 @@ async function updateInterest(params: UpdateInterestParams): Promise<void> {
 }
 
 /**
+ * Creates a new interest
+ */
+async function createInterest(params: CreateInterestParams): Promise<void> {
+  const { google_mappings, ...otherFields } = params;
+  
+  const { error } = await supabase
+    .from('interests')
+    .insert({
+      id: otherFields.id,
+      label: otherFields.label,
+      category_id: otherFields.category_id,
+      sort_order: otherFields.sort_order ?? 0,
+      is_active: otherFields.is_active ?? true,
+      google_mappings: (google_mappings ?? []) as unknown as null,
+    });
+
+  if (error) throw error;
+}
+
+/**
  * Hook for admin interest management
  */
 export function useAdminInterests() {
@@ -127,13 +156,23 @@ export function useAdminInterests() {
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: createInterest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-interests'] });
+      queryClient.invalidateQueries({ queryKey: ['interests-catalog'] });
+    },
+  });
+
   return {
     interests: interestsQuery.data ?? [],
     categories: categoriesQuery.data ?? [],
     isLoading: interestsQuery.isLoading || categoriesQuery.isLoading,
     error: interestsQuery.error || categoriesQuery.error,
     updateInterest: updateMutation.mutateAsync,
+    createInterest: createMutation.mutateAsync,
     isUpdating: updateMutation.isPending,
+    isCreating: createMutation.isPending,
   };
 }
 
