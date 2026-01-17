@@ -480,7 +480,9 @@ const PostManagement = () => {
       title: formData.title,
       body: formData.body,
       city_name: selectedCityName,
-      city_id: formData.city_id || undefined
+      city_id: formData.location_type === 'city' ? formData.city_id : undefined,
+      location_type: formData.location_type,
+      geo_area_id: formData.location_type === 'metro' ? formData.city_id : undefined,
     });
     
     if (result) {

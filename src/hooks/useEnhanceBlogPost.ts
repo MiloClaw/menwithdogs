@@ -47,6 +47,8 @@ export interface EnhanceRequest {
   body: string;
   city_name?: string;
   city_id?: string;
+  location_type?: 'city' | 'metro';
+  geo_area_id?: string;
 }
 
 export function useEnhanceBlogPost() {

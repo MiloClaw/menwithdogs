@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { title, body, city_name, city_id } = await req.json();
+    const { title, body, city_name, city_id, location_type, geo_area_id } = await req.json();
 
     if (!title || !body) {
       return new Response(
@@ -26,7 +26,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Enhancing blog post:', { title, bodyLength: body.length, city_name, city_id });
+    console.log('Enhancing blog post:', { title, bodyLength: body.length, city_name, city_id, location_type, geo_area_id });
 
     const systemPrompt = `You are an SEO content assistant for MainStreetIRL, a place-centric platform helping people discover real-world venues and neighborhoods for genuine connection.
 
@@ -208,26 +208,46 @@ CRITICAL INSTRUCTIONS:
       mentionedAreasCount: result.mentioned_areas?.length || 0
     });
 
-    // If city_id provided, try to match suggested places and find places in mentioned areas
-    if (city_id && result.suggested_places?.length > 0) {
+    // If city_id or geo_area_id provided, try to match suggested places and find places in mentioned areas
+    const hasLocationContext = city_id || geo_area_id;
+    if (hasLocationContext) {
       try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // Get the city name to match places
-        const { data: cityData } = await supabase
-          .from('cities')
-          .select('name')
-          .eq('id', city_id)
-          .single();
+        let cityNames: string[] = [];
 
-        if (cityData?.name) {
-          // Fetch places for this city
+        if (location_type === 'metro' && geo_area_id) {
+          // For metro areas, get all cities within the metro
+          const { data: metroCities } = await supabase
+            .from('cities')
+            .select('name')
+            .eq('status', 'launched');
+          
+          // Filter cities that belong to this geo area (via geo_areas relationship)
+          // For now, fetch places across all launched cities and filter by metro
+          cityNames = metroCities?.map(c => c.name) || [];
+          console.log('Metro mode: searching across cities:', cityNames);
+        } else if (city_id) {
+          // For single city, get just that city's name
+          const { data: cityData } = await supabase
+            .from('cities')
+            .select('name')
+            .eq('id', city_id)
+            .single();
+          
+          if (cityData?.name) {
+            cityNames = [cityData.name];
+          }
+        }
+
+        if (cityNames.length > 0) {
+          // Fetch places for the relevant cities
           const { data: cityPlaces } = await supabase
             .from('places')
             .select('id, name, city, formatted_address, primary_category')
-            .eq('city', cityData.name)
+            .in('city', cityNames)
             .eq('status', 'approved');
 
           if (cityPlaces && cityPlaces.length > 0) {
