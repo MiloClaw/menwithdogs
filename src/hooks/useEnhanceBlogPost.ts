@@ -9,12 +9,31 @@ export interface SuggestedPlace {
   matched_name?: string | null;
 }
 
+export interface MentionedArea {
+  name: string;
+  context?: string;
+}
+
+export interface AreaRelatedPlace {
+  id: string;
+  name: string;
+  primary_category?: string;
+}
+
+export interface AreaWithPlaces {
+  area_name: string;
+  area_context?: string;
+  places: AreaRelatedPlace[];
+}
+
 export interface EnhancedContent {
   slug: string;
   excerpt: string;
   meta_description: string;
   formatted_body: string;
   suggested_places?: SuggestedPlace[];
+  mentioned_areas?: MentionedArea[];
+  area_related_places?: AreaWithPlaces[];
   reading_time_minutes?: number;
   social_title?: string;
   cover_image_alt?: string;
@@ -71,15 +90,24 @@ export function useEnhanceBlogPost() {
 
       // Show success with place match info
       const totalPlaces = allPlaces.length;
+      const areaPlacesCount = data?.area_related_places?.reduce(
+        (sum: number, area: AreaWithPlaces) => sum + (area.places?.length || 0), 
+        0
+      ) || 0;
+      const areasCount = data?.mentioned_areas?.length || 0;
       
-      if (totalPlaces > 0) {
-        toast.success(
-          `Content enhanced! Found ${matchedPlaces.length} places in directory` +
-          (unmatchedPlaces.length > 0 ? `, ${unmatchedPlaces.length} need to be added.` : '.')
-        );
-      } else {
-        toast.success('Content enhanced successfully');
+      const parts: string[] = ['Content enhanced!'];
+      if (matchedPlaces.length > 0) {
+        parts.push(`Found ${matchedPlaces.length} places in directory.`);
       }
+      if (unmatchedPlaces.length > 0) {
+        parts.push(`${unmatchedPlaces.length} places need to be added.`);
+      }
+      if (areasCount > 0 && areaPlacesCount > 0) {
+        parts.push(`${areaPlacesCount} venues found in ${areasCount} mentioned neighborhoods.`);
+      }
+      
+      toast.success(parts.join(' '));
       
       return enhancedData;
 

@@ -58,7 +58,7 @@ import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
 import VenuePicker from '@/components/admin/events/VenuePicker';
 import { BlogImageUpload } from '@/components/blog/BlogImageUpload';
 import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
-import { useEnhanceBlogPost, SuggestedPlace } from '@/hooks/useEnhanceBlogPost';
+import { useEnhanceBlogPost, SuggestedPlace, AreaWithPlaces } from '@/hooks/useEnhanceBlogPost';
 import { MultiPlacePicker, LinkedPlaceInput } from '@/components/admin/posts/MultiPlacePicker';
 import { usePostPlaces, syncPostPlaces } from '@/hooks/usePostPlaces';
 import { toast } from 'sonner';
@@ -165,6 +165,7 @@ const PostManagement = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [attemptedProceed, setAttemptedProceed] = useState(false);
   const [unmatchedSuggestions, setUnmatchedSuggestions] = useState<SuggestedPlace[]>([]);
+  const [areaRelatedPlaces, setAreaRelatedPlaces] = useState<AreaWithPlaces[]>([]);
   const [placePickerSearchTerm, setPlacePickerSearchTerm] = useState<string>('');
 
   const { data: posts, isLoading: postsLoading } = useAdminPosts(statusFilter);
@@ -205,6 +206,7 @@ const PostManagement = () => {
     setStep(1);
     setErrors({});
     setUnmatchedSuggestions([]);
+    setAreaRelatedPlaces([]);
     setAttemptedProceed(false);
   };
 
@@ -516,6 +518,11 @@ const PostManagement = () => {
       if (result.unmatched_places && result.unmatched_places.length > 0) {
         setUnmatchedSuggestions(result.unmatched_places);
       }
+      
+      // Store area-related places for display
+      if (result.area_related_places && result.area_related_places.length > 0) {
+        setAreaRelatedPlaces(result.area_related_places);
+      }
     }
   };
 
@@ -752,6 +759,66 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
               </div>
             ))}
           </div>
+        </div>
+      )}
+      
+      {/* Venues in Mentioned Areas */}
+      {areaRelatedPlaces.length > 0 && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/20 p-4 space-y-4">
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+            <MapPin className="h-4 w-4" />
+            <span className="text-sm font-medium">
+              Venues in mentioned neighborhoods
+            </span>
+          </div>
+          {areaRelatedPlaces.map((area, areaIndex) => (
+            <div key={areaIndex} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{area.area_name}</span>
+                {area.area_context && (
+                  <span className="text-xs text-muted-foreground italic">— {area.area_context}</span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {area.places.map((place) => {
+                  const isAlreadyAdded = formData.linked_places.some(p => p.place_id === place.id);
+                  return (
+                    <Button
+                      key={place.id}
+                      type="button"
+                      variant={isAlreadyAdded ? "secondary" : "outline"}
+                      size="sm"
+                      disabled={isAlreadyAdded}
+                      onClick={() => {
+                        if (!isAlreadyAdded) {
+                          setFormData(f => ({
+                            ...f,
+                            linked_places: [...f.linked_places, {
+                              place_id: place.id,
+                              name: place.name,
+                              city: selectedCityName || '',
+                              sort_order: f.linked_places.length,
+                            }]
+                          }));
+                        }
+                      }}
+                      className="gap-1.5 text-xs h-8"
+                    >
+                      {isAlreadyAdded ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <Plus className="h-3 w-3" />
+                      )}
+                      {place.name}
+                      {place.primary_category && (
+                        <span className="text-muted-foreground">· {place.primary_category}</span>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -45,13 +45,16 @@ Output requirements:
 - formatted_body: Format for optimal mobile reading UX:
   * Use ## for main sections, ### for subsections (never use #)
   * Keep paragraphs SHORT - 2-4 sentences max for mobile readability
-  * Add blank lines between paragraphs for visual breathing room
+  * Add TWO blank lines between paragraphs for visual breathing room on mobile
   * Use **bold** for venue/business names on FIRST mention only
   * Convert lists of 3+ items to bullet points with - prefix
   * Use > blockquotes for notable quotes or key insights
   * Add transition sentences between sections for smooth reading flow
   * Break up dense text - no wall-of-text paragraphs
-- suggested_places: Extract ALL business names, venue names, restaurant names, bar names, cafe names, or specific location names mentioned in the text. Be thorough - include every place mentioned even if just briefly. Include context about why it's mentioned.
+  * Add a blank line before and after every heading
+  * Add a blank line before and after every list
+- suggested_places: Extract ALL specific business names mentioned. This includes restaurants, bars, cafes, hotels, shops, venues, clubs, theaters, galleries, parks, or any named establishment. Even a brief mention counts. DO NOT include neighborhoods or districts - only named businesses.
+- mentioned_areas: Extract ALL neighborhoods, districts, areas, or regions mentioned. Examples: "Oak Lawn", "Bishop Arts District", "Lower Greenville", "Uptown". These are NOT businesses, they are geographic areas within the city.
 - reading_time_minutes: estimate based on ~200 words per minute
 - social_title: shorter punchy version of title for OG tags, max 60 chars
 - cover_image_alt: descriptive alt text for accessibility based on city/topic context`;
@@ -64,9 +67,11 @@ ${city_name ? `City/Region: ${city_name}` : ''}
 Body Content:
 ${body}
 
-CRITICAL: 
-1. Format the body content for the best mobile reading experience - short paragraphs, clear sections, good visual hierarchy.
-2. Extract ALL business/venue/restaurant/bar/cafe names mentioned in the body text for the suggested_places array. Be thorough - even brief mentions count.`;
+CRITICAL INSTRUCTIONS:
+1. Format the body content for the best mobile reading experience - short paragraphs, clear sections, good visual hierarchy. Add extra blank lines between paragraphs.
+2. For suggested_places: Extract ONLY specific business names (restaurants, bars, shops, venues, etc). NOT neighborhoods or districts.
+3. For mentioned_areas: Extract ALL neighborhoods, districts, or areas mentioned (e.g., "Oak Lawn", "Bishop Arts District"). These are geographic areas, not businesses.
+4. Be thorough - even brief mentions of either businesses or areas should be included.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -107,7 +112,7 @@ CRITICAL:
                   },
                   suggested_places: {
                     type: 'array',
-                    description: 'Business/venue/restaurant/bar names mentioned in the body',
+                    description: 'Specific business/venue/restaurant/bar/shop names mentioned. NOT neighborhoods.',
                     items: {
                       type: 'object',
                       properties: {
@@ -118,6 +123,24 @@ CRITICAL:
                         context: { 
                           type: 'string', 
                           description: 'Brief context about why this place is mentioned (1 sentence)' 
+                        }
+                      },
+                      required: ['name']
+                    }
+                  },
+                  mentioned_areas: {
+                    type: 'array',
+                    description: 'Neighborhoods, districts, or geographic areas mentioned in the body',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { 
+                          type: 'string', 
+                          description: 'Name of the neighborhood or district' 
+                        },
+                        context: { 
+                          type: 'string', 
+                          description: 'How this area is described or referenced' 
                         }
                       },
                       required: ['name']
@@ -181,10 +204,11 @@ CRITICAL:
       excerptLength: result.excerpt?.length,
       metaLength: result.meta_description?.length,
       bodyLength: result.formatted_body?.length,
-      suggestedPlacesCount: result.suggested_places?.length || 0
+      suggestedPlacesCount: result.suggested_places?.length || 0,
+      mentionedAreasCount: result.mentioned_areas?.length || 0
     });
 
-    // If city_id provided, try to match suggested places against directory
+    // If city_id provided, try to match suggested places and find places in mentioned areas
     if (city_id && result.suggested_places?.length > 0) {
       try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -202,37 +226,68 @@ CRITICAL:
           // Fetch places for this city
           const { data: cityPlaces } = await supabase
             .from('places')
-            .select('id, name, city')
+            .select('id, name, city, formatted_address, primary_category')
             .eq('city', cityData.name)
             .eq('status', 'approved');
 
           if (cityPlaces && cityPlaces.length > 0) {
             // Match suggested places to directory
-            result.suggested_places = result.suggested_places.map((sp: { name: string; context?: string }) => {
-              const normalizedSearch = sp.name.toLowerCase().trim();
-              
-              // Try exact match first
-              let match = cityPlaces.find(p => 
-                p.name.toLowerCase().trim() === normalizedSearch
-              );
-              
-              // Try partial match if no exact match
-              if (!match) {
-                match = cityPlaces.find(p => 
-                  p.name.toLowerCase().includes(normalizedSearch) ||
-                  normalizedSearch.includes(p.name.toLowerCase())
+            if (result.suggested_places?.length > 0) {
+              result.suggested_places = result.suggested_places.map((sp: { name: string; context?: string }) => {
+                const normalizedSearch = sp.name.toLowerCase().trim();
+                
+                // Try exact match first
+                let match = cityPlaces.find(p => 
+                  p.name.toLowerCase().trim() === normalizedSearch
                 );
+                
+                // Try partial match if no exact match
+                if (!match) {
+                  match = cityPlaces.find(p => 
+                    p.name.toLowerCase().includes(normalizedSearch) ||
+                    normalizedSearch.includes(p.name.toLowerCase())
+                  );
+                }
+                
+                return {
+                  ...sp,
+                  place_id: match?.id || null,
+                  matched_name: match?.name || null
+                };
+              });
+
+              const matchCount = result.suggested_places.filter((p: any) => p.place_id).length;
+              console.log(`Matched ${matchCount}/${result.suggested_places.length} places to directory`);
+            }
+
+            // Find places in mentioned areas (neighborhoods)
+            if (result.mentioned_areas?.length > 0) {
+              const areaRelatedPlaces: any[] = [];
+              
+              for (const area of result.mentioned_areas) {
+                const areaName = area.name.toLowerCase().trim();
+                
+                // Find places whose address contains this neighborhood name
+                const matchingPlaces = cityPlaces.filter(p => 
+                  p.formatted_address?.toLowerCase().includes(areaName)
+                ).slice(0, 5); // Limit to 5 per area
+                
+                if (matchingPlaces.length > 0) {
+                  areaRelatedPlaces.push({
+                    area_name: area.name,
+                    area_context: area.context,
+                    places: matchingPlaces.map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      primary_category: p.primary_category
+                    }))
+                  });
+                }
               }
               
-              return {
-                ...sp,
-                place_id: match?.id || null,
-                matched_name: match?.name || null
-              };
-            });
-
-            const matchCount = result.suggested_places.filter((p: any) => p.place_id).length;
-            console.log(`Matched ${matchCount}/${result.suggested_places.length} places to directory`);
+              result.area_related_places = areaRelatedPlaces;
+              console.log(`Found ${areaRelatedPlaces.reduce((sum, a) => sum + a.places.length, 0)} places in ${areaRelatedPlaces.length} mentioned areas`);
+            }
           }
         }
       } catch (matchError) {
