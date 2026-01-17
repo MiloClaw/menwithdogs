@@ -37,6 +37,21 @@ export interface TrendData {
   places: number[];
 }
 
+export interface FoundersCityStats {
+  cityId: string;
+  cityName: string;
+  slotsUsed: number;
+  slotsTotal: number;
+}
+
+export interface FoundersStats {
+  totalRedemptions: number;
+  activeCities: number;
+  totalSlotsClaimed: number;
+  totalSlotsAvailable: number;
+  topCities: FoundersCityStats[];
+}
+
 interface AdminStats {
   couples: {
     total: number;
@@ -69,6 +84,7 @@ interface AdminStats {
   };
   trends: TrendData;
   categoryBreakdown: CategoryBreakdown[];
+  founders: FoundersStats;
 }
 
 // Helper to get dates for the last N days
@@ -106,6 +122,9 @@ export const useAdminStats = () => {
         recentPlacesResult,
         // Category breakdown
         allPlacesResult,
+        // Founders program data
+        foundersRedemptionsResult,
+        foundersCitiesResult,
       ] = await Promise.all([
         // Use secure RPC function instead of direct materialized view query
         supabase.rpc('get_admin_dashboard_stats').single(),
@@ -120,6 +139,12 @@ export const useAdminStats = () => {
         supabase.from('places').select('created_at').gte('created_at', sevenDaysAgoISO),
         // All places with categories for breakdown
         supabase.from('places').select('primary_category').eq('status', 'approved'),
+        // Founders redemptions count
+        supabase.from('founders_redemptions').select('id, city_id'),
+        // Cities with founders promo codes
+        supabase.from('cities')
+          .select('id, name, founders_promo_code, founders_slots_total, founders_slots_used')
+          .not('founders_promo_code', 'is', null),
       ]);
 
       // Extract core stats from materialized view
@@ -324,6 +349,27 @@ export const useAdminStats = () => {
         }))
         .sort((a, b) => b.count - a.count);
 
+      // Calculate founders stats
+      const foundersRedemptions = foundersRedemptionsResult.data || [];
+      const foundersCities = foundersCitiesResult.data || [];
+      
+      const totalRedemptions = foundersRedemptions.length;
+      const activeCities = foundersCities.length;
+      const totalSlotsClaimed = foundersCities.reduce((sum, c) => sum + (c.founders_slots_used || 0), 0);
+      const totalSlotsAvailable = foundersCities.reduce((sum, c) => sum + (c.founders_slots_total || 0), 0);
+      
+      // Top cities by usage
+      const topCities: FoundersCityStats[] = foundersCities
+        .filter(c => c.founders_slots_used && c.founders_slots_used > 0)
+        .sort((a, b) => (b.founders_slots_used || 0) - (a.founders_slots_used || 0))
+        .slice(0, 5)
+        .map(c => ({
+          cityId: c.id,
+          cityName: c.name,
+          slotsUsed: c.founders_slots_used || 0,
+          slotsTotal: c.founders_slots_total || 100,
+        }));
+
       return {
         couples: {
           total: coreStats ? Number(coreStats.total_couples) : 0,
@@ -349,6 +395,13 @@ export const useAdminStats = () => {
         },
         trends,
         categoryBreakdown,
+        founders: {
+          totalRedemptions,
+          activeCities,
+          totalSlotsClaimed,
+          totalSlotsAvailable,
+          topCities,
+        },
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
