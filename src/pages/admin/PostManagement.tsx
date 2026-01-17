@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Plus, Megaphone, Calendar, Trash2, Edit, 
-  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw, ImageIcon, Sparkles, Loader2
+  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw, ImageIcon, Sparkles, Loader2, Search, AlertTriangle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -24,7 +24,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -50,12 +52,13 @@ import {
   PostInsert
 } from '@/hooks/usePosts';
 import { useCities } from '@/hooks/useCities';
+import { useMetroAreas } from '@/hooks/useMetroAreas';
 import { usePlaces } from '@/hooks/usePlaces';
 import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
 import VenuePicker from '@/components/admin/events/VenuePicker';
 import { BlogImageUpload } from '@/components/blog/BlogImageUpload';
 import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
-import { useEnhanceBlogPost } from '@/hooks/useEnhanceBlogPost';
+import { useEnhanceBlogPost, SuggestedPlace } from '@/hooks/useEnhanceBlogPost';
 import { MultiPlacePicker, LinkedPlaceInput } from '@/components/admin/posts/MultiPlacePicker';
 import { usePostPlaces, syncPostPlaces } from '@/hooks/usePostPlaces';
 import { toast } from 'sonner';
@@ -97,6 +100,7 @@ interface PostFormData {
   excerpt: string;
   meta_description: string;
   city_id: string;
+  location_type: 'city' | 'metro'; // New: track if city or metro selected
   place_id: string;
   start_date: string; // date only for one-time events (YYYY-MM-DD)
   is_recurring: boolean;
@@ -117,6 +121,7 @@ const INITIAL_FORM: PostFormData = {
   excerpt: '',
   meta_description: '',
   city_id: '',
+  location_type: 'city',
   place_id: '',
   start_date: '',
   is_recurring: false,
@@ -159,9 +164,12 @@ const PostManagement = () => {
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<FormErrors>({});
   const [attemptedProceed, setAttemptedProceed] = useState(false);
+  const [unmatchedSuggestions, setUnmatchedSuggestions] = useState<SuggestedPlace[]>([]);
+  const [placePickerSearchTerm, setPlacePickerSearchTerm] = useState<string>('');
 
   const { data: posts, isLoading: postsLoading } = useAdminPosts(statusFilter);
   const { data: cities, isLoading: citiesLoading } = useCities();
+  const { data: metroAreas, isLoading: metroLoading } = useMetroAreas();
   const { places } = usePlaces();
   
   const createPost = useCreatePost();
@@ -170,7 +178,15 @@ const PostManagement = () => {
 
   const launchedCities = cities?.filter(c => c.status === 'launched') || [];
   
-  const selectedCityName = launchedCities.find(c => c.id === formData.city_id)?.name;
+  // Get display name for location (city or metro)
+  const getLocationDisplayName = () => {
+    if (formData.location_type === 'metro') {
+      return metroAreas?.find(m => m.id === formData.city_id)?.name;
+    }
+    return launchedCities.find(c => c.id === formData.city_id)?.name;
+  };
+  
+  const selectedCityName = getLocationDisplayName();
   const cityPlaces = places?.filter(p => 
     p.status === 'approved' && 
     selectedCityName && 
@@ -188,6 +204,7 @@ const PostManagement = () => {
     setEditingPost(null);
     setStep(1);
     setErrors({});
+    setUnmatchedSuggestions([]);
     setAttemptedProceed(false);
   };
 
@@ -235,6 +252,7 @@ const PostManagement = () => {
       excerpt: (post as any).excerpt || '',
       meta_description: (post as any).meta_description || '',
       city_id: post.city_id,
+      location_type: 'city',
       place_id: post.place_id || '',
       start_date: post.start_date ? post.start_date.slice(0, 10) : '', // date only
       is_recurring: post.is_recurring || false,
@@ -473,37 +491,39 @@ const PostManagement = () => {
         body: result.formatted_body
       }));
       
-      // Handle suggested places - pre-populate MultiPlacePicker with matched places
-      if (result.suggested_places && result.suggested_places.length > 0) {
-        const matchedPlaces = result.suggested_places
-          .filter(sp => sp.place_id)
-          .map((sp, index) => ({
-            place_id: sp.place_id!,
-            name: sp.matched_name || sp.name,
-            city: selectedCityName || '',
-            sort_order: index,
-            context_note: sp.context || undefined,
-          }));
+      // Handle matched places - pre-populate MultiPlacePicker
+      if (result.matched_places && result.matched_places.length > 0) {
+        const matchedPlaces = result.matched_places.map((sp, index) => ({
+          place_id: sp.place_id!,
+          name: sp.matched_name || sp.name,
+          city: selectedCityName || '',
+          sort_order: index,
+          context_note: sp.context || undefined,
+        }));
         
-        if (matchedPlaces.length > 0) {
-          // Merge with existing linked places (avoid duplicates)
-          setFormData(f => {
-            const existingIds = new Set(f.linked_places.map(p => p.place_id));
-            const newPlaces = matchedPlaces.filter(p => !existingIds.has(p.place_id));
-            return {
-              ...f,
-              linked_places: [...f.linked_places, ...newPlaces]
-            };
-          });
-        }
-        
-        // Show unmatched places as info
-        const unmatchedPlaces = result.suggested_places.filter(sp => !sp.place_id);
-        if (unmatchedPlaces.length > 0) {
-          console.log('Unmatched places mentioned:', unmatchedPlaces.map(p => p.name));
-        }
+        // Merge with existing linked places (avoid duplicates)
+        setFormData(f => {
+          const existingIds = new Set(f.linked_places.map(p => p.place_id));
+          const newPlaces = matchedPlaces.filter(p => !existingIds.has(p.place_id));
+          return {
+            ...f,
+            linked_places: [...f.linked_places, ...newPlaces]
+          };
+        });
+      }
+      
+      // Store unmatched places for display as suggestions
+      if (result.unmatched_places && result.unmatched_places.length > 0) {
+        setUnmatchedSuggestions(result.unmatched_places);
       }
     }
+  };
+
+  // Handler for "Search to Add" button on unmatched suggestions
+  const handleSearchToAdd = (placeName: string) => {
+    setPlacePickerSearchTerm(placeName);
+    // Remove from unmatched suggestions once user clicks to add
+    setUnmatchedSuggestions(prev => prev.filter(p => p.name !== placeName));
   };
 
   const renderAnnouncementStep2 = () => (
@@ -636,28 +656,47 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
         </p>
       </div>
       
-      {/* City */}
+      {/* Location - City or Metro Area */}
       <div>
-        <Label>City</Label>
-        {citiesLoading ? (
+        <Label>Location</Label>
+        {citiesLoading || metroLoading ? (
           <Skeleton className="h-10 w-full mt-1.5" />
         ) : (
           <Select
-            value={formData.city_id}
+            value={formData.city_id ? `${formData.location_type}:${formData.city_id}` : ''}
             onValueChange={(v) => {
-              setFormData(f => ({ ...f, city_id: v, place_id: '' }));
+              const [type, id] = v.split(':');
+              setFormData(f => ({ 
+                ...f, 
+                city_id: id, 
+                location_type: type as 'city' | 'metro',
+                place_id: '' 
+              }));
               if (errors.city_id) setErrors(e => ({ ...e, city_id: undefined }));
             }}
           >
             <SelectTrigger className={`mt-1.5 ${attemptedProceed && errors.city_id ? 'border-destructive' : ''}`}>
-              <SelectValue placeholder="Choose a launched city" />
+              <SelectValue placeholder="Choose a city or metro area" />
             </SelectTrigger>
             <SelectContent>
-              {launchedCities.map(city => (
-                <SelectItem key={city.id} value={city.id}>
-                  {city.name}{city.state ? `, ${city.state}` : ''}
-                </SelectItem>
-              ))}
+              {metroAreas && metroAreas.length > 0 && (
+                <SelectGroup>
+                  <SelectLabel className="text-xs text-muted-foreground">Metro Areas</SelectLabel>
+                  {metroAreas.map(metro => (
+                    <SelectItem key={metro.id} value={`metro:${metro.id}`}>
+                      {metro.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              )}
+              <SelectGroup>
+                <SelectLabel className="text-xs text-muted-foreground">Cities</SelectLabel>
+                {launchedCities.map(city => (
+                  <SelectItem key={city.id} value={`city:${city.id}`}>
+                    {city.name}{city.state ? `, ${city.state}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         )}
@@ -673,7 +712,48 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
       <MultiPlacePicker
         value={formData.linked_places}
         onChange={(places) => setFormData(f => ({ ...f, linked_places: places }))}
+        initialSearchTerm={placePickerSearchTerm}
+        onSearchTermChange={setPlacePickerSearchTerm}
       />
+      
+      {/* Unmatched Place Suggestions */}
+      {unmatchedSuggestions.length > 0 && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm font-medium">
+              {unmatchedSuggestions.length} place{unmatchedSuggestions.length > 1 ? 's' : ''} mentioned but not in directory
+            </span>
+          </div>
+          <div className="space-y-2">
+            {unmatchedSuggestions.map((suggestion, index) => (
+              <div 
+                key={index}
+                className="flex items-start justify-between gap-3 p-3 rounded-md bg-background border"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm">{suggestion.name}</p>
+                  {suggestion.context && (
+                    <p className="text-xs text-muted-foreground mt-0.5 italic">
+                      "{suggestion.context}"
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSearchToAdd(suggestion.name)}
+                  className="gap-1.5 shrink-0"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                  Search to Add
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 

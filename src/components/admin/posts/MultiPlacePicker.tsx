@@ -31,6 +31,8 @@ interface MultiPlacePickerProps {
   value: LinkedPlaceInput[];
   onChange: (places: LinkedPlaceInput[]) => void;
   disabled?: boolean;
+  initialSearchTerm?: string;
+  onSearchTermChange?: (term: string) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -42,6 +44,8 @@ export const MultiPlacePicker = ({
   value,
   onChange,
   disabled,
+  initialSearchTerm,
+  onSearchTermChange,
 }: MultiPlacePickerProps) => {
   const { places, createPlace } = usePlaces();
   const {
@@ -52,10 +56,23 @@ export const MultiPlacePicker = ({
     clearPredictions,
   } = useGooglePlaces();
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm || "");
   const [isCreatingVenue, setIsCreatingVenue] = useState(false);
   const [editingContextIndex, setEditingContextIndex] = useState<number | null>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
+
+  // Sync initial search term when it changes
+  useEffect(() => {
+    if (initialSearchTerm && initialSearchTerm !== searchTerm) {
+      setSearchTerm(initialSearchTerm);
+    }
+  }, [initialSearchTerm]);
+
+  // Notify parent of search term changes
+  const handleSearchTermChange = (term: string) => {
+    setSearchTerm(term);
+    onSearchTermChange?.(term);
+  };
 
   const approvedPlaces = places.filter((p) => p.status === "approved");
 
@@ -299,7 +316,7 @@ export const MultiPlacePicker = ({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => handleSearchTermChange(e.target.value)}
           placeholder="Search places to add..."
           className="pl-9 pr-9"
           disabled={disabled}
