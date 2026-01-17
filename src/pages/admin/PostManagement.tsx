@@ -188,6 +188,23 @@ const PostManagement = () => {
   };
   
   const selectedCityName = getLocationDisplayName();
+  
+  // Compute location bias for Google Places search
+  const selectedLocationBias = (() => {
+    if (formData.location_type === 'metro') {
+      const metro = metroAreas?.find(m => m.id === formData.city_id);
+      if (metro?.centroid_lat && metro?.centroid_lng) {
+        return { lat: metro.centroid_lat, lng: metro.centroid_lng };
+      }
+    } else {
+      const city = launchedCities.find(c => c.id === formData.city_id);
+      if (city?.lat && city?.lng) {
+        return { lat: city.lat, lng: city.lng };
+      }
+    }
+    return undefined;
+  })();
+  
   const cityPlaces = places?.filter(p => 
     p.status === 'approved' && 
     selectedCityName && 
@@ -723,6 +740,7 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
         onChange={(places) => setFormData(f => ({ ...f, linked_places: places }))}
         initialSearchTerm={placePickerSearchTerm}
         onSearchTermChange={setPlacePickerSearchTerm}
+        locationBias={selectedLocationBias}
       />
       
       {/* Unmatched Place Suggestions */}

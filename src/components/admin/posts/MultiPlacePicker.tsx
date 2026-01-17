@@ -33,6 +33,7 @@ interface MultiPlacePickerProps {
   disabled?: boolean;
   initialSearchTerm?: string;
   onSearchTermChange?: (term: string) => void;
+  locationBias?: { lat: number; lng: number };
 }
 
 const statusColors: Record<string, string> = {
@@ -46,6 +47,7 @@ export const MultiPlacePicker = ({
   disabled,
   initialSearchTerm,
   onSearchTermChange,
+  locationBias,
 }: MultiPlacePickerProps) => {
   const { places, createPlace } = usePlaces();
   const {
@@ -61,12 +63,19 @@ export const MultiPlacePicker = ({
   const [editingContextIndex, setEditingContextIndex] = useState<number | null>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
-  // Sync initial search term when it changes
+  // Sync initial search term when it changes and trigger fetch
   useEffect(() => {
     if (initialSearchTerm && initialSearchTerm !== searchTerm) {
       setSearchTerm(initialSearchTerm);
+      // Explicitly trigger fetch when initial term is set from parent
+      if (initialSearchTerm.length >= 2) {
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          fetchAutocomplete(initialSearchTerm, "establishment", locationBias);
+        }, 100);
+      }
     }
-  }, [initialSearchTerm]);
+  }, [initialSearchTerm, fetchAutocomplete, locationBias]);
 
   // Notify parent of search term changes
   const handleSearchTermChange = (term: string) => {
@@ -89,7 +98,7 @@ export const MultiPlacePicker = ({
         )
       : [];
 
-  // Fetch Google predictions
+  // Fetch Google predictions with location bias
   const debouncedFetch = useCallback(
     (term: string) => {
       if (debounceRef.current) {
@@ -102,10 +111,10 @@ export const MultiPlacePicker = ({
       }
 
       debounceRef.current = setTimeout(() => {
-        fetchAutocomplete(term, "establishment");
+        fetchAutocomplete(term, "establishment", locationBias);
       }, 200);
     },
-    [fetchAutocomplete, clearPredictions]
+    [fetchAutocomplete, clearPredictions, locationBias]
   );
 
   useEffect(() => {
