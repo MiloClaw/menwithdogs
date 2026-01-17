@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Tags, Check, X, Pencil, Users, Heart } from 'lucide-react';
+import { Tags, Check, X, Pencil, Users, Heart, Plus } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,8 +46,16 @@ interface EditFormState {
   google_mappings: GoogleMapping[];
 }
 
+interface CreateFormState {
+  id: string;
+  label: string;
+  category_id: string;
+  sort_order: number;
+  google_mappings: GoogleMapping[];
+}
+
 const InterestManagement = () => {
-  const { interests, categories, isLoading, updateInterest, isUpdating } = useAdminInterests();
+  const { interests, categories, isLoading, updateInterest, createInterest, isUpdating, isCreating } = useAdminInterests();
   const { data: usageCounts } = useInterestUsageCounts();
   const { toast } = useToast();
 
@@ -57,6 +65,14 @@ const InterestManagement = () => {
   const [editForm, setEditForm] = useState<EditFormState>({ 
     label: '', 
     category_id: '', 
+    sort_order: 0,
+    google_mappings: [],
+  });
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateFormState>({
+    id: '',
+    label: '',
+    category_id: '',
     sort_order: 0,
     google_mappings: [],
   });
@@ -136,6 +152,52 @@ const InterestManagement = () => {
     }
   };
 
+  const handleCreateInterest = async () => {
+    if (!createForm.id || !createForm.label || !createForm.category_id) {
+      toast({
+        title: 'Missing fields',
+        description: 'ID, label, and category are required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if ID already exists
+    if (interests.some(i => i.id === createForm.id)) {
+      toast({
+        title: 'ID already exists',
+        description: 'Please choose a unique ID.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const validMappings = createForm.google_mappings.filter(m => m.type);
+
+    try {
+      await createInterest({
+        id: createForm.id,
+        label: createForm.label,
+        category_id: createForm.category_id,
+        sort_order: createForm.sort_order,
+        is_active: true,
+        google_mappings: validMappings,
+      });
+      toast({
+        title: 'Interest created',
+        description: `"${createForm.label}" has been created.`,
+      });
+      setIsCreateDialogOpen(false);
+      setCreateForm({ id: '', label: '', category_id: '', sort_order: 0, google_mappings: [] });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create interest.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getMemberCount = (interestId: string) => usageCounts?.memberCounts.get(interestId) ?? 0;
   const getCoupleCount = (interestId: string) => usageCounts?.coupleCounts.get(interestId) ?? 0;
 
@@ -143,11 +205,17 @@ const InterestManagement = () => {
     <AdminLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <div>
-          <h1 className="text-2xl font-bold">Interest Management</h1>
-          <p className="text-muted-foreground">
-            Manage interests, toggle availability, and configure Google Places mappings
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Interest Management</h1>
+            <p className="text-muted-foreground">
+              Manage interests, toggle availability, and configure Google Places mappings
+            </p>
+          </div>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Interest
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -419,6 +487,88 @@ const InterestManagement = () => {
             </Button>
             <Button onClick={handleSaveEdit} disabled={isUpdating}>
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Create New Interest</DialogTitle>
+            <DialogDescription>
+              Add a new interest tag with Google Places mappings
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div className="space-y-6 py-4">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="create-id">ID (slug format, e.g. "wine-tasting")</Label>
+                  <Input
+                    id="create-id"
+                    value={createForm.id}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, id: e.target.value.toLowerCase().replace(/\s+/g, '-') }))}
+                    placeholder="wine-tasting"
+                    className="font-mono"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="create-label">Display Name</Label>
+                  <Input
+                    id="create-label"
+                    value={createForm.label}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, label: e.target.value }))}
+                    placeholder="Wine Tasting"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="create-category">Category</Label>
+                    <Select
+                      value={createForm.category_id}
+                      onValueChange={(v) => setCreateForm(prev => ({ ...prev, category_id: v }))}
+                    >
+                      <SelectTrigger id="create-category">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="create-order">Sort Order</Label>
+                    <Input
+                      id="create-order"
+                      type="number"
+                      value={createForm.sort_order}
+                      onChange={(e) => setCreateForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t" />
+
+              <GoogleMappingEditor
+                mappings={createForm.google_mappings}
+                onChange={(mappings) => setCreateForm(prev => ({ ...prev, google_mappings: mappings }))}
+                disabled={isCreating}
+              />
+            </div>
+          </ScrollArea>
+          <DialogFooter className="border-t pt-4">
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateInterest} disabled={isCreating}>
+              Create Interest
             </Button>
           </DialogFooter>
         </DialogContent>
