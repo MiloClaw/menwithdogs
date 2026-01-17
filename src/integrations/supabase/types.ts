@@ -1262,6 +1262,48 @@ export type Database = {
           },
         ]
       }
+      post_places: {
+        Row: {
+          context_note: string | null
+          created_at: string
+          id: string
+          place_id: string
+          post_id: string
+          sort_order: number
+        }
+        Insert: {
+          context_note?: string | null
+          created_at?: string
+          id?: string
+          place_id: string
+          post_id: string
+          sort_order?: number
+        }
+        Update: {
+          context_note?: string | null
+          created_at?: string
+          id?: string
+          place_id?: string
+          post_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_places_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_tags: {
         Row: {
           created_at: string | null

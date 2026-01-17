@@ -5,15 +5,54 @@ import ReactMarkdown from "react-markdown";
 import PageLayout from "@/components/PageLayout";
 import { Button } from "@/components/ui/button";
 import { useBlogPostBySlug } from "@/hooks/useBlogPostBySlug";
-import { useEffect } from "react";
+import { usePostPlaces } from "@/hooks/usePostPlaces";
+import { LinkedPlacesSection } from "@/components/blog/LinkedPlacesSection";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { queueSignal } from "@/hooks/useUserSignals";
+import PlaceDetailModal, { PlaceDetail } from "@/components/directory/PlaceDetailModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { data: post, isLoading, error } = useBlogPostBySlug(slug);
   const { isAuthenticated } = useAuth();
+  const [selectedPlace, setSelectedPlace] = useState<PlaceDetail | null>(null);
+  const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
+
+  // Fetch linked places for this post
+  const { data: linkedPlaces = [] } = usePostPlaces(post?.id ?? null);
+
+  // Handle place click - fetch place details and open modal
+  const handlePlaceClick = async (placeId: string) => {
+    const { data } = await supabase
+      .from('places')
+      .select('*')
+      .eq('id', placeId)
+      .single();
+    
+    if (data) {
+      setSelectedPlace({
+        id: data.id,
+        name: data.name,
+        primary_category: data.primary_category,
+        city: data.city,
+        state: data.state,
+        formatted_address: data.formatted_address,
+        rating: data.rating,
+        user_ratings_total: data.user_ratings_total,
+        price_level: data.price_level,
+        photos: data.photos,
+        stored_photo_urls: data.stored_photo_urls,
+        website_url: data.website_url,
+        google_maps_url: data.google_maps_url,
+        phone_number: data.phone_number,
+        opening_hours: data.opening_hours,
+      });
+      setIsPlaceModalOpen(true);
+    }
+  };
 
   // Emit view_blog_post signal
   useEffect(() => {
@@ -130,6 +169,12 @@ const BlogPostPage = () => {
             </div>
           )}
 
+          {/* Linked Places Section */}
+          <LinkedPlacesSection 
+            places={linkedPlaces} 
+            onPlaceClick={handlePlaceClick}
+          />
+
           {/* External Link */}
           {post.external_url && (
             <div className="mt-12 pt-8 border-t border-border">
@@ -148,6 +193,13 @@ const BlogPostPage = () => {
           )}
         </div>
       </article>
+
+      {/* Place Detail Modal */}
+      <PlaceDetailModal 
+        place={selectedPlace}
+        open={isPlaceModalOpen}
+        onOpenChange={setIsPlaceModalOpen}
+      />
     </PageLayout>
   );
 };

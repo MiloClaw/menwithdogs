@@ -56,6 +56,8 @@ import VenuePicker from '@/components/admin/events/VenuePicker';
 import { BlogImageUpload } from '@/components/blog/BlogImageUpload';
 import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
 import { useEnhanceBlogPost } from '@/hooks/useEnhanceBlogPost';
+import { MultiPlacePicker, LinkedPlaceInput } from '@/components/admin/posts/MultiPlacePicker';
+import { usePostPlaces, syncPostPlaces } from '@/hooks/usePostPlaces';
 import { toast } from 'sonner';
 
 // Generate slug from title
@@ -104,6 +106,7 @@ interface PostFormData {
   cover_image_url: string | null;
   status: PostStatus;
   interest_tags: string[];
+  linked_places: LinkedPlaceInput[];
 }
 
 const INITIAL_FORM: PostFormData = {
@@ -123,6 +126,7 @@ const INITIAL_FORM: PostFormData = {
   cover_image_url: null,
   status: 'draft',
   interest_tags: [],
+  linked_places: [],
 };
 
 const statusColors: Record<PostStatus, string> = {
@@ -175,6 +179,9 @@ const PostManagement = () => {
 
   // Fetch existing tags when editing
   const { data: existingTags = [] } = usePostTags(editingPost?.id ?? null);
+  
+  // Fetch existing linked places when editing
+  const { data: existingLinkedPlaces = [] } = usePostPlaces(editingPost?.id ?? null);
 
   const resetForm = () => {
     setFormData(INITIAL_FORM);
@@ -237,6 +244,7 @@ const PostManagement = () => {
       cover_image_url: post.cover_image_url || null,
       status: post.status,
       interest_tags: [],
+      linked_places: [],
     });
     
     // For editing, start at step 2 (skip type selection) to allow full navigation
@@ -250,6 +258,22 @@ const PostManagement = () => {
       setFormData(f => ({ ...f, interest_tags: existingTags }));
     }
   }, [editingPost, existingTags, formData.interest_tags.length]);
+
+  // Update form with existing linked places when they load
+  useEffect(() => {
+    if (editingPost && existingLinkedPlaces.length > 0 && formData.linked_places.length === 0) {
+      setFormData(f => ({ 
+        ...f, 
+        linked_places: existingLinkedPlaces.map(p => ({
+          place_id: p.place_id,
+          name: p.name,
+          city: p.city,
+          sort_order: p.sort_order,
+          context_note: p.context_note || undefined,
+        }))
+      }));
+    }
+  }, [editingPost, existingLinkedPlaces, formData.linked_places.length]);
 
   const handleTagToggle = (interestId: string) => {
     setFormData(f => ({
@@ -337,9 +361,17 @@ const PostManagement = () => {
         toast.success(publish ? 'Post published' : 'Draft saved');
       }
       
-      // Sync tags for announcements
+      // Sync tags and linked places for announcements
       if (formData.type === 'announcement') {
         await syncPostTags(postId, formData.interest_tags);
+        await syncPostPlaces(
+          postId,
+          formData.linked_places.map((p, i) => ({
+            place_id: p.place_id,
+            sort_order: i,
+            context_note: p.context_note,
+          }))
+        );
       }
       
       setDialogOpen(false);
@@ -604,26 +636,11 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
         )}
       </div>
       
-      {/* Optional Place Link */}
-      <div>
-        <Label>Link to a Place (Optional)</Label>
-        <Select
-          value={formData.place_id || "none"}
-          onValueChange={(v) => setFormData(f => ({ ...f, place_id: v === "none" ? "" : v }))}
-        >
-          <SelectTrigger className="mt-1.5">
-            <SelectValue placeholder="No place linked" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No place linked</SelectItem>
-            {cityPlaces.map(place => (
-              <SelectItem key={place.id} value={place.id}>
-                {place.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Multi-Place Picker */}
+      <MultiPlacePicker
+        value={formData.linked_places}
+        onChange={(places) => setFormData(f => ({ ...f, linked_places: places }))}
+      />
     </div>
   );
 
