@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Plus, Megaphone, Calendar, Trash2, Edit, 
-  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw, ImageIcon
+  AlertCircle, Check, Clock, MapPin, ExternalLink, RotateCcw, ImageIcon, Sparkles, Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -55,6 +55,7 @@ import { PostTagsStep } from '@/components/admin/posts/PostTagsStep';
 import VenuePicker from '@/components/admin/events/VenuePicker';
 import { BlogImageUpload } from '@/components/blog/BlogImageUpload';
 import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
+import { useEnhanceBlogPost } from '@/hooks/useEnhanceBlogPost';
 import { toast } from 'sonner';
 
 // Generate slug from title
@@ -415,6 +416,31 @@ const PostManagement = () => {
     }
   };
 
+  const { enhancePost, isEnhancing } = useEnhanceBlogPost();
+
+  const handleAIEnhance = async () => {
+    if (!formData.title.trim() || !formData.body.trim()) {
+      toast.error('Enter a title and body content first');
+      return;
+    }
+    
+    const result = await enhancePost({
+      title: formData.title,
+      body: formData.body,
+      city_name: selectedCityName
+    });
+    
+    if (result) {
+      setFormData(f => ({
+        ...f,
+        slug: result.slug,
+        excerpt: result.excerpt.slice(0, 200),
+        meta_description: result.meta_description.slice(0, 160),
+        body: result.formatted_body
+      }));
+    }
+  };
+
   const renderAnnouncementStep2 = () => (
     <div className="space-y-5">
       {/* Cover Image Upload */}
@@ -450,6 +476,47 @@ const PostManagement = () => {
         )}
       </div>
       
+      {/* Body with Markdown Editor */}
+      <div>
+        <Label htmlFor="body">Body Content</Label>
+        <MarkdownEditor
+          value={formData.body}
+          onChange={(value) => setFormData(f => ({ ...f, body: value }))}
+          placeholder="Write your post using Markdown...
+
+## Neighborhood Highlights
+
+Oak Lawn is where a lot of gay life in Dallas still runs quietly in the background...
+
+### What to expect
+- Morning coffee at familiar spots
+- Dog walking routines that become social rituals"
+          rows={10}
+          className="mt-1.5"
+        />
+      </div>
+      
+      {/* AI Enhance Button */}
+      <div className="flex flex-col items-center gap-2 py-2 px-4 rounded-lg bg-muted/50 border border-dashed">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAIEnhance}
+          disabled={isEnhancing || !formData.title.trim() || !formData.body.trim()}
+          className="gap-2"
+        >
+          {isEnhancing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {isEnhancing ? 'Enhancing...' : 'AI Enhance All Fields'}
+        </Button>
+        <p className="text-xs text-muted-foreground text-center">
+          Auto-generates URL slug, excerpt, meta description, and formats body with Markdown
+        </p>
+      </div>
+      
       {/* URL Slug */}
       <div>
         <Label htmlFor="slug">URL Slug</Label>
@@ -483,26 +550,6 @@ const PostManagement = () => {
         <p className={`text-xs mt-1 ${formData.excerpt.length > 180 ? 'text-amber-600' : 'text-muted-foreground'}`}>
           {formData.excerpt.length}/200 characters
         </p>
-      </div>
-      
-      {/* Body with Markdown Editor */}
-      <div>
-        <Label htmlFor="body">Body Content</Label>
-        <MarkdownEditor
-          value={formData.body}
-          onChange={(value) => setFormData(f => ({ ...f, body: value }))}
-          placeholder="Write your post using Markdown...
-
-## Neighborhood Highlights
-
-Oak Lawn is where a lot of gay life in Dallas still runs quietly in the background...
-
-### What to expect
-- Morning coffee at familiar spots
-- Dog walking routines that become social rituals"
-          rows={10}
-          className="mt-1.5"
-        />
       </div>
       
       {/* Meta Description */}

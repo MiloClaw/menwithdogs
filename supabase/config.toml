@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.manage-founders-promo]
 verify_jwt = false
+
+[functions.enhance-blog-post]
+verify_jwt = false
