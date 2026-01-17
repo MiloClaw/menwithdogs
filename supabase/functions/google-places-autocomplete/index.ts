@@ -81,28 +81,22 @@ serve(async (req) => {
   }
 
   try {
-    // ========== AUTHENTICATION: Require authenticated user ==========
+    // ========== AUTHENTICATION: Optional (public search proxy) ==========
+    // This function proxies Google Places Autocomplete - used for city search
+    // during onboarding and public pages. Auth is optional but logged for analytics.
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    let userId: string | null = null;
+    
+    if (authHeader?.startsWith("Bearer ")) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claims?.claims?.sub) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claims } = await supabase.auth.getClaims(token);
+      userId = claims?.claims?.sub as string || null;
     }
     // ========== END AUTHENTICATION ==========
 
