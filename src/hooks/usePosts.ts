@@ -37,6 +37,9 @@ export interface PostInsert {
   type: 'announcement' | 'event';
   title: string;
   body?: string | null;
+  slug?: string | null;
+  excerpt?: string | null;
+  meta_description?: string | null;
   city_id: string;
   place_id?: string | null;
   start_date?: string | null;

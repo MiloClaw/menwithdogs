@@ -37,10 +37,10 @@ export const FeaturedBlogCard = ({ post, onTagClick, onClick }: FeaturedBlogCard
             {post.title}
           </h2>
           
-          {/* Body Preview */}
-          {post.body && (
+          {/* Body Preview - Use excerpt if available */}
+          {(post.excerpt || post.body) && (
             <p className="text-white/80 text-sm sm:text-base leading-relaxed line-clamp-2 max-w-2xl mb-6">
-              {post.body}
+              {post.excerpt || post.body?.replace(/^#+\s*/gm, '').substring(0, 200)}
             </p>
           )}
           

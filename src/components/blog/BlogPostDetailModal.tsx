@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { MapPin, ExternalLink } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import {
   Dialog,
   DialogContent,
@@ -81,16 +82,10 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
             {/* Divider */}
             <div className="border-t border-border" />
 
-            {/* Body Content */}
+            {/* Body Content - Markdown */}
             {post.body && (
-              <div className="prose prose-neutral dark:prose-invert max-w-none leading-relaxed text-foreground/90">
-                {post.body.split('\n').map((paragraph, index) => (
-                  paragraph.trim() && (
-                    <p key={index} className="mb-4 last:mb-0">
-                      {paragraph}
-                    </p>
-                  )
-                ))}
+              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-xl prose-h3:text-lg prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-primary prose-blockquote:italic">
+                <ReactMarkdown>{post.body}</ReactMarkdown>
               </div>
             )}
 
