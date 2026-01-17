@@ -459,10 +459,12 @@ const PostManagement = () => {
     const result = await enhancePost({
       title: formData.title,
       body: formData.body,
-      city_name: selectedCityName
+      city_name: selectedCityName,
+      city_id: formData.city_id || undefined
     });
     
     if (result) {
+      // Update SEO fields
       setFormData(f => ({
         ...f,
         slug: result.slug,
@@ -470,6 +472,37 @@ const PostManagement = () => {
         meta_description: result.meta_description.slice(0, 160),
         body: result.formatted_body
       }));
+      
+      // Handle suggested places - pre-populate MultiPlacePicker with matched places
+      if (result.suggested_places && result.suggested_places.length > 0) {
+        const matchedPlaces = result.suggested_places
+          .filter(sp => sp.place_id)
+          .map((sp, index) => ({
+            place_id: sp.place_id!,
+            name: sp.matched_name || sp.name,
+            city: selectedCityName || '',
+            sort_order: index,
+            context_note: sp.context || undefined,
+          }));
+        
+        if (matchedPlaces.length > 0) {
+          // Merge with existing linked places (avoid duplicates)
+          setFormData(f => {
+            const existingIds = new Set(f.linked_places.map(p => p.place_id));
+            const newPlaces = matchedPlaces.filter(p => !existingIds.has(p.place_id));
+            return {
+              ...f,
+              linked_places: [...f.linked_places, ...newPlaces]
+            };
+          });
+        }
+        
+        // Show unmatched places as info
+        const unmatchedPlaces = result.suggested_places.filter(sp => !sp.place_id);
+        if (unmatchedPlaces.length > 0) {
+          console.log('Unmatched places mentioned:', unmatchedPlaces.map(p => p.name));
+        }
+      }
     }
   };
 
@@ -529,7 +562,7 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
       </div>
       
       {/* AI Enhance Button */}
-      <div className="flex flex-col items-center gap-2 py-2 px-4 rounded-lg bg-muted/50 border border-dashed">
+      <div className="flex flex-col items-center gap-2 py-3 px-4 rounded-lg bg-muted/50 border border-dashed">
         <Button
           type="button"
           variant="outline"
@@ -542,10 +575,10 @@ Oak Lawn is where a lot of gay life in Dallas still runs quietly in the backgrou
           ) : (
             <Sparkles className="h-4 w-4" />
           )}
-          {isEnhancing ? 'Enhancing...' : 'AI Enhance All Fields'}
+          {isEnhancing ? 'Analyzing content...' : 'AI Enhance All Fields'}
         </Button>
-        <p className="text-xs text-muted-foreground text-center">
-          Auto-generates URL slug, excerpt, meta description, and formats body with Markdown
+        <p className="text-xs text-muted-foreground text-center max-w-sm">
+          Auto-generates SEO fields, formats Markdown, and finds places mentioned in your article
         </p>
       </div>
       
