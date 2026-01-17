@@ -1331,6 +1331,7 @@ export type Database = {
           is_sensitive: boolean | null
           key: string
           label: string | null
+          legacy_key: string | null
           section: string | null
           show_condition: Json | null
           sort_order: number | null
@@ -1350,6 +1351,7 @@ export type Database = {
           is_sensitive?: boolean | null
           key: string
           label?: string | null
+          legacy_key?: string | null
           section?: string | null
           show_condition?: Json | null
           sort_order?: number | null
@@ -1369,6 +1371,7 @@ export type Database = {
           is_sensitive?: boolean | null
           key?: string
           label?: string | null
+          legacy_key?: string | null
           section?: string | null
           show_condition?: Json | null
           sort_order?: number | null
