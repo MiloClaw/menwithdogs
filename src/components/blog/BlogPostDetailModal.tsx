@@ -61,9 +61,9 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
             </div>
           )}
 
-          <div className="p-6 sm:p-8 space-y-6">
+          <div className="px-6 sm:px-10 py-10 sm:py-12 space-y-8">
             {/* Title */}
-            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold leading-tight tracking-tight">
               {post.title}
             </h1>
 
@@ -80,11 +80,11 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
             </div>
 
             {/* Divider */}
-            <div className="border-t border-border" />
+            <div className="border-t border-border mt-8" />
 
             {/* Body Content - Markdown */}
             {post.body && (
-              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-p:leading-relaxed prose-p:mb-5 prose-ul:my-4 prose-li:my-1 prose-blockquote:my-6 prose-blockquote:border-l-primary prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
+              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-5 prose-li:my-2 prose-blockquote:my-8 prose-blockquote:border-l-primary prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold">
                 <ReactMarkdown>{post.body}</ReactMarkdown>
               </div>
             )}
