@@ -24,6 +24,11 @@ export interface CityWithProgress {
   curated_place_count: number;
   completion_percentage: number;
   is_ready_to_launch: boolean;
+  // Founders promo code fields
+  founders_promo_code?: string | null;
+  founders_promo_code_id?: string | null;
+  founders_slots_total?: number | null;
+  founders_slots_used?: number | null;
 }
 
 export interface CityInsert {
@@ -47,14 +52,28 @@ export function useCities(statusFilter?: CityStatus | 'all') {
   return useQuery({
     queryKey: ['cities', statusFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get progress data from view
+      const { data: progressData, error: progressError } = await supabase
         .from('city_seeding_progress')
         .select('*')
         .order('name');
 
-      if (error) throw error;
+      if (progressError) throw progressError;
 
-      let cities = (data || []) as CityWithProgress[];
+      // Get founders fields from cities table
+      const { data: foundersData, error: foundersError } = await supabase
+        .from('cities')
+        .select('id, founders_promo_code, founders_promo_code_id, founders_slots_total, founders_slots_used');
+
+      if (foundersError) throw foundersError;
+
+      // Merge founders data into progress data
+      const foundersMap = new Map(foundersData?.map(f => [f.id, f]) || []);
+      
+      let cities = (progressData || []).map(city => ({
+        ...city,
+        ...foundersMap.get(city.id),
+      })) as CityWithProgress[];
       
       if (statusFilter && statusFilter !== 'all') {
         cities = cities.filter(c => c.status === statusFilter);
@@ -71,14 +90,28 @@ export function useCity(cityId: string | null) {
     queryFn: async () => {
       if (!cityId) return null;
       
-      const { data, error } = await supabase
+      // Get progress data
+      const { data: progressData, error: progressError } = await supabase
         .from('city_seeding_progress')
         .select('*')
         .eq('id', cityId)
         .single();
 
-      if (error) throw error;
-      return data as CityWithProgress;
+      if (progressError) throw progressError;
+
+      // Get founders fields from cities table
+      const { data: foundersData, error: foundersError } = await supabase
+        .from('cities')
+        .select('founders_promo_code, founders_promo_code_id, founders_slots_total, founders_slots_used')
+        .eq('id', cityId)
+        .single();
+
+      if (foundersError) throw foundersError;
+
+      return {
+        ...progressData,
+        ...foundersData,
+      } as CityWithProgress;
     },
     enabled: !!cityId,
   });
