@@ -105,7 +105,7 @@ export function BlogPostDetailModal({ post, open, onOpenChange }: BlogPostDetail
 
             {/* Body Content - Markdown */}
             {post.body && (
-              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:!font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:mt-10 prose-h3:mb-5 prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-6 prose-li:my-2 prose-blockquote:my-8 prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:border-l-4 prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold">
+              <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-serif prose-headings:!font-bold prose-headings:tracking-tight prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h3:text-xl sm:prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-5 prose-p:leading-relaxed prose-p:mb-6 prose-ul:my-6 prose-li:my-2 prose-blockquote:my-8 prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:border-l-4 prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold">
                 <ReactMarkdown>{post.body}</ReactMarkdown>
               </div>
             )}
