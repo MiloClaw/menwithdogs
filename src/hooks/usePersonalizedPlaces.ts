@@ -95,6 +95,8 @@ function getTimeRelevanceBoost(
 interface UsePersonalizedPlacesOptions extends UsePublicPlacesOptions {
   // Reference coordinates for distance calculation (exploration mode)
   referenceCoords?: { lat: number; lng: number } | null;
+  // Suburb bias coordinates for soft relevance boost (metro redirect)
+  biasCoords?: { lat: number; lng: number } | null;
 }
 
 /**
@@ -299,6 +301,23 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
         relevanceScore += returnBoost;
       }
       
+      // ═════════════════════════════════════════════════════════════════
+      // PHASE 5: SUBURB BIAS (soft boost for metro redirect)
+      // When user was redirected from a suburb, gently boost nearby places
+      // ═════════════════════════════════════════════════════════════════
+      if (options.biasCoords && place.lat != null && place.lng != null) {
+        const distanceFromBias = calculateDistanceMiles(
+          options.biasCoords.lat,
+          options.biasCoords.lng,
+          place.lat,
+          place.lng
+        );
+        // Boost places within 10 miles of the suburb center (soft, invisible)
+        if (distanceFromBias <= 10) {
+          relevanceScore += 0.15 * (1 - distanceFromBias / 10); // Closer = bigger boost
+        }
+      }
+      
       // Determine if this place is "relevant" for badge (threshold raised to reduce badge inflation)
       const isRelevant = relevanceScore >= 0.5;
       
@@ -361,6 +380,7 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
     noveltyBias,
     returnBoost,
     choicePriorityModifiers,
+    options.biasCoords,
   ]);
   
   return {

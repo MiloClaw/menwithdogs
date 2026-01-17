@@ -3,8 +3,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 
+export interface MetroInfo {
+  inMetro: boolean;
+  metroName?: string;
+  primaryCity?: string;
+  primaryState?: string;
+  metroLat?: number;
+  metroLng?: number;
+}
+
 export const useCitySuggestion = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingMetro, setIsCheckingMetro] = useState(false);
   const { toast } = useToast();
 
   const checkExistingCity = async (googlePlaceId: string): Promise<boolean> => {
@@ -25,6 +35,43 @@ export const useCitySuggestion = () => {
       .maybeSingle();
 
     return !!existingSuggestion;
+  };
+
+  /**
+   * Check if a county belongs to an already-launched metro area.
+   * Returns metro info if found, null otherwise.
+   */
+  const checkMetroMembership = async (
+    county: string | null,
+    state: string | null
+  ): Promise<MetroInfo | null> => {
+    if (!county || !state) {
+      return null;
+    }
+
+    setIsCheckingMetro(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-metro-membership', {
+        body: { county, state },
+      });
+
+      if (error) {
+        console.error('Error checking metro membership:', error);
+        return null;
+      }
+
+      if (data?.inMetro) {
+        return data as MetroInfo;
+      }
+
+      return null;
+    } catch (err) {
+      console.error('Error in checkMetroMembership:', err);
+      return null;
+    } finally {
+      setIsCheckingMetro(false);
+    }
   };
 
   const submitSuggestion = async (details: PlaceDetails): Promise<boolean> => {
@@ -94,6 +141,8 @@ export const useCitySuggestion = () => {
   return {
     submitSuggestion,
     checkExistingCity,
+    checkMetroMembership,
     isSubmitting,
+    isCheckingMetro,
   };
 };

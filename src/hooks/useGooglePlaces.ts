@@ -23,6 +23,7 @@ export interface PlaceDetails {
   city: string | null;
   state: string | null;
   country: string | null;
+  county: string | null; // For metro rollup logic
   lat: number | null;
   lng: number | null;
   // GBP enrichment fields
