@@ -7,6 +7,8 @@ import CategoryHealthCard from '@/components/admin/dashboard/CategoryHealthCard'
 import LocationSummaryCard from '@/components/admin/LocationSummaryCard';
 import QuickActions from '@/components/admin/dashboard/QuickActions';
 import IntelligenceStatusCard from '@/components/admin/dashboard/IntelligenceStatusCard';
+import FoundersStatsCard from '@/components/admin/dashboard/FoundersStatsCard';
+
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
 
@@ -34,6 +36,15 @@ const AdminDashboard = () => {
 
   // Trend data
   const trendData = stats?.trends ?? { signups: [], favorites: [], places: [] };
+
+  // Founders stats with defaults
+  const foundersStats = stats?.founders ?? {
+    totalRedemptions: 0,
+    activeCities: 0,
+    totalSlotsClaimed: 0,
+    totalSlotsAvailable: 0,
+    topCities: [],
+  };
 
   return (
     <AdminLayout>
@@ -63,11 +74,15 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {/* Two-column: Category Health + Location Insights */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* Three-column: Category Health + Founders Program + Location Insights */}
+        <div className="grid gap-6 lg:grid-cols-3">
           <CategoryHealthCard
             categories={stats?.categoryBreakdown ?? []}
             totalPlaces={stats?.places.approved ?? 0}
+            isLoading={isLoading}
+          />
+          <FoundersStatsCard
+            stats={foundersStats}
             isLoading={isLoading}
           />
           <LocationSummaryCard 
