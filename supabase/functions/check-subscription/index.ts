@@ -12,6 +12,9 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+// Founders price ID for detection
+const FOUNDERS_PRICE_ID = "price_1SqamZ3Z5TtwrbktuLF44MKO";
+
 /**
  * Checks whether a user has an active Pro subscription.
  * 
@@ -56,6 +59,7 @@ serve(async (req) => {
         subscribed: false,
         plan: "free",
         has_paid_tuning: false,
+        is_founders: false,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -68,21 +72,48 @@ serve(async (req) => {
     let hasActiveSub = false;
     let subscriptionEnd: string | null = null;
     let productId: string | null = null;
+    let isFounders = false;
+    let foundersCityId: string | null = null;
 
     try {
+      // Check active subscriptions
       const subscriptions = await stripe.subscriptions.list({
         customer: customerId,
         status: "active",
-        limit: 1,
+        limit: 10,
       });
 
-      hasActiveSub = subscriptions.data.length > 0;
+      // Also check trialing (founders get 3 months free trial)
+      const trialingSubscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "trialing",
+        limit: 10,
+      });
+
+      const allSubscriptions = [...subscriptions.data, ...trialingSubscriptions.data];
+      hasActiveSub = allSubscriptions.length > 0;
 
       if (hasActiveSub) {
-        const subscription = subscriptions.data[0];
+        // Find active/trialing subscription, prioritize founders
+        const foundersSubscription = allSubscriptions.find((sub: Stripe.Subscription) => 
+          sub.items.data.some((item: Stripe.SubscriptionItem) => item.price.id === FOUNDERS_PRICE_ID)
+        );
+        
+        const subscription = foundersSubscription || allSubscriptions[0];
+        
         productId = String(subscription.items.data[0]?.price?.product ?? '');
         
-        // Safe date parsing - handle various formats
+        // Check if this is a founders subscription
+        isFounders = subscription.items.data.some((item: Stripe.SubscriptionItem) => 
+          item.price.id === FOUNDERS_PRICE_ID
+        );
+        
+        // Get founders city from subscription metadata if founders
+        if (isFounders && subscription.metadata?.city_id) {
+          foundersCityId = subscription.metadata.city_id;
+        }
+        
+        // Safe date parsing
         try {
           const endTimestamp = subscription.current_period_end;
           if (endTimestamp && typeof endTimestamp === 'number' && !isNaN(endTimestamp)) {
@@ -101,13 +132,14 @@ serve(async (req) => {
             rawValue: subscription.current_period_end,
             error: dateError instanceof Error ? dateError.message : String(dateError)
           });
-          // Don't throw - continue with null subscriptionEnd
         }
         
         logStep("Active subscription found", { 
           subscriptionId: subscription.id, 
           endDate: subscriptionEnd,
-          productId 
+          productId,
+          isFounders,
+          foundersCityId,
         });
       } else {
         logStep("No active subscription found");
@@ -116,11 +148,11 @@ serve(async (req) => {
       logStep("ERROR fetching subscriptions from Stripe", { 
         message: stripeError instanceof Error ? stripeError.message : String(stripeError) 
       });
-      // On Stripe API error, return free tier gracefully
       return new Response(JSON.stringify({ 
         subscribed: false,
         plan: "free",
         has_paid_tuning: false,
+        is_founders: false,
         error: "Unable to verify subscription status"
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -128,13 +160,31 @@ serve(async (req) => {
       });
     }
 
-    // Successfully checked subscription - return actual status
+    // If founders, also check for redemption record to get city
+    if (isFounders && !foundersCityId) {
+      try {
+        const { data: redemption } = await supabaseClient
+          .from("founders_redemptions")
+          .select("city_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        if (redemption?.city_id) {
+          foundersCityId = redemption.city_id;
+        }
+      } catch (e) {
+        // Ignore - not critical
+      }
+    }
+
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       plan: hasActiveSub ? "pro" : "free",
       has_paid_tuning: hasActiveSub,
       product_id: productId,
       subscription_end: subscriptionEnd,
+      is_founders: isFounders,
+      founders_city_id: foundersCityId,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -143,15 +193,15 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in check-subscription", { message: errorMessage });
     
-    // INVARIANT: On error, return free tier - never break the app
     return new Response(JSON.stringify({ 
       subscribed: false,
       plan: "free",
       has_paid_tuning: false,
+      is_founders: false,
       error: errorMessage 
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200, // Return 200 even on error - graceful degradation
+      status: 200,
     });
   }
 });

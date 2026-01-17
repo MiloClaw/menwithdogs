@@ -59,6 +59,10 @@ export type Database = {
         Row: {
           country: string
           created_at: string
+          founders_promo_code: string | null
+          founders_promo_code_id: string | null
+          founders_slots_total: number | null
+          founders_slots_used: number | null
           google_place_id: string | null
           id: string
           lat: number | null
@@ -75,6 +79,10 @@ export type Database = {
         Insert: {
           country?: string
           created_at?: string
+          founders_promo_code?: string | null
+          founders_promo_code_id?: string | null
+          founders_slots_total?: number | null
+          founders_slots_used?: number | null
           google_place_id?: string | null
           id?: string
           lat?: number | null
@@ -91,6 +99,10 @@ export type Database = {
         Update: {
           country?: string
           created_at?: string
+          founders_promo_code?: string | null
+          founders_promo_code_id?: string | null
+          founders_slots_total?: number | null
+          founders_slots_used?: number | null
           google_place_id?: string | null
           id?: string
           lat?: number | null
@@ -430,6 +442,68 @@ export type Database = {
             columns: ["venue_place_id"]
             isOneToOne: false
             referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founders_redemptions: {
+        Row: {
+          city_id: string | null
+          couple_id: string | null
+          created_at: string | null
+          id: string
+          redeemed_at: string | null
+          stripe_promo_code_id: string | null
+          stripe_subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          city_id?: string | null
+          couple_id?: string | null
+          created_at?: string | null
+          id?: string
+          redeemed_at?: string | null
+          stripe_promo_code_id?: string | null
+          stripe_subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          city_id?: string | null
+          couple_id?: string | null
+          created_at?: string | null
+          id?: string
+          redeemed_at?: string | null
+          stripe_promo_code_id?: string | null
+          stripe_subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founders_redemptions_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founders_redemptions_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city_seeding_progress"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founders_redemptions_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "launched_cities_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founders_redemptions_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
             referencedColumns: ["id"]
           },
         ]

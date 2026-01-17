@@ -6,12 +6,15 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { 
   Rocket, Pause, Play, Pencil, MapPin, Building2, 
-  CheckCircle2, Clock, Sparkles, AlertCircle, Plus, Wand2 
+  CheckCircle2, Clock, Sparkles, AlertCircle, Plus, Wand2,
+  Copy, ExternalLink, Gift
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CityWithProgress } from '@/hooks/useCities';
 import { useLaunchCity, usePauseCity, useResumeCity } from '@/hooks/useCities';
+import { useCityPromoCode } from '@/hooks/useCityPromoCode';
 import { CitySeedWizard } from './CitySeedWizard';
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,14 +34,29 @@ interface CityDetailViewProps {
 
 export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
   const [seedWizardOpen, setSeedWizardOpen] = useState(false);
+  const { toast } = useToast();
   
   const launchCity = useLaunchCity();
   const pauseCity = usePauseCity();
   const resumeCity = useResumeCity();
+  const { createPromoCodeAsync, isCreating: isCreatingPromoCode } = useCityPromoCode();
 
-  const handleLaunch = () => {
-    launchCity.mutate(city.id);
+  const handleLaunch = async () => {
+    // Launch the city first
+    launchCity.mutate(city.id, {
+      onSuccess: async () => {
+        // After launch, create promo code if it doesn't exist
+        if (!city.founders_promo_code_id) {
+          try {
+            await createPromoCodeAsync({ cityId: city.id, cityName: city.name });
+          } catch (e) {
+            console.error('Failed to create promo code:', e);
+          }
+        }
+      }
+    });
   };
+
 
   const handlePause = () => {
     pauseCity.mutate(city.id);
@@ -168,6 +186,62 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
               <Rocket className="h-4 w-4" />
               <span>Launched {new Date(city.launched_at).toLocaleDateString()}</span>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Founders Program Card */}
+      {city.status === 'launched' && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Gift className="h-4 w-4" />
+              Founders Program
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {city.founders_promo_code ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <code className="bg-muted px-2 py-1 rounded text-sm font-mono">
+                    {city.founders_promo_code}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(city.founders_promo_code!);
+                      toast({ title: 'Copied!', description: 'Promo code copied to clipboard' });
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Slots Used</span>
+                  <span className="font-medium">
+                    {city.founders_slots_used ?? 0} / {city.founders_slots_total ?? 100}
+                  </span>
+                </div>
+                <Progress 
+                  value={((city.founders_slots_used ?? 0) / (city.founders_slots_total ?? 100)) * 100} 
+                  className="h-2" 
+                />
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                No promo code created yet.
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="ml-2 h-auto p-0"
+                  disabled={isCreatingPromoCode}
+                  onClick={() => createPromoCodeAsync({ cityId: city.id, cityName: city.name })}
+                >
+                  {isCreatingPromoCode ? 'Creating...' : 'Create Now'}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
