@@ -26,9 +26,11 @@ const Footer = () => {
               <Link to="/places" className={linkClasses}>
                 Places
               </Link>
+              {/* Blog link hidden - uncomment when ready to launch
               <Link to="/blog" className={linkClasses}>
                 Blog
               </Link>
+              */}
             </nav>
           </div>
           
