@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus, Calendar, Sun, Moon, MessageCircle, Zap, Sparkles } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Clock, ExternalLink, CalendarPlus, Calendar, Sun, Moon, MessageCircle, Zap, Sparkles, Map } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Place, getOpeningHoursText, getPhotos } from '@/hooks/usePlaces';
 import { useEvents } from '@/hooks/useEvents';
+import { usePlaceGeoAreas } from '@/hooks/usePlaceGeoAreas';
 import SourceBadge from '../SourceBadge';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
 import PlacePhotoGallery from './PlacePhotoGallery';
 import PlaceEventForm from './PlaceEventForm';
 import { getVibeEnergyLabel, getVibeFormalityLabel, hasVibeData } from '@/lib/place-taxonomy';
+
 interface PlaceDetailViewProps {
   place: Place;
   onEdit: () => void;
@@ -24,9 +26,16 @@ const statusColors: Record<Place['status'], string> = {
   rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
+const sourceLabels: Record<string, string> = {
+  admin_override: 'Admin Override',
+  auto_detected: 'Auto-detected',
+  county_lookup: 'County Lookup',
+};
+
 const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDetailViewProps) => {
   const [showEventForm, setShowEventForm] = useState(false);
   const { events } = useEvents();
+  const { metroAssignment, isLoading: isLoadingMetro } = usePlaceGeoAreas(place.id);
   const photos = getPhotos(place.photos);
   const openingHours = getOpeningHoursText(place.opening_hours);
   const isManualEntry = place.google_place_id.startsWith('manual_');
@@ -193,6 +202,39 @@ const PlaceDetailView = ({ place, onEdit, onStatusChange, isUpdating }: PlaceDet
             <p className="text-sm text-muted-foreground">
               No vibe tags set. Edit to add editorial curation.
             </p>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Metro Assignment */}
+        <div>
+          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+            <Map className="h-4 w-4" />
+            Metro Assignment
+          </h3>
+          {isLoadingMetro ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          ) : metroAssignment ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">{metroAssignment.metro_name}</Badge>
+                <Badge variant="outline" className="text-xs">
+                  {sourceLabels[metroAssignment.source] || metroAssignment.source}
+                </Badge>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onEdit} className="text-xs h-7 px-2">
+                Change
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Not assigned to a metro area</p>
+              <Button variant="outline" size="sm" onClick={onEdit} className="text-xs h-7">
+                <MapPin className="h-3 w-3 mr-1" />
+                Assign Metro
+              </Button>
+            </div>
           )}
         </div>
 
