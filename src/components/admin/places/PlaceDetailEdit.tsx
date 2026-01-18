@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Place } from '@/hooks/usePlaces';
+import { useMetroAreas } from '@/hooks/useMetroAreas';
+import { usePlaceGeoAreas } from '@/hooks/usePlaceGeoAreas';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
 import { VIBE_ENERGY_LABELS, VIBE_FORMALITY_LABELS } from '@/lib/place-taxonomy';
 
@@ -23,6 +26,9 @@ interface PlaceDetailEditProps {
 }
 
 const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditProps) => {
+  const { data: metroAreas, isLoading: isLoadingMetros } = useMetroAreas();
+  const { metroAssignment, assignMetro, removeMetro, isAssigning, isRemoving } = usePlaceGeoAreas(place.id);
+  
   const [formData, setFormData] = useState({
     name: '',
     primary_category: '',
@@ -38,6 +44,10 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
     vibe_daytime: null as boolean | null,
     vibe_evening: null as boolean | null,
   });
+  
+  // Track metro selection separately (not part of place updates)
+  const [selectedMetroId, setSelectedMetroId] = useState<string | null>(null);
+  const [metroChanged, setMetroChanged] = useState(false);
 
   useEffect(() => {
     setFormData({
@@ -56,7 +66,24 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
     });
   }, [place]);
 
+  // Initialize metro selection from current assignment
+  useEffect(() => {
+    if (metroAssignment) {
+      setSelectedMetroId(metroAssignment.geo_area_id);
+    } else {
+      setSelectedMetroId(null);
+    }
+    setMetroChanged(false);
+  }, [metroAssignment]);
+
+  const handleMetroChange = (value: string) => {
+    const newMetroId = value === 'none' ? null : value;
+    setSelectedMetroId(newMetroId);
+    setMetroChanged(newMetroId !== (metroAssignment?.geo_area_id ?? null));
+  };
+
   const handleSave = async () => {
+    // First save place data
     await onSave({
       name: formData.name,
       primary_category: formData.primary_category,
@@ -73,9 +100,19 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       vibe_daytime: formData.vibe_daytime,
       vibe_evening: formData.vibe_evening,
     });
+
+    // Then handle metro assignment if changed
+    if (metroChanged) {
+      if (selectedMetroId) {
+        await assignMetro.mutateAsync({ placeId: place.id, metroId: selectedMetroId });
+      } else {
+        await removeMetro.mutateAsync(place.id);
+      }
+    }
   };
 
   const isManualEntry = place.google_place_id.startsWith('manual_');
+  const isSavingAll = isSaving || isAssigning || isRemoving;
 
   return (
     <div className="h-full flex flex-col">
@@ -83,11 +120,11 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Edit Place</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onCancel} disabled={isSaving}>
+          <Button variant="outline" size="sm" onClick={onCancel} disabled={isSavingAll}>
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Changes'}
+          <Button size="sm" onClick={handleSave} disabled={isSavingAll}>
+            {isSavingAll ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </div>
@@ -221,6 +258,37 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
               </div>
             </div>
           )}
+
+          {/* Metro Area Assignment */}
+          <div className="space-y-3 pt-4 border-t">
+            <div className="flex items-center justify-between">
+              <Label>Metro Area</Label>
+              {metroChanged && (
+                <span className="text-xs text-amber-600">Will update on save</span>
+              )}
+            </div>
+            <Select
+              value={selectedMetroId || 'none'}
+              onValueChange={handleMetroChange}
+              disabled={isLoadingMetros}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select metro area..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None (remove assignment)</SelectItem>
+                {metroAreas?.map((metro) => (
+                  <SelectItem key={metro.id} value={metro.id}>
+                    {metro.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Info className="h-3 w-3 mt-0.5 shrink-0" />
+              <span>Overrides automatic metro detection. Used for grouping in admin views and user filtering.</span>
+            </div>
+          </div>
 
           {/* Editorial Vibe Tags */}
           <div className="space-y-4 pt-4 border-t">
