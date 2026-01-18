@@ -61,9 +61,11 @@ const Navbar = () => {
               <Link to="/places" className={navLinkClasses}>
                 Places
               </Link>
+              {/* Blog link hidden - uncomment when ready to launch
               <Link to="/blog" className={navLinkClasses}>
                 Blog
               </Link>
+              */}
               <Link to="/saved" className={`${navLinkClasses} flex items-center gap-1`}>
                 <Heart className="w-4 h-4" />
                 Saved
@@ -78,9 +80,11 @@ const Navbar = () => {
               <Link to="/places" className={navLinkClasses}>
                 Places
               </Link>
+              {/* Blog link hidden - uncomment when ready to launch
               <Link to="/blog" className={navLinkClasses}>
                 Blog
               </Link>
+              */}
               <Link to="/#how-it-works" className={navLinkClasses}>
                 How It Works
               </Link>
@@ -138,6 +142,7 @@ const Navbar = () => {
                 >
                   Places
                 </Link>
+                {/* Blog link hidden - uncomment when ready to launch
                 <Link 
                   to="/blog" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
@@ -145,6 +150,7 @@ const Navbar = () => {
                 >
                   Blog
                 </Link>
+                */}
                 <Link 
                   to="/saved" 
                   className="flex items-center gap-2 py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
@@ -172,6 +178,7 @@ const Navbar = () => {
                 >
                   Places
                 </Link>
+                {/* Blog link hidden - uncomment when ready to launch
                 <Link 
                   to="/blog" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
@@ -179,6 +186,7 @@ const Navbar = () => {
                 >
                   Blog
                 </Link>
+                */}
                 <Link 
                   to="/#how-it-works" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
