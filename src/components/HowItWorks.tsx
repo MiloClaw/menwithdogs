@@ -6,7 +6,7 @@ const steps = [
   {
     number: "01",
     icon: MapPin,
-    title: "Browse",
+    title: "Browse and Add",
     description: "Browse places that already exist in the directory. If a great place is missing - add it!",
   },
   {
