@@ -49,6 +49,9 @@ const Footer = () => {
               <Link to="/couples" className={linkClasses}>
                 Couples
               </Link>
+              <Link to="/together" className={linkClasses}>
+                Discover Together
+              </Link>
             </nav>
           </div>
           
