@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useCouple } from './useCouple';
 import { useAuth } from './useAuth';
 import { useEnsureRelationshipUnit } from './useEnsureRelationshipUnit';
 import { useToast } from './use-toast';
 import { queueSignal } from '@/lib/signal-batcher';
+import { showAuthToast } from '@/lib/auth-toast';
 
 interface PlaceFavorite {
   id: string;
@@ -19,6 +21,7 @@ export function usePlaceFavorites() {
   const { ensureRelationshipUnit } = useEnsureRelationshipUnit();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const coupleId = couple?.id;
 
   // Fetch all favorites for this couple
@@ -151,9 +154,12 @@ export function usePlaceFavorites() {
   // Toggle favorite with auth check
   const toggleFavorite = (placeId: string) => {
     if (!isAuthenticated) {
-      toast({
+      showAuthToast({
         title: 'Sign in to save places',
-        description: 'Create an account to build your saved list.',
+        description: 'Create a free account to build your saved list.',
+        intentKey: 'pending_favorite_place_id',
+        intentValue: placeId,
+        onNavigate: () => navigate('/auth'),
       });
       return;
     }

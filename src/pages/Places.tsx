@@ -31,6 +31,7 @@ import { PlaceDetails } from '@/hooks/useGooglePlaces';
 import { calculateDistanceMiles } from '@/lib/distance';
 import { recordSignal } from '@/hooks/useUserSignals';
 import { toast } from 'sonner';
+import { showAuthToast } from '@/lib/auth-toast';
 
 // Types that indicate a geographic area (city) vs a business
 const CITY_TYPES = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'administrative_area_level_3', 'sublocality', 'postal_town'];
@@ -278,7 +279,11 @@ const Places = () => {
           setMetroInfo(null);
         }
       } else {
-        toast.info('Sign in to suggest this city');
+        showAuthToast({
+          title: 'Sign in to suggest this city',
+          description: 'Help us expand to new areas.',
+          onNavigate: () => navigate('/auth'),
+        });
       }
       return;
     }
@@ -297,8 +302,12 @@ const Places = () => {
       setSelectedGooglePlace(details);
       setSuggestionModalOpen(true);
     } else {
-      // Not authenticated - prompt to sign in
-      toast.info('Sign in to suggest this place');
+      // Not authenticated - prompt to sign in with action
+      showAuthToast({
+        title: 'Sign in to suggest this place',
+        description: 'Share your favorite hidden gems.',
+        onNavigate: () => navigate('/auth'),
+      });
     }
   };
 

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { showAuthToast } from '@/lib/auth-toast';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
 
 export interface MetroInfo {
@@ -16,6 +18,7 @@ export const useCitySuggestion = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingMetro, setIsCheckingMetro] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const checkExistingCity = async (googlePlaceId: string): Promise<boolean> => {
     // Check if city already exists in cities table
@@ -81,10 +84,10 @@ export const useCitySuggestion = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast({
-          title: "Sign in required",
-          description: "Please sign in to suggest a city.",
-          variant: "destructive",
+        showAuthToast({
+          title: 'Sign in to suggest cities',
+          description: 'Help us expand to new areas.',
+          onNavigate: () => navigate('/auth'),
         });
         return false;
       }
