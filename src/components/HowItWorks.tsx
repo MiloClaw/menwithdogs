@@ -4,17 +4,17 @@ import { useRef } from "react";
 const steps = [{
   number: "01",
   icon: MapPin,
-  title: "Browse",
-  description: "Explore places in your area. Filter by distance, category, or vibe."
+  title: "Browse and Add",
+  description: "Browse places that already exist in the directory. If a great place is missing - add it!"
 }, {
   number: "02",
   icon: Bookmark,
-  title: "Save",
-  description: "Bookmark spots that fit your life."
+  title: "Save or Add",
+  description: "Save the ones you genuinely enjoy and plan to visit again. Your favorites shape what you see. The more you save, the more relevant it gets."
 }, {
   number: "03",
   icon: RotateCcw,
-  title: "Return",
+  title: "Return and Share",
   description: "Your saves shape what you see. The more you save, the more relevant it gets."
 }];
 const HowItWorks = () => {
