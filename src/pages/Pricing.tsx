@@ -120,7 +120,7 @@ const Pricing = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance"
           >
             The same places. The same community. Pro just helps you find where your patterns overlap.
           </motion.p>
@@ -155,7 +155,7 @@ const Pricing = () => {
                 <div className="text-4xl md:text-5xl font-semibold text-foreground mb-3">
                   $0
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-pretty">
                   The full directory, shaped by the community.
                 </p>
               </div>
@@ -164,7 +164,7 @@ const Pricing = () => {
                 {freeFeatures.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
                     <Check className="h-5 w-5 shrink-0 mt-0.5 text-secondary" />
-                    <span className="text-sm text-muted-foreground leading-relaxed">
+                    <span className="text-sm text-muted-foreground leading-relaxed text-pretty">
                       {feature}
                     </span>
                   </li>
@@ -198,7 +198,7 @@ const Pricing = () => {
                     {" "}/ month
                   </span>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-pretty">
                   Unlock where your interests and patterns overlap with others.
                 </p>
               </div>
@@ -207,7 +207,7 @@ const Pricing = () => {
                 {proFeatures.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
                     <Check className="h-5 w-5 shrink-0 mt-0.5 text-secondary" />
-                    <span className="text-sm text-muted-foreground leading-relaxed">
+                    <span className="text-sm text-muted-foreground leading-relaxed text-pretty">
                       {feature}
                     </span>
                   </li>
@@ -257,7 +257,7 @@ const Pricing = () => {
                 <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground tracking-tight mb-4">
                   Your preferences are private. Always.
                 </h2>
-                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty">
                   Pro preferences are never visible to others. They only power the system's intelligence — 
                   helping surface better recommendations for you and connecting you to the community you're 
                   looking for. No profiles. No exposure. Just smarter results.
@@ -282,12 +282,12 @@ const Pricing = () => {
                 <span className="block text-xs tracking-[0.2em] uppercase text-muted-foreground font-mono mb-6">
                   How It Works
                 </span>
-                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-tight">
+                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-tight text-balance">
                   Free shows you where the community goes.
                 </h2>
                 <div className="flex items-center gap-3 mt-6">
                   <ArrowRight className="w-6 h-6 text-secondary" />
-                  <p className="font-serif text-2xl md:text-3xl text-secondary">
+                  <p className="font-serif text-2xl md:text-3xl text-secondary text-balance">
                     Pro shows you where <em>your</em> community goes.
                   </p>
                 </div>
@@ -300,15 +300,15 @@ const Pricing = () => {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="space-y-6"
               >
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
                   The free directory surfaces places based on shared patterns of use across all members. 
                   Every favorite, every visit contributes to collective intelligence that benefits everyone.
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
                   Pro lets you privately add more context — like interests, relationship dynamics, and hobbies — 
                   so the system can find where your specific patterns overlap with others seeking similar things.
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed font-medium text-foreground">
+                <p className="text-lg text-muted-foreground leading-relaxed font-medium text-foreground text-pretty">
                   Both paths make the directory smarter. Pro just makes it smarter for you.
                 </p>
               </motion.div>
@@ -348,7 +348,7 @@ const Pricing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10"
+            className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 text-balance"
           >
             Ready to explore?
           </motion.h2>
