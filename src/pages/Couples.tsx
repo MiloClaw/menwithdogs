@@ -10,9 +10,9 @@ const Couples = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end start"],
   });
-  
+
   const ghostY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
   return (
@@ -25,10 +25,7 @@ const Couples = () => {
       />
 
       {/* Hero Section */}
-      <section 
-        ref={heroRef}
-        className="relative py-20 md:py-28 lg:py-36 overflow-hidden"
-      >
+      <section ref={heroRef} className="relative py-20 md:py-28 lg:py-36 overflow-hidden">
         <motion.div
           style={{ y: ghostY }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
@@ -48,14 +45,13 @@ const Couples = () => {
             <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-6">
               Discover Together
             </span>
-            
+
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 text-balance">
               Find Places That Work for Both of You
             </h1>
-            
+
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Without sharing your preferences. Without linking accounts.
-              Just better recommendations — privately.
+              Without sharing your preferences. Without linking accounts. Just better recommendations — privately.
             </p>
           </motion.div>
         </div>
@@ -75,9 +71,7 @@ const Couples = () => {
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
                 01
               </span>
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                How It Works
-              </h2>
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">How It Works</h2>
             </div>
 
             <div className="space-y-6">
@@ -85,7 +79,7 @@ const Couples = () => {
                 "One of you generates a session code",
                 "Your partner scans or enters the code",
                 "The system finds places that resonate with both — privately",
-                "Sessions expire in 24 hours. No permanent data."
+                "Sessions expire in 24 hours. No permanent data.",
               ].map((step, index) => (
                 <motion.div
                   key={index}
@@ -129,20 +123,21 @@ const Couples = () => {
               {[
                 {
                   title: "Your preferences stay yours",
-                  description: "No profile sharing between users. Your saved places, your interests — completely private."
+                  description:
+                    "No profile sharing between users. Your saved places, your interests — completely private.",
                 },
                 {
                   title: "Works for any duo",
-                  description: "Couples, friends, travel companions, roommates. Anyone exploring together."
+                  description: "Couples, friends, travel companions, roommates. Anyone exploring together.",
                 },
                 {
                   title: "Place-level intelligence",
-                  description: "The system doesn't match people. It surfaces places that work for both."
+                  description: "The system doesn't match people. It surfaces places that work for both.",
                 },
                 {
                   title: "Temporary by design",
-                  description: "Sessions expire. No social graph. No permanent connection between accounts."
-                }
+                  description: "Sessions expire. No social graph. No permanent connection between accounts.",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={item.title}
@@ -174,9 +169,7 @@ const Couples = () => {
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
                 03
               </span>
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                Privacy Promise
-              </h2>
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">Privacy Promise</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -184,23 +177,23 @@ const Couples = () => {
                 {
                   icon: Eye,
                   title: "Your partner never sees your saved places",
-                  description: "What you've favorited stays between you and the directory."
+                  description: "What you've favorited stays between you and the directory.",
                 },
                 {
                   icon: Shield,
                   title: "Your individual preferences remain private",
-                  description: "The system uses both inputs without revealing either."
+                  description: "The system uses both inputs without revealing either.",
                 },
                 {
                   icon: Users,
-                  title: "We only surface places that work for both",
-                  description: "Common ground — without exposing individual taste."
+                  title: "We will try to surface places that work for both",
+                  description: "Common ground — without exposing individual taste.",
                 },
                 {
                   icon: Clock,
                   title: "No account linking. No permanent connection.",
-                  description: "Each session is temporary and independent."
-                }
+                  description: "Each session is temporary and independent.",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={item.title}
@@ -233,9 +226,7 @@ const Couples = () => {
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
                 04
               </span>
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                Perfect For
-              </h2>
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">Perfect For</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -243,23 +234,23 @@ const Couples = () => {
                 {
                   icon: Heart,
                   title: "Couples planning date night",
-                  description: "Find restaurants and bars you'll both love — no more compromise debates."
+                  description: "Find restaurants and bars you'll both love — no more compromise debates.",
                 },
                 {
                   icon: Plane,
                   title: "Friends visiting from out of town",
-                  description: "Quickly find spots that match both your tastes in an unfamiliar city."
+                  description: "Quickly find spots that match both your tastes in an unfamiliar city.",
                 },
                 {
                   icon: Users,
                   title: "Travel companions exploring together",
-                  description: "Discover places that resonate with both of you in real-time."
+                  description: "Discover places that resonate with both of you in real-time.",
                 },
                 {
                   icon: Coffee,
                   title: "Roommates finding neighborhood spots",
-                  description: "Build a shared list of go-to places near home."
-                }
+                  description: "Build a shared list of go-to places near home.",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={item.title}
@@ -295,16 +286,11 @@ const Couples = () => {
               Ready to discover together?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Start a session with your partner, friend, or travel companion. 
-              Find places that work for both of you — without sharing preferences.
+              Start a session with your partner, friend, or travel companion. Find places that work for both of you —
+              without sharing preferences.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                asChild
-                className="text-base px-8"
-              >
+              <Button size="lg" variant="secondary" asChild className="text-base px-8">
                 <Link to="/together">Start a Session</Link>
               </Button>
               <Button
