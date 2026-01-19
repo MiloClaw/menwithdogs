@@ -74,7 +74,7 @@ const PrivacyTrust = () => {
             duration: 0.6,
             delay: 0.2
           }} className="border-l-4 border-accent pl-8 md:pl-10">
-              <p className="text-foreground text-base md:text-lg leading-relaxed mb-6">What you save and how you browse shapes only your view — never a public profile.
+              <p className="text-foreground text-base md:text-lg leading-relaxed mb-6 text-justify">What you save and how you browse shapes only your view — never a public profile.
 No one sees your list. No one knows where you’ve been.
 The free directory surfaces real places gay men in your city actually frequent, based on shared patterns of use — not popularity or noise.
 If you want a deeper level of understanding, you can subscribe to PRO.
