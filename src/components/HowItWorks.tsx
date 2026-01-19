@@ -12,7 +12,7 @@ const steps = [
   {
     number: "02",
     icon: Bookmark,
-    title: "Save",
+    title: "Save or Add",
     description: "Save the ones you genuinely enjoy or would return to. If a great spot is missing, add it - and save it.",
   },
   {
