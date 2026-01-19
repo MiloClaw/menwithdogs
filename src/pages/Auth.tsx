@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { z } from 'zod';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -200,41 +201,85 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Ghost Typography Background */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, delay: 0.3 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[25vw] md:text-[20vw] font-serif font-bold text-primary/[0.03] select-none pointer-events-none whitespace-nowrap"
+      >
+        {mode === 'signin' ? '→' : '+'}
+      </motion.div>
+
       {/* Header */}
-      <header className="p-4 md:p-6">
+      <header className="p-4 md:p-6 relative z-10">
         <Link to="/" className="text-xl font-serif font-semibold text-primary">
           MainStreetIRL
         </Link>
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex items-center justify-center px-4 pb-8">
+      <main className="flex-1 flex items-center justify-center px-4 pb-8 relative z-10">
         <div className="w-full max-w-sm space-y-8">
-          {/* Title */}
-          <div className="text-center space-y-3">
-            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">
-              {mode === 'signin' ? 'Welcome back' : 'Join quietly'}
-            </h1>
-            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+          {/* Title with animations */}
+          <div className="text-center space-y-4">
+            {/* Mono label */}
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-xs font-mono tracking-[0.2em] uppercase text-muted-foreground block"
+            >
+              {mode === 'signin' ? 'Welcome Back' : 'Get Started'}
+            </motion.span>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-3xl md:text-4xl font-serif font-semibold text-foreground text-balance"
+            >
+              {mode === 'signin' ? 'Sign in to continue' : 'Join quietly'}
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="text-muted-foreground text-sm md:text-base leading-relaxed text-pretty"
+            >
               {mode === 'signin' 
-                ? 'Sign in to continue discovering your community' 
+                ? 'Continue discovering your community' 
                 : 'Start discovering places where your community gathers'}
-            </p>
+            </motion.p>
           </div>
 
           {/* Privacy reassurance for signup */}
           {mode === 'signup' && (
-            <div className="bg-surface rounded-lg p-4 text-center">
-              <p className="text-xs text-muted-foreground leading-relaxed">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="border-l-4 border-accent pl-5 py-3"
+            >
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Your information stays private by default.<br />
                 No public profile. No exposure unless you choose it.
               </p>
-            </div>
+            </motion.div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -288,6 +333,7 @@ const Auth = () => {
 
             <Button
               type="submit"
+              variant="accent"
               className="w-full h-12 text-base"
               disabled={isSubmitting}
             >
@@ -297,10 +343,15 @@ const Auth = () => {
                   ? 'Sign in' 
                   : 'Get started'}
             </Button>
-          </form>
+          </motion.form>
 
           {/* Toggle mode */}
-          <div className="text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="text-center"
+          >
             <button
               type="button"
               onClick={() => {
@@ -313,15 +364,20 @@ const Auth = () => {
                 ? "New here? Create an account" 
                 : 'Already a member? Sign in'}
             </button>
-          </div>
+          </motion.div>
 
           {/* Footer note */}
-          <p className="text-center text-xs text-muted-foreground/70">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center text-xs text-muted-foreground/70"
+          >
             By continuing, you agree to our{' '}
             <Link to="/terms" className="underline hover:text-foreground">Terms</Link>
             {' '}and{' '}
             <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
-          </p>
+          </motion.p>
         </div>
       </main>
     </div>
