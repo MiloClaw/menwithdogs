@@ -111,7 +111,7 @@ const Pricing = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight mb-6 max-w-4xl mx-auto"
+            className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight mb-6 max-w-4xl mx-auto text-balance"
           >
             One directory. Two ways to use it.
           </motion.h1>
@@ -254,7 +254,7 @@ const Pricing = () => {
                 <span className="block text-xs tracking-[0.2em] uppercase text-muted-foreground font-mono mb-4">
                   Privacy First
                 </span>
-                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground tracking-tight mb-4">
+                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground tracking-tight mb-4 text-balance">
                   Your preferences are private. Always.
                 </h2>
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty">
@@ -308,7 +308,7 @@ const Pricing = () => {
                   Pro lets you privately add more context — like interests, relationship dynamics, and hobbies — 
                   so the system can find where your specific patterns overlap with others seeking similar things.
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed font-medium text-foreground text-pretty">
+                <p className="text-lg text-muted-foreground leading-relaxed font-medium text-foreground text-balance">
                   Both paths make the directory smarter. Pro just makes it smarter for you.
                 </p>
               </motion.div>
