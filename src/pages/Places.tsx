@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MapPin, MapPinOff, X } from 'lucide-react';
+import { MapPin, MapPinOff, X, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -234,8 +234,9 @@ const Places = () => {
       return matchesSearch && matchesCategory;
     });
 
-    // Apply radius filter only when we have user location (not exploration mode)
-    if (radiusFilter !== null && hasUserLocation && !isExplorationMode) {
+    // Apply radius filter when we have user location OR in exploration mode
+    // In exploration mode, distances are calculated from the explored city center
+    if (radiusFilter !== null && (hasUserLocation || isExplorationMode)) {
       filtered = filtered.filter(place => 
         place.distance !== undefined && place.distance <= radiusFilter
       );
@@ -434,14 +435,15 @@ const Places = () => {
             
             {/* Subtle personalization context - observational, not algorithmic */}
             {isAuthenticated && !placesLoading && processedPlaces.some(p => p.isRelevant) && (
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-4 text-sm text-muted-foreground/70"
+                className="mt-4 flex items-center gap-2 text-sm text-muted-foreground/70"
               >
-                Sorted by what you've been exploring.
-              </motion.p>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Personalized to your taste</span>
+              </motion.div>
             )}
           </div>
         </section>
@@ -473,8 +475,8 @@ const Places = () => {
 
         {/* Filters Row - Priority 1: Mobile category collapse */}
         <div className="flex flex-wrap items-start gap-4">
-          {/* Distance Filter - Visible on all breakpoints */}
-          {hasUserLocation && (
+          {/* Distance Filter - Visible on all breakpoints when location is available or in exploration mode */}
+          {(hasUserLocation || isExplorationMode) && (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">How far?</p>
               <div className="flex flex-wrap gap-2">
@@ -622,6 +624,8 @@ const Places = () => {
         onOpenChange={setShowCityPicker}
         onCitySelect={handleCitySelect}
         onSkip={handleCityPickerSkip}
+        onRequestBrowserLocation={requestBrowserLocation}
+        isRequestingLocation={locationLoading}
         mode="home"
       />
       <PlaceSuggestionModal
