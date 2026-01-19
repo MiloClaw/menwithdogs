@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, MapPin, Calendar } from "lucide-react";
+import { Shield, Clock, Eye, Users, Plane, Coffee, Heart } from "lucide-react";
 
 const Couples = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -18,9 +18,9 @@ const Couples = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Gay Couples Community – Find Friends & Places Together"
-        description="Gay couples looking for community and friends. Discover places where partnered gay men connect with other couples and singles for real-world friendship — not dating."
-        keywords="gay couples community, gay couple friends, LGBTQ couples, gay married couples, gay couples social, partnered gay men, gay couples meetup"
+        title="Discover Together — Find Places for Both of You"
+        description="Temporarily link with a partner or friend to find places that work for both of you. Private, session-based discovery — no account sharing required."
+        keywords="discover together, couples places, friend recommendations, shared discovery, private place suggestions"
         canonicalPath="/couples"
       />
 
@@ -34,7 +34,7 @@ const Couples = () => {
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
         >
           <span className="text-[16rem] md:text-[22rem] lg:text-[28rem] font-serif text-muted/[0.04] leading-none">
-            ♥♥
+            ⊕
           </span>
         </motion.div>
 
@@ -46,22 +46,22 @@ const Couples = () => {
             className="text-center"
           >
             <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-6">
-              Couples
+              Discover Together
             </span>
             
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 text-balance">
-              Gay Couples Deserve Community Too
+              Find Places That Work for Both of You
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Finding friends as a couple is different. 
-              Here's a place built for that — together.
+              Without sharing your preferences. Without linking accounts.
+              Just better recommendations — privately.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* The Couples Challenge Section */}
+      {/* How It Works Section */}
       <section className="py-16 md:py-24">
         <div className="container max-w-3xl mx-auto px-4">
           <motion.div
@@ -76,33 +76,37 @@ const Couples = () => {
                 01
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                The Couples Challenge
+                How It Works
               </h2>
             </div>
 
-            <div className="prose prose-lg max-w-none text-muted-foreground">
-              <p>
-                When you partner up, your social world often shrinks. Friends who 
-                were single start to fade away. Couple friends are hard to find — 
-                and even harder to schedule. And most gay spaces still feel designed 
-                for singles.
-              </p>
-              <p>
-                Meanwhile, dating apps obviously don't work for friendship. And 
-                the couple friend apps that exist tend to feel... awkward. Too 
-                transactional. Too much pressure to "match" with another couple.
-              </p>
-              <p>
-                You're left with a strange isolation: finally in a healthy 
-                relationship, but missing the broader gay community you once 
-                had access to.
-              </p>
+            <div className="space-y-6">
+              {[
+                "One of you generates a session code",
+                "Your partner scans or enters the code",
+                "The system finds places that resonate with both — privately",
+                "Sessions expire in 24 hours. No permanent data."
+              ].map((step, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  className="flex items-start gap-4"
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-medium text-primary">{index + 1}</span>
+                  </div>
+                  <p className="text-lg text-muted-foreground pt-1">{step}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Built for Couples Section */}
+      {/* What Makes This Different Section */}
       <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container max-w-3xl mx-auto px-4">
           <motion.div
@@ -117,32 +121,47 @@ const Couples = () => {
                 02
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                Built With Couples in Mind
+                What Makes This Different
               </h2>
             </div>
 
-            <div className="prose prose-lg prose-invert max-w-none text-primary-foreground/90">
-              <p>
-                MainStreetIRL was designed from the start for both singles and 
-                couples. Couples can share a single account, discover places 
-                together, and save favorites that reflect both partners' interests.
-              </p>
-              <p>
-                We help you find places where gay community gathers — coffee shops, 
-                restaurants, events, gyms — without the pressure of "meeting" anyone. 
-                Just show up. Be a regular. Let connection happen naturally.
-              </p>
-              <p>
-                Whether you want to find other couple friends or simply maintain 
-                friendships with single friends, the approach is the same: discover 
-                the places that fit your life, and let presence do the work.
-              </p>
+            <div className="grid gap-6">
+              {[
+                {
+                  title: "Your preferences stay yours",
+                  description: "No profile sharing between users. Your saved places, your interests — completely private."
+                },
+                {
+                  title: "Works for any duo",
+                  description: "Couples, friends, travel companions, roommates. Anyone exploring together."
+                },
+                {
+                  title: "Place-level intelligence",
+                  description: "The system doesn't match people. It surfaces places that work for both."
+                },
+                {
+                  title: "Temporary by design",
+                  description: "Sessions expire. No social graph. No permanent connection between accounts."
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  className="border-l-2 border-primary-foreground/30 pl-5"
+                >
+                  <h3 className="font-medium text-lg mb-1">{item.title}</h3>
+                  <p className="text-primary-foreground/80">{item.description}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* What Couples Are Looking For Section */}
+      {/* Privacy Promise Section */}
       <section className="py-16 md:py-24">
         <div className="container max-w-4xl mx-auto px-4">
           <motion.div
@@ -156,31 +175,31 @@ const Couples = () => {
                 03
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                What Couples Are Looking For
+                Privacy Promise
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {
+                  icon: Eye,
+                  title: "Your partner never sees your saved places",
+                  description: "What you've favorited stays between you and the directory."
+                },
+                {
+                  icon: Shield,
+                  title: "Your individual preferences remain private",
+                  description: "The system uses both inputs without revealing either."
+                },
+                {
                   icon: Users,
-                  title: "Other Couple Friends",
-                  description: "People who understand the rhythm of partnered life. Who can do double dates that aren't awkward."
+                  title: "We only surface places that work for both",
+                  description: "Common ground — without exposing individual taste."
                 },
                 {
-                  icon: Heart,
-                  title: "Welcoming Spaces",
-                  description: "Places that feel comfortable for couples. Not exclusively single-focused. Not couple-only. Just... welcoming."
-                },
-                {
-                  icon: MapPin,
-                  title: "Neighborhood Regulars",
-                  description: "Coffee shops, restaurants, bars near home. The spots where you can become familiar faces together."
-                },
-                {
-                  icon: Calendar,
-                  title: "Couple-Friendly Events",
-                  description: "Events that work for two. Trivia nights, dinner parties, weekend activities. Things you can do together."
+                  icon: Clock,
+                  title: "No account linking. No permanent connection.",
+                  description: "Each session is temporary and independent."
                 }
               ].map((item, index) => (
                 <motion.div
@@ -201,43 +220,60 @@ const Couples = () => {
         </div>
       </section>
 
-      {/* How It Works for Couples Section */}
+      {/* Use Cases Section */}
       <section className="py-16 md:py-24 bg-surface/50">
-        <div className="container max-w-3xl mx-auto px-4">
+        <div className="container max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
-            className="space-y-8"
           >
-            <div className="mb-8">
+            <div className="mb-12 text-center">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
                 04
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                How It Works for Couples
+                Perfect For
               </h2>
             </div>
 
-            <div className="prose prose-lg max-w-none text-muted-foreground">
-              <p>
-                Couples can join MainStreetIRL with a shared account. Both partners 
-                can add their interests and preferences, and the directory learns 
-                what resonates with you as a unit.
-              </p>
-              <p>
-                As you save favorites and explore, the system finds places where 
-                couples like you tend to go — places that fit your shared lifestyle, 
-                whether that's quiet brunch spots, active outdoor groups, or 
-                low-key neighborhood bars.
-              </p>
-              <p>
-                This isn't about "matching" with other couples. It's about 
-                discovering the <Link to="/community" className="text-primary hover:underline">community</Link> that 
-                already exists and <Link to="/find-friends" className="text-primary hover:underline">finding friends</Link> organically 
-                by showing up together.
-              </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[
+                {
+                  icon: Heart,
+                  title: "Couples planning date night",
+                  description: "Find restaurants and bars you'll both love — no more compromise debates."
+                },
+                {
+                  icon: Plane,
+                  title: "Friends visiting from out of town",
+                  description: "Quickly find spots that match both your tastes in an unfamiliar city."
+                },
+                {
+                  icon: Users,
+                  title: "Travel companions exploring together",
+                  description: "Discover places that resonate with both of you in real-time."
+                },
+                {
+                  icon: Coffee,
+                  title: "Roommates finding neighborhood spots",
+                  description: "Build a shared list of go-to places near home."
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="p-6 bg-card border border-border rounded-lg"
+                >
+                  <item.icon className="h-6 w-6 text-primary mb-4" />
+                  <h3 className="font-serif text-lg font-semibold mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -253,14 +289,14 @@ const Couples = () => {
             transition={{ duration: 0.5 }}
           >
             <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-primary-foreground/70 mb-4">
-              Start Together
+              Get Started
             </span>
             <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-4 text-balance">
-              Ready to explore together?
+              Ready to discover together?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Discover places in your city where couples like you actually spend time — 
-              and start building the friendships you've been missing.
+              Start a session with your partner, friend, or travel companion. 
+              Find places that work for both of you — without sharing preferences.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -269,7 +305,7 @@ const Couples = () => {
                 asChild
                 className="text-base px-8"
               >
-                <Link to="/auth?mode=signup">Create Couple Account</Link>
+                <Link to="/together">Start a Session</Link>
               </Button>
               <Button
                 size="lg"
