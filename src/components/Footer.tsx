@@ -64,6 +64,9 @@ const Footer = () => {
               <Link to="/privacy" className={linkClasses}>
                 Privacy Policy
               </Link>
+              <Link to="/sitemap" className={linkClasses}>
+                Sitemap
+              </Link>
             </nav>
           </div>
         </div>

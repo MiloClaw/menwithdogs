@@ -13,6 +13,7 @@ import LovePlace from "./pages/LovePlace";
 import ExploreCities from "./pages/ExploreCities";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Sitemap from "./pages/Sitemap";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
@@ -56,6 +57,7 @@ const App = () => (
               
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
