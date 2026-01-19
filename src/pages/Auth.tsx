@@ -38,11 +38,19 @@ const Auth = () => {
   // Redirect if already authenticated - handle pending intents
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      // Check for pending favorite (QR code flow)
+      // Check for pending place favorite (QR code / toast flow)
       const pendingPlaceId = sessionStorage.getItem('pending_favorite_place_id');
       if (pendingPlaceId) {
         sessionStorage.removeItem('pending_favorite_place_id');
         navigate(`/places?save=${pendingPlaceId}`);
+        return;
+      }
+      
+      // Check for pending event favorite (toast flow)
+      const pendingEventId = sessionStorage.getItem('pending_favorite_event_id');
+      if (pendingEventId) {
+        sessionStorage.removeItem('pending_favorite_event_id');
+        navigate(`/places?saveEvent=${pendingEventId}`);
         return;
       }
       

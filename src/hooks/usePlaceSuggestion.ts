@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { showAuthToast } from '@/lib/auth-toast';
 import type { PlaceDetails } from '@/hooks/useGooglePlaces';
 
 export const usePlaceSuggestion = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   /**
@@ -36,10 +39,10 @@ export const usePlaceSuggestion = () => {
       // Get current session to ensure user is authenticated
       const { data: { session }, error: authError } = await supabase.auth.getSession();
       if (authError || !session) {
-        toast({
-          title: 'Please sign in',
-          description: 'You need to be signed in to suggest places.',
-          variant: 'destructive',
+        showAuthToast({
+          title: 'Sign in to suggest places',
+          description: 'Create a free account to share your favorites.',
+          onNavigate: () => navigate('/auth'),
         });
         return false;
       }
