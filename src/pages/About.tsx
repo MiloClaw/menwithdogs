@@ -1,37 +1,26 @@
 import PageLayout from "@/components/PageLayout";
 import PageHeader from "@/components/PageHeader";
 import { Heart, Users, Shield, MapPin, Coffee, Sparkles } from "lucide-react";
-
-const values = [
-  {
-    icon: Shield,
-    title: "Privacy by Default",
-    description: "No public profiles. No searchable users. Your presence is yours to control—always.",
-  },
-  {
-    icon: Heart,
-    title: "Platonic Intention",
-    description: "Built for friendship and community, not dating. Real connection without the pressure.",
-  },
-  {
-    icon: MapPin,
-    title: "Place-First Discovery",
-    description: "The places come first. Community forms around them naturally, not the other way around.",
-  },
-  {
-    icon: Users,
-    title: "Quiet Community",
-    description: "No likes, followers, or popularity mechanics. Just shared spaces and genuine moments.",
-  },
-];
-
+const values = [{
+  icon: Shield,
+  title: "Privacy by Default",
+  description: "No public profiles. No searchable users. Your presence is yours to control—always."
+}, {
+  icon: Heart,
+  title: "Platonic Intention",
+  description: "Built for friendship and community, not dating. Real connection without the pressure."
+}, {
+  icon: MapPin,
+  title: "Place-First Discovery",
+  description: "The places come first. Community forms around them naturally, not the other way around."
+}, {
+  icon: Users,
+  title: "Quiet Community",
+  description: "No likes, followers, or popularity mechanics. Just shared spaces and genuine moments."
+}];
 const About = () => {
-  return (
-    <PageLayout>
-      <PageHeader
-        title="Why We Built This"
-        subtitle="The story behind MainStreetIRL"
-      />
+  return <PageLayout>
+      <PageHeader title="Why We Built This" subtitle="The story behind MainStreetIRL" />
 
       <div className="container py-8 md:py-12 lg:py-16">
         {/* The Problem */}
@@ -108,11 +97,7 @@ const About = () => {
             Our Principles
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {values.map((value) => (
-              <div
-                key={value.title}
-                className="p-6 bg-card border border-border rounded-lg"
-              >
+            {values.map(value => <div key={value.title} className="p-6 bg-card border border-border rounded-lg">
                 <value.icon className="h-7 w-7 text-primary mb-4" />
                 <h3 className="font-serif text-lg font-semibold text-foreground mb-2">
                   {value.title}
@@ -120,8 +105,7 @@ const About = () => {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {value.description}
                 </p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </section>
 
@@ -161,18 +145,13 @@ const About = () => {
                 <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
                 No public profiles or searchable users
               </li>
-              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
+              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">No shared personal details<span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
                 No shared personal details without explicit opt-in
               </li>
-              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
+              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">No selling of your data<span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
                 No selling or indexing of your data
               </li>
-              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
-                You control when, where, and how you're visible—always
-              </li>
+              
             </ul>
             <p className="text-sm text-muted-foreground italic">
               Privacy isn't a feature. It's the foundation.
@@ -180,8 +159,6 @@ const About = () => {
           </div>
         </section>
       </div>
-    </PageLayout>
-  );
+    </PageLayout>;
 };
-
 export default About;
