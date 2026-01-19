@@ -26,6 +26,7 @@ import Auth from "./pages/Auth";
 import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
 import Settings from "./pages/Settings";
+import DiscoverTogether from "./pages/DiscoverTogether";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import PostManagement from "./pages/admin/PostManagement";
@@ -53,6 +54,8 @@ const App = () => (
               <Route path="/love/:placeId" element={<LovePlace />} />
               <Route path="/places" element={<Places />} />
               <Route path="/places/explore" element={<ExploreCities />} />
+              <Route path="/together" element={<DiscoverTogether />} />
+              <Route path="/together/:token" element={<DiscoverTogether />} />
               
               {/* Blog for announcements */}
               <Route path="/blog" element={<Blog />} />

@@ -796,6 +796,36 @@ export type Database = {
           },
         ]
       }
+      overlap_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          initiator_id: string
+          partner_id: string | null
+          status: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          initiator_id: string
+          partner_id?: string | null
+          status?: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          initiator_id?: string
+          partner_id?: string | null
+          status?: string
+          token?: string
+        }
+        Relationships: []
+      }
       paid_tuning_definitions: {
         Row: {
           confidence_cap: number | null
@@ -1889,6 +1919,8 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_expired_overlap_sessions: { Args: never; Returns: undefined }
+      compute_overlap_affinity: { Args: { _session_id: string }; Returns: Json }
       compute_place_aggregates: { Args: never; Returns: undefined }
       compute_user_affinity:
         | { Args: { _user_id: string }; Returns: undefined }
@@ -1901,6 +1933,8 @@ export type Database = {
         Args: { unit_type?: string }
         Returns: string
       }
+      create_overlap_session: { Args: never; Returns: Json }
+      end_overlap_session: { Args: { _session_id: string }; Returns: undefined }
       find_metro_for_county: {
         Args: {
           _country_code?: string
@@ -1916,6 +1950,7 @@ export type Database = {
           primary_city_state: string
         }[]
       }
+      get_active_overlap_session: { Args: never; Returns: Json }
       get_admin_dashboard_stats: {
         Args: never
         Returns: {
@@ -1951,6 +1986,10 @@ export type Database = {
           user_email: string
           user_id: string
         }[]
+      }
+      get_pending_overlap_session: {
+        Args: { _session_id: string }
+        Returns: Json
       }
       get_public_events: {
         Args: { _limit?: number; _status?: string; _venue_place_id?: string }
@@ -2002,6 +2041,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      join_overlap_session: { Args: { _token: string }; Returns: Json }
       nightly_rebuild_context_density: { Args: never; Returns: undefined }
       rebuild_place_context_density: {
         Args: { _city_id?: string }
