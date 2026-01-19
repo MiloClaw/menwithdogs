@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 const exclusions = [
-  "No profiles to maintain.",
+  "No public profiles to maintain.",
   "No followers to count.",
   "No feed to scroll.",
   "No likes to chase.",
