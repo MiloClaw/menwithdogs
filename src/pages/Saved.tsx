@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, MapPin, Calendar, Bookmark } from 'lucide-react';
+import { MapPin, Calendar } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { useEventFavorites } from '@/hooks/useEventFavorites';
 import { useCouple } from '@/hooks/useCouple';
 import PageLayout from '@/components/PageLayout';
-import PageHeader from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
 import DirectoryEventCard from '@/components/directory/DirectoryEventCard';
@@ -27,6 +27,14 @@ const Saved = () => {
   const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<PublicEvent | null>(null);
   const [activeTab, setActiveTab] = useState('places');
+
+  // Hero parallax ref and scroll transform
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  const ghostY = useTransform(scrollYProgress, [0, 1], [0, 150]);
 
   // Fetch saved places
   const { data: savedPlaces = [], isLoading: placesLoading } = useQuery({
@@ -113,13 +121,53 @@ const Saved = () => {
 
   return (
     <PageLayout>
-      <div className="container py-8 md:py-12">
-        <PageHeader
-          title="Saved"
-          subtitle="Your favorite places and upcoming events"
-        />
+      <div className="container space-y-8">
+        {/* Editorial Hero Section with Ghost Typography */}
+        <section 
+          ref={heroRef}
+          className="relative py-16 md:py-20 lg:py-24 overflow-hidden -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8"
+        >
+          {/* Ghost Parallax Element */}
+          <motion.div
+            style={{ y: ghostY }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+          >
+            <span className="text-[16rem] md:text-[22rem] font-serif font-bold text-foreground/[0.03] leading-none">
+              ♥
+            </span>
+          </motion.div>
+          
+          <div className="relative z-10 max-w-2xl">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4"
+            >
+              Your Collection
+            </motion.span>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight mb-4 text-balance"
+            >
+              Saved
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty"
+            >
+              Your favorite places and upcoming events.
+            </motion.p>
+          </div>
+        </section>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="places" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
