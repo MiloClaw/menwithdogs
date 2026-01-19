@@ -1,6 +1,7 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
+import SEOHead from "@/components/SEOHead";
 import {
   Accordion,
   AccordionContent,
@@ -156,8 +157,31 @@ const FAQ = () => {
   
   const ghostY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
+  // Generate FAQ schema from sections
+  const faqSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqSections.flatMap(section => 
+      section.items.map(item => ({
+        "@type": "Question",
+        "name": item.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": item.answer.join(" ")
+        }
+      }))
+    )
+  }), []);
+
   return (
     <PageLayout>
+      <SEOHead
+        title="FAQ – Gay Community Directory for Friends & Couples"
+        description="Answers about how gay men and couples use MainStreetIRL to find community and make real-world friends. Learn about personalization, privacy, and what makes this different."
+        keywords="gay community FAQ, LGBTQ directory questions, gay friends app, gay couples community"
+        canonicalPath="/faq"
+        schema={faqSchema}
+      />
       {/* Hero Section */}
       <section 
         ref={heroRef}
