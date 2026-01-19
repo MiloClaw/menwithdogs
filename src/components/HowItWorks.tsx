@@ -7,7 +7,7 @@ const steps = [
     number: "01",
     icon: MapPin,
     title: "Browse",
-    description: "Explore places in your area. Filter by distance, category, or vibe.",
+    description: "Browse places that already exist in the directory.",
   },
   {
     number: "02",
