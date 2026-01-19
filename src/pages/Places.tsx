@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MapPin, MapPinOff, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -377,25 +378,73 @@ const Places = () => {
     return 'no-location';
   };
 
+  // Hero parallax ref and scroll transform
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  const ghostY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+
   return (
     <PageLayout>
-      {/* Priority 3: Increased mobile padding py-10 */}
-      <div className="container py-10 md:py-12 space-y-8">
-        {/* Header - Place-first language, Priority 3: Increased spacing */}
-        <header className="space-y-3 max-w-2xl">
-          <h1 className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-balance">
-            Places
-          </h1>
-          <p className="text-muted-foreground text-base md:text-lg">
-            Browse spots worth knowing in your area.
-          </p>
-          {/* Subtle personalization context - observational, not algorithmic */}
-          {isAuthenticated && !placesLoading && processedPlaces.some(p => p.isRelevant) && (
-            <p className="text-sm text-muted-foreground/70">
-              Sorted by what you've been exploring.
-            </p>
-          )}
-        </header>
+      <div className="container space-y-8">
+        {/* Editorial Hero Section with Ghost Typography */}
+        <section 
+          ref={heroRef}
+          className="relative py-16 md:py-20 lg:py-24 overflow-hidden -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8"
+        >
+          {/* Ghost Parallax Element */}
+          <motion.div
+            style={{ y: ghostY }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+          >
+            <span className="text-[16rem] md:text-[22rem] font-serif font-bold text-foreground/[0.03] leading-none">
+              &
+            </span>
+          </motion.div>
+          
+          <div className="relative z-10 max-w-2xl">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4"
+            >
+              Directory
+            </motion.span>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight mb-4 text-balance"
+            >
+              Places
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty"
+            >
+              Browse spots worth knowing in your area.
+            </motion.p>
+            
+            {/* Subtle personalization context - observational, not algorithmic */}
+            {isAuthenticated && !placesLoading && processedPlaces.some(p => p.isRelevant) && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="mt-4 text-sm text-muted-foreground/70"
+              >
+                Sorted by what you've been exploring.
+              </motion.p>
+            )}
+          </div>
+        </section>
 
         {/* Search */}
         <div className="max-w-md md:max-w-lg">
