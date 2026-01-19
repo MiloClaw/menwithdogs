@@ -59,9 +59,9 @@ const ValueProposition = () => {
             duration: 0.6,
             delay: 0.2
           }} className="space-y-6 md:pt-2 max-w-prose">
-              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">A personalized directory built around where gay men actually spend time in real life. No profiles. No feeds. No swiping.
+              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed my-[3px]">A personalized directory built around where gay men actually spend time in real life. No profiles. No feeds. No swiping. 
 
-It's for men who want more real-world connections without the endless feeds, swiping and ghosting of dating apps. No one is browsing you. You are not being ranked or compared.
+It's for men who want more real-world connections without the endless feeds, swiping and ghosting of dating apps. No one is browsing you. You are not being ranked or compared. 
 
 You simply add your favorite places. Share hidden gems that are not yet in the directory. Share this with other gay men who are looking for real-world connections and then let our AI-powered directory help you find your community.
             </p>
