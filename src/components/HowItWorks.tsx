@@ -14,7 +14,7 @@ const steps = [{
 }, {
   number: "03",
   icon: RotateCcw,
-  title: "Return and Share",
+  title: "Share",
   description: "Your saves shape what you see. The more you save, the more relevant it gets."
 }];
 const HowItWorks = () => {
