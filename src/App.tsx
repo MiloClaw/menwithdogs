@@ -17,6 +17,9 @@ import Sitemap from "./pages/Sitemap";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import Community from "./pages/Community";
+import FindFriends from "./pages/FindFriends";
+import Couples from "./pages/Couples";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPostPage";
 import Auth from "./pages/Auth";
@@ -61,6 +64,11 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
+              
+              {/* SEO Intent Capture Pages */}
+              <Route path="/community" element={<Community />} />
+              <Route path="/find-friends" element={<FindFriends />} />
+              <Route path="/couples" element={<Couples />} />
               
               {/* Auth & User Routes */}
               <Route path="/auth" element={<Auth />} />

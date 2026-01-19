@@ -34,6 +34,24 @@ const Footer = () => {
             </nav>
           </div>
           
+          {/* Community */}
+          <div>
+            <h4 className="text-sm font-semibold text-primary-foreground mb-3">
+              Community
+            </h4>
+            <nav className="flex flex-col gap-2">
+              <Link to="/community" className={linkClasses}>
+                Gay Community
+              </Link>
+              <Link to="/find-friends" className={linkClasses}>
+                Find Friends
+              </Link>
+              <Link to="/couples" className={linkClasses}>
+                Couples
+              </Link>
+            </nav>
+          </div>
+          
           {/* Company */}
           <div>
             <h4 className="text-sm font-semibold text-primary-foreground mb-3">

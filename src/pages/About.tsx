@@ -1,4 +1,5 @@
 import PageLayout from "@/components/PageLayout";
+import SEOHead from "@/components/SEOHead";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Heart, Users, Shield, MapPin } from "lucide-react";
@@ -55,8 +56,28 @@ const About = () => {
   const ghostY2 = useTransform(buildingProgress, [0, 1], [40, -40]);
   const ghostY3 = useTransform(ctaProgress, [0, 1], [50, -50]);
 
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About MainStreetIRL",
+    "description": "The story behind MainStreetIRL — rebuilding gay community through real places, not dating apps.",
+    "url": "https://mainstreetirl.com/about",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "MainStreetIRL",
+      "description": "A place-centric directory helping gay men and couples find community, friends, and real-world connection."
+    }
+  };
+
   return (
     <PageLayout>
+      <SEOHead
+        title="Why MainStreetIRL Exists – Gay Community Built Around Real Places"
+        description="The story behind MainStreetIRL — rebuilding gay community through real places, not dating apps. A place-first approach to finding friends and connection."
+        keywords="about MainStreetIRL, gay community platform, LGBTQ places directory, gay friendship app"
+        canonicalPath="/about"
+        schema={aboutSchema}
+      />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 lg:py-36 overflow-hidden">
         <motion.div
