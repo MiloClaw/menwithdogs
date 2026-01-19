@@ -145,10 +145,12 @@ const About = () => {
                 <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
                 No public profiles or searchable users
               </li>
-              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">No shared personal details<span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
+              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">No shared personal details
+No shared personal details <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
                 No shared personal details without explicit opt-in
               </li>
-              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">No selling of your data<span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
+              <li className="flex items-start gap-3 text-sm md:text-base text-foreground">No selling of your data
+              <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-2" />
                 No selling or indexing of your data
               </li>
               
