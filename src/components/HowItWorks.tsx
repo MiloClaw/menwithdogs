@@ -9,7 +9,7 @@ const steps = [{
 }, {
   number: "02",
   icon: Bookmark,
-  title: "Save and Return",
+  title: "Favorite and Return",
   description: "Save the ones you genuinely enjoy and plan to visit again. Your favorites shape what you see. The more you save, the more relevant it gets."
 }, {
   number: "03",
