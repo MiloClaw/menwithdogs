@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
-  ChevronLeft, ChevronRight, Heart, ChevronDown
+  ChevronLeft, ChevronRight, Heart, ChevronDown, Share2
 } from 'lucide-react';
 import {
   Dialog,
@@ -22,6 +22,7 @@ import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceLinkedContent from '@/components/directory/PlaceLinkedContent';
 import { useAuth } from '@/hooks/useAuth';
 import { recordSignal } from '@/hooks/useUserSignals';
+import { toast } from 'sonner';
 
 export interface PlaceDetail {
   id: string;
@@ -104,6 +105,44 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
     window.open(url, '_blank', 'noopener,noreferrer');
   }, [isAuthenticated, place]);
 
+  // Share handler with Web Share API fallback to clipboard
+  const handleShare = useCallback(async () => {
+    if (!place) return;
+    
+    const shareUrl = `${window.location.origin}/love/${place.id}`;
+    const shareData = {
+      title: place.name,
+      text: `Check out ${place.name} on MainStreetIRL`,
+      url: shareUrl,
+    };
+
+    // Record signal for analytics
+    if (isAuthenticated) {
+      recordSignal('share_place', place.id, place.primary_category, 'explicit', 0.7);
+    }
+
+    // Try Web Share API first (mobile)
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // User cancelled or error - fall through to clipboard
+        if ((err as Error).name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copied!', {
+        description: 'Share this place with friends.',
+      });
+    } catch {
+      toast.error('Could not copy link');
+    }
+  }, [place, isAuthenticated]);
+
   if (!place) return null;
 
   const location = [place.city, place.state].filter(Boolean).join(', ');
@@ -184,19 +223,29 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                 </Badge>
                 <DialogTitle className="text-2xl">{place.name}</DialogTitle>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => toggleFavorite(place.id)}
-                disabled={isUpdating}
-                className="flex-shrink-0"
-              >
-                <Heart 
-                  className={`h-6 w-6 transition-colors ${
-                    saved ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground'
-                  }`} 
-                />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleShare}
+                  className="flex-shrink-0"
+                >
+                  <Share2 className="h-5 w-5 text-muted-foreground" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => toggleFavorite(place.id)}
+                  disabled={isUpdating}
+                  className="flex-shrink-0"
+                >
+                  <Heart 
+                    className={`h-6 w-6 transition-colors ${
+                      saved ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground'
+                    }`} 
+                  />
+                </Button>
+              </div>
             </div>
             
             {/* Rating, Price & Open Status */}
