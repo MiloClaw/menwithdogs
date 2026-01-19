@@ -109,13 +109,13 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
               className={`h-4 w-4 transition-colors ${saved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
             />
           </button>
-          {/* Only show distance for places >5mi to reduce comparison scanning */}
-          {place.distance !== undefined && place.distance > 5 && (
+          {/* Show "Nearby" for <5mi, exact distance for farther */}
+          {place.distance !== undefined && (
             <Badge 
               variant="outline" 
               className="bg-background/90 backdrop-blur-sm text-xs font-medium"
             >
-              {formatDistance(place.distance)}
+              {place.distance <= 5 ? 'Nearby' : formatDistance(place.distance)}
             </Badge>
           )}
         </div>
