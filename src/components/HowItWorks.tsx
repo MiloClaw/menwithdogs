@@ -15,7 +15,7 @@ const steps = [{
   number: "03",
   icon: RotateCcw,
   title: "Share",
-  description: "Your saves shape what you see. The more you save, the more relevant it gets."
+  description: "As more gay men use the directory, recommendations get smarter over time — and new patterns begin to surface across each city, often in unexpected places."
 }];
 const HowItWorks = () => {
   const sectionRef = useRef<HTMLElement>(null);
