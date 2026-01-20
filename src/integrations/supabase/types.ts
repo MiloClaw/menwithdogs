@@ -868,6 +868,11 @@ export type Database = {
           expires_at: string
           id: string
           initiator_id: string
+          location_city: string | null
+          location_lat: number | null
+          location_lng: number | null
+          location_set_by: string | null
+          location_state: string | null
           partner_id: string | null
           status: string
           token: string
@@ -877,6 +882,11 @@ export type Database = {
           expires_at?: string
           id?: string
           initiator_id: string
+          location_city?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_set_by?: string | null
+          location_state?: string | null
           partner_id?: string | null
           status?: string
           token: string
@@ -886,6 +896,11 @@ export type Database = {
           expires_at?: string
           id?: string
           initiator_id?: string
+          location_city?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_set_by?: string | null
+          location_state?: string | null
           partner_id?: string | null
           status?: string
           token?: string
@@ -2160,6 +2175,16 @@ export type Database = {
         Returns: string
       }
       refresh_admin_dashboard_stats: { Args: never; Returns: undefined }
+      update_overlap_session_location: {
+        Args: {
+          _city: string
+          _lat: number
+          _lng: number
+          _session_id: string
+          _state: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       affinity_type: "regular" | "occasional" | "aspirational"
