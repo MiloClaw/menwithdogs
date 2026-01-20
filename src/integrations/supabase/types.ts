@@ -2037,6 +2037,40 @@ export type Database = {
           total_posts: number
         }[]
       }
+      get_admin_user_stats: {
+        Args: never
+        Returns: {
+          active_couples: number
+          ambassador_count: number
+          complete_profiles: number
+          pending_ambassadors: number
+          pro_subscribers: number
+          total_users: number
+        }[]
+      }
+      get_admin_users_list: {
+        Args: {
+          _limit?: number
+          _offset?: number
+          _role_filter?: string
+          _search?: string
+        }
+        Returns: {
+          ambassador_status: string
+          city: string
+          couple_display_name: string
+          couple_id: string
+          couple_is_complete: boolean
+          created_at: string
+          email: string
+          first_name: string
+          is_profile_complete: boolean
+          roles: string[]
+          state: string
+          subscription_status: string
+          user_id: string
+        }[]
+      }
       get_founders_redemptions_with_emails: {
         Args: { _city_id?: string; _limit?: number; _offset?: number }
         Returns: {
