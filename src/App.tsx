@@ -20,6 +20,7 @@ import FAQ from "./pages/FAQ";
 import Community from "./pages/Community";
 import FindFriends from "./pages/FindFriends";
 import Couples from "./pages/Couples";
+import Ambassadors from "./pages/Ambassadors";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPostPage";
 import Auth from "./pages/Auth";
@@ -72,6 +73,7 @@ const App = () => (
               <Route path="/community" element={<Community />} />
               <Route path="/find-friends" element={<FindFriends />} />
               <Route path="/couples" element={<Couples />} />
+              <Route path="/ambassadors" element={<Ambassadors />} />
               
               {/* Auth & User Routes */}
               <Route path="/auth" element={<Auth />} />
