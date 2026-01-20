@@ -15,7 +15,8 @@ import { cn } from '@/lib/utils';
 const SettingsAccountTab = () => {
   const { user } = useAuth();
   const { 
-    isPro, 
+    isPro,
+    isAmbassador,
     subscriptionEnd, 
     createCheckout, 
     isCreatingCheckout,
@@ -86,9 +87,9 @@ const SettingsAccountTab = () => {
                   variant={isPro ? 'default' : 'secondary'}
                   className={isPro ? 'shadow-sm' : ''}
                 >
-                  {isPro ? 'Pro' : 'Free'}
+                  {isAmbassador ? 'Ambassador' : isPro ? 'Pro' : 'Free'}
                 </Badge>
-                {isPro && subscriptionEnd && (
+                {isPro && !isAmbassador && subscriptionEnd && (
                   <span className="text-xs text-muted-foreground">
                     Renews {format(new Date(subscriptionEnd), 'MMM d')}
                   </span>
