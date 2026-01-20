@@ -6,9 +6,9 @@ const Footer = () => {
   return (
     <footer className="py-12 md:py-16 bg-primary">
       <div className="container">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mb-8">
           {/* Brand */}
-          <div className="sm:col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <span className="font-serif text-lg font-semibold text-primary-foreground">
               MainStreetIRL
             </span>
@@ -22,7 +22,7 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-primary-foreground mb-3">
               Explore
             </h4>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-3">
               <Link to="/places" className={linkClasses}>
                 Places
               </Link>
@@ -39,7 +39,7 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-primary-foreground mb-3">
               Community
             </h4>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-3">
               <Link to="/community" className={linkClasses}>
                 Gay Community
               </Link>
@@ -60,7 +60,7 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-primary-foreground mb-3">
               Company
             </h4>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-3">
               <Link to="/about" className={linkClasses}>
                 About
               </Link>
@@ -78,7 +78,7 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-primary-foreground mb-3">
               Legal
             </h4>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-3">
               <Link to="/terms" className={linkClasses}>
                 Terms of Service
               </Link>
@@ -93,7 +93,7 @@ const Footer = () => {
         </div>
         
         {/* Bottom */}
-        <div className="pt-10 border-t border-primary-foreground/20 space-y-3">
+        <div className="pt-8 md:pt-10 border-t border-primary-foreground/20 space-y-3">
           <p className="text-xs text-primary-foreground/60 text-center max-w-lg mx-auto">
             MainStreetIRL provides place-based insights and community signals. Users choose how and where they engage independently.
           </p>
