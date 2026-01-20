@@ -4,11 +4,16 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface AmbassadorApplicationData {
+  name: string;
   cityName: string;
   cityGooglePlaceId?: string;
   cityState?: string;
   cityCountry: string;
   tenure: string;
+  specificPlaces: string;
+  motivation: string;
+  hasBusinessAffiliation: boolean;
+  businessAffiliationDetails?: string;
   localKnowledge: string;
   socialLinks?: string;
   email: string;
@@ -29,11 +34,16 @@ export const useAmbassadorApplication = () => {
         .insert({
           user_id: user?.id,
           email: data.email,
+          name: data.name,
           city_name: data.cityName,
           city_google_place_id: data.cityGooglePlaceId,
           city_state: data.cityState,
           city_country: data.cityCountry,
           tenure: data.tenure,
+          specific_places: data.specificPlaces,
+          motivation: data.motivation,
+          has_business_affiliation: data.hasBusinessAffiliation,
+          business_affiliation_details: data.businessAffiliationDetails || null,
           local_knowledge: data.localKnowledge,
           social_links: data.socialLinks || null,
           status: 'pending',
