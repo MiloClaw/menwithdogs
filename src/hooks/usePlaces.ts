@@ -192,6 +192,7 @@ export const usePlaces = () => {
     city_name: string | null;
     metro_assigned: boolean;
     metro_name: string | null;
+    city_auto_launched: boolean;
   } | null> => {
     try {
       const { data, error } = await supabase.functions.invoke('auto-assign-place-geography', {
@@ -259,6 +260,7 @@ export const usePlaces = () => {
         city_name: string | null;
         metro_assigned: boolean;
         metro_name: string | null;
+        city_auto_launched: boolean;
       } })._geoAssignment;
 
       if (geoResult) {
@@ -269,10 +271,18 @@ export const usePlaces = () => {
         if (geoResult.metro_assigned && geoResult.metro_name) {
           messages.push(`Assigned to ${geoResult.metro_name} metro`);
         }
+        if (geoResult.city_auto_launched && geoResult.city_name) {
+          messages.push(`🚀 ${geoResult.city_name} auto-launched (10+ places)`);
+        }
         toast({ 
           title: messages[0],
           description: messages.slice(1).join('. ') || undefined,
         });
+        
+        // Invalidate cities query if city was created or auto-launched
+        if (geoResult.city_created || geoResult.city_auto_launched) {
+          queryClient.invalidateQueries({ queryKey: ['cities'] });
+        }
       } else {
         toast({ title: 'Place updated successfully' });
       }
