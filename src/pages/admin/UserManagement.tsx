@@ -342,8 +342,14 @@ const UserManagement = () => {
                 </TableBody>
               </Table>
             )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          </TabsContent>
+
+          <TabsContent value="ambassadors">
+            <AmbassadorApplicationsTab />
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );
