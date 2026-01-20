@@ -241,7 +241,7 @@ const Auth = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-3xl md:text-4xl font-serif font-semibold text-foreground text-balance"
             >
-              {mode === 'signin' ? 'Sign in to continue' : 'Join quietly'}
+              {mode === 'signin' ? 'Sign in to continue' : 'Join The Community'}
             </motion.h1>
 
             {/* Subtitle */}
