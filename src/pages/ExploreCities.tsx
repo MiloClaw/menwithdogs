@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { ArrowLeft, MapPin, ChevronDown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, MapPin, ChevronDown, ChevronRight, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import PageLayout from '@/components/PageLayout';
-import { useExploreHierarchy, ExploreState, ExploreCity } from '@/hooks/useExploreHierarchy';
+import { useExploreHierarchy, ExploreState, ExploreCity, ExploreMetro } from '@/hooks/useExploreHierarchy';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const ExploreCities = () => {
@@ -21,14 +21,33 @@ const ExploreCities = () => {
   const ghostY = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const ghostOpacity = useTransform(scrollYProgress, [0, 0.5], [0.04, 0]);
 
-  const handleSelectCity = (city: ExploreCity) => {
+  const handleSelectCity = (city: ExploreCity, metro?: ExploreMetro) => {
     const params = new URLSearchParams();
-    params.set('city', city.name);
-    if (city.state) params.set('state', city.state);
+    
+    if (metro) {
+      // If city is part of a metro, navigate to the primary city (first in list) with bias
+      const primaryCity = metro.cities[0];
+      params.set('city', primaryCity.name);
+      params.set('state', primaryCity.state);
+      
+      // If clicking a suburb, add bias coordinates
+      if (city.id !== primaryCity.id && city.lat && city.lng) {
+        params.set('bias_lat', city.lat.toString());
+        params.set('bias_lng', city.lng.toString());
+      }
+    } else {
+      params.set('city', city.name);
+      if (city.state) params.set('state', city.state);
+    }
+    
     navigate(`/places?${params.toString()}`);
   };
 
-  const totalCities = hierarchy?.reduce((sum, s) => sum + s.cities.length, 0) || 0;
+  // Calculate totals from new structure
+  const totalCities = hierarchy?.reduce((sum, s) => {
+    const metroCities = s.metros.reduce((mSum, m) => mSum + m.cities.length, 0);
+    return sum + metroCities + s.standalone_cities.length;
+  }, 0) || 0;
   const totalPlaces = hierarchy?.reduce((sum, s) => sum + s.total_places, 0) || 0;
 
   return (
@@ -53,7 +72,7 @@ const ExploreCities = () => {
               Browse by Location
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="text-lg md:text-xl text-muted-foreground text-pretty">
-              Discover curated places across {totalCities > 0 ? <span className="text-foreground font-medium">{totalCities} {totalCities === 1 ? 'city' : 'cities'}</span> : 'cities'} we've launched
+              Discover curated places across {totalCities > 0 ? <span className="text-foreground font-medium">{totalCities} {totalCities === 1 ? 'area' : 'areas'}</span> : 'cities'} we've launched
               {totalPlaces > 0 && <span> — {totalPlaces} places and counting</span>}
             </motion.p>
           </div>
@@ -77,26 +96,86 @@ const ExploreCities = () => {
                           <span className="hidden sm:block text-4xl md:text-5xl font-serif font-bold text-muted-foreground/10">{state.state_abbr}</span>
                           <div className="text-left">
                             <h3 className="font-serif text-xl md:text-2xl font-semibold tracking-tight">{state.state}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{state.cities.length} {state.cities.length === 1 ? 'city' : 'cities'} • {state.total_places} places</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {state.metros.length > 0 && `${state.metros.length} ${state.metros.length === 1 ? 'metro' : 'metros'}`}
+                              {state.metros.length > 0 && state.standalone_cities.length > 0 && ' • '}
+                              {state.standalone_cities.length > 0 && `${state.standalone_cities.length} ${state.standalone_cities.length === 1 ? 'city' : 'cities'}`}
+                              {' • '}{state.total_places} places
+                            </p>
                           </div>
                         </div>
                         <ChevronDown className="h-5 w-5 text-muted-foreground chevron transition-transform duration-200" />
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6">
-                      <div className="pt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        {state.cities.map((city) => (
-                          <button key={city.id} onClick={() => handleSelectCity(city)} className="group flex items-center gap-4 p-4 rounded-lg border border-border bg-background text-left transition-all hover:bg-accent/50 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[72px]">
-                            <div className="flex-shrink-0 p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                              <MapPin className="h-4 w-4 text-primary" />
+                      <div className="pt-4 space-y-6">
+                        {/* Metros */}
+                        {state.metros.map((metro) => (
+                          <div key={metro.id} className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-primary" />
+                              <h4 className="font-medium text-foreground">{metro.name} Metro</h4>
+                              <span className="text-xs text-muted-foreground">
+                                {metro.total_places} places across {metro.cities.length} areas
+                              </span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-foreground">{city.name}</p>
-                              <p className="text-sm text-muted-foreground">{city.place_count} {city.place_count === 1 ? 'place' : 'places'}</p>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 pl-6">
+                              {metro.cities.map((city, cityIdx) => (
+                                <button 
+                                  key={city.id} 
+                                  onClick={() => handleSelectCity(city, metro)} 
+                                  className="group flex items-center gap-4 p-4 rounded-lg border border-border bg-background text-left transition-all hover:bg-accent/50 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[72px]"
+                                >
+                                  <div className="flex-shrink-0 p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                                    <MapPin className="h-4 w-4 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-medium text-foreground">{city.name}</p>
+                                      {cityIdx === 0 && (
+                                        <span className="text-[10px] font-medium uppercase tracking-wide px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                                          Hub
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">{city.place_count} {city.place_count === 1 ? 'place' : 'places'}</p>
+                                  </div>
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground" />
+                                </button>
+                              ))}
                             </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground" />
-                          </button>
+                          </div>
                         ))}
+
+                        {/* Standalone Cities */}
+                        {state.standalone_cities.length > 0 && (
+                          <div className="space-y-3">
+                            {state.metros.length > 0 && (
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-muted-foreground" />
+                                <h4 className="font-medium text-muted-foreground">Other Cities</h4>
+                              </div>
+                            )}
+                            <div className={`grid gap-3 sm:grid-cols-2 lg:grid-cols-3 ${state.metros.length > 0 ? 'pl-6' : ''}`}>
+                              {state.standalone_cities.map((city) => (
+                                <button 
+                                  key={city.id} 
+                                  onClick={() => handleSelectCity(city)} 
+                                  className="group flex items-center gap-4 p-4 rounded-lg border border-border bg-background text-left transition-all hover:bg-accent/50 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[72px]"
+                                >
+                                  <div className="flex-shrink-0 p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                                    <MapPin className="h-4 w-4 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-foreground">{city.name}</p>
+                                    <p className="text-sm text-muted-foreground">{city.place_count} {city.place_count === 1 ? 'place' : 'places'}</p>
+                                  </div>
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground" />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
