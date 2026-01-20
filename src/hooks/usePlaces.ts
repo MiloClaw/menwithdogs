@@ -186,13 +186,38 @@ export const usePlaces = () => {
     },
   });
 
+  // Auto-assign city and metro after approval
+  const autoAssignGeography = async (placeId: string): Promise<{
+    city_created: boolean;
+    city_name: string | null;
+    metro_assigned: boolean;
+    metro_name: string | null;
+  } | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('auto-assign-place-geography', {
+        body: { place_id: placeId },
+      });
+
+      if (error) {
+        console.warn('Auto-assign geography failed:', error);
+        return null;
+      }
+
+      return data;
+    } catch (e) {
+      console.warn('Auto-assign geography error:', e);
+      return null;
+    }
+  };
+
   // Update place
   const updatePlace = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Place> & { id: string }) => {
       // Check if status is changing to approved and add audit trail
       let finalUpdates = { ...updates };
+      const isApproving = updates.status === 'approved';
       
-      if (updates.status === 'approved') {
+      if (isApproving) {
         const { data: { user } } = await supabase.auth.getUser();
         finalUpdates = {
           ...finalUpdates,
@@ -209,12 +234,48 @@ export const usePlaces = () => {
         .single();
 
       if (error) throw error;
-      return data as Place;
+      
+      const place = data as Place;
+
+      // Auto-assign geography when approving
+      if (isApproving) {
+        const geoResult = await autoAssignGeography(id);
+        if (geoResult) {
+          // Return enriched result with geography info
+          return { ...place, _geoAssignment: geoResult };
+        }
+      }
+
+      return place;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
       queryClient.invalidateQueries({ queryKey: ['places', 'public'] });
-      toast({ title: 'Place updated successfully' });
+      queryClient.invalidateQueries({ queryKey: ['place-geo-areas'] });
+      
+      // Check for geography assignment result
+      const geoResult = (data as Place & { _geoAssignment?: {
+        city_created: boolean;
+        city_name: string | null;
+        metro_assigned: boolean;
+        metro_name: string | null;
+      } })._geoAssignment;
+
+      if (geoResult) {
+        const messages: string[] = ['Place approved'];
+        if (geoResult.city_created && geoResult.city_name) {
+          messages.push(`Created city: ${geoResult.city_name}`);
+        }
+        if (geoResult.metro_assigned && geoResult.metro_name) {
+          messages.push(`Assigned to ${geoResult.metro_name} metro`);
+        }
+        toast({ 
+          title: messages[0],
+          description: messages.slice(1).join('. ') || undefined,
+        });
+      } else {
+        toast({ title: 'Place updated successfully' });
+      }
     },
     onError: (error) => {
       toast({
