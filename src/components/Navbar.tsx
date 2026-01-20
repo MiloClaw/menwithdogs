@@ -13,7 +13,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, signOut, loading } = useAuth();
   const { isAdmin } = useUserRole();
-  const { isPro } = useSubscription();
+  const { isPro, isAmbassador } = useSubscription();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +54,7 @@ const Navbar = () => {
                 {isPro && (
                   <Badge variant="default" className="ml-1 px-1.5 py-0 text-[10px] font-medium flex items-center gap-0.5">
                     <Sparkles className="w-2.5 h-2.5" />
-                    Pro
+                    {isAmbassador ? 'Ambassador' : 'Pro'}
                   </Badge>
                 )}
               </Link>
@@ -131,7 +131,7 @@ const Navbar = () => {
                   {isPro && (
                     <Badge variant="default" className="ml-1 px-1.5 py-0 text-[10px] font-medium flex items-center gap-0.5">
                       <Sparkles className="w-2.5 h-2.5" />
-                      Pro
+                      {isAmbassador ? 'Ambassador' : 'Pro'}
                     </Badge>
                   )}
                 </Link>
