@@ -55,6 +55,57 @@ export type Database = {
           },
         ]
       }
+      ambassador_applications: {
+        Row: {
+          city_country: string
+          city_google_place_id: string | null
+          city_name: string
+          city_state: string | null
+          created_at: string
+          email: string
+          id: string
+          local_knowledge: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          social_links: string | null
+          status: string
+          tenure: string
+          user_id: string | null
+        }
+        Insert: {
+          city_country?: string
+          city_google_place_id?: string | null
+          city_name: string
+          city_state?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          local_knowledge: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          social_links?: string | null
+          status?: string
+          tenure: string
+          user_id?: string | null
+        }
+        Update: {
+          city_country?: string
+          city_google_place_id?: string | null
+          city_name?: string
+          city_state?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          local_knowledge?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          social_links?: string | null
+          status?: string
+          tenure?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
           country: string
