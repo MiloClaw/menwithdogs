@@ -52,6 +52,21 @@ export interface FoundersStats {
   topCities: FoundersCityStats[];
 }
 
+export interface AmbassadorPendingItem {
+  id: string;
+  name: string | null;
+  email: string;
+  cityName: string;
+}
+
+export interface AmbassadorStats {
+  totalApplications: number;
+  pendingApplications: number;
+  approvedAmbassadors: number;
+  declinedApplications: number;
+  recentPending: AmbassadorPendingItem[];
+}
+
 interface AdminStats {
   couples: {
     total: number;
@@ -77,7 +92,6 @@ interface AdminStats {
   placesByCity: CityStats[];
   placesByMetro: MetroStats[];
   emergingCitiesCount: number;
-  // New metrics
   engagement: {
     totalFavorites: number;
     avgFavoritesPerUser: number;
@@ -85,6 +99,7 @@ interface AdminStats {
   trends: TrendData;
   categoryBreakdown: CategoryBreakdown[];
   founders: FoundersStats;
+  ambassadors: AmbassadorStats;
 }
 
 // Helper to get dates for the last N days
@@ -125,6 +140,8 @@ export const useAdminStats = () => {
         // Founders program data
         foundersRedemptionsResult,
         foundersCitiesResult,
+        // Ambassador applications
+        ambassadorApplicationsResult,
       ] = await Promise.all([
         // Use secure RPC function instead of direct materialized view query
         supabase.rpc('get_admin_dashboard_stats').single(),
@@ -145,6 +162,10 @@ export const useAdminStats = () => {
         supabase.from('cities')
           .select('id, name, founders_promo_code, founders_slots_total, founders_slots_used')
           .not('founders_promo_code', 'is', null),
+        // Ambassador applications
+        supabase.from('ambassador_applications')
+          .select('id, name, email, city_name, status')
+          .order('created_at', { ascending: false }),
       ]);
 
       // Extract core stats from materialized view
@@ -370,6 +391,25 @@ export const useAdminStats = () => {
           slotsTotal: c.founders_slots_total || 100,
         }));
 
+      // Calculate ambassador stats
+      const ambassadorApplications = ambassadorApplicationsResult.data || [];
+      const pendingApps = ambassadorApplications.filter(a => a.status === 'pending');
+      const approvedApps = ambassadorApplications.filter(a => a.status === 'approved');
+      const declinedApps = ambassadorApplications.filter(a => a.status === 'declined');
+
+      const ambassadorStats: AmbassadorStats = {
+        totalApplications: ambassadorApplications.length,
+        pendingApplications: pendingApps.length,
+        approvedAmbassadors: approvedApps.length,
+        declinedApplications: declinedApps.length,
+        recentPending: pendingApps.slice(0, 3).map(a => ({
+          id: a.id,
+          name: a.name,
+          email: a.email,
+          cityName: a.city_name,
+        })),
+      };
+
       return {
         couples: {
           total: coreStats ? Number(coreStats.total_couples) : 0,
@@ -402,6 +442,7 @@ export const useAdminStats = () => {
           totalSlotsAvailable,
           topCities,
         },
+        ambassadors: ambassadorStats,
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

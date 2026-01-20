@@ -7,7 +7,7 @@ import CategoryHealthCard from '@/components/admin/dashboard/CategoryHealthCard'
 import LocationSummaryCard from '@/components/admin/LocationSummaryCard';
 import QuickActions from '@/components/admin/dashboard/QuickActions';
 import IntelligenceStatusCard from '@/components/admin/dashboard/IntelligenceStatusCard';
-import FoundersStatsCard from '@/components/admin/dashboard/FoundersStatsCard';
+import GrowthProgramsCard from '@/components/admin/dashboard/GrowthProgramsCard';
 
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
@@ -46,6 +46,15 @@ const AdminDashboard = () => {
     topCities: [],
   };
 
+  // Ambassador stats with defaults
+  const ambassadorStats = stats?.ambassadors ?? {
+    totalApplications: 0,
+    pendingApplications: 0,
+    approvedAmbassadors: 0,
+    declinedApplications: 0,
+    recentPending: [],
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -81,8 +90,9 @@ const AdminDashboard = () => {
             totalPlaces={stats?.places.approved ?? 0}
             isLoading={isLoading}
           />
-          <FoundersStatsCard
-            stats={foundersStats}
+          <GrowthProgramsCard
+            foundersStats={foundersStats}
+            ambassadorStats={ambassadorStats}
             isLoading={isLoading}
           />
           <LocationSummaryCard 
