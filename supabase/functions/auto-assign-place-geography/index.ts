@@ -18,6 +18,7 @@ interface AutoAssignResponse {
   metro_assigned: boolean;
   metro_id: string | null;
   metro_name: string | null;
+  city_auto_launched: boolean;
   error?: string;
 }
 
@@ -102,6 +103,7 @@ Deno.serve(async (req) => {
       metro_assigned: false,
       metro_id: null,
       metro_name: null,
+      city_auto_launched: false,
     };
 
     // Skip if no city information
@@ -230,6 +232,45 @@ Deno.serve(async (req) => {
           }
         } else {
           console.log("No metro found for county:", county, place.state);
+        }
+      }
+    }
+
+    // 4. Check if city should auto-launch (10+ approved places)
+    if (result.city_id && place.city && place.state) {
+      const { data: cityData } = await supabase
+        .from("cities")
+        .select("status, auto_launch_threshold")
+        .eq("id", result.city_id)
+        .single();
+
+      if (cityData?.status === "draft") {
+        // Count approved places for this city
+        const { count } = await supabase
+          .from("places")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "approved")
+          .ilike("city", place.city)
+          .eq("state", place.state);
+
+        const threshold = cityData.auto_launch_threshold ?? 10;
+        console.log(`City ${place.city} has ${count} approved places (threshold: ${threshold})`);
+
+        if (count && count >= threshold) {
+          const { error: launchError } = await supabase
+            .from("cities")
+            .update({
+              status: "launched",
+              launched_at: new Date().toISOString(),
+            })
+            .eq("id", result.city_id);
+
+          if (!launchError) {
+            result.city_auto_launched = true;
+            console.log(`Auto-launched city: ${place.city}`);
+          } else {
+            console.error("City auto-launch error:", launchError);
+          }
         }
       }
     }

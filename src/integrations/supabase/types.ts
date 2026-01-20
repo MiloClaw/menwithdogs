@@ -123,6 +123,7 @@ export type Database = {
       }
       cities: {
         Row: {
+          auto_launch_threshold: number
           country: string
           created_at: string
           founders_promo_code: string | null
@@ -143,6 +144,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_launch_threshold?: number
           country?: string
           created_at?: string
           founders_promo_code?: string | null
@@ -163,6 +165,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_launch_threshold?: number
           country?: string
           created_at?: string
           founders_promo_code?: string | null
