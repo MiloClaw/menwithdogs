@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Shield, Users, UserCheck, CheckCircle, XCircle, Search } from 'lucide-react';
+import { Shield, Users, UserCheck, CheckCircle, XCircle, Search, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -20,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { AmbassadorApplicationsTab } from '@/components/admin/users/AmbassadorApplicationsTab';
 
 interface MemberProfile {
   id: string;
@@ -165,10 +167,23 @@ const UserManagement = () => {
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">View user accounts, roles, and onboarding status</p>
+          <p className="text-muted-foreground">View user accounts, roles, and ambassador applications</p>
         </div>
 
-        {/* Stats Cards */}
+        <Tabs defaultValue="users" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              All Users
+            </TabsTrigger>
+            <TabsTrigger value="ambassadors" className="flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              Ambassador Applications
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="users" className="space-y-6">
+            {/* Stats Cards */}
         <div className="grid grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">

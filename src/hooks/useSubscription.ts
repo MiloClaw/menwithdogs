@@ -12,6 +12,7 @@ interface SubscriptionStatus {
   subscription_end?: string;
   is_founders?: boolean;
   founders_city_id?: string;
+  is_ambassador?: boolean;
   error?: string;
 }
 
@@ -182,11 +183,12 @@ export function useSubscription() {
   });
 
   return {
-    subscription: subscription ?? { subscribed: false, plan: 'free' as const, has_paid_tuning: false, is_founders: false },
+    subscription: subscription ?? { subscribed: false, plan: 'free' as const, has_paid_tuning: false, is_founders: false, is_ambassador: false },
     isLoading,
     hasPaidTuning: subscription?.has_paid_tuning ?? false,
     isPro: subscription?.plan === 'pro',
     isFounders: subscription?.is_founders ?? false,
+    isAmbassador: subscription?.is_ambassador ?? false,
     foundersCityId: subscription?.founders_city_id,
     subscriptionEnd: subscription?.subscription_end,
     refetch,

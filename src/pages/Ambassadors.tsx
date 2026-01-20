@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MapPin, Calendar, MessageSquare, Gift, Sparkles, ArrowRight, Check } from 'lucide-react';
+import { MapPin, Calendar, MessageSquare, Gift, Sparkles, ArrowRight, Check, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import PageLayout from '@/components/PageLayout';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { useAmbassadorApplication } from '@/hooks/useAmbassadorApplication';
@@ -19,11 +20,16 @@ import { useAuth } from '@/hooks/useAuth';
 
 // Form schema
 const applicationSchema = z.object({
+  name: z.string().min(2, 'Please enter your name'),
   city: z.string().min(1, 'Please select your city'),
   cityGooglePlaceId: z.string().optional(),
   cityState: z.string().optional(),
   cityCountry: z.string().default('US'),
   tenure: z.string().min(1, 'Please select how long you\'ve lived there'),
+  specificPlaces: z.string().min(20, 'Please share at least 2-3 places').max(500, 'Please keep it under 500 characters'),
+  motivation: z.string().min(20, 'Please share a bit more about your motivation').max(300, 'Please keep it under 300 characters'),
+  hasBusinessAffiliation: z.boolean().default(false),
+  businessAffiliationDetails: z.string().optional(),
   localKnowledge: z.string().min(20, 'Please share a bit more about what you know').max(500, 'Please keep it under 500 characters'),
   socialLinks: z.string().optional(),
   email: z.string().email('Please enter a valid email'),
@@ -71,24 +77,36 @@ const Ambassadors = () => {
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
+      name: '',
       city: '',
       cityGooglePlaceId: '',
       cityState: '',
       cityCountry: 'US',
       tenure: '',
+      specificPlaces: '',
+      motivation: '',
+      hasBusinessAffiliation: false,
+      businessAffiliationDetails: '',
       localKnowledge: '',
       socialLinks: '',
       email: user?.email || '',
     },
   });
 
+  const watchBusinessAffiliation = form.watch('hasBusinessAffiliation');
+
   const onSubmit = async (data: ApplicationFormData) => {
     await submitApplication({
+      name: data.name,
       cityName: data.city,
       cityGooglePlaceId: data.cityGooglePlaceId,
       cityState: data.cityState,
       cityCountry: data.cityCountry,
       tenure: data.tenure,
+      specificPlaces: data.specificPlaces,
+      motivation: data.motivation,
+      hasBusinessAffiliation: data.hasBusinessAffiliation,
+      businessAffiliationDetails: data.businessAffiliationDetails,
       localKnowledge: data.localKnowledge,
       socialLinks: data.socialLinks,
       email: data.email,
@@ -349,6 +367,24 @@ const Ambassadors = () => {
               <motion.div variants={fadeInUp}>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    {/* Name */}
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Your name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="First name or preferred name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     {/* City */}
                     <FormField
                       control={form.control}
@@ -363,7 +399,6 @@ const Ambassadors = () => {
                               onPlaceSelect={(place) => {
                                 field.onChange(place?.name || '');
                                 form.setValue('cityGooglePlaceId', place?.place_id || '');
-                                // Use formatted_address to extract location info
                                 const addressParts = place?.formatted_address?.split(', ') || [];
                                 const state = addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '';
                                 const country = addressParts.length >= 1 ? addressParts[addressParts.length - 1] : 'US';
@@ -404,6 +439,102 @@ const Ambassadors = () => {
                         </FormItem>
                       )}
                     />
+
+                    {/* Specific Places - NEW */}
+                    <FormField
+                      control={form.control}
+                      name="specificPlaces"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name 2-3 local places you'd recommend that most visitors wouldn't know about</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="A coffee shop, a bookstore, a park, a gym — the spots only locals know"
+                              className="min-h-[120px] resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Be specific. This helps us understand your local knowledge. {field.value?.length || 0}/500 characters
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Motivation - NEW */}
+                    <FormField
+                      control={form.control}
+                      name="motivation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Why do you want to help shape your city's directory?</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="What draws you to this?"
+                              className="min-h-[100px] resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            A sentence or two is fine. {field.value?.length || 0}/300 characters
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Business Affiliation - NEW */}
+                    <FormField
+                      control={form.control}
+                      name="hasBusinessAffiliation"
+                      render={({ field }) => (
+                        <FormItem className="space-y-4">
+                          <FormLabel>Do you own or work at any local businesses?</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={(value) => field.onChange(value === 'yes')}
+                              value={field.value ? 'yes' : 'no'}
+                              className="flex gap-6"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="no" id="no" className="h-5 w-5" />
+                                <label htmlFor="no" className="text-sm cursor-pointer">No</label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="yes" id="yes" className="h-5 w-5" />
+                                <label htmlFor="yes" className="text-sm cursor-pointer">Yes</label>
+                              </div>
+                            </RadioGroup>
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground">
+                            This helps us understand potential affiliations — it won't disqualify you.
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Business Affiliation Details - Conditional */}
+                    {watchBusinessAffiliation && (
+                      <FormField
+                        control={form.control}
+                        name="businessAffiliationDetails"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Please describe your affiliation</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="What business(es) and your role..."
+                                className="min-h-[80px] resize-none"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     {/* Local Knowledge */}
                     <FormField

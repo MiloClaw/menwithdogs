@@ -74,6 +74,26 @@ serve(async (req) => {
     let productId: string | null = null;
     let isFounders = false;
     let foundersCityId: string | null = null;
+    let isAmbassador = false;
+
+    // Check if user has ambassador role (grants Pro access without Stripe)
+    try {
+      const { data: roleData } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "ambassador")
+        .maybeSingle();
+      
+      isAmbassador = !!roleData;
+      if (isAmbassador) {
+        logStep("User has ambassador role", { userId: user.id });
+      }
+    } catch (roleError) {
+      logStep("Warning: Could not check ambassador role", { 
+        error: roleError instanceof Error ? roleError.message : String(roleError) 
+      });
+    }
 
     try {
       // Check active subscriptions
@@ -177,14 +197,18 @@ serve(async (req) => {
       }
     }
 
+    // Grant Pro access if EITHER Stripe subscription OR ambassador role
+    const hasPro = hasActiveSub || isAmbassador;
+
     return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      plan: hasActiveSub ? "pro" : "free",
-      has_paid_tuning: hasActiveSub,
+      subscribed: hasPro,
+      plan: hasPro ? "pro" : "free",
+      has_paid_tuning: hasPro,
       product_id: productId,
       subscription_end: subscriptionEnd,
       is_founders: isFounders,
       founders_city_id: foundersCityId,
+      is_ambassador: isAmbassador,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

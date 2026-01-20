@@ -57,49 +57,64 @@ export type Database = {
       }
       ambassador_applications: {
         Row: {
+          business_affiliation_details: string | null
           city_country: string
           city_google_place_id: string | null
           city_name: string
           city_state: string | null
           created_at: string
           email: string
+          has_business_affiliation: boolean | null
           id: string
           local_knowledge: string
+          motivation: string | null
+          name: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           social_links: string | null
+          specific_places: string | null
           status: string
           tenure: string
           user_id: string | null
         }
         Insert: {
+          business_affiliation_details?: string | null
           city_country?: string
           city_google_place_id?: string | null
           city_name: string
           city_state?: string | null
           created_at?: string
           email: string
+          has_business_affiliation?: boolean | null
           id?: string
           local_knowledge: string
+          motivation?: string | null
+          name?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           social_links?: string | null
+          specific_places?: string | null
           status?: string
           tenure: string
           user_id?: string | null
         }
         Update: {
+          business_affiliation_details?: string | null
           city_country?: string
           city_google_place_id?: string | null
           city_name?: string
           city_state?: string | null
           created_at?: string
           email?: string
+          has_business_affiliation?: boolean | null
           id?: string
           local_knowledge?: string
+          motivation?: string | null
+          name?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           social_links?: string | null
+          specific_places?: string | null
           status?: string
           tenure?: string
           user_id?: string | null
@@ -2114,7 +2129,7 @@ export type Database = {
     }
     Enums: {
       affinity_type: "regular" | "occasional" | "aspirational"
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "ambassador"
       city_status: "draft" | "launched" | "paused"
       couple_status: "onboarding" | "pending_match" | "active" | "paused"
       event_status: "approved" | "pending" | "rejected"
@@ -2250,7 +2265,7 @@ export const Constants = {
   public: {
     Enums: {
       affinity_type: ["regular", "occasional", "aspirational"],
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "ambassador"],
       city_status: ["draft", "launched", "paused"],
       couple_status: ["onboarding", "pending_match", "active", "paused"],
       event_status: ["approved", "pending", "rejected"],
