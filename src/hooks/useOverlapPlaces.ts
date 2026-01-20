@@ -1,85 +1,83 @@
 import { useMemo } from 'react';
-import { usePublicPlaces, UsePublicPlacesOptions } from '@/hooks/usePublicPlaces';
-import { useOverlapSession, OverlapAffinity } from '@/hooks/useOverlapSession';
-import { calculateDistanceMiles } from '@/lib/distance';
+import { usePublicPlaces } from './usePublicPlaces';
+import { useOverlapSession } from './useOverlapSession';
 import type { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
 
-interface UseOverlapPlacesOptions extends UsePublicPlacesOptions {
-  enabled?: boolean;
+interface UseOverlapPlacesOptions {
+  lat?: number | null;
+  lng?: number | null;
 }
 
-/**
- * Hook that returns places sorted by overlap affinity when an active session exists.
- * Falls back to distance-only sorting if no overlap data is available.
- */
 export function useOverlapPlaces(options: UseOverlapPlacesOptions = {}) {
-  const { lat, lng, radiusMiles = 100, city, state, enabled = true } = options;
+  const { lat, lng } = options;
   
-  const { 
-    activeSession, 
-    overlapAffinities, 
+  const {
+    activeSession,
+    overlapAffinities,
     hasActiveSession,
-    isLoadingAffinities 
+    isLoadingAffinities,
+    sessionLocation,
   } = useOverlapSession();
-  
-  const { data: places, isLoading: isLoadingPlaces, ...queryRest } = usePublicPlaces({
-    lat,
-    lng,
-    radiusMiles,
-    city,
-    state,
+
+  // Fetch places based on location
+  const { data: placesData, isLoading: isLoadingPlaces } = usePublicPlaces({
+    lat: lat ?? undefined,
+    lng: lng ?? undefined,
   });
 
-  // Create affinity lookup map for O(1) access
+  const places = placesData || [];
+
+  // Build affinity map for quick lookup
   const affinityMap = useMemo(() => {
-    if (!overlapAffinities?.length) return new Map<string, number>();
-    return new Map(
-      overlapAffinities.map((a: OverlapAffinity) => [a.place_category, a.overlap_score])
-    );
+    const map = new Map<string, number>();
+    overlapAffinities.forEach((a) => {
+      map.set(a.place_category, a.overlap_score);
+    });
+    return map;
   }, [overlapAffinities]);
 
   // Sort places by overlap affinity, then by distance
   const sortedPlaces = useMemo(() => {
-    if (!places?.length) return [];
-    if (!enabled || !hasActiveSession) return places;
+    if (!hasActiveSession || overlapAffinities.length === 0) {
+      // No active session or no overlap data - return places sorted by distance
+      return [...places].sort((a, b) => {
+        const distA = a.distance ?? Infinity;
+        const distB = b.distance ?? Infinity;
+        return distA - distB;
+      });
+    }
 
     return [...places].sort((a, b) => {
-      const affinityA = affinityMap.get(a.primary_category) || 0;
-      const affinityB = affinityMap.get(b.primary_category) || 0;
+      // Get overlap score for each place's primary category
+      const scoreA = affinityMap.get(a.primary_category) || 0;
+      const scoreB = affinityMap.get(b.primary_category) || 0;
 
-      // Primary sort: overlap affinity (descending)
-      if (affinityA !== affinityB) {
-        return affinityB - affinityA;
+      // Sort by overlap score descending, then by distance ascending
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
       }
 
-      // Secondary sort: distance (ascending) if coordinates available
-      if (lat != null && lng != null && a.lat != null && a.lng != null && b.lat != null && b.lng != null) {
-        const distA = calculateDistanceMiles(lat, lng, a.lat, a.lng);
-        const distB = calculateDistanceMiles(lat, lng, b.lat, b.lng);
-        return distA - distB;
-      }
-
-      // Fallback: alphabetical
-      return a.name.localeCompare(b.name);
+      const distA = a.distance ?? Infinity;
+      const distB = b.distance ?? Infinity;
+      return distA - distB;
     });
-  }, [places, affinityMap, hasActiveSession, enabled, lat, lng]);
+  }, [places, affinityMap, hasActiveSession, overlapAffinities.length]);
 
-  // Get top categories that both users share
+  // Get categories with high overlap (score > 0.3)
   const sharedCategories = useMemo(() => {
-    if (!overlapAffinities?.length) return [];
     return overlapAffinities
-      .filter((a: OverlapAffinity) => a.overlap_score >= 0.2)
+      .filter((a) => a.overlap_score > 0.3)
       .slice(0, 5)
-      .map((a: OverlapAffinity) => a.place_category);
+      .map((a) => a.place_category);
   }, [overlapAffinities]);
 
   return {
     places: sortedPlaces,
-    isLoading: isLoadingPlaces || (hasActiveSession && isLoadingAffinities),
+    isLoading: isLoadingPlaces || isLoadingAffinities,
     hasActiveSession,
     activeSession,
     sharedCategories,
     affinityMap,
-    ...queryRest,
+    sessionLocation,
   };
 }
