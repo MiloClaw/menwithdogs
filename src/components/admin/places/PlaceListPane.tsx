@@ -90,8 +90,12 @@ const PlaceListPane = ({
     const groups = new Map<string, MetroGroup>();
     
     for (const place of sortedPlaces) {
+      // Try city+state key first, then fall back to city-only
+      const cityStateKey = place.state 
+        ? `${place.city?.toLowerCase() || 'unknown'}, ${place.state.toLowerCase()}`
+        : place.city?.toLowerCase() || 'unknown';
       const cityKey = place.city?.toLowerCase() || 'unknown';
-      const metroName = metroMapping?.[cityKey] || 'Other';
+      const metroName = metroMapping?.[cityStateKey] || metroMapping?.[cityKey] || 'Standalone';
       
       if (!groups.has(metroName)) {
         groups.set(metroName, {
@@ -202,15 +206,19 @@ const PlaceListPane = ({
                 onOpenChange={() => toggleGroup(metro.metro)}
               >
                 <CollapsibleTrigger className="w-full">
-                  <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors">
+                  <div className={`flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors ${
+                    metro.metro === 'Standalone' ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''
+                  }`}>
                     <div className="flex items-center gap-2">
                       {isMetroExpanded ? (
                         <ChevronDown className="h-4 w-4 text-muted-foreground" />
                       ) : (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-sm">{metro.metro}</span>
+                      <MapPin className={`h-4 w-4 ${metro.metro === 'Standalone' ? 'text-amber-500' : 'text-muted-foreground'}`} />
+                      <span className={`font-medium text-sm ${metro.metro === 'Standalone' ? 'text-amber-700 dark:text-amber-400' : ''}`}>
+                        {metro.metro}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       {metro.pendingCount > 0 && (
@@ -370,18 +378,29 @@ const PlaceListPane = ({
     );
   }
 
-  // Flat view (default)
+  // Flat view (default) - show metro badges
   return (
     <ScrollArea className="h-full">
       <div className="divide-y divide-border">
-        {sortedPlaces.map((place) => (
-          <PlaceListItem
-            key={place.id}
-            place={place}
-            isSelected={selectedPlaceId === place.id}
-            onSelect={onSelectPlace}
-          />
-        ))}
+        {sortedPlaces.map((place) => {
+          // Get metro name for this place
+          const cityStateKey = place.state 
+            ? `${place.city?.toLowerCase() || 'unknown'}, ${place.state.toLowerCase()}`
+            : place.city?.toLowerCase() || 'unknown';
+          const cityKey = place.city?.toLowerCase() || 'unknown';
+          const metroName = metroMapping?.[cityStateKey] || metroMapping?.[cityKey];
+          
+          return (
+            <PlaceListItem
+              key={place.id}
+              place={place}
+              isSelected={selectedPlaceId === place.id}
+              onSelect={onSelectPlace}
+              metroName={metroName}
+              showMetro={!!metroMapping && Object.keys(metroMapping).length > 0}
+            />
+          );
+        })}
       </div>
     </ScrollArea>
   );
@@ -393,9 +412,11 @@ interface PlaceListItemProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
   indentLevel?: number;
+  metroName?: string;
+  showMetro?: boolean;
 }
 
-const PlaceListItem = ({ place, isSelected, onSelect, indentLevel = 0 }: PlaceListItemProps) => {
+const PlaceListItem = ({ place, isSelected, onSelect, indentLevel = 0, metroName, showMetro = false }: PlaceListItemProps) => {
   const paddingLeft = indentLevel === 0 ? 'pl-4' : indentLevel === 1 ? 'pl-10' : 'pl-14';
   
   return (
@@ -413,9 +434,23 @@ const PlaceListItem = ({ place, isSelected, onSelect, indentLevel = 0 }: PlaceLi
           <h4 className="font-medium text-sm truncate">
             {place.name}
           </h4>
-          <p className="text-xs text-muted-foreground truncate mt-0.5">
-            {place.city}{place.state && `, ${place.state}`}
-          </p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <p className="text-xs text-muted-foreground truncate">
+              {place.city}{place.state && `, ${place.state}`}
+            </p>
+            {showMetro && metroName && (
+              <Badge 
+                variant="outline" 
+                className={`text-[10px] px-1.5 py-0 shrink-0 ${
+                  metroName === 'Standalone' 
+                    ? 'border-amber-500/50 text-amber-600 dark:text-amber-400' 
+                    : 'border-primary/30 text-primary'
+                }`}
+              >
+                {metroName === 'Standalone' ? 'Solo' : metroName}
+              </Badge>
+            )}
+          </div>
         </div>
         <Badge className={`shrink-0 text-xs ${statusColors[place.status]}`}>
           {place.status}

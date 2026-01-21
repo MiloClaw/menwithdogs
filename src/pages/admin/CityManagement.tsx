@@ -43,11 +43,12 @@ import { useCitySuggestions, useUpdateCitySuggestion, type CitySuggestion } from
 import type { Database } from '@/integrations/supabase/types';
 
 type CityStatus = Database['public']['Enums']['city_status'];
+type FilterType = CityStatus | 'all' | 'standalone';
 
 export default function CityManagement() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<CityStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<FilterType>('all');
   const [selectedCityId, setSelectedCityId] = useState<string | null>(
     searchParams.get('id')
   );
@@ -75,7 +76,10 @@ export default function CityManagement() {
   const filteredCities = useMemo(() => {
     let result = cities;
     
-    if (statusFilter !== 'all') {
+    if (statusFilter === 'standalone') {
+      // Show only launched cities without metro assignment
+      result = result.filter(c => c.status === 'launched' && !c.metro_id);
+    } else if (statusFilter !== 'all') {
       result = result.filter(c => c.status === statusFilter);
     }
     
@@ -83,7 +87,8 @@ export default function CityManagement() {
       const lower = searchTerm.toLowerCase();
       result = result.filter(c => 
         c.name.toLowerCase().includes(lower) ||
-        (c.state?.toLowerCase().includes(lower))
+        (c.state?.toLowerCase().includes(lower)) ||
+        (c.metro_name?.toLowerCase().includes(lower))
       );
     }
     
@@ -96,6 +101,7 @@ export default function CityManagement() {
     draft: cities.filter(c => c.status === 'draft').length,
     launched: cities.filter(c => c.status === 'launched').length,
     paused: cities.filter(c => c.status === 'paused').length,
+    standalone: cities.filter(c => c.status === 'launched' && !c.metro_id).length,
   }), [cities]);
 
   // Ready to launch count
@@ -279,12 +285,17 @@ export default function CityManagement() {
 
           {/* Filters */}
           <div className="flex items-center gap-4">
-            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as CityStatus | 'all')}>
+            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as FilterType)}>
               <TabsList>
                 <TabsTrigger value="all">All ({statusCounts.all})</TabsTrigger>
                 <TabsTrigger value="draft">Draft ({statusCounts.draft})</TabsTrigger>
                 <TabsTrigger value="launched">Launched ({statusCounts.launched})</TabsTrigger>
                 <TabsTrigger value="paused">Paused ({statusCounts.paused})</TabsTrigger>
+                {statusCounts.standalone > 0 && (
+                  <TabsTrigger value="standalone" className="text-amber-600 data-[state=active]:text-amber-700">
+                    Standalone ({statusCounts.standalone})
+                  </TabsTrigger>
+                )}
               </TabsList>
             </Tabs>
             {readyToLaunchCount > 0 && (

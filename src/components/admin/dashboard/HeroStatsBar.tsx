@@ -1,4 +1,4 @@
-import { Users, MapPin, Heart, Building2, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, MapPin, Heart, Building2, AlertCircle, TrendingUp, TrendingDown, Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,9 @@ interface HeroStatsBarProps {
     citiesLaunched: number;
     citiesTotal: number;
     contentQueue: number;
+    metrosActive: number;
+    citiesLinked: number;
+    standaloneCities: number;
   };
   trends?: {
     usersTrend: number;
@@ -74,6 +77,14 @@ const HeroStatsBar = ({ stats, trends, isLoading }: HeroStatsBarProps) => {
       value: `${stats.citiesLaunched}/${stats.citiesTotal}`,
       subtext: 'launched',
       icon: Building2,
+    },
+    {
+      label: 'Metro Coverage',
+      value: `${stats.citiesLinked}/${stats.citiesLaunched}`,
+      subtext: stats.standaloneCities > 0 ? `${stats.standaloneCities} standalone` : 'all linked',
+      icon: Globe,
+      alert: stats.standaloneCities > 0,
+      alertColor: 'text-amber-500',
     },
     {
       label: 'Content Queue',
