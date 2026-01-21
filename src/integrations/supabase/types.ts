@@ -136,6 +136,7 @@ export type Database = {
           launched_at: string | null
           launched_by: string | null
           lng: number | null
+          metro_id: string | null
           name: string
           state: string | null
           status: Database["public"]["Enums"]["city_status"]
@@ -157,6 +158,7 @@ export type Database = {
           launched_at?: string | null
           launched_by?: string | null
           lng?: number | null
+          metro_id?: string | null
           name: string
           state?: string | null
           status?: Database["public"]["Enums"]["city_status"]
@@ -178,6 +180,7 @@ export type Database = {
           launched_at?: string | null
           launched_by?: string | null
           lng?: number | null
+          metro_id?: string | null
           name?: string
           state?: string | null
           status?: Database["public"]["Enums"]["city_status"]
@@ -185,7 +188,15 @@ export type Database = {
           target_place_count?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cities_metro_id_fkey"
+            columns: ["metro_id"]
+            isOneToOne: false
+            referencedRelation: "geo_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       city_suggestions: {
         Row: {
@@ -1952,18 +1963,16 @@ export type Database = {
           active_couples: number | null
           approved_events: number | null
           approved_places: number | null
-          computed_at: string | null
+          avg_favorites_per_couple: number | null
           draft_cities: number | null
+          last_refreshed: string | null
           launched_cities: number | null
-          paused_cities: number | null
+          new_couples_7d: number | null
           pending_events: number | null
           pending_places: number | null
           ready_to_launch_cities: number | null
-          total_cities: number | null
+          rejected_places: number | null
           total_couples: number | null
-          total_favorites: number | null
-          total_members: number | null
-          total_posts: number | null
         }
         Relationships: []
       }
@@ -1980,6 +1989,7 @@ export type Database = {
           lat: number | null
           launched_at: string | null
           lng: number | null
+          metro_id: string | null
           name: string | null
           pending_place_count: number | null
           state: string | null
@@ -1987,7 +1997,15 @@ export type Database = {
           target_anchor_count: number | null
           target_place_count: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cities_metro_id_fkey"
+            columns: ["metro_id"]
+            isOneToOne: false
+            referencedRelation: "geo_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       launched_cities_summary: {
         Row: {
