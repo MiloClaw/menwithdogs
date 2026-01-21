@@ -21,7 +21,7 @@ const directoryItems = [
 ];
 
 const bottomNavItems = [
-  { title: 'Posts', href: '/admin/posts', icon: FileText },
+  { title: 'Announcements', href: '/admin/posts', icon: FileText },
 ];
 
 const AdminSidebar = () => {
