@@ -1,7 +1,8 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, CheckCircle2, Pause } from 'lucide-react';
+import { Sparkles, CheckCircle2, Pause, MapPin, CircleDashed } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CityWithProgress } from '@/hooks/useCities';
 
 interface CityListPaneProps {
@@ -42,6 +43,20 @@ export function CityListPane({ cities, selectedId, onSelect, isLoading }: CityLi
           >
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
+                <TooltipProvider delayDuration={300}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {city.metro_name ? (
+                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                      ) : (
+                        <CircleDashed className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">
+                      {city.metro_name ? `Metro: ${city.metro_name}` : 'Standalone city'}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <span className="font-medium text-foreground">{city.name}</span>
                 {city.state && (
                   <span className="text-sm text-muted-foreground">{city.state}</span>

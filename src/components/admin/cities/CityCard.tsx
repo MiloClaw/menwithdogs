@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, CheckCircle2, AlertCircle, Pause, MapPin } from 'lucide-react';
+import { Sparkles, CheckCircle2, AlertCircle, Pause, MapPin, CircleDashed } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CityWithProgress } from '@/hooks/useCities';
 
 interface CityCardProps {
@@ -55,12 +56,28 @@ export function CityCard({ city, onClick, isSelected }: CityCardProps) {
             <p className="text-sm text-muted-foreground">
               {city.state ? `${city.state}, ${city.country}` : city.country}
             </p>
-            {city.metro_name && (
-              <div className="flex items-center gap-1 mt-1">
-                <MapPin className="h-3 w-3 text-primary" />
-                <span className="text-xs text-primary font-medium">{city.metro_name}</span>
-              </div>
-            )}
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 mt-1">
+                    {city.metro_name ? (
+                      <>
+                        <MapPin className="h-3 w-3 text-primary" />
+                        <span className="text-xs text-primary font-medium">{city.metro_name}</span>
+                      </>
+                    ) : (
+                      <>
+                        <CircleDashed className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Standalone</span>
+                      </>
+                    )}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {city.metro_name ? `Part of ${city.metro_name} metro area` : 'Not linked to any metro area'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="flex items-center gap-2">
             {city.is_ready_to_launch && city.status === 'draft' && (
