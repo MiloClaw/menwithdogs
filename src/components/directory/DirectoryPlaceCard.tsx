@@ -68,6 +68,9 @@ const DirectoryPlaceCard = ({ place, onClick }: DirectoryPlaceCardProps) => {
           <img
             src={photoUrl}
             alt={place.name}
+            loading="lazy"
+            width={400}
+            height={300}
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
           />
         ) : (

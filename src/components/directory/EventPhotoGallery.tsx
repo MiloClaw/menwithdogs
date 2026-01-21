@@ -56,6 +56,9 @@ const EventPhotoGallery = ({
       <img
         src={validPhotos[currentIndex]}
         alt={`${venueName} photo ${currentIndex + 1}`}
+        loading="lazy"
+        width={800}
+        height={450}
         className="w-full h-full object-cover"
       />
 

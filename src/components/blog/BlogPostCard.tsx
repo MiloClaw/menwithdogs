@@ -25,6 +25,9 @@ export const BlogPostCard = ({ post, onTagClick, onClick }: BlogPostCardProps) =
           <img
             src={post.cover_image_url!}
             alt={post.title}
+            loading="lazy"
+            width={640}
+            height={400}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
