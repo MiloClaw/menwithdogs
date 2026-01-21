@@ -261,41 +261,29 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 4. Check if city should auto-launch (10+ approved places)
-    if (result.city_id && place.city && place.state) {
+    // 4. Auto-launch city immediately if it's still in draft status
+    // Any city with an approved place should be live and discoverable
+    if (result.city_id) {
       const { data: cityData } = await supabase
         .from("cities")
-        .select("status, auto_launch_threshold")
+        .select("status")
         .eq("id", result.city_id)
         .single();
 
       if (cityData?.status === "draft") {
-        // Count approved places for this city
-        const { count } = await supabase
-          .from("places")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "approved")
-          .ilike("city", place.city)
-          .eq("state", place.state);
+        const { error: launchError } = await supabase
+          .from("cities")
+          .update({
+            status: "launched",
+            launched_at: new Date().toISOString(),
+          })
+          .eq("id", result.city_id);
 
-        const threshold = cityData.auto_launch_threshold ?? 10;
-        console.log(`City ${place.city} has ${count} approved places (threshold: ${threshold})`);
-
-        if (count && count >= threshold) {
-          const { error: launchError } = await supabase
-            .from("cities")
-            .update({
-              status: "launched",
-              launched_at: new Date().toISOString(),
-            })
-            .eq("id", result.city_id);
-
-          if (!launchError) {
-            result.city_auto_launched = true;
-            console.log(`Auto-launched city: ${place.city}`);
-          } else {
-            console.error("City auto-launch error:", launchError);
-          }
+        if (!launchError) {
+          result.city_auto_launched = true;
+          console.log(`Auto-launched city: ${result.city_name}`);
+        } else {
+          console.error("City auto-launch error:", launchError);
         }
       }
     }
