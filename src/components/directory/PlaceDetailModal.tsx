@@ -167,6 +167,8 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
               <img
                 src={storedPhotos[currentPhotoIndex]}
                 alt={`${place.name} - Photo ${currentPhotoIndex + 1}`}
+                width={800}
+                height={450}
                 className="w-full h-full object-cover"
               />
               

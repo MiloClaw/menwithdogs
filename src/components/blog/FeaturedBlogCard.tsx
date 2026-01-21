@@ -20,13 +20,23 @@ export const FeaturedBlogCard = ({ post, onTagClick, onClick }: FeaturedBlogCard
     >
       {/* Background Image or Gradient */}
       <div 
-        className="aspect-[3/2] sm:aspect-[2/1] lg:aspect-[21/9] bg-cover bg-center relative"
-        style={{
-          backgroundImage: hasImage 
-            ? `url(${post.cover_image_url})`
-            : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%)'
-        }}
+        className="aspect-[3/2] sm:aspect-[2/1] lg:aspect-[21/9] relative overflow-hidden"
       >
+        {hasImage ? (
+          <img
+            src={post.cover_image_url!}
+            alt={post.title}
+            fetchPriority="high"
+            width={1200}
+            height={514}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div 
+            className="absolute inset-0 w-full h-full"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%)' }}
+          />
+        )}
         {/* Gradient Overlay - Lighter and more sophisticated */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         

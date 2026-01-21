@@ -36,9 +36,15 @@ const Hero = () => {
   return <section className="relative pt-16 md:pt-18">
       {/* Hero Image */}
       <div className="relative h-[480px] md:h-[560px] overflow-hidden">
-        <img src={heroImage} alt="People enjoying a local café together" className="w-full h-[120%] object-cover object-top will-change-transform" style={{
-        transform: parallaxTransform
-      }} />
+        <img 
+          src={heroImage} 
+          alt="People enjoying a local café together" 
+          fetchPriority="high"
+          width={1920}
+          height={672}
+          className="w-full h-[120%] object-cover object-top will-change-transform" 
+          style={{ transform: parallaxTransform }} 
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/50 to-primary/80" />
 
         {/* Hero Content Overlay */}
