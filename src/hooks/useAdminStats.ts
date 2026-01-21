@@ -86,6 +86,11 @@ interface AdminStats {
     launched: number;
     paused: number;
     readyToLaunch: number;
+    standaloneLaunched: number;
+  };
+  metros: {
+    total: number;
+    linkedCities: number;
   };
   posts: number;
   members: number;
@@ -173,19 +178,28 @@ export const useAdminStats = () => {
 
       // Use materialized view data for city stats, with fallback to view
       const cities = citiesResult.data || [];
+      const launchedCitiesData = cities.filter(c => c.status === 'launched');
+      const standaloneLaunched = launchedCitiesData.filter(c => !c.metro_id).length;
+      const linkedCities = launchedCitiesData.filter(c => c.metro_id).length;
+      
       const cityStats = coreStats ? {
         total: Number(coreStats.total_cities) || 0,
         draft: Number(coreStats.draft_cities) || 0,
         launched: Number(coreStats.launched_cities) || 0,
         paused: Number(coreStats.paused_cities) || 0,
         readyToLaunch: Number(coreStats.ready_to_launch_cities) || 0,
+        standaloneLaunched,
       } : {
         total: cities.length,
         draft: cities.filter(c => c.status === 'draft').length,
-        launched: cities.filter(c => c.status === 'launched').length,
+        launched: launchedCitiesData.length,
         paused: cities.filter(c => c.status === 'paused').length,
         readyToLaunch: cities.filter(c => c.status === 'draft' && c.is_ready_to_launch).length,
+        standaloneLaunched,
       };
+      
+      // Count active metros (query already filters is_active=true)
+      const activeMetros = geoAreasResult.data?.filter(g => g.type === 'metro').length || 0;
 
       // Build launched cities lookup
       const launchedCities = new Set(
@@ -424,6 +438,10 @@ export const useAdminStats = () => {
           pending: coreStats ? Number(coreStats.pending_events) : 0,
         },
         cities: cityStats,
+        metros: {
+          total: activeMetros,
+          linkedCities,
+        },
         posts: coreStats ? Number(coreStats.total_posts) : 0,
         members: coreStats ? Number(coreStats.total_members) : 0,
         placesByCity,

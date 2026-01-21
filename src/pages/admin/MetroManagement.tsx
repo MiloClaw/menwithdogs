@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +10,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Building2, MapPin, X, RefreshCw, Globe } from 'lucide-react';
+import { Plus, Building2, MapPin, X, RefreshCw, Globe, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useMetroManagement } from '@/hooks/useMetroManagement';
+import { supabase } from '@/integrations/supabase/client';
 import type { MetroWithDetails } from '@/hooks/useMetroManagement';
+
+interface CityForMetro {
+  id: string;
+  name: string;
+  state: string | null;
+  status: string;
+  metro_id: string | null;
+}
 
 export default function MetroManagement() {
   const {
@@ -27,6 +38,31 @@ export default function MetroManagement() {
   const [newMetroName, setNewMetroName] = useState('');
   const [newCountyName, setNewCountyName] = useState('');
   const [newCountyState, setNewCountyState] = useState('');
+
+  // Fetch cities with their metro assignments
+  const { data: allCities = [] } = useQuery({
+    queryKey: ['cities-for-metro-management'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cities')
+        .select('id, name, state, status, metro_id')
+        .eq('status', 'launched')
+        .order('name');
+      if (error) throw error;
+      return data as CityForMetro[];
+    }
+  });
+
+  // Cities assigned to selected metro
+  const assignedCities = useMemo(() => {
+    if (!selectedMetro) return [];
+    return allCities.filter(c => c.metro_id === selectedMetro.id);
+  }, [allCities, selectedMetro]);
+
+  // Unassigned launched cities (standalone)
+  const unassignedCities = useMemo(() => {
+    return allCities.filter(c => !c.metro_id);
+  }, [allCities]);
 
   const handleCreateMetro = () => {
     if (!newMetroName.trim()) return;
@@ -48,7 +84,6 @@ export default function MetroManagement() {
       onSuccess: () => {
         setNewCountyName('');
         setNewCountyState('');
-        // Refresh to get updated counties
         refetch();
       },
     });
@@ -122,7 +157,7 @@ export default function MetroManagement() {
         </div>
 
         {/* Stats */}
-        <div className="grid gap-4 grid-cols-3">
+        <div className="grid gap-4 grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{activeMetros}</div>
@@ -139,6 +174,14 @@ export default function MetroManagement() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{totalPlaces}</div>
               <div className="text-sm text-muted-foreground">Metro Places</div>
+            </CardContent>
+          </Card>
+          <Card className={unassignedCities.length > 0 ? 'border-amber-500/50 bg-amber-50/50 dark:bg-amber-900/10' : ''}>
+            <CardContent className="pt-6">
+              <div className={`text-2xl font-bold ${unassignedCities.length > 0 ? 'text-amber-600' : ''}`}>
+                {unassignedCities.length}
+              </div>
+              <div className="text-sm text-muted-foreground">Standalone Cities</div>
             </CardContent>
           </Card>
         </div>
@@ -232,6 +275,34 @@ export default function MetroManagement() {
 
                   <Separator />
 
+                  {/* Assigned Cities */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Assigned Cities</h4>
+                    {assignedCities.length > 0 ? (
+                      <div className="space-y-1">
+                        {assignedCities.map(city => (
+                          <Link
+                            key={city.id}
+                            to={`/admin/directory/cities?id=${city.id}`}
+                            className="flex items-center justify-between p-2 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                          >
+                            <span className="text-sm flex items-center gap-2">
+                              <Building2 className="h-3 w-3 text-muted-foreground" />
+                              {city.name}{city.state && `, ${city.state}`}
+                            </span>
+                            <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        No cities assigned to this metro yet.
+                      </p>
+                    )}
+                  </div>
+
+                  <Separator />
+
                   {/* County Mappings */}
                   <div className="space-y-3">
                     <h4 className="font-medium">County Mappings</h4>
@@ -297,6 +368,35 @@ export default function MetroManagement() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Unassigned Cities Section */}
+        {unassignedCities.length > 0 && (
+          <Card className="border-amber-500/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                Standalone Cities ({unassignedCities.length})
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                These launched cities are not assigned to any metro area
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {unassignedCities.map(city => (
+                  <Link
+                    key={city.id}
+                    to={`/admin/directory/cities?id=${city.id}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md text-sm hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                  >
+                    <MapPin className="h-3 w-3 text-amber-600" />
+                    {city.name}{city.state && `, ${city.state}`}
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminLayout>
   );

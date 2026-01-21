@@ -22,6 +22,9 @@ const AdminDashboard = () => {
     citiesLaunched: stats?.cities.launched ?? 0,
     citiesTotal: (stats?.cities.launched ?? 0) + (stats?.cities.draft ?? 0),
     contentQueue: (stats?.places.pending ?? 0) + (stats?.events.pending ?? 0),
+    metrosActive: stats?.metros.total ?? 0,
+    citiesLinked: stats?.metros.linkedCities ?? 0,
+    standaloneCities: stats?.cities.standaloneLaunched ?? 0,
   };
 
   // Build action queue items

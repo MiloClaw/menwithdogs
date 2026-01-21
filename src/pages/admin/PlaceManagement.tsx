@@ -57,42 +57,45 @@ const PlaceManagement = () => {
   
   const { places, isLoading, createPlace, updatePlace, deletePlace } = usePlaces();
 
-  // Fetch geo_areas to build metro mapping
-  const { data: geoAreas } = useQuery({
-    queryKey: ['geo-areas-metros'],
+  // Fetch cities with their metro assignments for mapping
+  const { data: citiesWithMetros } = useQuery({
+    queryKey: ['cities-metro-mapping'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('geo_areas')
-        .select('id, name, type, parent_id')
-        .in('type', ['metro', 'locality']);
+        .from('cities')
+        .select(`
+          name,
+          state,
+          metro_id,
+          geo_areas!cities_metro_id_fkey(name)
+        `)
+        .not('metro_id', 'is', null);
       if (error) throw error;
       return data;
     }
   });
 
-  // Build metro mapping: cityName (lowercase) → metroName
+  // Build metro mapping: "cityName, state" (lowercase) → metroName
   const metroMapping = useMemo(() => {
-    if (!geoAreas) return {};
+    if (!citiesWithMetros) return {};
     
     const metroMap: Record<string, string> = {};
-    const metrosById: Record<string, string> = {};
     
-    // First pass: collect metros by ID
-    for (const area of geoAreas) {
-      if (area.type === 'metro') {
-        metrosById[area.id] = area.name;
-      }
-    }
-    
-    // Second pass: map localities to their parent metro
-    for (const area of geoAreas) {
-      if (area.type === 'locality' && area.parent_id && metrosById[area.parent_id]) {
-        metroMap[area.name.toLowerCase()] = metrosById[area.parent_id];
+    for (const city of citiesWithMetros) {
+      const geoArea = city.geo_areas as { name: string } | null;
+      if (geoArea?.name) {
+        // Use "city, state" as key for more accurate matching
+        const key = city.state 
+          ? `${city.name.toLowerCase()}, ${city.state.toLowerCase()}`
+          : city.name.toLowerCase();
+        metroMap[key] = geoArea.name;
+        // Also add just city name for fallback
+        metroMap[city.name.toLowerCase()] = geoArea.name;
       }
     }
     
     return metroMap;
-  }, [geoAreas]);
+  }, [citiesWithMetros]);
 
   // Sync mode state with URL
   const [detailMode, setDetailMode] = useState<PlaceDetailMode>(() => {
