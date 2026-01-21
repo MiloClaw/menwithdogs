@@ -1,4 +1,5 @@
 import { Calendar, Megaphone, ExternalLink } from 'lucide-react';
+import { usePlaceEvents } from '@/hooks/useCityEvents';
 import { usePlacePosts, Post } from '@/hooks/usePosts';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
@@ -9,34 +10,37 @@ interface PlaceLinkedContentProps {
   placeWebsite?: string | null;
 }
 
-const formatEventDateTime = (post: Post): string => {
-  if (post.is_recurring && post.recurrence_text) {
-    return post.recurrence_text;
+const formatEventDateTime = (startAt: string, isRecurring: boolean): string => {
+  if (isRecurring) {
+    const day = format(new Date(startAt), 'EEEE');
+    const time = format(new Date(startAt), 'h:mm a');
+    return `Every ${day} · ${time}`;
   }
   
-  if (!post.start_date) return '';
-  
-  const start = new Date(post.start_date);
+  const start = new Date(startAt);
   return format(start, 'EEE MMM d · h:mm a');
 };
 
 const PlaceLinkedContent = ({ placeId, placeName, placeWebsite }: PlaceLinkedContentProps) => {
-  const { data: posts, isLoading } = usePlacePosts(placeId);
+  // Fetch events from the events table
+  const { data: events, isLoading: eventsLoading } = usePlaceEvents(placeId);
+  // Fetch announcements from posts table (type='announcement' only)
+  const { data: posts, isLoading: postsLoading } = usePlacePosts(placeId);
   
-  // Don't render anything if no posts
-  if (isLoading || !posts || posts.length === 0) {
+  const announcements = (posts || []).filter(p => p.type === 'announcement');
+  const hasContent = (events && events.length > 0) || announcements.length > 0;
+  
+  // Don't render anything if no content
+  if (eventsLoading || postsLoading || !hasContent) {
     return null;
   }
-  
-  const events = posts.filter(p => p.type === 'event');
-  const announcements = posts.filter(p => p.type === 'announcement');
   
   return (
     <>
       <Separator />
       <div className="space-y-4">
         {/* Events section */}
-        {events.length > 0 && (
+        {events && events.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -44,14 +48,16 @@ const PlaceLinkedContent = ({ placeId, placeName, placeWebsite }: PlaceLinkedCon
             </div>
             <div className="space-y-3 pl-7">
               {events.map(event => {
-                const externalUrl = event.external_url || placeWebsite;
+                const externalUrl = placeWebsite;
                 return (
                   <div key={event.id} className="space-y-1">
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm truncate">{event.title}</span>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {formatEventDateTime(event)}
-                      </span>
+                      <span className="text-sm truncate">{event.name}</span>
+                      {event.start_at && (
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatEventDateTime(event.start_at, event.is_recurring)}
+                        </span>
+                      )}
                     </div>
                     {externalUrl && (
                       <a 
@@ -71,7 +77,7 @@ const PlaceLinkedContent = ({ placeId, placeName, placeWebsite }: PlaceLinkedCon
           </div>
         )}
         
-        {/* Announcements section - simple link */}
+        {/* Announcements section */}
         {announcements.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">

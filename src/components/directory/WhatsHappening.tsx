@@ -1,5 +1,6 @@
 import { Calendar, Megaphone, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useCityEvents, CityEvent } from '@/hooks/useCityEvents';
 import { useCityPostsByName, Post } from '@/hooks/usePosts';
 import { format } from 'date-fns';
 
@@ -8,53 +9,59 @@ interface WhatsHappeningProps {
   state: string | null;
 }
 
-const formatEventDate = (post: Post): string => {
-  if (post.is_recurring && post.recurrence_text) {
-    return post.recurrence_text;
+const formatEventDate = (event: CityEvent): string => {
+  if (event.is_recurring) {
+    // For recurring events, show a friendly pattern
+    if (event.start_at) {
+      const day = format(new Date(event.start_at), 'EEEE');
+      const time = format(new Date(event.start_at), 'h:mm a');
+      return `Every ${day} · ${time}`;
+    }
+    return 'Recurring';
   }
   
-  if (!post.start_date) return '';
+  if (!event.start_at) return '';
   
-  const start = new Date(post.start_date);
+  const start = new Date(event.start_at);
   const dateStr = format(start, 'EEE MMM d');
   const timeStr = format(start, 'h:mm a');
   
   return `${dateStr} · ${timeStr}`;
 };
 
-const PostItem = ({ post }: { post: Post }) => {
-  const isEvent = post.type === 'event';
-  const externalUrl = post.external_url || post.place?.website_url;
+const formatAnnouncementDate = (post: Post): string => {
+  if (post.is_recurring && post.recurrence_text) {
+    return post.recurrence_text;
+  }
+  return '';
+};
+
+const EventItem = ({ event }: { event: CityEvent }) => {
+  const externalUrl = event.venue?.website_url;
   
   return (
     <div className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 border-b border-border last:border-0">
-      <div className={`p-2 rounded-lg ${isEvent ? 'bg-accent/10' : 'bg-primary/10'}`}>
-        {isEvent ? (
-          <Calendar className="h-4 w-4 text-accent" />
-        ) : (
-          <Megaphone className="h-4 w-4 text-primary" />
-        )}
+      <div className="p-2 rounded-lg bg-accent/10">
+        <Calendar className="h-4 w-4 text-accent" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-1">
           <Badge variant="outline" className="text-xs">
-            {isEvent ? (post.is_recurring ? 'Recurring' : 'Event') : 'Update'}
+            {event.is_recurring ? 'Recurring' : 'Event'}
           </Badge>
-          {isEvent && (
-            <span className="text-xs text-muted-foreground">
-              {formatEventDate(post)}
-            </span>
-          )}
+          <span className="text-xs text-muted-foreground">
+            {formatEventDate(event)}
+          </span>
         </div>
-        <h4 className="font-medium text-sm truncate">{post.title}</h4>
-        {isEvent && post.place && (
+        <h4 className="font-medium text-sm truncate">{event.name}</h4>
+        {event.venue && (
           <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            @ {post.place.name}
+            @ {event.venue.name}
           </p>
         )}
-        {post.body && (
+        {event.description && (
           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-            {post.body}
+            {event.description}
           </p>
         )}
         {externalUrl && (
@@ -73,11 +80,56 @@ const PostItem = ({ post }: { post: Post }) => {
   );
 };
 
-const WhatsHappening = ({ cityName, state }: WhatsHappeningProps) => {
-  const { data: posts, isLoading } = useCityPostsByName(cityName, state);
+const AnnouncementItem = ({ post }: { post: Post }) => {
+  const externalUrl = post.external_url || post.place?.website_url;
   
-  // Don't render anything if no posts (silence is acceptable)
-  if (isLoading || !posts || posts.length === 0) {
+  return (
+    <div className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 border-b border-border last:border-0">
+      <div className="p-2 rounded-lg bg-primary/10">
+        <Megaphone className="h-4 w-4 text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap mb-1">
+          <Badge variant="outline" className="text-xs">Update</Badge>
+          {post.is_recurring && post.recurrence_text && (
+            <span className="text-xs text-muted-foreground">
+              {formatAnnouncementDate(post)}
+            </span>
+          )}
+        </div>
+        <h4 className="font-medium text-sm truncate">{post.title}</h4>
+        {post.body && (
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+            {post.body}
+          </p>
+        )}
+        {externalUrl && (
+          <a 
+            href={externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Learn more
+          </a>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const WhatsHappening = ({ cityName, state }: WhatsHappeningProps) => {
+  // Fetch events from events table
+  const { data: events, isLoading: eventsLoading } = useCityEvents(cityName, state);
+  // Fetch announcements from posts table (type='announcement' only now)
+  const { data: posts, isLoading: postsLoading } = useCityPostsByName(cityName, state);
+  
+  const announcements = (posts || []).filter(p => p.type === 'announcement');
+  const hasContent = (events && events.length > 0) || announcements.length > 0;
+  
+  // Don't render anything if no content (silence is acceptable)
+  if (eventsLoading || postsLoading || !hasContent) {
     return null;
   }
   
@@ -88,9 +140,14 @@ const WhatsHappening = ({ cityName, state }: WhatsHappeningProps) => {
           What's happening in {cityName}
         </h3>
       </div>
-      <div className="divide-y divide-border">
-        {posts.map(post => (
-          <PostItem key={post.id} post={post} />
+      <div>
+        {/* Events first */}
+        {events && events.map(event => (
+          <EventItem key={event.id} event={event} />
+        ))}
+        {/* Then announcements */}
+        {announcements.map(post => (
+          <AnnouncementItem key={post.id} post={post} />
         ))}
       </div>
     </div>
