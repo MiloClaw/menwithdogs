@@ -17,6 +17,9 @@ export interface CityWithProgress {
   lat: number | null;
   lng: number | null;
   launched_at: string | null;
+  // Metro linking
+  metro_id: string | null;
+  metro_name?: string | null;
   // Progress fields from view
   current_place_count: number;
   approved_place_count: number;
@@ -46,6 +49,7 @@ export interface CityUpdate {
   target_place_count?: number;
   target_anchor_count?: number;
   status?: CityStatus;
+  metro_id?: string | null;
 }
 
 export function useCities(statusFilter?: CityStatus | 'all') {
@@ -60,19 +64,32 @@ export function useCities(statusFilter?: CityStatus | 'all') {
 
       if (progressError) throw progressError;
 
-      // Get founders fields from cities table
-      const { data: foundersData, error: foundersError } = await supabase
+      // Get founders fields and metro info from cities table with geo_areas join
+      const { data: citiesData, error: citiesError } = await supabase
         .from('cities')
-        .select('id, founders_promo_code, founders_promo_code_id, founders_slots_total, founders_slots_used');
+        .select(`
+          id, 
+          founders_promo_code, 
+          founders_promo_code_id, 
+          founders_slots_total, 
+          founders_slots_used,
+          metro_id,
+          metro:geo_areas!metro_id (
+            name
+          )
+        `);
 
-      if (foundersError) throw foundersError;
+      if (citiesError) throw citiesError;
 
-      // Merge founders data into progress data
-      const foundersMap = new Map(foundersData?.map(f => [f.id, f]) || []);
+      // Merge cities data into progress data
+      const citiesMap = new Map(citiesData?.map(c => [c.id, {
+        ...c,
+        metro_name: (c.metro as { name: string } | null)?.name || null,
+      }]) || []);
       
       let cities = (progressData || []).map(city => ({
         ...city,
-        ...foundersMap.get(city.id),
+        ...citiesMap.get(city.id),
       })) as CityWithProgress[];
       
       if (statusFilter && statusFilter !== 'all') {
@@ -99,18 +116,28 @@ export function useCity(cityId: string | null) {
 
       if (progressError) throw progressError;
 
-      // Get founders fields from cities table
-      const { data: foundersData, error: foundersError } = await supabase
+      // Get founders and metro fields from cities table
+      const { data: cityData, error: cityError } = await supabase
         .from('cities')
-        .select('founders_promo_code, founders_promo_code_id, founders_slots_total, founders_slots_used')
+        .select(`
+          founders_promo_code, 
+          founders_promo_code_id, 
+          founders_slots_total, 
+          founders_slots_used,
+          metro_id,
+          metro:geo_areas!metro_id (
+            name
+          )
+        `)
         .eq('id', cityId)
         .single();
 
-      if (foundersError) throw foundersError;
+      if (cityError) throw cityError;
 
       return {
         ...progressData,
-        ...foundersData,
+        ...cityData,
+        metro_name: (cityData?.metro as { name: string } | null)?.name || null,
       } as CityWithProgress;
     },
     enabled: !!cityId,

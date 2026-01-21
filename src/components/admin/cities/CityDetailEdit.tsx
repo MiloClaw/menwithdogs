@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ImmutableFieldBadge from '@/components/admin/places/ImmutableFieldBadge';
 import { useUpdateCity } from '@/hooks/useCities';
+import { useMetros } from '@/hooks/useMetros';
 import type { CityWithProgress } from '@/hooks/useCities';
 
 interface CityDetailEditProps {
@@ -15,8 +17,10 @@ interface CityDetailEditProps {
 export function CityDetailEdit({ city, onSave, onCancel }: CityDetailEditProps) {
   const [targetPlaceCount, setTargetPlaceCount] = useState(city.target_place_count);
   const [targetAnchorCount, setTargetAnchorCount] = useState(city.target_anchor_count);
+  const [metroId, setMetroId] = useState<string | null>(city.metro_id);
 
   const updateCity = useUpdateCity();
+  const { data: metros, isLoading: isLoadingMetros } = useMetros();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +30,7 @@ export function CityDetailEdit({ city, onSave, onCancel }: CityDetailEditProps) 
       updates: {
         target_place_count: targetPlaceCount,
         target_anchor_count: targetAnchorCount,
+        metro_id: metroId,
       },
     }, {
       onSuccess: onSave,
@@ -34,7 +39,8 @@ export function CityDetailEdit({ city, onSave, onCancel }: CityDetailEditProps) 
 
   const hasChanges = 
     targetPlaceCount !== city.target_place_count ||
-    targetAnchorCount !== city.target_anchor_count;
+    targetAnchorCount !== city.target_anchor_count ||
+    metroId !== city.metro_id;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -59,6 +65,31 @@ export function CityDetailEdit({ city, onSave, onCancel }: CityDetailEditProps) 
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Metro Assignment */}
+        <div className="space-y-2">
+          <Label htmlFor="edit-metro">Metro Area</Label>
+          <Select 
+            value={metroId || 'none'} 
+            onValueChange={(value) => setMetroId(value === 'none' ? null : value)}
+            disabled={isLoadingMetros}
+          >
+            <SelectTrigger id="edit-metro">
+              <SelectValue placeholder="Select Metro Area" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No Metro Assignment</SelectItem>
+              {metros?.map(metro => (
+                <SelectItem key={metro.id} value={metro.id}>
+                  {metro.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Cities in the same metro are grouped together in the explore page
+          </p>
         </div>
 
         {/* Editable fields */}

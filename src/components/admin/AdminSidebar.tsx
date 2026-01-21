@@ -15,6 +15,7 @@ const navItems = [
 
 const directoryItems = [
   { title: 'Cities', href: '/admin/directory/cities', icon: Building2 },
+  { title: 'Metros', href: '/admin/directory/metros', icon: MapPin },
   { title: 'Places', href: '/admin/directory/places', icon: MapPin },
   { title: 'Events', href: '/admin/directory/events', icon: Calendar },
 ];

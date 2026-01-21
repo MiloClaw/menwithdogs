@@ -108,6 +108,12 @@ export function CityDetailView({ city, onEdit }: CityDetailViewProps) {
           <p className="text-muted-foreground">
             {city.state ? `${city.state}, ${city.country}` : city.country}
           </p>
+          {city.metro_name && (
+            <div className="flex items-center gap-1.5 mt-1">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span className="text-sm text-primary font-medium">{city.metro_name} Metro</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {getStatusBadge()}
