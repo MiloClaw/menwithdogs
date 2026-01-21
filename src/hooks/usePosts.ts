@@ -128,7 +128,8 @@ export const useAdminPosts = (statusFilter?: string) => {
   });
 };
 
-// Public: Fetch published posts for a city (for "What's Happening" section)
+// Public: Fetch published announcements for a city (for "What's Happening" section)
+// Note: Events now come from the events table via useCityEvents hook
 export const useCityPosts = (cityId: string | null) => {
   return useQuery({
     queryKey: ["posts", "city", cityId],
@@ -139,6 +140,7 @@ export const useCityPosts = (cityId: string | null) => {
         .select(PUBLIC_POST_COLUMNS) // Explicit columns - no created_by
         .eq("city_id", cityId!)
         .eq("status", "published")
+        .eq("type", "announcement") // Only announcements - events come from events table
         .or(`end_date.is.null,end_date.gt.${now}`)
         .order("created_at", { ascending: false })
         .limit(5);
@@ -150,7 +152,8 @@ export const useCityPosts = (cityId: string | null) => {
   });
 };
 
-// Public: Fetch published posts for a city by city name (lookup first)
+// Public: Fetch published announcements for a city by city name (lookup first)
+// Note: Events now come from the events table via useCityEvents hook
 export const useCityPostsByName = (cityName: string | null, state: string | null) => {
   return useQuery({
     queryKey: ["posts", "city-name", cityName, state],
@@ -176,6 +179,7 @@ export const useCityPostsByName = (cityName: string | null, state: string | null
         .select(PUBLIC_POST_COLUMNS) // Explicit columns - no created_by
         .eq("city_id", cities.id)
         .eq("status", "published")
+        .eq("type", "announcement") // Only announcements - events come from events table
         .or(`end_date.is.null,end_date.gt.${now}`)
         .order("created_at", { ascending: false })
         .limit(5);
@@ -187,22 +191,21 @@ export const useCityPostsByName = (cityName: string | null, state: string | null
   });
 };
 
-// Explicit columns for place events (no joins needed, excludes created_by)
-const PLACE_EVENT_COLUMNS = `
-  id, type, title, body, city_id, place_id, 
-  start_date, end_date, is_recurring, recurrence_text, 
-  external_url, status, created_at, updated_at
-`;
-
-// Public: Fetch upcoming event posts for a specific place
-export const usePlaceEvents = (placeId: string | null) => {
+// DEPRECATED: Events now come from the events table
+// This hook is kept for backward compatibility but should not be used for new code
+// Use usePlaceEvents from useCityEvents.ts instead
+export const usePlaceEventsLegacy = (placeId: string | null) => {
   return useQuery({
-    queryKey: ["posts", "place", placeId],
+    queryKey: ["posts", "place", placeId, "legacy"],
     queryFn: async () => {
       const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("posts")
-        .select(PLACE_EVENT_COLUMNS) // Explicit columns - no created_by
+        .select(`
+          id, type, title, body, city_id, place_id, 
+          start_date, end_date, is_recurring, recurrence_text, 
+          external_url, status, created_at, updated_at
+        `)
         .eq("place_id", placeId!)
         .eq("type", "event")
         .eq("status", "published")
@@ -217,7 +220,8 @@ export const usePlaceEvents = (placeId: string | null) => {
   });
 };
 
-// Public: Fetch all published posts (events + announcements) for a specific place
+// Public: Fetch published announcements for a specific place
+// Note: Events now come from the events table via usePlaceEvents hook
 export const usePlacePosts = (placeId: string | null) => {
   return useQuery({
     queryKey: ["posts", "place-all", placeId],
@@ -225,9 +229,14 @@ export const usePlacePosts = (placeId: string | null) => {
       const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("posts")
-        .select(PLACE_EVENT_COLUMNS)
+        .select(`
+          id, type, title, body, city_id, place_id, 
+          start_date, end_date, is_recurring, recurrence_text, 
+          external_url, status, created_at, updated_at
+        `)
         .eq("place_id", placeId!)
         .eq("status", "published")
+        .eq("type", "announcement") // Only announcements - events come from events table
         .or(`end_date.is.null,end_date.gt.${now}`)
         .order("created_at", { ascending: false })
         .limit(5);
