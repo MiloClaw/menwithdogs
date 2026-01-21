@@ -1,7 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Sparkles, CheckCircle2, AlertCircle, Pause } from 'lucide-react';
+import { Sparkles, CheckCircle2, AlertCircle, Pause, MapPin } from 'lucide-react';
 import type { CityWithProgress } from '@/hooks/useCities';
 
 interface CityCardProps {
@@ -56,6 +55,12 @@ export function CityCard({ city, onClick, isSelected }: CityCardProps) {
             <p className="text-sm text-muted-foreground">
               {city.state ? `${city.state}, ${city.country}` : city.country}
             </p>
+            {city.metro_name && (
+              <div className="flex items-center gap-1 mt-1">
+                <MapPin className="h-3 w-3 text-primary" />
+                <span className="text-xs text-primary font-medium">{city.metro_name}</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {city.is_ready_to_launch && city.status === 'draft' && (

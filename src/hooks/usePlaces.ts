@@ -157,7 +157,7 @@ export const usePlaces = () => {
       if (error) throw error;
       return data as Place;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['places'] });
       queryClient.invalidateQueries({ queryKey: ['places', 'public'] });
       toast({ title: 'Place created successfully' });
@@ -174,6 +174,20 @@ export const usePlaces = () => {
           },
         }).catch(err => {
           console.warn('Photo storage failed:', err);
+        });
+      }
+      
+      // Auto-assign geography for approved places (fire-and-forget)
+      if (data.status === 'approved') {
+        supabase.functions.invoke('auto-assign-place-geography', {
+          body: { place_id: data.id },
+        }).then(({ data: geoResult }) => {
+          if (geoResult?.city_created || geoResult?.metro_assigned || geoResult?.city_auto_launched) {
+            queryClient.invalidateQueries({ queryKey: ['cities'] });
+            queryClient.invalidateQueries({ queryKey: ['place-geo-areas'] });
+          }
+        }).catch(err => {
+          console.warn('Auto-assign geography failed:', err);
         });
       }
     },

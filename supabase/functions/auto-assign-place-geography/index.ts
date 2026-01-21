@@ -150,6 +150,9 @@ Deno.serve(async (req) => {
         result.city_created = true;
         result.city_id = newCity.id;
         result.city_name = newCity.name;
+        
+        // Attempt to assign metro_id to the newly created city based on county lookup
+        // (Metro assignment for the city happens below after place metro is resolved)
         console.log("Created new city:", newCity.name);
       }
     }
@@ -227,6 +230,28 @@ Deno.serve(async (req) => {
             result.metro_id = metroResult.metro_id;
             result.metro_name = metroResult.metro_name;
             console.log("Assigned metro:", metroResult.metro_name);
+            
+            // Also assign this metro to the city if it doesn't have one
+            if (result.city_id) {
+              const { data: cityData } = await supabase
+                .from("cities")
+                .select("metro_id")
+                .eq("id", result.city_id)
+                .single();
+              
+              if (cityData && !cityData.metro_id) {
+                const { error: cityMetroError } = await supabase
+                  .from("cities")
+                  .update({ metro_id: metroResult.metro_id })
+                  .eq("id", result.city_id);
+                
+                if (!cityMetroError) {
+                  console.log("Assigned metro to city:", result.city_name);
+                } else {
+                  console.error("Failed to assign metro to city:", cityMetroError);
+                }
+              }
+            }
           } else {
             console.error("Metro assignment insert error:", insertError);
           }

@@ -35,6 +35,7 @@ import PlaceManagement from "./pages/admin/PlaceManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import InterestManagement from "./pages/admin/InterestManagement";
 import CityManagement from "./pages/admin/CityManagement";
+import MetroManagement from "./pages/admin/MetroManagement";
 import ProContextManagement from "./pages/admin/ProContextManagement";
 import FoundersManagement from "./pages/admin/FoundersManagement";
 import { RequireRole } from "./components/auth/RequireRole";
@@ -94,6 +95,7 @@ const App = () => (
               <Route path="/admin/founders" element={<RequireRole role="admin"><FoundersManagement /></RequireRole>} />
               <Route path="/admin/interests" element={<RequireRole role="admin"><InterestManagement /></RequireRole>} />
               <Route path="/admin/directory/cities" element={<RequireRole role="admin"><CityManagement /></RequireRole>} />
+              <Route path="/admin/directory/metros" element={<RequireRole role="admin"><MetroManagement /></RequireRole>} />
               <Route path="/admin/directory/places" element={<RequireRole role="admin"><PlaceManagement /></RequireRole>} />
               <Route path="/admin/directory/events" element={<RequireRole role="admin"><EventManagement /></RequireRole>} />
               <Route path="/admin/posts" element={<RequireRole role="admin"><PostManagement /></RequireRole>} />
