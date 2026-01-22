@@ -34,6 +34,7 @@ export default function MapView({
   });
   
   const [highlightedPlaceId, setHighlightedPlaceId] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   
   // Filter places with valid coordinates
   const mappablePlaces = useMemo(() => 
@@ -88,6 +89,7 @@ export default function MapView({
       <Map
         {...viewport}
         onMove={(evt) => setViewport(evt.viewState)}
+        onLoad={() => setMapLoaded(true)}
         mapStyle={MAP_STYLE}
         mapboxAccessToken={token}
         style={{ width: '100%', height: '100%' }}
@@ -99,8 +101,8 @@ export default function MapView({
           <NavigationControl position="top-right" showCompass={false} />
         </div>
         
-        {/* Place markers */}
-        {mappablePlaces.map((place) => (
+        {/* Place markers - only render after map loads */}
+        {mapLoaded && mappablePlaces.map((place) => (
           <MapPlaceMarker
             key={place.id}
             lat={place.lat!}
@@ -111,6 +113,13 @@ export default function MapView({
           />
         ))}
       </Map>
+      
+      {/* Loading overlay while map initializes */}
+      {!mapLoaded && (
+        <div className="absolute inset-0 bg-muted/50 flex items-center justify-center z-10 pointer-events-none">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+        </div>
+      )}
       
       {/* Re-center button */}
       {hasMovedFromInitial && (
