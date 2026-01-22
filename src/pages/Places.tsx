@@ -652,6 +652,7 @@ const Places = () => {
               }
               onPlaceSelect={handlePlaceClick}
               isLoading={placesLoading || isSwitchingLocation}
+              selectedCategory={selectedCategory}
             />
           </Suspense>
         ) : placesLoading ? (

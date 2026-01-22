@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
-import { GripHorizontal, ChevronUp } from 'lucide-react';
+import { GripHorizontal, ChevronUp, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
@@ -11,6 +11,7 @@ interface MapBottomSheetProps {
   highlightedPlaceId: string | null;
   onPlaceSelect: (place: DirectoryPlace) => void;
   onPlaceHover: (placeId: string | null) => void;
+  isFetching?: boolean;
 }
 
 // Snap points in pixels (PEEK) or viewport height
@@ -22,7 +23,8 @@ export function MapBottomSheet({
   places, 
   highlightedPlaceId, 
   onPlaceSelect,
-  onPlaceHover 
+  onPlaceHover,
+  isFetching = false
 }: MapBottomSheetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -128,9 +130,14 @@ export function MapBottomSheet({
       
       {/* Summary row at PEEK */}
       <div className="px-4 pb-2 flex items-center justify-between">
-        <p className="text-sm font-medium">
-          {places.length} {places.length === 1 ? 'place' : 'places'}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium">
+            {places.length} {places.length === 1 ? 'place' : 'places'}
+          </p>
+          {isFetching && (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+          )}
+        </div>
         
         {/* Expand hint */}
         <motion.button
@@ -165,9 +172,10 @@ export function MapBottomSheet({
             </div>
           ))}
           
-          {places.length === 0 && (
-            <div className="py-8 text-center text-sm text-muted-foreground">
-              No places to show
+          {places.length === 0 && !isFetching && (
+            <div className="py-8 text-center text-sm text-muted-foreground px-4">
+              <p>No places in this area</p>
+              <p className="text-xs mt-1">Zoom out or pan to discover more</p>
             </div>
           )}
         </div>
