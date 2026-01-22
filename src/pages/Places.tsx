@@ -315,12 +315,31 @@ const Places = () => {
   const handleConfirmSuggestion = async () => {
     if (!selectedGooglePlace) return;
     
-    const success = await submitSuggestion(selectedGooglePlace);
-    if (success) {
+    const result = await submitSuggestion(selectedGooglePlace);
+    
+    // Handle true boolean success (new place added)
+    if (result === true) {
       setSuggestionModalOpen(false);
       setSelectedGooglePlace(null);
       setSearchTerm('');
+      return;
     }
+    
+    // Handle duplicate case - close modal and optionally open existing place
+    if (typeof result === 'object' && result.existingId) {
+      setSuggestionModalOpen(false);
+      setSelectedGooglePlace(null);
+      setSearchTerm('');
+      
+      // Try to open the existing place detail modal if it's in current view
+      const existingPlace = places?.find(p => p.id === result.existingId);
+      if (existingPlace) {
+        setSelectedPlace(existingPlace);
+      }
+      return;
+    }
+    
+    // On false (other errors), modal stays open for retry
   };
 
   // Handle city suggestion confirmation
