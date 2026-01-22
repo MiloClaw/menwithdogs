@@ -1,7 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MapPin, MapPinOff, X, Sparkles } from 'lucide-react';
+import { MapPin, MapPinOff, X, Sparkles, Map, List } from 'lucide-react';
+
+// Lazy load MapView for bundle optimization
+const MapView = lazy(() => import('@/components/map/MapView'));
+import { MapLoadingSkeleton } from '@/components/map/MapLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,6 +50,19 @@ const Places = () => {
   const biasLat = searchParams.get('bias_lat');
   const biasLng = searchParams.get('bias_lng');
   const isExplorationMode = !!exploringCity;
+  
+  // View mode: list or map (from URL for back/forward support)
+  const viewMode = searchParams.get('view') === 'map' ? 'map' : 'list';
+  
+  const toggleView = () => {
+    const newParams = new URLSearchParams(searchParams);
+    if (viewMode === 'list') {
+      newParams.set('view', 'map');
+    } else {
+      newParams.delete('view');
+    }
+    setSearchParams(newParams);
+  };
 
   // Auth & relationship state
   const { isAuthenticated } = useAuth();
@@ -579,28 +596,65 @@ const Places = () => {
           )}
         </div>
 
-        {/* Results Count & Clear Filters */}
+        {/* Results Count, View Toggle & Clear Filters */}
         {!placesLoading && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {processedPlaces.length} {processedPlaces.length === 1 ? 'place' : 'places'} found
             </p>
-            {hasActiveFilters && (
+            <div className="flex items-center gap-2">
+              {/* View Toggle */}
               <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearAllFilters}
-                className="text-muted-foreground hover:text-foreground h-auto py-1 px-2"
+                variant="outline" 
+                size="sm"
+                onClick={toggleView}
+                className="gap-2"
               >
-                <X className="h-3 w-3 mr-1" />
-                Clear filters
+                {viewMode === 'list' ? (
+                  <>
+                    <Map className="h-4 w-4" />
+                    <span className="hidden sm:inline">Map</span>
+                  </>
+                ) : (
+                  <>
+                    <List className="h-4 w-4" />
+                    <span className="hidden sm:inline">List</span>
+                  </>
+                )}
               </Button>
-            )}
+              {/* Clear filters */}
+              {hasActiveFilters && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={clearAllFilters}
+                  className="text-muted-foreground hover:text-foreground h-auto py-1 px-2"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear filters
+                </Button>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Places Grid */}
-        {placesLoading ? (
+        {/* Places Grid or Map View */}
+        {viewMode === 'map' ? (
+          <Suspense fallback={<MapLoadingSkeleton />}>
+            <MapView
+              places={processedPlaces}
+              center={
+                isExplorationMode && biasCoords 
+                  ? biasCoords 
+                  : hasUserLocation 
+                    ? { lat: userLat!, lng: userLng! }
+                    : null
+              }
+              onPlaceSelect={handlePlaceClick}
+              isLoading={placesLoading || isSwitchingLocation}
+            />
+          </Suspense>
+        ) : placesLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="space-y-3">
