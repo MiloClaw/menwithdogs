@@ -123,7 +123,8 @@ export default function MapView({
     if (place.lat && place.lng) {
       flyTo(place.lat, place.lng);
     }
-  }, [flyTo]);
+    onPlaceSelect(place);
+  }, [flyTo, onPlaceSelect]);
   
   const handleCardSelect = useCallback((place: DirectoryPlace) => {
     setHighlightedPlaceId(place.id);
