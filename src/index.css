@@ -1,8 +1,10 @@
+/* MapBox CSS must be imported before Tailwind to prevent style conflicts */
+@import 'mapbox-gl/dist/mapbox-gl.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import 'mapbox-gl/dist/mapbox-gl.css';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
 
 @layer base {
