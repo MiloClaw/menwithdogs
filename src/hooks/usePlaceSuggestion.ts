@@ -76,10 +76,22 @@ export const usePlaceSuggestion = () => {
 
       // Handle errors - including 409 duplicate responses
       if (error) {
-        // Try to extract response body from FunctionsHttpError
         let errorData = data;
         
-        if (!errorData && error.context) {
+        // Try to extract JSON from error message (format: "Edge function returned 409: Error, {...}")
+        if (!errorData && error.message) {
+          const jsonMatch = error.message.match(/\{.*\}/);
+          if (jsonMatch) {
+            try {
+              errorData = JSON.parse(jsonMatch[0]);
+            } catch {
+              // Parsing failed, continue
+            }
+          }
+        }
+        
+        // Fallback: try error.context if it's a Response object
+        if (!errorData && error.context && typeof error.context.json === 'function') {
           try {
             errorData = await error.context.json();
           } catch {
