@@ -53,13 +53,13 @@ const Places = () => {
   const biasLng = searchParams.get('bias_lng');
   const isExplorationMode = !!exploringCity;
   
-  // View mode: list or map (from URL for back/forward support)
-  const viewMode = searchParams.get('view') === 'map' ? 'map' : 'list';
+  // View mode: map (default) or list (from URL for back/forward support)
+  const viewMode = searchParams.get('view') === 'list' ? 'list' : 'map';
   
   const toggleView = () => {
     const newParams = new URLSearchParams(searchParams);
-    if (viewMode === 'list') {
-      newParams.set('view', 'map');
+    if (viewMode === 'map') {
+      newParams.set('view', 'list');
     } else {
       newParams.delete('view');
     }
