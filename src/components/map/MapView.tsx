@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
-import Map, { NavigationControl } from 'react-map-gl';
+import Map, { NavigationControl, MapEvent } from 'react-map-gl';
 import { LocateFixed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { useMapViewport } from './useMapViewport';
+import { useMapPlaces, MapBounds } from '@/hooks/useMapPlaces';
 import { MapPlaceMarker } from './MapPlaceMarker';
 import { MapPlaceCard } from './MapPlaceCard';
 import { MapBottomSheet } from './MapBottomSheet';
@@ -35,12 +36,44 @@ export default function MapView({
   
   const [highlightedPlaceId, setHighlightedPlaceId] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [bounds, setBounds] = useState<MapBounds | null>(null);
   
-  // Filter places with valid coordinates
-  const mappablePlaces = useMemo(() => 
-    places.filter(p => p.lat != null && p.lng != null),
-    [places]
-  );
+  // Fetch places based on current viewport bounds
+  const { data: viewportPlaces } = useMapPlaces(bounds, mapLoaded);
+  
+  // Merge initial places with viewport-fetched places (deduplicated by id)
+  const mappablePlaces = useMemo((): DirectoryPlace[] => {
+    const placeRecord: Record<string, DirectoryPlace> = {};
+    
+    // Add initial places first
+    places.forEach((p: DirectoryPlace) => {
+      if (p.lat != null && p.lng != null) {
+        placeRecord[p.id] = p;
+      }
+    });
+    
+    // Add/override with viewport places
+    (viewportPlaces ?? []).forEach((p: DirectoryPlace) => {
+      if (p.lat != null && p.lng != null) {
+        placeRecord[p.id] = p;
+      }
+    });
+    
+    return Object.values(placeRecord);
+  }, [places, viewportPlaces]);
+  
+  // Update bounds when map moves
+  const handleMoveEnd = useCallback((evt: MapEvent) => {
+    const mapBounds = evt.target.getBounds();
+    if (mapBounds) {
+      setBounds({
+        north: mapBounds.getNorth(),
+        south: mapBounds.getSouth(),
+        east: mapBounds.getEast(),
+        west: mapBounds.getWest(),
+      });
+    }
+  }, []);
   
   const handleMarkerClick = useCallback((place: DirectoryPlace) => {
     setHighlightedPlaceId(place.id);
@@ -50,7 +83,6 @@ export default function MapView({
   }, [flyTo]);
   
   const handleCardSelect = useCallback((place: DirectoryPlace) => {
-    // Open the place detail modal
     onPlaceSelect(place);
   }, [onPlaceSelect]);
   
@@ -89,7 +121,20 @@ export default function MapView({
       <Map
         {...viewport}
         onMove={(evt) => setViewport(evt.viewState)}
-        onLoad={() => setMapLoaded(true)}
+        onMoveEnd={handleMoveEnd}
+        onLoad={(evt) => {
+          setMapLoaded(true);
+          // Set initial bounds
+          const mapBounds = evt.target.getBounds();
+          if (mapBounds) {
+            setBounds({
+              north: mapBounds.getNorth(),
+              south: mapBounds.getSouth(),
+              east: mapBounds.getEast(),
+              west: mapBounds.getWest(),
+            });
+          }
+        }}
         mapStyle={MAP_STYLE}
         mapboxAccessToken={token}
         style={{ width: '100%', height: '100%' }}
