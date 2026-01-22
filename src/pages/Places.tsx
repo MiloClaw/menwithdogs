@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MapPin, MapPinOff, X, Sparkles, Map, List } from 'lucide-react';
+import { MapPin, MapPinOff, X, Sparkles, Map, List, ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
 
 // Lazy load MapView for bundle optimization
 const MapView = lazy(() => import('@/components/map/MapView'));
@@ -109,6 +111,9 @@ const Places = () => {
   // Places state
   const [selectedPlace, setSelectedPlace] = useState<DirectoryPlace | null>(null);
   const [placeModalOpen, setPlaceModalOpen] = useState(false);
+  
+  // Category filter collapse state (desktop)
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
   
   // Place suggestion state
   const [suggestionModalOpen, setSuggestionModalOpen] = useState(false);
@@ -557,40 +562,75 @@ const Places = () => {
                 />
               </div>
 
-              {/* Desktop: Inline Category Filters */}
+              {/* Desktop: Collapsible Category Filters */}
               <div className="hidden md:block space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">What kind?</p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    className={`
-                      min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
-                      ${selectedCategory === null 
-                        ? 'bg-foreground text-background border-foreground' 
-                        : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
-                    `}
-                  >
-                    All
-                  </button>
-                  {placeCategories.map(category => (
+                <Collapsible open={categoriesExpanded} onOpenChange={setCategoriesExpanded}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">What kind?</p>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="gap-1 h-7 px-2 text-xs text-muted-foreground hover:text-foreground">
+                        {categoriesExpanded ? 'Collapse' : 'Show all'}
+                        <ChevronDown className={cn(
+                          "h-3 w-3 transition-transform duration-200",
+                          categoriesExpanded && "rotate-180"
+                        )} />
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
+                  
+                  {/* Always visible: "All" button and selected category when collapsed */}
+                  <div className="flex flex-wrap gap-2 mt-2">
                     <button
-                      key={category}
-                      onClick={() => {
-                        const newCategory = selectedCategory === category ? null : category;
-                        setSelectedCategory(newCategory);
-                        if (newCategory) handleCategorySignal(newCategory);
-                      }}
+                      onClick={() => setSelectedCategory(null)}
                       className={`
                         min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
-                        ${selectedCategory === category 
+                        ${selectedCategory === null 
                           ? 'bg-foreground text-background border-foreground' 
                           : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
                       `}
                     >
-                      {category}
+                      All
                     </button>
-                  ))}
-                </div>
+                    
+                    {/* When collapsed, show only the selected category */}
+                    {!categoriesExpanded && selectedCategory && (
+                      <button
+                        onClick={() => setSelectedCategory(null)}
+                        className="min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border bg-foreground text-background border-foreground"
+                      >
+                        {selectedCategory}
+                        <X className="inline-block ml-1 h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Expandable: all category chips */}
+                  <CollapsibleContent className="mt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {placeCategories.map(category => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            const newCategory = selectedCategory === category ? null : category;
+                            setSelectedCategory(newCategory);
+                            if (newCategory) {
+                              handleCategorySignal(newCategory);
+                              setCategoriesExpanded(false); // Auto-collapse after selection
+                            }
+                          }}
+                          className={`
+                            min-h-[44px] px-4 rounded-lg text-sm font-medium transition-all border
+                            ${selectedCategory === category 
+                              ? 'bg-foreground text-background border-foreground' 
+                              : 'bg-transparent text-foreground border-border hover:border-foreground/50'}
+                          `}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
             </>
           )}
