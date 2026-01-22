@@ -20,7 +20,7 @@ interface UseMapViewportResult {
 }
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 }; // Center of US
-const DEFAULT_ZOOM = 12;
+const DEFAULT_ZOOM = 4; // Show continental US when no location
 
 export function useMapViewport({ 
   initialCenter, 
