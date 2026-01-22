@@ -30,9 +30,13 @@ export default function MapView({
   selectedCategory 
 }: MapViewProps) {
   const { token, isLoading: tokenLoading, error: tokenError } = useMapboxToken();
+  
+  // Zoom 9 = ~50 mile radius view, Zoom 4 = continental US view
+  const initialZoom = center ? 9 : 4;
+  
   const { viewport, setViewport, flyTo, resetToInitial, hasMovedFromInitial } = useMapViewport({
     initialCenter: center,
-    initialZoom: 13,
+    initialZoom,
   });
   
   const [highlightedPlaceId, setHighlightedPlaceId] = useState<string | null>(null);
