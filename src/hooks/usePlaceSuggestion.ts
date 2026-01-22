@@ -32,7 +32,7 @@ export const usePlaceSuggestion = () => {
    * Submit a place suggestion via backend function
    * This avoids RLS SELECT conflicts by handling insert server-side
    */
-  const submitSuggestion = async (details: PlaceDetails): Promise<boolean> => {
+  const submitSuggestion = async (details: PlaceDetails): Promise<boolean | { success: false; existingId: string }> => {
     setIsSubmitting(true);
 
     try {
@@ -74,7 +74,28 @@ export const usePlaceSuggestion = () => {
         },
       });
 
+      // Handle errors - including 409 duplicate responses
       if (error) {
+        // Try to extract response body from FunctionsHttpError
+        let errorData = data;
+        
+        if (!errorData && error.context) {
+          try {
+            errorData = await error.context.json();
+          } catch {
+            // Parsing failed, fall through to generic error
+          }
+        }
+        
+        // Check if this is a duplicate error (409 response)
+        if (errorData?.error === 'duplicate') {
+          toast({
+            title: 'Already in directory',
+            description: errorData.message || 'This place is already in our directory.',
+          });
+          return { success: false, existingId: errorData.existingId };
+        }
+        
         console.error('Function invocation error:', error);
         toast({
           title: 'Submission failed',
@@ -84,13 +105,13 @@ export const usePlaceSuggestion = () => {
         return false;
       }
 
-      // Handle response from backend
+      // Handle non-error responses that indicate issues
       if (data?.error === 'duplicate') {
         toast({
-          title: 'Already suggested',
-          description: data.message || 'This place is already in our directory or pending review.',
+          title: 'Already in directory',
+          description: data.message || 'This place is already in our directory.',
         });
-        return false;
+        return { success: false, existingId: data.existingId };
       }
 
       if (data?.error) {
