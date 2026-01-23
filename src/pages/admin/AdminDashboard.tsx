@@ -86,6 +86,7 @@ const AdminDashboard = () => {
           <LocationSummaryCard 
             placesByCity={stats?.placesByCity || []}
             placesByMetro={stats?.placesByMetro || []}
+            unmappedStats={stats?.unmappedStats}
             isLoading={isLoading}
           />
         </div>

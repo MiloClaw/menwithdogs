@@ -67,6 +67,12 @@ export interface AmbassadorStats {
   recentPending: AmbassadorPendingItem[];
 }
 
+export interface UnmappedStats {
+  userSubmittedCount: number;
+  pendingCount: number;
+  cityCount: number;
+}
+
 export interface AdminStats {
   couples: {
     total: number;
@@ -97,6 +103,7 @@ export interface AdminStats {
   members: number;
   placesByCity: CityStats[];
   placesByMetro: MetroStats[];
+  unmappedStats: UnmappedStats;
   emergingCitiesCount: number;
   engagement: {
     totalFavorites: number;
@@ -311,6 +318,14 @@ export const useAdminStats = () => {
           return b.pendingCount - a.pendingCount;
         });
 
+      // Calculate unmapped submissions (cities not in any metro)
+      const unmappedCities = placesByCity.filter(c => !c.metroId);
+      const unmappedStats: UnmappedStats = {
+        userSubmittedCount: unmappedCities.reduce((sum, c) => sum + c.userSubmittedCount, 0),
+        pendingCount: unmappedCities.reduce((sum, c) => sum + c.pendingCount, 0),
+        cityCount: unmappedCities.filter(c => c.userSubmittedCount > 0 || c.pendingCount > 0).length,
+      };
+
       const emergingCitiesCount = placesByCity.filter(
         c => c.userSubmittedCount > 0 && !c.inLaunchedCity
       ).length;
@@ -450,6 +465,7 @@ export const useAdminStats = () => {
         members: coreStats ? Number(coreStats.total_members) : 0,
         placesByCity,
         placesByMetro,
+        unmappedStats,
         emergingCitiesCount,
         engagement: {
           totalFavorites,

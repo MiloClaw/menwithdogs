@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, TrendingUp, ChevronRight, ChevronDown, Building2 } from 'lucide-react';
+import { MapPin, TrendingUp, ChevronRight, ChevronDown, Building2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Toggle } from '@/components/ui/toggle';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { CityStats, MetroStats } from '@/hooks/useAdminStats';
+import { CityStats, MetroStats, UnmappedStats } from '@/hooks/useAdminStats';
 
 interface LocationSummaryCardProps {
   placesByCity: CityStats[];
   placesByMetro: MetroStats[];
+  unmappedStats?: UnmappedStats;
   isLoading?: boolean;
   maxItems?: number;
 }
@@ -20,16 +21,25 @@ type ViewMode = 'city' | 'metro';
 const LocationSummaryCard = ({ 
   placesByCity, 
   placesByMetro,
+  unmappedStats,
   isLoading,
   maxItems = 5 
 }: LocationSummaryCardProps) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('metro');
+  // Default to city view for full visibility
+  const [viewMode, setViewMode] = useState<ViewMode>('city');
   const [expandedMetros, setExpandedMetros] = useState<Set<string>>(new Set());
 
   // Filter to cities with user submissions and take top N
   const topCities = placesByCity
     .filter(c => c.userSubmittedCount > 0 || c.pendingCount > 0)
     .slice(0, maxItems);
+
+  // Calculate totals for coverage indicator
+  const totalUserSubmissions = placesByCity.reduce((sum, c) => sum + c.userSubmittedCount, 0);
+  const metroUserSubmissions = placesByMetro.reduce((sum, m) => sum + m.userSubmittedCount, 0);
+  const coveragePercent = totalUserSubmissions > 0 
+    ? Math.round((metroUserSubmissions / totalUserSubmissions) * 100) 
+    : 0;
 
   // Find max for bar scaling
   const maxCityCount = Math.max(...topCities.map(c => c.userSubmittedCount + c.pendingCount), 1);
@@ -120,85 +130,110 @@ const LocationSummaryCard = ({
       <CardContent className="space-y-1">
         {viewMode === 'metro' ? (
           // Metro view with expandable cities
-          placesByMetro.slice(0, maxItems).map((metro) => {
-            const isExpanded = expandedMetros.has(metro.metroId);
-            const total = metro.userSubmittedCount + metro.pendingCount;
-            const barWidth = (total / maxMetroCount) * 100;
-            
-            return (
-              <Collapsible
-                key={metro.metroId}
-                open={isExpanded}
-                onOpenChange={() => toggleMetro(metro.metroId)}
-              >
-                <CollapsibleTrigger className="w-full">
-                  <div className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        {isExpanded ? (
-                          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        ) : (
-                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        )}
-                        <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-sm font-medium truncate">
-                          {metro.metroName}
+          <>
+            {placesByMetro.slice(0, maxItems).map((metro) => {
+              const isExpanded = expandedMetros.has(metro.metroId);
+              const total = metro.userSubmittedCount + metro.pendingCount;
+              const barWidth = (total / maxMetroCount) * 100;
+              
+              return (
+                <Collapsible
+                  key={metro.metroId}
+                  open={isExpanded}
+                  onOpenChange={() => toggleMetro(metro.metroId)}
+                >
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          {isExpanded ? (
+                            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          ) : (
+                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          )}
+                          <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="text-sm font-medium truncate">
+                            {metro.metroName}
+                          </span>
+                          {metro.hasEmergingCities && (
+                            <Badge 
+                              variant="secondary" 
+                              className="bg-primary/10 text-primary text-xs shrink-0"
+                            >
+                              NEW
+                            </Badge>
+                          )}
+                        </div>
+                        {/* Progress bar */}
+                        <div className="mt-1.5 ml-7 h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all ${
+                              metro.hasEmergingCities 
+                                ? 'bg-primary' 
+                                : 'bg-muted-foreground/40'
+                            }`}
+                            style={{ width: `${barWidth}%` }}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-sm font-medium tabular-nums">
+                          {metro.userSubmittedCount}
                         </span>
-                        {metro.hasEmergingCities && (
+                        {metro.pendingCount > 0 && (
                           <Badge 
                             variant="secondary" 
-                            className="bg-primary/10 text-primary text-xs shrink-0"
+                            className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs"
                           >
-                            NEW
+                            {metro.pendingCount} pending
                           </Badge>
                         )}
+                        <span className="text-xs text-muted-foreground">
+                          {metro.cities.length} cities
+                        </span>
                       </div>
-                      {/* Progress bar */}
-                      <div className="mt-1.5 ml-7 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all ${
-                            metro.hasEmergingCities 
-                              ? 'bg-primary' 
-                              : 'bg-muted-foreground/40'
-                          }`}
-                          style={{ width: `${barWidth}%` }}
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="ml-7 pl-2 border-l space-y-1 mt-1">
+                      {metro.cities.map((cityData) => (
+                        <CityRow 
+                          key={`${cityData.city}-${cityData.state}`}
+                          cityData={cityData}
+                          maxCount={maxMetroCount}
+                          compact
                         />
-                      </div>
+                      ))}
                     </div>
-                    
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-sm font-medium tabular-nums">
-                        {metro.userSubmittedCount}
-                      </span>
-                      {metro.pendingCount > 0 && (
-                        <Badge 
-                          variant="secondary" 
-                          className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs"
-                        >
-                          {metro.pendingCount} pending
-                        </Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground">
-                        {metro.cities.length} cities
-                      </span>
-                    </div>
-                  </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="ml-7 pl-2 border-l space-y-1 mt-1">
-                    {metro.cities.map((cityData) => (
-                      <CityRow 
-                        key={`${cityData.city}-${cityData.state}`}
-                        cityData={cityData}
-                        maxCount={maxMetroCount}
-                        compact
-                      />
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            );
-          })
+                  </CollapsibleContent>
+                </Collapsible>
+              );
+            })}
+            
+            {/* Unmapped submissions summary */}
+            {unmappedStats && unmappedStats.userSubmittedCount > 0 && (
+              <div className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg bg-muted/30 border border-dashed border-muted-foreground/20">
+                <AlertCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="text-sm text-muted-foreground flex-1">
+                  {unmappedStats.userSubmittedCount} in {unmappedStats.cityCount} unmapped cities
+                </span>
+                <Link 
+                  to="/admin/metros"
+                  className="text-xs text-primary hover:underline shrink-0"
+                >
+                  Map metros →
+                </Link>
+              </div>
+            )}
+            
+            {/* Coverage indicator */}
+            <div className="pt-2 border-t mt-2">
+              <p className="text-xs text-muted-foreground">
+                {coveragePercent}% of submissions in mapped metros ({metroUserSubmissions} of {totalUserSubmissions})
+              </p>
+            </div>
+          </>
         ) : (
           // City view (flat list)
           topCities.map((cityData) => (
