@@ -3,12 +3,8 @@ import { useAdminStats } from '@/hooks/useAdminStats';
 import HeroStatsBar from '@/components/admin/dashboard/HeroStatsBar';
 import ActionQueue, { buildActionQueue } from '@/components/admin/dashboard/ActionQueue';
 import TrendSparklines from '@/components/admin/dashboard/TrendSparklines';
-import CategoryHealthCard from '@/components/admin/dashboard/CategoryHealthCard';
 import LocationSummaryCard from '@/components/admin/LocationSummaryCard';
-import QuickActions from '@/components/admin/dashboard/QuickActions';
-import IntelligenceStatusCard from '@/components/admin/dashboard/IntelligenceStatusCard';
 import GrowthProgramsCard from '@/components/admin/dashboard/GrowthProgramsCard';
-import RevenueHealthCard from '@/components/admin/dashboard/RevenueHealthCard';
 
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
@@ -77,30 +73,14 @@ const AdminDashboard = () => {
           lastRefreshed={stats?.lastRefreshed}
         />
 
-        {/* Three-column: Action Queue + Intelligence Status + Trends */}
+        {/* Row 2: Action Queue + Trends + Location */}
         <div className="grid gap-6 lg:grid-cols-3">
           <ActionQueue 
             items={actionItems}
             isLoading={isLoading}
           />
-          <IntelligenceStatusCard />
           <TrendSparklines 
             trends={trendData}
-            isLoading={isLoading}
-          />
-        </div>
-
-        {/* Four-column: Category Health + Revenue + Founders Program + Location Insights */}
-        <div className="grid gap-6 lg:grid-cols-4">
-          <CategoryHealthCard
-            categories={stats?.categoryBreakdown ?? []}
-            totalPlaces={stats?.places.approved ?? 0}
-            isLoading={isLoading}
-          />
-          <RevenueHealthCard />
-          <GrowthProgramsCard
-            foundersStats={foundersStats}
-            ambassadorStats={ambassadorStats}
             isLoading={isLoading}
           />
           <LocationSummaryCard 
@@ -110,17 +90,12 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
-          <QuickActions 
-            stats={{
-              citiesReady: stats?.cities.readyToLaunch ?? 0,
-              pendingPlaces: stats?.places.pending ?? 0,
-              pendingEvents: stats?.events.pending ?? 0,
-            }}
-          />
-        </div>
+        {/* Row 3: Growth Programs (with revenue) */}
+        <GrowthProgramsCard
+          foundersStats={foundersStats}
+          ambassadorStats={ambassadorStats}
+          isLoading={isLoading}
+        />
       </div>
     </AdminLayout>
   );
