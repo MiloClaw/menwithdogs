@@ -203,8 +203,8 @@ export function buildActionQueue(stats: {
     items.push({
       id: 'no-events',
       priority: 'info',
-      message: 'Use AI Discovery to find events',
-      href: '/admin/directory/events/discover',
+      message: 'Add your first event',
+      href: '/admin/directory/events',
     });
   }
 
