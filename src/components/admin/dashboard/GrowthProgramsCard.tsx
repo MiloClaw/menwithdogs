@@ -3,9 +3,15 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, MapPin, Ticket, UserCheck, Clock, XCircle } from 'lucide-react';
+import { Users, MapPin, Ticket, UserCheck, Clock, XCircle, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FoundersStats, AmbassadorStats } from '@/hooks/useAdminStats';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+// Pricing constants
+const FOUNDERS_PRICE = 2.99;
+const PRO_PRICE = 4.99;
 
 interface GrowthProgramsCardProps {
   foundersStats: FoundersStats;
@@ -17,6 +23,29 @@ const GrowthProgramsCard = ({ foundersStats, ambassadorStats, isLoading }: Growt
   const claimPercentage = foundersStats.totalSlotsAvailable > 0 
     ? (foundersStats.totalSlotsClaimed / foundersStats.totalSlotsAvailable) * 100 
     : 0;
+
+  // Fetch revenue metrics
+  const { data: revenueData } = useQuery({
+    queryKey: ['admin-revenue-summary'],
+    queryFn: async () => {
+      const { data: subscriptions, error } = await supabase
+        .from('subscriptions')
+        .select('plan_id, status')
+        .in('status', ['active', 'trialing']);
+
+      if (error) throw error;
+
+      const foundersCount = subscriptions?.filter(s => s.plan_id === 'founders').length ?? 0;
+      const proCount = subscriptions?.filter(s => s.plan_id === 'pro').length ?? 0;
+      const mrr = (foundersCount * FOUNDERS_PRICE) + (proCount * PRO_PRICE);
+      const totalSubscribers = foundersCount + proCount;
+
+      return { mrr, totalSubscribers, foundersCount, proCount };
+    },
+  });
+
+  const formatCurrency = (value: number) => 
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 
   if (isLoading) {
     return (
@@ -42,10 +71,26 @@ const GrowthProgramsCard = ({ foundersStats, ambassadorStats, isLoading }: Growt
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Ticket className="h-4 w-4 text-primary" />
-          Growth Programs
+          Growth & Revenue
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Revenue Summary Row */}
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">MRR</span>
+          </div>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="font-bold text-primary">
+              {formatCurrency(revenueData?.mrr ?? 0)}
+            </span>
+            <span className="text-muted-foreground">
+              {revenueData?.totalSubscribers ?? 0} subscribers
+            </span>
+          </div>
+        </div>
+
         <Tabs defaultValue="founders" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="founders">Founders</TabsTrigger>
