@@ -8,6 +8,7 @@ import LocationSummaryCard from '@/components/admin/LocationSummaryCard';
 import QuickActions from '@/components/admin/dashboard/QuickActions';
 import IntelligenceStatusCard from '@/components/admin/dashboard/IntelligenceStatusCard';
 import GrowthProgramsCard from '@/components/admin/dashboard/GrowthProgramsCard';
+import RevenueHealthCard from '@/components/admin/dashboard/RevenueHealthCard';
 
 const AdminDashboard = () => {
   const { data: stats, isLoading } = useAdminStats();
@@ -35,6 +36,8 @@ const AdminDashboard = () => {
     pendingEvents: stats.events.pending,
     totalCities: stats.cities.total,
     totalEvents: stats.events.approved + stats.events.pending,
+    generalCategoryCount: stats.places.generalCount,
+    totalApprovedPlaces: stats.places.approved,
   }) : [];
 
   // Trend data
@@ -67,10 +70,11 @@ const AdminDashboard = () => {
           <p className="text-muted-foreground">MainStreet IRL command center</p>
         </div>
 
-        {/* Hero Stats Bar - 5 key metrics */}
+        {/* Hero Stats Bar - 6 key metrics with freshness indicator */}
         <HeroStatsBar 
           stats={heroStats}
           isLoading={isLoading}
+          lastRefreshed={stats?.lastRefreshed}
         />
 
         {/* Three-column: Action Queue + Intelligence Status + Trends */}
@@ -86,13 +90,14 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {/* Three-column: Category Health + Founders Program + Location Insights */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        {/* Four-column: Category Health + Revenue + Founders Program + Location Insights */}
+        <div className="grid gap-6 lg:grid-cols-4">
           <CategoryHealthCard
             categories={stats?.categoryBreakdown ?? []}
             totalPlaces={stats?.places.approved ?? 0}
             isLoading={isLoading}
           />
+          <RevenueHealthCard />
           <GrowthProgramsCard
             foundersStats={foundersStats}
             ambassadorStats={ambassadorStats}

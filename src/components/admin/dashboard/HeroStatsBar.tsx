@@ -1,7 +1,8 @@
-import { Users, MapPin, Heart, Building2, AlertCircle, TrendingUp, TrendingDown, Globe } from 'lucide-react';
+import { Users, MapPin, Heart, Building2, AlertCircle, TrendingUp, TrendingDown, Globe, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
 
 interface HeroStat {
   label: string;
@@ -35,10 +36,25 @@ interface HeroStatsBarProps {
     placesTrend: number;
     engagementTrend: number;
   };
+  lastRefreshed?: string | null;
   isLoading?: boolean;
 }
 
-const HeroStatsBar = ({ stats, trends, isLoading }: HeroStatsBarProps) => {
+const HeroStatsBar = ({ stats, trends, lastRefreshed, isLoading }: HeroStatsBarProps) => {
+  // Calculate freshness
+  const getFreshnessInfo = () => {
+    if (!lastRefreshed) return null;
+    const refreshedDate = new Date(lastRefreshed);
+    const ageMs = Date.now() - refreshedDate.getTime();
+    const ageHours = ageMs / (1000 * 60 * 60);
+    const isStale = ageHours > 2;
+    return {
+      text: formatDistanceToNow(refreshedDate, { addSuffix: true }),
+      isStale,
+    };
+  };
+  
+  const freshness = getFreshnessInfo();
   const heroStats: HeroStat[] = [
     {
       label: 'Active Users',
@@ -113,7 +129,22 @@ const HeroStatsBar = ({ stats, trends, isLoading }: HeroStatsBarProps) => {
   }
 
   return (
-    <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="space-y-2">
+      {/* Freshness indicator */}
+      {freshness && (
+        <div className={cn(
+          "flex items-center gap-1.5 text-xs",
+          freshness.isStale ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+        )}>
+          <Clock className="h-3 w-3" />
+          <span>Data updated {freshness.text}</span>
+          {freshness.isStale && (
+            <span className="text-amber-600 dark:text-amber-400 font-medium">(stale)</span>
+          )}
+        </div>
+      )}
+      
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
       {heroStats.map((stat) => (
         <Card 
           key={stat.label} 
@@ -162,6 +193,7 @@ const HeroStatsBar = ({ stats, trends, isLoading }: HeroStatsBarProps) => {
           </CardContent>
         </Card>
       ))}
+      </div>
     </div>
   );
 };

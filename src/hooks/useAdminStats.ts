@@ -67,7 +67,7 @@ export interface AmbassadorStats {
   recentPending: AmbassadorPendingItem[];
 }
 
-interface AdminStats {
+export interface AdminStats {
   couples: {
     total: number;
     active: number;
@@ -75,6 +75,7 @@ interface AdminStats {
   places: {
     approved: number;
     pending: number;
+    generalCount: number;
   };
   events: {
     approved: number;
@@ -105,6 +106,7 @@ interface AdminStats {
   categoryBreakdown: CategoryBreakdown[];
   founders: FoundersStats;
   ambassadors: AmbassadorStats;
+  lastRefreshed: string | null;
 }
 
 // Helper to get dates for the last N days
@@ -376,6 +378,7 @@ export const useAdminStats = () => {
       }
 
       const totalApprovedPlaces = approvedPlaces.length;
+      const generalCount = categoryCountMap.get('general') || 0;
       const categoryBreakdown: CategoryBreakdown[] = Array.from(categoryCountMap.entries())
         .map(([category, count]) => ({
           category,
@@ -432,6 +435,7 @@ export const useAdminStats = () => {
         places: {
           approved: coreStats ? Number(coreStats.approved_places) : 0,
           pending: coreStats ? Number(coreStats.pending_places) : 0,
+          generalCount,
         },
         events: {
           approved: coreStats ? Number(coreStats.approved_events) : 0,
@@ -461,6 +465,7 @@ export const useAdminStats = () => {
           topCities,
         },
         ambassadors: ambassadorStats,
+        lastRefreshed: coreStats?.computed_at || null,
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

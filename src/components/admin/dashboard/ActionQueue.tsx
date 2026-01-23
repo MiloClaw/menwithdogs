@@ -141,6 +141,8 @@ export function buildActionQueue(stats: {
   totalEvents: number;
   expiringEvents?: number;
   stalePlaces?: number;
+  generalCategoryCount?: number;
+  totalApprovedPlaces?: number;
 }): ActionItem[] {
   const items: ActionItem[] = [];
 
@@ -189,6 +191,21 @@ export function buildActionQueue(stats: {
       href: '/admin/directory/places?source=emerging',
       icon: TrendingUp,
     });
+  }
+
+  // Data quality - general category places
+  if (stats.generalCategoryCount && stats.totalApprovedPlaces) {
+    const generalPercentage = (stats.generalCategoryCount / stats.totalApprovedPlaces) * 100;
+    if (generalPercentage > 10) {
+      items.push({
+        id: 'general-category',
+        priority: 'urgent',
+        message: `${stats.generalCategoryCount} places need category review`,
+        href: '/admin/directory/places?category=general',
+        icon: AlertTriangle,
+        count: stats.generalCategoryCount,
+      });
+    }
   }
 
   // Info - no content yet

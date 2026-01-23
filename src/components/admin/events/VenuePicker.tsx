@@ -147,7 +147,7 @@ const VenuePicker = ({ value, onChange, onVenueTypeChange, defaultSearch }: Venu
       const result = await createPlace.mutateAsync({
         google_place_id: details.place_id,
         name: details.name,
-        primary_category: 'general',
+        primary_category: details.google_primary_type_display || 'general',
         formatted_address: details.formatted_address,
         city: details.city,
         state: details.state,
