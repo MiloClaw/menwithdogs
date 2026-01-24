@@ -279,9 +279,8 @@ const Auth = () => {
           duration: 0.5,
           delay: 0.2
         }} className="border-l-4 border-accent pl-5 py-3">
-              <p className="text-sm text-muted-foreground leading-relaxed text-center">Your information stays private by default.
-No public profiles. Your profile and settings only tune the directory to provide better recommendations.<br />
-                No public profile. No exposure unless you choose it.
+              <p className="text-muted-foreground leading-relaxed text-xs text-left">Your information stays private by default.  No public profiles unless you choose it. Your profile and settings only tune the directory to provide better recommendations for you.                                                                           <br />
+                ​
               </p>
             </motion.div>}
 
