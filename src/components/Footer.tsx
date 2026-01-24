@@ -47,6 +47,9 @@ Real Connection.
               <Link to="/couples" className={linkClasses}>
                 Couples
               </Link>
+              <Link to="/outdoors" className={linkClasses}>
+                Outdoors
+              </Link>
               <Link to="/together" className={linkClasses}>
                 Discover Together
               </Link>
