@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MapPin } from "lucide-react";
-import heroImage from "@/assets/hero-couples.jpg";
+import heroImage from "@/assets/hero-hiking.avif";
 const Hero = () => {
   const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
