@@ -37,7 +37,8 @@ const Hero = () => {
       {/* Hero Image */}
       <div className="relative h-[480px] md:h-[560px] overflow-hidden">
         <img src={heroImage} alt="People enjoying a local café together" fetchPriority="high" width={1920} height={672} className="w-full h-[120%] object-cover object-top will-change-transform" style={{
-        transform: parallaxTransform
+        transform: parallaxTransform,
+        clipPath: 'inset(0 0 12px 0)'
       }} />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/50 to-primary/80" />
 
