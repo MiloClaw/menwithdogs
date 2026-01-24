@@ -24,6 +24,7 @@ const sitemapSections = [
     title: "Community",
     links: [
       { label: "Gay Community", path: "/community" },
+      { label: "Outdoors", path: "/outdoors" },
       { label: "Find Friends", path: "/find-friends" },
       { label: "Couples", path: "/couples" },
     ],

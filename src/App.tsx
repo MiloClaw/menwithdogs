@@ -18,6 +18,7 @@ import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Community from "./pages/Community";
+import Outdoors from "./pages/Outdoors";
 import FindFriends from "./pages/FindFriends";
 import Couples from "./pages/Couples";
 import Ambassadors from "./pages/Ambassadors";
@@ -72,6 +73,7 @@ const App = () => (
               
               {/* SEO Intent Capture Pages */}
               <Route path="/community" element={<Community />} />
+              <Route path="/outdoors" element={<Outdoors />} />
               <Route path="/find-friends" element={<FindFriends />} />
               <Route path="/couples" element={<Couples />} />
               <Route path="/ambassadors" element={<Ambassadors />} />
