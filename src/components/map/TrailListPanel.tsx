@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Trail, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
 import { cn } from '@/lib/utils';
-import { ChevronDown, ChevronUp, Footprints, Mountain, Ruler } from 'lucide-react';
+import { ChevronDown, ChevronUp, Footprints, Mountain, Ruler, ImageOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -47,54 +47,76 @@ interface TrailCardProps {
 
 const TrailCard = ({ trail, onClick, isSelected }: TrailCardProps) => {
   const difficultyColors = DIFFICULTY_COLORS[trail.difficulty];
+  const [imageError, setImageError] = useState(false);
   
   return (
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left p-4 rounded-lg border transition-all",
+        "w-full text-left rounded-lg border transition-all overflow-hidden",
         "hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-brand-green/50",
         isSelected 
           ? "border-brand-green bg-brand-green/5" 
           : "border-border bg-card"
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-foreground leading-tight mb-1.5 truncate">
-            {trail.name}
-          </h4>
+      {/* Trail Photo or Fallback */}
+      {trail.photoUrl && !imageError ? (
+        <div className="relative h-32 w-full">
+          <img 
+            src={trail.photoUrl} 
+            alt={trail.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setImageError(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          {/* Difficulty badge overlay */}
+          <span className={cn(
+            "absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+            difficultyColors.bg,
+            difficultyColors.text
+          )}>
+            {getDifficultyLabel(trail.difficulty)}
+          </span>
+        </div>
+      ) : (
+        <div className="relative h-24 w-full bg-gradient-to-br from-brand-green/20 to-brand-green/5 flex items-center justify-center">
+          <Footprints className="w-8 h-8 text-brand-green/40" />
+          {/* Difficulty badge overlay */}
+          <span className={cn(
+            "absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+            difficultyColors.bg,
+            difficultyColors.text
+          )}>
+            {getDifficultyLabel(trail.difficulty)}
+          </span>
+        </div>
+      )}
+      
+      {/* Card Content */}
+      <div className="p-4">
+        <h4 className="font-semibold text-foreground leading-tight mb-1.5 truncate">
+          {trail.name}
+        </h4>
+        
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Ruler className="w-3 h-3" />
+            {trail.distance} mi{trail.isLoop ? ' loop' : ''}
+          </span>
           
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className={cn(
-              "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-              difficultyColors.bg,
-              difficultyColors.text
-            )}>
-              {getDifficultyLabel(trail.difficulty)}
-            </span>
-            
+          {trail.elevationGain && (
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Ruler className="w-3 h-3" />
-              {trail.distance} mi{trail.isLoop ? ' loop' : ''}
+              <Mountain className="w-3 h-3" />
+              {trail.elevationGain.toLocaleString()} ft
             </span>
-            
-            {trail.elevationGain && (
-              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <Mountain className="w-3 h-3" />
-                {trail.elevationGain.toLocaleString()} ft
-              </span>
-            )}
-          </div>
-          
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {trail.description}
-          </p>
+          )}
         </div>
         
-        <div className="flex-shrink-0 p-2 rounded-full bg-brand-green/10">
-          <Footprints className="w-4 h-4 text-brand-green" />
-        </div>
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {trail.description}
+        </p>
       </div>
     </button>
   );

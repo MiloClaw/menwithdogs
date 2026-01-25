@@ -25,6 +25,23 @@ export const TrailDetailSheet = ({ trail, open, onOpenChange }: TrailDetailSheet
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[85vh]">
+        {/* Hero Photo */}
+        {trail.photoUrl && (
+          <div className="relative h-48 w-full">
+            <img 
+              src={trail.photoUrl} 
+              alt={trail.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            {trail.photoCredit && (
+              <span className="absolute bottom-2 right-2 text-xs text-white/80 bg-black/40 px-2 py-0.5 rounded">
+                {trail.photoCredit}
+              </span>
+            )}
+          </div>
+        )}
+        
         <DrawerHeader className="text-left pb-2">
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-full bg-brand-green/10 flex-shrink-0">

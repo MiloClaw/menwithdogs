@@ -14,8 +14,19 @@ export const TrailMarkerPopupContent = ({ trail }: TrailMarkerPopupContentProps)
     ? `${trail.distance} mi loop` 
     : `${trail.distance} mi out & back`;
   
+  // Photo HTML if available
+  const photoHtml = trail.photoUrl 
+    ? `<div class="relative -m-3 mb-2">
+        <img src="${trail.photoUrl}" alt="${trail.name}" class="w-full h-28 object-cover rounded-t-lg" loading="lazy" onerror="this.style.display='none'" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-t-lg"></div>
+        ${trail.photoCredit ? `<span class="absolute bottom-1 right-1 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded">${trail.photoCredit}</span>` : ''}
+      </div>`
+    : '';
+
   return `
     <div class="p-3 min-w-[220px] max-w-[280px]">
+      ${photoHtml}
+      
       <div class="flex items-start gap-2 mb-2">
         <div class="flex-shrink-0 p-1.5 rounded-full bg-emerald-500/10">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(147 43% 30%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
