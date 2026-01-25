@@ -19,6 +19,9 @@ const MAP_STYLES: Record<MapStyle, string> = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
+// Trail layers available in Mapbox Outdoors style
+const TRAIL_LAYERS = ['road-path', 'road-steps', 'road-pedestrian'];
+
 const NationalParkMap = ({ 
   lat, 
   lng, 
@@ -28,10 +31,78 @@ const NationalParkMap = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
   
   const { token, isLoading: tokenLoading, error: tokenError } = useMapboxToken();
   const [mapStyle, setMapStyle] = useState<MapStyle>('outdoors');
   const [isMapReady, setIsMapReady] = useState(false);
+
+  // Setup trail interactivity (click and hover events)
+  const setupTrailInteractivity = useCallback((map: mapboxgl.Map) => {
+    // Check which trail layers exist in the current style
+    const availableLayers = TRAIL_LAYERS.filter(layer => map.getLayer(layer));
+    
+    if (availableLayers.length === 0) return;
+
+    // Trail click handler - show popup with trail info
+    const handleTrailClick = (e: mapboxgl.MapMouseEvent) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: availableLayers,
+      });
+
+      if (features.length > 0) {
+        const trail = features[0];
+        const trailName = trail.properties?.name || trail.properties?.ref || 'Trail';
+        const trailClass = trail.properties?.class || '';
+        
+        // Remove existing popup if any
+        if (popupRef.current) {
+          popupRef.current.remove();
+        }
+
+        // Create and show new popup
+        popupRef.current = new mapboxgl.Popup({ 
+          offset: 15,
+          closeButton: true,
+          closeOnClick: true,
+          className: 'trail-popup'
+        })
+          .setLngLat(e.lngLat)
+          .setHTML(`
+            <div class="p-2 min-w-[120px]">
+              <strong class="text-sm text-foreground block">${trailName}</strong>
+              ${trailClass ? `<span class="text-xs text-muted-foreground capitalize">${trailClass.replace('_', ' ')}</span>` : ''}
+            </div>
+          `)
+          .addTo(map);
+      }
+    };
+
+    // Trail hover handlers - change cursor
+    const handleTrailMouseEnter = () => {
+      map.getCanvas().style.cursor = 'pointer';
+    };
+
+    const handleTrailMouseLeave = () => {
+      map.getCanvas().style.cursor = '';
+    };
+
+    // Attach event listeners to each available trail layer
+    availableLayers.forEach(layer => {
+      map.on('click', layer, handleTrailClick);
+      map.on('mouseenter', layer, handleTrailMouseEnter);
+      map.on('mouseleave', layer, handleTrailMouseLeave);
+    });
+
+    // Return cleanup function
+    return () => {
+      availableLayers.forEach(layer => {
+        map.off('click', layer, handleTrailClick);
+        map.off('mouseenter', layer, handleTrailMouseEnter);
+        map.off('mouseleave', layer, handleTrailMouseLeave);
+      });
+    };
+  }, []);
 
   // Initialize map
   useEffect(() => {
@@ -54,11 +125,23 @@ const NationalParkMap = ({
       visualizePitch: true,
     }), 'top-right');
 
+    // Add geolocate control for user location
+    map.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true,
+      }),
+      'top-right'
+    );
+
     // Add fullscreen control
     map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
     // Add scale
     map.addControl(new mapboxgl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
+
+    let trailCleanup: (() => void) | undefined;
 
     map.on('load', () => {
       // Add 3D terrain
@@ -81,6 +164,9 @@ const NationalParkMap = ({
           'sky-atmosphere-sun-intensity': 15,
         },
       });
+
+      // Setup trail interactivity
+      trailCleanup = setupTrailInteractivity(map);
 
       setIsMapReady(true);
     });
@@ -108,12 +194,16 @@ const NationalParkMap = ({
     mapRef.current = map;
 
     return () => {
+      trailCleanup?.();
+      if (popupRef.current) {
+        popupRef.current.remove();
+      }
       marker.remove();
       map.remove();
       mapRef.current = null;
       markerRef.current = null;
     };
-  }, [token, lat, lng, parkName, initialZoom]);
+  }, [token, lat, lng, parkName, initialZoom, setupTrailInteractivity]);
 
   // Handle style changes
   const toggleStyle = useCallback(() => {
@@ -121,33 +211,34 @@ const NationalParkMap = ({
     setMapStyle(newStyle);
     
     if (mapRef.current) {
-      const center = mapRef.current.getCenter();
-      const zoom = mapRef.current.getZoom();
-      const pitch = mapRef.current.getPitch();
-      const bearing = mapRef.current.getBearing();
+      const map = mapRef.current;
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const pitch = map.getPitch();
+      const bearing = map.getBearing();
 
-      mapRef.current.setStyle(MAP_STYLES[newStyle]);
+      map.setStyle(MAP_STYLES[newStyle]);
 
-      mapRef.current.once('style.load', () => {
-        mapRef.current?.setCenter(center);
-        mapRef.current?.setZoom(zoom);
-        mapRef.current?.setPitch(pitch);
-        mapRef.current?.setBearing(bearing);
+      map.once('style.load', () => {
+        map.setCenter(center);
+        map.setZoom(zoom);
+        map.setPitch(pitch);
+        map.setBearing(bearing);
 
         // Re-add terrain
-        if (!mapRef.current?.getSource('mapbox-dem')) {
-          mapRef.current?.addSource('mapbox-dem', {
+        if (!map.getSource('mapbox-dem')) {
+          map.addSource('mapbox-dem', {
             type: 'raster-dem',
             url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
             tileSize: 512,
             maxzoom: 14,
           });
         }
-        mapRef.current?.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
         // Re-add sky
-        if (!mapRef.current?.getLayer('sky')) {
-          mapRef.current?.addLayer({
+        if (!map.getLayer('sky')) {
+          map.addLayer({
             id: 'sky',
             type: 'sky',
             paint: {
@@ -157,9 +248,12 @@ const NationalParkMap = ({
             },
           });
         }
+
+        // Re-setup trail interactivity after style change
+        setupTrailInteractivity(map);
       });
     }
-  }, [mapStyle]);
+  }, [mapStyle, setupTrailInteractivity]);
 
   if (tokenLoading) {
     return (
