@@ -54,6 +54,7 @@ const NationalParkDetail = () => {
           lat={park.lat}
           lng={park.lng}
           parkName={park.name}
+          parkId={park.id}
           initialZoom={10}
         />
 

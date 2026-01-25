@@ -2,3 +2,6 @@ project_id = "dlbbxdonhodrzkwuzkbv"
 
 [functions.generate-logo-variant]
 verify_jwt = false
+
+[functions.nps-trails]
+verify_jwt = false
