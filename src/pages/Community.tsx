@@ -19,8 +19,8 @@ const Community = () => {
     <PageLayout>
       <SEOHead
         title="Gay Outdoor Community – Find Your People on the Trail"
-        description="Discover outdoor community for gay men. A place-centric directory for hiking trails, campsites, beaches, and nature spots — not dating apps or social networks."
-        keywords="gay outdoor community, LGBTQ hiking, gay camping, gay men outdoors, gay nature lovers, gay hiking groups"
+        description="Discover outdoor community for gay men who stay active outside. A place-centric directory for hiking trails, campsites, beaches, and nature spots — not dating apps or social networks."
+        keywords="gay outdoor community, LGBTQ hiking, gay camping, gay men outdoors, gay nature lovers, gay hiking groups, gay active lifestyle, gay running community"
         canonicalPath="/community"
       />
 
@@ -226,11 +226,15 @@ const Community = () => {
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p>
                 This is for gay men who feel more at ease on a trail than in a crowded bar. 
-                Men who love hiking, camping, beaches, and nature — and wonder where others 
+                Men who love hiking, camping, beaches, and staying active outside — and wonder where others 
                 like them actually go.
               </p>
               <p>
-                It's for single men looking for <Link to="/find-friends" className="text-primary hover:underline">friends</Link> who share their love of the outdoors, 
+                Whether you're a hiker, a runner, a cyclist, or someone who just feels better after time outdoors — 
+                you're welcome here.
+              </p>
+              <p>
+                It's for single men looking for <Link to="/find-friends" className="text-primary hover:underline">friends</Link> who share their love of staying active outdoors, 
                 not just dates. For <Link to="/couples" className="text-primary hover:underline">couples</Link> who 
                 want to find others to explore with. For introverts who prefer a quiet 
                 trail over crowded spaces.
