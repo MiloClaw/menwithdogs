@@ -675,6 +675,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 480,
       description: 'Utah\'s most iconic arch. Timed entry required. Stunning at sunset.',
       trailhead: [-109.5208, 38.7356],
+      photoUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'devils-garden',
@@ -685,6 +687,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Eight arches including 306-foot Landscape Arch. Primitive trail adds adventure.',
       trailhead: [-109.5947, 38.7828],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1513689125086-6c432170e842?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'park-avenue',
@@ -694,6 +698,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 320,
       description: 'Walk between towering sandstone skyscrapers. One-way with shuttle.',
       trailhead: [-109.5950, 38.6183],
+      photoUrl: 'https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'double-arch',
@@ -702,6 +708,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Two massive arches sharing the same foundation. Easy and impressive.',
       trailhead: [-109.5367, 38.6878],
+      photoUrl: 'https://images.unsplash.com/photo-1575408264798-b50b252663e6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'landscape-arch',
@@ -710,6 +718,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'One of the longest natural arches in the world at 306 feet span.',
       trailhead: [-109.5947, 38.7828],
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'broken-arch',
@@ -720,6 +730,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Through grassland to a freestanding arch. Less crowded alternative.',
       trailhead: [-109.5850, 38.7561],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -733,6 +745,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Best hoodoo combo trail. Descend through Wall Street, return via Queens Garden.',
       trailhead: [-112.1672, 37.6231],
+      photoUrl: 'https://images.unsplash.com/photo-1559666126-84f389727b9a?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'fairyland-loop',
@@ -743,6 +757,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Less crowded hoodoo wonderland. Tower Bridge and China Wall formations.',
       trailhead: [-112.1569, 37.6483],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1531876731983-1bf7d7f35bb0?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'rim-trail-bryce',
@@ -752,6 +768,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Connects all major viewpoints. Walk any section for stunning views.',
       trailhead: [-112.1606, 37.6289],
+      photoUrl: 'https://images.unsplash.com/photo-1570041059327-5d79b8e8f9a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'peek-a-boo-loop',
@@ -762,6 +780,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Through the heart of the amphitheater. Wall of Windows highlight.',
       trailhead: [-112.1631, 37.6189],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1565192259022-0427b058f372?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'tower-bridge',
@@ -771,6 +791,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Natural bridge formation via Fairyland Trail. Quieter side of the park.',
       trailhead: [-112.1569, 37.6483],
+      photoUrl: 'https://images.unsplash.com/photo-1548786811-dd6e453ccca7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mossy-cave',
@@ -780,6 +802,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Small waterfall and ice cave. Off the beaten path near Highway 12.',
       trailhead: [-112.0817, 37.6422],
+      photoUrl: 'https://images.unsplash.com/photo-1508144753681-9986d4df99b3?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -862,6 +886,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2380,
       description: 'Iconic granite rock scramble. Permit required. Start early.',
       trailhead: [-78.2947, 38.5531],
+      photoUrl: 'https://images.unsplash.com/photo-1517825738774-7de9363ef735?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'dark-hollow-falls',
@@ -871,6 +897,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 440,
       description: 'Closest waterfall to Skyline Drive. Short but steep return.',
       trailhead: [-78.4294, 38.5208],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'whiteoak-canyon',
@@ -880,6 +908,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Six waterfalls in one hike. Tallest at 86 feet. Combine with Cedar Run.',
       trailhead: [-78.3789, 38.5469],
+      photoUrl: 'https://images.unsplash.com/photo-1547622029-cb56e8c71c34?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hawksbill-summit',
@@ -889,6 +919,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 860,
       description: 'Highest point in the park at 4,051 feet. Observation platform.',
       trailhead: [-78.3869, 38.5553],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bearfence-mountain',
@@ -898,6 +930,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Short rock scramble to 360-degree views. Fun and challenging.',
       trailhead: [-78.4653, 38.4583],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'stony-man',
@@ -907,6 +941,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 340,
       description: 'Easy summit with panoramic Shenandoah Valley views. Family-friendly.',
       trailhead: [-78.3722, 38.5944],
+      photoUrl: 'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -921,6 +957,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Paradise\'s premier trail. Wildflower meadows and glacier views.',
       trailhead: [-121.7356, 46.7867],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'spray-park',
@@ -930,6 +968,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2000,
       description: 'Less crowded alpine meadows with stunning Rainier views.',
       trailhead: [-121.8644, 46.9136],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'burroughs-mountain',
@@ -939,6 +979,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1100,
       description: 'Closest you can get to the summit without climbing. Alpine tundra.',
       trailhead: [-121.6406, 46.9139],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'comet-falls',
@@ -948,6 +990,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1400,
       description: '320-foot waterfall through old-growth forest.',
       trailhead: [-121.7778, 46.7703],
+      photoUrl: 'https://images.unsplash.com/photo-1482192505345-5655af888cc4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grove-of-the-patriarchs',
@@ -957,6 +1001,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Ancient Douglas firs and cedars up to 1,000 years old.',
       trailhead: [-121.5569, 46.7583],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -970,6 +1016,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Iconic sunrise photography spot. Arch frames canyon below.',
       trailhead: [-109.8650, 38.3889],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1496947850313-7743325fa58c?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grand-view-point',
@@ -978,6 +1026,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Panoramic overlook of the canyon. Easy rim walk.',
       trailhead: [-109.8583, 38.3106],
+      photoUrl: 'https://images.unsplash.com/photo-1568029232571-d9ae4ec9c290?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'upheaval-dome',
@@ -987,6 +1037,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Mysterious crater formation. Impact or salt dome origin debated.',
       trailhead: [-109.9294, 38.4258],
+      photoUrl: 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'chesler-park',
@@ -997,6 +1049,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Needles District highlight. Colorful spires and desert grassland.',
       trailhead: [-109.8222, 38.1486],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1531877911583-7e6e81da6e80?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'syncline-loop',
@@ -1007,6 +1061,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Around Upheaval Dome through dramatic geology.',
       trailhead: [-109.9294, 38.4258],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1494526585095-c41746248156?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1020,6 +1076,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: '133-foot natural bridge with Waterpocket Fold views.',
       trailhead: [-111.2267, 38.2889],
+      photoUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cassidy-arch',
@@ -1029,6 +1087,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 670,
       description: 'Named for Butch Cassidy. Can walk on top of the arch.',
       trailhead: [-111.2536, 38.2822],
+      photoUrl: 'https://images.unsplash.com/photo-1517825738774-7de9363ef735?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grand-wash',
@@ -1037,6 +1097,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Slot canyon narrows. Flash flood aware. Shuttle or out-and-back.',
       trailhead: [-111.2167, 38.2611],
+      photoUrl: 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'capitol-gorge',
@@ -1045,6 +1107,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Historic pioneer inscriptions and natural water tanks.',
       trailhead: [-111.1683, 38.2228],
+      photoUrl: 'https://images.unsplash.com/photo-1527142879-95b035a7de7b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cohab-canyon',
@@ -1054,6 +1118,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 440,
       description: 'Hidden canyon with side spurs to overlooks. Mormon polygamist hideout.',
       trailhead: [-111.2472, 38.2833],
+      photoUrl: 'https://images.unsplash.com/photo-1551649001-7a2482d98d05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1067,6 +1133,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'World\'s largest tree by volume. Paved path with stairs.',
       trailhead: [-118.7544, 36.5839],
+      photoUrl: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'moro-rock',
@@ -1076,6 +1144,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: '400 steps to granite dome summit. 360-degree Sierra views.',
       trailhead: [-118.7656, 36.5461],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'tokopah-falls',
@@ -1085,6 +1155,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 560,
       description: '1,200-foot cascading waterfall. Best in spring snowmelt.',
       trailhead: [-118.7311, 36.5994],
+      photoUrl: 'https://images.unsplash.com/photo-1440581572325-0bea30075d9d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'congress-trail',
@@ -1094,6 +1166,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Giant Forest loop past the House and Senate Groups.',
       trailhead: [-118.7544, 36.5839],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'alta-peak',
@@ -1103,6 +1177,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 4000,
       description: 'Challenging climb to 11,204 ft. Views of Great Western Divide.',
       trailhead: [-118.7422, 36.5539],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1116,6 +1192,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Accessible loop along river with mountain views.',
       trailhead: [-149.2294, 63.7044],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'horseshoe-lake',
@@ -1125,6 +1203,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 150,
       description: 'Beaver-made lake with chance of moose sightings.',
       trailhead: [-149.0694, 63.7319],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mt-healy-overlook',
@@ -1134,6 +1214,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1700,
       description: 'Best maintained trail with expansive views of Alaska Range.',
       trailhead: [-148.9833, 63.7306],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'triple-lakes',
@@ -1143,6 +1225,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Forested route to three alpine lakes. Shuttle back option.',
       trailhead: [-148.9833, 63.7306],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'eielson-alpine',
@@ -1151,6 +1235,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Short tundra walk near Eielson Visitor Center. Best Denali views.',
       trailhead: [-150.3078, 63.4306],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1164,6 +1250,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Climb a log ladder to a dramatic cliff-edge view.',
       trailhead: [-102.4175, 43.7547],
+      photoUrl: 'https://images.unsplash.com/photo-1559666126-84f389727b9a?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'door-trail',
@@ -1172,6 +1260,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Boardwalk through a break in the Badlands Wall.',
       trailhead: [-102.4175, 43.7547],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'castle-trail',
@@ -1180,6 +1270,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Longest trail in the park through colorful formations.',
       trailhead: [-102.4175, 43.7547],
+      photoUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'saddle-pass',
@@ -1189,6 +1281,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Short but steep climb to the top of the Badlands Wall.',
       trailhead: [-102.4175, 43.7547],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'fossil-exhibit',
@@ -1197,6 +1291,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Accessible boardwalk with fossil replicas and exhibits.',
       trailhead: [-102.3886, 43.7683],
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1211,6 +1307,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Descend into and walk across a 1959 lava lake crater.',
       trailhead: [-155.2403, 19.4144],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1547622029-cb56e8c71c34?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'thurston-lava-tube',
@@ -1220,6 +1318,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: '500-year-old lit lava tube through rainforest.',
       trailhead: [-155.2389, 19.4147],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'crater-rim-trail',
@@ -1230,6 +1330,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Encircles Kilauea caldera. Walk any section.',
       trailhead: [-155.2617, 19.4311],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'devastation-trail',
@@ -1238,6 +1340,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Paved path through 1959 eruption devastation zone.',
       trailhead: [-155.2489, 19.4128],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'pu-u-loa-petroglyphs',
@@ -1246,6 +1350,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: '23,000 petroglyphs on lava rock. Ancient Hawaiian art.',
       trailhead: [-155.0928, 19.2903],
+      photoUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1259,6 +1365,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 700,
       description: 'Only access to the lake. Steep descent to boat tours.',
       trailhead: [-122.0828, 42.9794],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'watchman-peak',
@@ -1268,6 +1376,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 420,
       description: 'Fire lookout with best Wizard Island views.',
       trailhead: [-122.1706, 42.9444],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'garfield-peak',
@@ -1277,6 +1387,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Highest viewpoint on rim at 8,060 feet.',
       trailhead: [-122.1381, 42.9094],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mount-scott',
@@ -1286,6 +1398,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1250,
       description: 'Highest point in park at 8,929 ft. 360-degree views.',
       trailhead: [-122.0261, 42.9253],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'plaikni-falls',
@@ -1295,6 +1409,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Hidden waterfall through wildflower meadows.',
       trailhead: [-122.0411, 42.9019],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1308,6 +1424,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1100,
       description: 'Best Chisos Mountains views. Ridgeline finish.',
       trailhead: [-103.2992, 29.2700],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'window-trail',
@@ -1317,6 +1435,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Descend to pouroff with desert basin views.',
       trailhead: [-103.3025, 29.2706],
+      photoUrl: 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'santa-elena-canyon',
@@ -1326,6 +1446,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: '1,500-foot canyon walls along Rio Grande.',
       trailhead: [-103.6044, 29.1678],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'emory-peak',
@@ -1335,6 +1457,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2400,
       description: 'Highest point in the park at 7,832 feet.',
       trailhead: [-103.3025, 29.2706],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hot-springs',
@@ -1343,6 +1467,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Historic ruins and natural hot spring on Rio Grande.',
       trailhead: [-102.9936, 29.1797],
+      photoUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1356,6 +1482,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 750,
       description: 'Descend 750 feet through the natural cave mouth.',
       trailhead: [-104.4461, 32.1747],
+      photoUrl: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'big-room',
@@ -1365,6 +1493,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Largest accessible cave chamber in North America.',
       trailhead: [-104.4461, 32.1747],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'rattlesnake-canyon',
@@ -1374,6 +1504,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Above-ground desert hike with canyon views.',
       trailhead: [-104.4378, 32.1714],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'walnut-canyon-desert',
@@ -1382,6 +1514,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Loop trail near visitor center with desert flora.',
       trailhead: [-104.4461, 32.1747],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'yucca-canyon',
@@ -1391,6 +1525,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Backcountry trail through Chihuahuan Desert.',
       trailhead: [-104.4461, 32.1747],
+      photoUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1404,6 +1540,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2800,
       description: 'Descend into the volcanic crater. Otherworldly landscape.',
       trailhead: [-156.2128, 20.7142],
+      photoUrl: 'https://images.unsplash.com/photo-1559666126-84f389727b9a?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'pipiwai',
@@ -1413,6 +1551,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 650,
       description: 'Bamboo forest to 400-foot Waimoku Falls.',
       trailhead: [-156.0458, 20.6608],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hosmer-grove',
@@ -1422,6 +1562,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Native and exotic trees. Good for endemic birds.',
       trailhead: [-156.2322, 20.7578],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'leleiwi-overlook',
@@ -1430,6 +1572,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Short walk to crater overlook. Afternoon Brocken spectre.',
       trailhead: [-156.2253, 20.7417],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'halemau-u',
@@ -1439,6 +1583,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1400,
       description: 'Switchbacks into crater. Combine with Sliding Sands.',
       trailhead: [-156.2256, 20.7497],
+      photoUrl: 'https://images.unsplash.com/photo-1531877911583-7e6e81da6e80?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1452,6 +1598,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Badlands formations and prairie. Interpretive signs.',
       trailhead: [-103.4258, 47.5922],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1559666126-84f389727b9a?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'wind-canyon',
@@ -1460,6 +1608,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Overlook of Little Missouri River. Wind-carved rock.',
       trailhead: [-103.4508, 47.5533],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'petrified-forest',
@@ -1470,6 +1620,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Backcountry loop to petrified stumps and logs.',
       trailhead: [-103.4258, 47.5922],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'buckhorn',
@@ -1480,6 +1632,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Prairie dog towns and bison viewing.',
       trailhead: [-103.4003, 47.5861],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1504197832061-98356e3dcdcf?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'ridgeline',
@@ -1489,6 +1643,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Short loop with panoramic badlands views.',
       trailhead: [-103.5286, 47.5731],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1502,6 +1658,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'To observation tower with city and mountain views.',
       trailhead: [-93.0544, 34.5189],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'west-mountain',
@@ -1511,6 +1669,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 350,
       description: 'Through forest to West Mountain summit.',
       trailhead: [-93.0586, 34.5139],
+      photoUrl: 'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'sunset-trail',
@@ -1520,6 +1680,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1200,
       description: 'Longest trail connecting North and West Mountains.',
       trailhead: [-93.0544, 34.5189],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grand-promenade',
@@ -1528,6 +1690,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Brick walkway behind historic Bathhouse Row.',
       trailhead: [-93.0531, 34.5136],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'peak-trail',
@@ -1537,6 +1701,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 175,
       description: 'Quick climb to Hot Springs Mountain summit.',
       trailhead: [-93.0547, 34.5211],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1549,6 +1715,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Classic cave tour through massive chambers.',
       trailhead: [-86.0997, 37.1869],
+      photoUrl: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cedar-sink',
@@ -1558,6 +1726,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 280,
       description: 'Descent into large sinkhole. Above-ground geology.',
       trailhead: [-86.1167, 37.1544],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'green-river-bluffs',
@@ -1566,6 +1736,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'River overlook and geological features.',
       trailhead: [-86.0997, 37.1869],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'heritage-trail',
@@ -1574,6 +1746,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Accessible paved path near visitor center.',
       trailhead: [-86.0997, 37.1869],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'sal-hollow',
@@ -1584,6 +1758,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Backcountry loop through forest and sinkholes.',
       trailhead: [-86.1078, 37.2036],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1597,6 +1773,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Boardwalk with guaranteed alligator sightings.',
       trailhead: [-80.6103, 25.4247],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'shark-valley',
@@ -1606,6 +1784,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Paved loop with observation tower. Bike or tram option.',
       trailhead: [-80.7653, 25.7589],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'coastal-prairie',
@@ -1614,6 +1794,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Flamingo area trail through prairie to Clubhouse Beach.',
       trailhead: [-80.9256, 25.1417],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'gumbo-limbo',
@@ -1623,6 +1805,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Tropical hardwood hammock. Named for distinctive tree.',
       trailhead: [-80.6103, 25.4247],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'pa-hay-okee',
@@ -1631,6 +1815,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Short boardwalk to "River of Grass" overlook.',
       trailhead: [-80.7856, 25.4178],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1644,6 +1830,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 3000,
       description: 'Highest point in Texas at 8,751 feet.',
       trailhead: [-104.8592, 31.8911],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'devils-hall',
@@ -1653,6 +1841,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Slot canyon with natural staircase.',
       trailhead: [-104.8592, 31.8911],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mckittrick-canyon',
@@ -1662,6 +1852,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 700,
       description: 'Best fall colors in Texas. Historic Pratt Cabin.',
       trailhead: [-104.7553, 31.9786],
+      photoUrl: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'el-capitan',
@@ -1671,6 +1863,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1500,
       description: 'Circles the iconic limestone cliff.',
       trailhead: [-104.8592, 31.8911],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'smith-spring',
@@ -1681,6 +1875,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Desert oasis with maidenhair ferns.',
       trailhead: [-104.8236, 31.9247],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1695,6 +1891,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Ancestral Puebloan rock art and canyon views.',
       trailhead: [-108.4869, 37.1833],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'spruce-canyon',
@@ -1705,6 +1903,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Descend into canyon below the museum.',
       trailhead: [-108.4869, 37.1833],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cliff-palace',
@@ -1713,6 +1913,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Ranger-led tour of largest cliff dwelling. Ticket required.',
       trailhead: [-108.4731, 37.1678],
+      photoUrl: 'https://images.unsplash.com/photo-1527142879-95b035a7de7b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'knife-edge',
@@ -1722,6 +1924,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Montezuma Valley views along old road.',
       trailhead: [-108.4081, 37.2344],
+      photoUrl: 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'soda-canyon',
@@ -1730,6 +1934,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Views of Balcony House cliff dwelling.',
       trailhead: [-108.4697, 37.1722],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1743,6 +1949,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Home to some of the tallest trees. Permit required.',
       trailhead: [-123.9917, 41.2097],
+      photoUrl: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'fern-canyon',
@@ -1752,6 +1960,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Walk through 50-foot walls of ferns. Jurassic Park filming location.',
       trailhead: [-124.0625, 41.4031],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'lady-bird-johnson',
@@ -1761,6 +1971,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Old-growth redwood loop. Dedication site.',
       trailhead: [-123.9819, 41.3036],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'boy-scout-tree',
@@ -1770,6 +1982,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Less crowded old-growth to massive twin-trunked redwood.',
       trailhead: [-124.0839, 41.7867],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'trillium-falls',
@@ -1780,6 +1994,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Small waterfall through elk meadow.',
       trailhead: [-124.0289, 41.2936],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1792,6 +2008,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Wetlands and beaver pond boardwalk.',
       trailhead: [-93.0722, 48.4211],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'kabetogama-lake',
@@ -1801,6 +2019,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Panoramic lake views from rocky outcrop.',
       trailhead: [-93.0919, 48.4339],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'locator-lake',
@@ -1809,6 +2029,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Boat-in trail to interior lake. Canoe portage.',
       trailhead: [-92.8978, 48.4700],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'echo-bay',
@@ -1817,6 +2039,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Lake views and forested wetlands.',
       trailhead: [-93.0400, 48.4156],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'kab-ash-trail',
@@ -1825,6 +2049,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'strenuous',
       description: 'Multi-day backcountry trail across Kabetogama Peninsula.',
       trailhead: [-93.0722, 48.4211],
+      photoUrl: 'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1838,6 +2064,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Largest hydrothermal area in the park. Boardwalk through fumaroles.',
       trailhead: [-121.5150, 40.4611],
+      photoUrl: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'lassen-peak',
@@ -1847,6 +2075,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2000,
       description: 'Summit the park\'s volcano at 10,457 feet.',
       trailhead: [-121.5094, 40.4833],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'kings-creek-falls',
@@ -1856,6 +2086,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 450,
       description: 'Cascade waterfall through meadow. Horse and foot trails.',
       trailhead: [-121.4689, 40.4589],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cinder-cone',
@@ -1865,6 +2097,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 850,
       description: 'Climb volcanic cinder cone for Painted Dunes views.',
       trailhead: [-121.3267, 40.5486],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'manzanita-lake',
@@ -1874,6 +2108,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Scenic lake loop with Lassen Peak reflections.',
       trailhead: [-121.5675, 40.5369],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1890,6 +2126,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 3500,
       description: 'Dramatic granite spires in remote Arctic wilderness.',
       trailhead: [-154.2000, 67.4500],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'anaktuvuk-pass-traverse',
@@ -1899,6 +2137,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1200,
       description: 'Historic mountain pass used by Nunamiut people.',
       trailhead: [-151.7350, 68.1430],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'north-fork-koyukuk',
@@ -1908,6 +2148,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2000,
       description: 'River corridor through pristine Arctic valley.',
       trailhead: [-150.5000, 67.8000],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'frigid-crags-route',
@@ -1917,6 +2159,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2800,
       description: 'Approach to iconic Gates of the Arctic peaks.',
       trailhead: [-150.3500, 67.6000],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hunt-fork-divide',
@@ -1926,6 +2170,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2500,
       description: 'High alpine traverse with expansive tundra views.',
       trailhead: [-154.0000, 67.3000],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1938,6 +2184,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Rainforest trail near lodge with intertidal views.',
       trailhead: [-135.8800, 58.4550],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bartlett-river-trail',
@@ -1947,6 +2195,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Estuary walk with excellent wildlife viewing.',
       trailhead: [-135.8650, 58.4600],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'point-gustavus-beach-walk',
@@ -1956,6 +2206,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Coastal route to whale watching at Icy Strait.',
       trailhead: [-135.9000, 58.4100],
+      photoUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'beardslee-islands-kayak-route',
@@ -1965,6 +2217,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Protected waterway exploring forested islands.',
       trailhead: [-135.9200, 58.4800],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'muir-inlet-shore-walk',
@@ -1974,6 +2228,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Glacially carved inlet with seal haul-outs.',
       trailhead: [-136.1000, 58.8000],
+      photoUrl: 'https://images.unsplash.com/photo-1530041539828-114de669390e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -1986,6 +2242,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Iconic bear viewing at salmon-filled falls.',
       trailhead: [-155.7800, 58.5550],
+      photoUrl: 'https://images.unsplash.com/photo-1504197832061-98356e3dcdcf?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'valley-of-ten-thousand-smokes',
@@ -1995,6 +2253,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Volcanic ash valley from 1912 Novarupta eruption.',
       trailhead: [-155.3500, 58.3600],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'dumpling-mountain-trail',
@@ -2004,6 +2264,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2400,
       description: 'Summit views of Naknek Lake and surrounding peaks.',
       trailhead: [-155.7700, 58.5500],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'brooks-river-cutbank-trail',
@@ -2013,6 +2275,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Riverside walk with frequent bear sightings.',
       trailhead: [-155.7850, 58.5480],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'ukak-falls-trail',
@@ -2022,6 +2286,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1500,
       description: 'Backcountry route to dramatic waterfall.',
       trailhead: [-155.3000, 58.3200],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2034,6 +2300,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Walk to the toe of an active glacier.',
       trailhead: [-149.6300, 60.1870],
+      photoUrl: 'https://images.unsplash.com/photo-1530041539828-114de669390e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'harding-icefield-trail',
@@ -2043,6 +2311,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 3500,
       description: 'Epic climb to 700-square-mile ice sheet.',
       trailhead: [-149.6300, 60.1870],
+      photoUrl: 'https://images.unsplash.com/photo-1520095972714-909e91b038e5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'exit-glacier-overlook',
@@ -2052,6 +2322,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Elevated viewpoint of glacier and valley.',
       trailhead: [-149.6280, 60.1850],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'glacier-view-loop',
@@ -2061,6 +2333,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Accessible loop with glacier interpretation.',
       trailhead: [-149.6320, 60.1880],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'resurrection-river-trail',
@@ -2070,6 +2344,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1200,
       description: 'Connector trail through Chugach backcountry.',
       trailhead: [-149.6100, 60.2000],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
