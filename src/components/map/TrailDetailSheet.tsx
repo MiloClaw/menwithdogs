@@ -54,7 +54,7 @@ export const TrailDetailSheet = ({ trail, open, onOpenChange }: TrailDetailSheet
             
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-sm text-muted-foreground">
               <Ruler className="w-4 h-4" />
-              {trail.distance} mi{trail.isLoop ? ' loop' : ' round-trip'}
+              {trail.distance} mi {trail.isLoop ? 'loop' : 'out & back'}
             </span>
             
             {trail.elevationGain && (
