@@ -78,6 +78,11 @@ class SignalBatcher {
   }
 
   enqueue(signal: Omit<QueuedSignal, 'timestamp'>): void {
+    // Dev-mode logging for signal verification
+    if (import.meta.env.DEV) {
+      console.log('[Signal]', signal.signal_type, signal.signal_key, signal.signal_value);
+    }
+
     this.queue.push({
       ...signal,
       timestamp: new Date().toISOString(),
