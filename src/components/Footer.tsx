@@ -29,9 +29,12 @@ const Footer = () => {
               <Link to="/places" className={linkClasses}>
                 Places
               </Link>
-              <Link to="/outdoors" className={linkClasses}>
-                Outdoors
-              </Link>
+          <Link to="/outdoors" className={linkClasses}>
+            Outdoors
+          </Link>
+          <Link to="/places/national-parks" className={linkClasses}>
+            National Parks
+          </Link>
               <Link to="/together" className={linkClasses}>
                 Discover Together
               </Link>
