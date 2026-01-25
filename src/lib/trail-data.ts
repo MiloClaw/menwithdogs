@@ -28,6 +28,17 @@ export const DIFFICULTY_COLORS: Record<TrailDifficulty, { bg: string; text: stri
   strenuous: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
 };
 
+// Helper to look up a trail by its ID across all parks
+export function getTrailById(trailId: string): (Trail & { parkId: string }) | null {
+  for (const [parkId, trails] of Object.entries(PARK_TRAILS)) {
+    const trail = trails.find(t => t.id === trailId);
+    if (trail) {
+      return { ...trail, parkId };
+    }
+  }
+  return null;
+}
+
 // Curated featured trails for popular National Parks
 // Data sourced from NPS.gov and AllTrails
 export const PARK_TRAILS: Record<string, Trail[]> = {

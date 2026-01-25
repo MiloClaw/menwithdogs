@@ -1832,6 +1832,38 @@ export type Database = {
           },
         ]
       }
+      trail_favorites: {
+        Row: {
+          couple_id: string
+          created_at: string
+          id: string
+          park_id: string
+          trail_id: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          id?: string
+          park_id: string
+          trail_id: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          id?: string
+          park_id?: string
+          trail_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_favorites_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_place_affinity: {
         Row: {
           affinity_score: number

@@ -89,6 +89,7 @@ const NationalParkDetail = () => {
       {featuredTrails.length > 0 && (
         <TrailListPanel
           trails={featuredTrails}
+          parkId={parkId || ''}
           onTrailSelect={handleTrailSelect}
         />
       )}
