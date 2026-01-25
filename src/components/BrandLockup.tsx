@@ -4,8 +4,15 @@ interface BrandLockupProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'light' | 'dark';
   showSubtitle?: boolean;
+  showStripe?: boolean;
   className?: string;
 }
+
+const stripeConfig = {
+  sm: { bar: 'h-0.5 w-5', container: 'mt-2 gap-1' },
+  md: { bar: 'h-0.5 w-6', container: 'mt-3 gap-1' },
+  lg: { bar: 'h-1 w-8', container: 'mt-4 gap-1.5' },
+};
 
 const sizeConfig = {
   sm: {
@@ -37,10 +44,12 @@ const BrandLockup = ({
   size = 'md', 
   variant = 'light',
   showSubtitle = true,
+  showStripe = false,
   className 
 }: BrandLockupProps) => {
   const sizes = sizeConfig[size];
   const colors = variantConfig[variant];
+  const stripe = stripeConfig[size];
 
   return (
     <div className={cn("inline-block", className)}>
@@ -59,6 +68,13 @@ const BrandLockup = ({
         )}>
           Social Club
         </span>
+      )}
+      {showStripe && (
+        <div className={cn("flex", stripe.container)}>
+          <div className={cn("rounded-full bg-[#152638]", stripe.bar)} />
+          <div className={cn("rounded-full bg-[#C5702A]", stripe.bar)} />
+          <div className={cn("rounded-full bg-[#3F5E4A]", stripe.bar)} />
+        </div>
       )}
     </div>
   );
