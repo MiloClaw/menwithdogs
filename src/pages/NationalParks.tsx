@@ -1,7 +1,7 @@
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowLeft, Mountain, ChevronDown, ExternalLink, MapPin, Calendar, TreePine } from 'lucide-react';
+import { ArrowLeft, Mountain, ChevronDown, MapPin, Calendar, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageLayout from '@/components/PageLayout';
 import SEOHead from '@/components/SEOHead';
@@ -234,10 +234,8 @@ interface ParkCardProps {
 
 const ParkCard = ({ park, formatAcreage }: ParkCardProps) => {
   return (
-    <a
-      href={park.npsUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      to={`/places/national-parks/${park.id}`}
       className="group flex flex-col p-4 rounded-lg border border-border bg-background transition-all hover:bg-accent/50 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex items-start gap-3 mb-3">
@@ -254,7 +252,6 @@ const ParkCard = ({ park, formatAcreage }: ParkCardProps) => {
             </p>
           )}
         </div>
-        <ExternalLink className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground flex-shrink-0" />
       </div>
 
       <p className="text-sm text-muted-foreground line-clamp-2 mb-3 flex-1">
@@ -268,7 +265,7 @@ const ParkCard = ({ park, formatAcreage }: ParkCardProps) => {
         </span>
         <span>{formatAcreage(park.acreage)}</span>
       </div>
-    </a>
+    </Link>
   );
 };
 

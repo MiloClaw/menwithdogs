@@ -12,6 +12,7 @@ import Places from "./pages/Places";
 import LovePlace from "./pages/LovePlace";
 import ExploreCities from "./pages/ExploreCities";
 import NationalParks from "./pages/NationalParks";
+import NationalParkDetail from "./pages/NationalParkDetail";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Sitemap from "./pages/Sitemap";
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/places" element={<Places />} />
               <Route path="/places/explore" element={<ExploreCities />} />
               <Route path="/places/national-parks" element={<NationalParks />} />
+              <Route path="/places/national-parks/:parkId" element={<NationalParkDetail />} />
               <Route path="/together" element={<DiscoverTogether />} />
               <Route path="/together/:token" element={<DiscoverTogether />} />
               
