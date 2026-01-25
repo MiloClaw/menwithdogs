@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import logoBadge from "@/assets/logo-badge.png";
+
 const Footer = () => {
   const linkClasses = "text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary-foreground after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left";
   return <footer className="py-12 md:py-16 bg-primary">
@@ -6,13 +8,11 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mb-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <span className="font-serif text-lg font-semibold text-primary-foreground">
-              ThickTimber
-            </span>
-            <p className="text-sm text-primary-foreground/70 mt-2">Real places. 
-Real community. 
-Real Connection.
-          </p>
+            <img 
+              src={logoBadge} 
+              alt="ThickTimber - Real places. Real community. Real Connection."
+              className="h-20 md:h-24 w-auto"
+            />
           </div>
           
           {/* Explore */}
