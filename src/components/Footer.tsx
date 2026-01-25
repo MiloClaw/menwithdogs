@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BrandLockup from "@/components/BrandLockup";
 
 const Footer = () => {
   const linkClasses = "text-sm text-primary-foreground/50 hover:text-accent transition-colors duration-300";
@@ -12,12 +13,7 @@ const Footer = () => {
           {/* Zone A: Brand Anchor */}
           <div className="space-y-6">
             <div>
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-primary-foreground tracking-tight">
-                ThickTimber
-              </h2>
-              <span className="block text-xs font-sans font-medium tracking-[0.55em] text-primary-foreground/70 uppercase mt-1">
-                Social Club
-              </span>
+              <BrandLockup size="lg" variant="dark" />
               <p className="font-serif text-sm italic text-primary-foreground/60 mt-3">
                 Real places. Real community. Real connection.
               </p>

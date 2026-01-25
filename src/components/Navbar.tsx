@@ -6,6 +6,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Menu, X, LogOut, Shield, Heart, Settings, Sparkles } from "lucide-react";
+import BrandLockup from "@/components/BrandLockup";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,8 +35,8 @@ const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-shadow duration-200 ${isScrolled ? 'shadow-sm' : ''}`}>
       <div className="container flex items-center justify-between h-16 md:h-18">
-        <Link to="/" className="font-serif text-lg md:text-xl font-semibold text-primary">
-          ThickTimber
+        <Link to="/">
+          <BrandLockup size="sm" variant="light" />
         </Link>
         
         {/* Desktop Navigation */}
