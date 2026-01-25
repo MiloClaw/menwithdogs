@@ -1,54 +1,43 @@
 import { Link } from "react-router-dom";
-import logoBadge from "@/assets/logo-badge.png";
 
 const Footer = () => {
-  const linkClasses = "text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-200";
+  const linkClasses = "text-sm text-primary-foreground/50 hover:text-accent transition-colors duration-300";
   
   return (
-    <footer className="py-16 md:py-20 lg:py-24 bg-primary">
+    <footer className="py-20 md:py-28 bg-primary">
       <div className="container max-w-6xl">
-        {/* Logo - Centered Hero */}
-        <div className="flex justify-center mb-12 md:mb-16">
-          <img 
-            src={logoBadge} 
-            alt="ThickTimber - Real places. Real community. Real Connection."
-            className="h-28 md:h-36 lg:h-40 w-auto object-contain"
-          />
-        </div>
-        
-        {/* Navigation Grid - 4 Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center md:text-left">
-          {/* Explore */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
-              Explore
-            </h4>
-            <nav className="flex flex-col gap-3">
-              <Link to="/places" className={linkClasses}>
-                Places
-              </Link>
-              {/* Blog link hidden - uncomment when ready to launch
-              <Link to="/blog" className={linkClasses}>
-                Blog
-              </Link>
-              */}
-            </nav>
+        {/* Main Grid: Brand + Links */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 lg:gap-16">
+          
+          {/* Zone A: Brand Anchor */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-primary-foreground tracking-tight">
+                ThickTimber
+              </h2>
+              <p className="font-serif text-sm italic text-primary-foreground/60 mt-2">
+                Real places. Real community. Real connection.
+              </p>
+            </div>
+            
+            {/* Brand Stripe Accent */}
+            <div className="flex gap-1.5">
+              <div className="h-1 w-8 rounded-full bg-[#152638]" />
+              <div className="h-1 w-8 rounded-full bg-[#C5702A]" />
+              <div className="h-1 w-8 rounded-full bg-[#3F5E4A]" />
+            </div>
           </div>
           
-          {/* Community */}
+          {/* Zone B: Link Columns */}
+          
+          {/* Explore */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
-              Community
+            <h4 className="text-sm font-medium text-primary-foreground/70 mb-4">
+              Explore
             </h4>
-            <nav className="flex flex-col gap-3">
-              <Link to="/community" className={linkClasses}>
-                Gay Community
-              </Link>
-              <Link to="/find-friends" className={linkClasses}>
-                Find Friends
-              </Link>
-              <Link to="/couples" className={linkClasses}>
-                Couples
+            <nav className="flex flex-col gap-2.5">
+              <Link to="/places" className={linkClasses}>
+                Places
               </Link>
               <Link to="/outdoors" className={linkClasses}>
                 Outdoors
@@ -59,12 +48,30 @@ const Footer = () => {
             </nav>
           </div>
           
+          {/* Community */}
+          <div>
+            <h4 className="text-sm font-medium text-primary-foreground/70 mb-4">
+              Community
+            </h4>
+            <nav className="flex flex-col gap-2.5">
+              <Link to="/community" className={linkClasses}>
+                Gay Community
+              </Link>
+              <Link to="/find-friends" className={linkClasses}>
+                Find Friends
+              </Link>
+              <Link to="/couples" className={linkClasses}>
+                Couples
+              </Link>
+            </nav>
+          </div>
+          
           {/* Company */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
+            <h4 className="text-sm font-medium text-primary-foreground/70 mb-4">
               Company
             </h4>
-            <nav className="flex flex-col gap-3">
+            <nav className="flex flex-col gap-2.5">
               <Link to="/about" className={linkClasses}>
                 About
               </Link>
@@ -74,36 +81,24 @@ const Footer = () => {
               <Link to="/pricing" className={linkClasses}>
                 Pricing
               </Link>
-            </nav>
-          </div>
-          
-          {/* Legal */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
-              Legal
-            </h4>
-            <nav className="flex flex-col gap-3">
               <Link to="/terms" className={linkClasses}>
-                Terms of Service
+                Terms
               </Link>
               <Link to="/privacy" className={linkClasses}>
-                Privacy Policy
-              </Link>
-              <Link to="/sitemap" className={linkClasses}>
-                Sitemap
+                Privacy
               </Link>
             </nav>
           </div>
         </div>
         
         {/* Bottom Bar */}
-        <div className="mt-12 md:mt-16 pt-8 border-t border-primary-foreground/10 text-center space-y-2">
-          <p className="text-xs text-primary-foreground/40 max-w-md mx-auto">
-            Place-based insights and community signals. Users choose how and where they engage independently.
-          </p>
-          <p className="text-xs text-primary-foreground/50">
+        <div className="mt-16 md:mt-20 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-primary-foreground/60">
             © {new Date().getFullYear()} ThickTimber. All rights reserved.
           </p>
+          <Link to="/sitemap" className="text-sm text-primary-foreground/40 hover:text-primary-foreground/60 transition-colors">
+            Sitemap
+          </Link>
         </div>
       </div>
     </footer>
