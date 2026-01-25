@@ -12,19 +12,10 @@ const Footer = () => {
           
           {/* Zone A: Brand Anchor */}
           <div className="space-y-6">
-            <div>
-              <BrandLockup size="lg" variant="dark" />
-              <p className="font-serif text-sm italic text-primary-foreground/60 mt-3">
-                Real places. Real community. Real connection.
-              </p>
-            </div>
-            
-            {/* Brand Stripe Accent */}
-            <div className="flex gap-1.5">
-              <div className="h-1 w-8 rounded-full bg-[#152638]" />
-              <div className="h-1 w-8 rounded-full bg-[#C5702A]" />
-              <div className="h-1 w-8 rounded-full bg-[#3F5E4A]" />
-            </div>
+            <BrandLockup size="lg" variant="dark" showStripe />
+            <p className="font-serif text-sm italic text-primary-foreground/60">
+              Real places. Real community. Real connection.
+            </p>
           </div>
           
           {/* Zone B: Link Columns */}
