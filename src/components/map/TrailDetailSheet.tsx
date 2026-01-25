@@ -1,25 +1,33 @@
 import { Trail, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Footprints, Mountain, Ruler, ExternalLink, Navigation } from 'lucide-react';
+import { Footprints, Mountain, Ruler, Navigation, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTrailFavorites } from '@/hooks/useTrailFavorites';
 
 interface TrailDetailSheetProps {
   trail: Trail | null;
+  parkId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export const TrailDetailSheet = ({ trail, open, onOpenChange }: TrailDetailSheetProps) => {
+export const TrailDetailSheet = ({ trail, parkId, open, onOpenChange }: TrailDetailSheetProps) => {
+  const { isFavorited, toggleFavorite, isUpdating } = useTrailFavorites();
+  
   if (!trail) return null;
   
   const difficultyColors = DIFFICULTY_COLORS[trail.difficulty];
+  const isSaved = isFavorited(trail.id);
   
   const handleGetDirections = () => {
-    // Open Google Maps directions to trailhead
     const [lng, lat] = trail.trailhead;
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+  };
+  
+  const handleSaveClick = () => {
+    toggleFavorite(trail.id, parkId);
   };
   
   return (
@@ -95,19 +103,24 @@ export const TrailDetailSheet = ({ trail, open, onOpenChange }: TrailDetailSheet
           {/* Actions */}
           <div className="flex gap-3 pt-2">
             <Button 
+              variant={isSaved ? "default" : "outline"}
+              onClick={handleSaveClick}
+              disabled={isUpdating}
+              className={cn(
+                "flex-1",
+                isSaved && "bg-destructive hover:bg-destructive/90"
+              )}
+            >
+              <Heart className={cn("w-4 h-4 mr-2", isSaved && "fill-current")} />
+              {isSaved ? 'Saved' : 'Save Trail'}
+            </Button>
+            
+            <Button 
               onClick={handleGetDirections}
               className="flex-1 bg-brand-green hover:bg-brand-green/90"
             >
               <Navigation className="w-4 h-4 mr-2" />
               Get Directions
-            </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              Close
             </Button>
           </div>
         </div>

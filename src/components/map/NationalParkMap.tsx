@@ -518,6 +518,7 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
       {/* Mobile Trail Detail Sheet */}
       <TrailDetailSheet
         trail={selectedTrail}
+        parkId={parkId || ''}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
       />

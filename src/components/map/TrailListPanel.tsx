@@ -1,15 +1,17 @@
 import { useState, useMemo } from 'react';
 import { Trail, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
 import { cn } from '@/lib/utils';
-import { ChevronDown, ChevronUp, Footprints, Mountain, Ruler, ImageOff } from 'lucide-react';
+import { ChevronDown, ChevronUp, Footprints, Mountain, Ruler, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTrailFavorites } from '@/hooks/useTrailFavorites';
 
 type TrailDifficulty = 'easy' | 'moderate' | 'strenuous';
 
 interface TrailListPanelProps {
   trails: Trail[];
+  parkId: string;
   onTrailSelect: (trail: Trail) => void;
   selectedTrailId?: string;
 }
@@ -41,25 +43,54 @@ const DifficultyFilterChip = ({ difficulty, selected, onClick }: DifficultyFilte
 
 interface TrailCardProps {
   trail: Trail;
+  parkId: string;
   onClick: () => void;
   isSelected: boolean;
+  isFavorited: boolean;
+  onToggleFavorite: () => void;
 }
 
-const TrailCard = ({ trail, onClick, isSelected }: TrailCardProps) => {
+const TrailCard = ({ trail, parkId, onClick, isSelected, isFavorited, onToggleFavorite }: TrailCardProps) => {
   const difficultyColors = DIFFICULTY_COLORS[trail.difficulty];
   const [imageError, setImageError] = useState(false);
+  
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleFavorite();
+  };
   
   return (
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left rounded-lg border transition-all overflow-hidden",
+        "w-full text-left rounded-lg border transition-all overflow-hidden relative",
         "hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-brand-green/50",
         isSelected 
           ? "border-brand-green bg-brand-green/5" 
           : "border-border bg-card"
       )}
     >
+      {/* Save Button */}
+      <button
+        onClick={handleFavoriteClick}
+        className={cn(
+          "absolute top-2 right-2 z-10 p-2 rounded-full shadow-sm transition-colors",
+          isFavorited
+            ? "bg-destructive hover:bg-destructive/90"
+            : "bg-white/90 hover:bg-white"
+        )}
+        aria-label={isFavorited ? "Remove from saved" : "Save trail"}
+      >
+        <Heart 
+          className={cn(
+            "w-4 h-4 transition-colors",
+            isFavorited 
+              ? "fill-white text-white" 
+              : "text-muted-foreground"
+          )}
+        />
+      </button>
+      
       {/* Trail Photo or Fallback */}
       {trail.photoUrl && !imageError ? (
         <div className="relative h-32 w-full">
@@ -122,18 +153,18 @@ const TrailCard = ({ trail, onClick, isSelected }: TrailCardProps) => {
   );
 };
 
-export const TrailListPanel = ({ trails, onTrailSelect, selectedTrailId }: TrailListPanelProps) => {
+export const TrailListPanel = ({ trails, parkId, onTrailSelect, selectedTrailId }: TrailListPanelProps) => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Set<TrailDifficulty>>(
     new Set(['easy', 'moderate', 'strenuous'])
   );
+  const { isFavorited, toggleFavorite } = useTrailFavorites();
   
   const toggleDifficulty = (difficulty: TrailDifficulty) => {
     setSelectedDifficulties(prev => {
       const next = new Set(prev);
       if (next.has(difficulty)) {
-        // Don't allow deselecting all
         if (next.size > 1) {
           next.delete(difficulty);
         }
@@ -209,8 +240,11 @@ export const TrailListPanel = ({ trails, onTrailSelect, selectedTrailId }: Trail
                 <TrailCard
                   key={trail.id}
                   trail={trail}
+                  parkId={parkId}
                   onClick={() => onTrailSelect(trail)}
                   isSelected={selectedTrailId === trail.id}
+                  isFavorited={isFavorited(trail.id)}
+                  onToggleFavorite={() => toggleFavorite(trail.id, parkId)}
                 />
               ))}
             </div>
