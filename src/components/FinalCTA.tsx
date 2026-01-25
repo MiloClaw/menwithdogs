@@ -48,7 +48,7 @@ const FinalCTA = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 md:mb-12 text-balance"
           >
-            Ready to find your places?
+            Ready to find your trail?
           </motion.h2>
 
           {/* CTA buttons */}
@@ -75,7 +75,7 @@ const FinalCTA = () => {
               onClick={() => navigate('/places')}
             >
               <MapPin className="w-4 h-4 mr-2" />
-              Explore Places
+              Explore Outdoors
             </Button>
           </motion.div>
         </div>

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Check, Shield, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-const freeFeatures = ["Full access to places, events, and local stories", "Personalized ordering based on where gay men in your city actually go", "Save favorites and build your own list", "Location-aware suggestions", "Your data stays private"];
-const proFeatures = ["Everything in Free", "Privately add interests, hobbies, and relationship context", "Surface places where your patterns overlap with others seeking similar things", "Activity preferences (mornings, evenings, live events)", "Environment preferences (outdoor, quieter, lively)", "Intelligence that deepens over time"];
+const freeFeatures = ["Full access to trails, campsites, beaches, and outdoor events", "Personalized ordering based on where outdoor gay men in your region actually go", "Save favorites and build your own list", "Location-aware suggestions", "Your data stays private"];
+const proFeatures = ["Everything in Free", "Privately add outdoor interests, activity level, and preferences", "Surface places where your patterns overlap with others seeking similar outdoor experiences", "Activity preferences (day hikes, overnight camping, beach days)", "Environment preferences (remote trails, accessible paths, group-friendly spots)", "Intelligence that deepens over time"];
 const Pricing = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();

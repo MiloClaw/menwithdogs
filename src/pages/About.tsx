@@ -2,7 +2,7 @@ import PageLayout from "@/components/PageLayout";
 import SEOHead from "@/components/SEOHead";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Heart, Users, Shield, MapPin } from "lucide-react";
+import { Heart, Users, Shield, MapPin, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -15,7 +15,7 @@ const values = [
   {
     icon: Heart,
     title: "Real-World Connection",
-    description: "Built for showing up in real life, not endless scrolling. Meet people where life actually happens."
+    description: "Built for showing up in real life, not endless scrolling. Meet people on trails and at campsites."
   },
   {
     icon: MapPin,
@@ -60,21 +60,21 @@ const About = () => {
     "@context": "https://schema.org",
     "@type": "AboutPage",
     "name": "About ThickTimber",
-    "description": "The story behind ThickTimber — rebuilding gay community through real places, not dating apps.",
+    "description": "The story behind ThickTimber — rebuilding gay community through outdoor spaces and real-world connection.",
     "url": "https://thicktimber.lovable.app/about",
     "mainEntity": {
       "@type": "Organization",
       "name": "ThickTimber",
-      "description": "A place-centric directory helping gay men and couples find community, friends, and real-world connection."
+      "description": "A place-centric directory helping gay men find community through hiking trails, campsites, beaches, and outdoor spaces."
     }
   };
 
   return (
     <PageLayout>
       <SEOHead
-        title="Why ThickTimber Exists – Gay Community Built Around Real Places"
-        description="The story behind ThickTimber — rebuilding gay community through real places, not dating apps. A place-first approach to finding friends and connection."
-        keywords="about ThickTimber, gay community platform, LGBTQ places directory, gay friendship app"
+        title="Why ThickTimber Exists – Outdoor Community for Gay Men"
+        description="The story behind ThickTimber — rebuilding gay community through trails, campsites, and outdoor spaces. A place-first approach for men who prefer nature over nightlife."
+        keywords="about ThickTimber, gay outdoor community, LGBTQ hiking, gay camping, gay men outdoors"
         canonicalPath="/about"
         schema={aboutSchema}
       />
@@ -156,19 +156,20 @@ const About = () => {
               className="space-y-6"
             >
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                Gay community has always been built in real places—bars, coffee shops, gyms, 
-                neighborhood spots. But somewhere along the way, we moved everything online. 
-                Apps that promised connection delivered endless scrolling, ghosting, and 
-                performative profiles instead.
+                Gay men who love the outdoors — hiking, camping, beaches, swimming holes — 
+                often struggle to find each other. Dating apps promise connection but deliver 
+                endless scrolling and performative profiles. Meanwhile, the best outdoor 
+                spots feel harder to discover, and finding others who share your love of 
+                nature feels almost impossible.
               </p>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                We watched as community spaces closed. We felt the fatigue of apps designed 
-                to keep us online, not help us show up. We noticed how hard it had become 
-                to just... meet people. Not to date. Just to connect.
+                We watched as community moved online. We felt the fatigue of apps designed 
+                to keep us scrolling, not help us explore. We noticed how hard it had become 
+                to just... find your people. Not to date. Just to share a trail.
               </p>
               <p className="text-base md:text-lg text-foreground font-medium leading-relaxed">
-                Single or partnered, introvert or social, new to a city or deeply rooted—the 
-                problem was the same: where do you actually go to find your people?
+                Single or partnered, introvert or social, new to an area or deeply rooted — 
+                the problem was the same: where do gay men who love the outdoors actually go?
               </p>
             </motion.div>
           </div>
@@ -196,21 +197,22 @@ const About = () => {
               What We're Building
             </span>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-8 text-balance">
-              A quiet layer beneath your city.
+              A quiet layer beneath the landscape.
             </h2>
             <div className="space-y-6 text-base md:text-lg text-primary-foreground/90 leading-relaxed">
               <p>
-                ThickTimber is a private directory of places where gay community already 
-                gathers—curated by people who understand, not algorithms chasing engagement.
+                ThickTimber is a private directory of outdoor spaces where gay men who love 
+                nature already gather — curated by people who understand, not algorithms 
+                chasing engagement.
               </p>
               <p>
-                We help you discover coffee shops, gyms, bars, events, and neighborhood spots. 
-                Places where real life actually happens. And over time, we help you find places 
-                where showing up feels natural.
+                We help you discover hiking trails, campsites, beaches, swimming holes, 
+                and outdoor events. Places where real life actually happens. And over time, 
+                we help you find places where showing up feels natural.
               </p>
               <p className="text-primary-foreground font-medium">
                 No messaging pressure. No awkward intros. Just a clear signal that connection 
-                is welcome—when and where you want it.
+                is welcome — on the trail, around the campfire, wherever you choose.
               </p>
             </div>
           </motion.div>
@@ -251,7 +253,7 @@ const About = () => {
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 If you're looking to browse people or chase attention, this isn't the place. 
                 We're building something different: a tool for people who want to show up 
-                in real life, on their own terms.
+                in real life, on their own terms — preferably outdoors.
               </p>
             </motion.div>
           </div>
@@ -363,21 +365,23 @@ const About = () => {
               The Vision
             </span>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-8 text-balance">
-              Rebuilding community, one place at a time.
+              Rebuilding community, one trail at a time.
             </h2>
             <div className="space-y-6 text-base md:text-lg text-muted-foreground leading-relaxed">
               <p>
-                We believe gay community can be rebuilt—not through another app that keeps 
-                you scrolling, but through real places and real presence.
+                We believe gay community can be rebuilt — not through another app that keeps 
+                you scrolling, but through real places and real presence. Through trails, 
+                campsites, beaches, and the quiet moments shared in nature.
               </p>
               <p>
-                We're building ThickTimber to strengthen local connection, reduce online 
-                fatigue, and lower the friction of meeting people organically. To help 
-                community grow where it actually lives: on main streets, in neighborhoods, 
-                at the places that matter.
+                We're building ThickTimber to strengthen connection among gay men who love 
+                the outdoors, reduce online fatigue, and lower the friction of meeting people 
+                organically. To help community grow where it actually lives: on the trails, 
+                at the campsites, in the places that matter.
               </p>
               <p className="text-foreground font-medium text-lg md:text-xl">
-                A nod. A hello. A conversation that starts where you already are.
+                A nod on the trail. A hello at the campsite. A conversation that starts 
+                where you already are.
               </p>
             </div>
           </motion.div>
@@ -405,24 +409,29 @@ const About = () => {
               Ready?
             </span>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-8 text-balance">
-              Ready to find your places?
+              Ready to find your trail?
             </h2>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <p className="text-lg text-primary-foreground/80 mb-10">
+              Discover the outdoor spaces where gay men who love nature already gather.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
-                variant="secondary"
-                onClick={() => navigate("/auth?mode=signup")}
-                className="text-base px-8"
+                variant="accent"
+                onClick={() => navigate('/auth?mode=signup')}
+                className="w-full sm:w-auto"
               >
                 Create Free Account
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                onClick={() => navigate("/places")}
-                className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                variant="ghost"
+                onClick={() => navigate('/places')}
+                className="w-full sm:w-auto text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
               >
-                Explore Places
+                <Mountain className="w-4 h-4 mr-2" />
+                Explore Outdoors
               </Button>
             </div>
           </motion.div>

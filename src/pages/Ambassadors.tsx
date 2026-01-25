@@ -116,8 +116,8 @@ const Ambassadors = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Ambassador Program | MainStreetIRL"
-        description="Help shape the places that define your city. Join our Ambassador Program and contribute to a directory that reflects where your community actually goes."
+        title="Ambassador Program | ThickTimber"
+        description="Help shape the outdoor places that define your region. Join our Ambassador Program and contribute to a directory that reflects where outdoor gay men actually go."
         canonicalPath="/ambassadors"
       />
 
@@ -149,7 +149,7 @@ const Ambassadors = () => {
             </motion.h1>
             
             <motion.p variants={fadeInUp} className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto text-pretty">
-              We're looking for gay men who know their city well — the in-between places, the local routines, the spots that don't show up in tourist guides. Help us build a directory that reflects where your community actually goes.
+              We're looking for gay men who know the outdoors well — the hidden trails, the best campsites, the swimming holes that don't show up on maps. Help us build a directory that reflects where outdoor gay men actually go.
             </motion.p>
           </motion.div>
         </div>
@@ -178,18 +178,18 @@ const Ambassadors = () => {
               {[
                 {
                   icon: MapPin,
-                  title: 'Submit local places',
-                  description: 'Add meaningful spots that matter to your community — not tourist traps.',
+                  title: 'Submit outdoor spots',
+                  description: 'Add hiking trails, campsites, beaches, and swimming holes that matter to your community.',
                 },
                 {
                   icon: Calendar,
-                  title: 'Highlight recurring events',
-                  description: 'Flag local gatherings worth knowing about — trivia nights, run clubs, art walks.',
+                  title: 'Flag group events',
+                  description: 'Highlight hiking groups, camping weekends, outdoor meetups worth knowing about.',
                 },
                 {
                   icon: MessageSquare,
                   title: 'Share local context',
-                  description: 'Add tips and insights only a local would know — the details that make a place special.',
+                  description: 'Add tips and insights only a local would know — trail conditions, best times to visit, hidden gems.',
                 },
               ].map((item, index) => (
                 <div key={index} className="space-y-4">
@@ -279,13 +279,13 @@ const Ambassadors = () => {
 
             <motion.div variants={fadeInUp} className="space-y-6 text-lg text-muted-foreground leading-relaxed">
               <p className="text-pretty">
-                Gay men who have lived in their city long enough to understand it — its rhythms, its neighborhoods, its character.
+                Gay men who have spent time exploring the outdoors in their region — its trails, its campgrounds, its hidden spots.
               </p>
               <p className="text-pretty">
-                People who know the "in-between" places — the cafés, parks, bookstores, gyms, and neighborhood spots that aren't on anyone's radar yet.
+                People who know the "in-between" places — the unmarked swimming holes, the quiet trails, the campsites that aren't on anyone's radar yet.
               </p>
               <p className="text-pretty">
-                Those who value community, routine, and real-world spaces. Comfortable contributing quietly, without being on display.
+                Those who value community, nature, and real-world connection. Comfortable contributing quietly, without being on display.
               </p>
             </motion.div>
           </motion.div>
