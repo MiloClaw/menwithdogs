@@ -17,8 +17,8 @@ const SEOHead = ({
   type = "website",
   schema
 }: SEOHeadProps) => {
-  const fullTitle = title.includes("MainStreetIRL") ? title : `${title} | MainStreetIRL`;
-  const canonicalUrl = `https://mainstreetirl.com${canonicalPath}`;
+  const fullTitle = title.includes("ThickTimber") ? title : `${title} | ThickTimber`;
+  const canonicalUrl = `https://thicktimber.lovable.app${canonicalPath}`;
 
   return (
     <Helmet>

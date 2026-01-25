@@ -28,7 +28,7 @@ serve(async (req) => {
 
     console.log('Enhancing blog post:', { title, bodyLength: body.length, city_name, city_id, location_type, geo_area_id });
 
-    const systemPrompt = `You are an SEO content assistant for MainStreetIRL, a place-centric platform helping people discover real-world venues and neighborhoods for genuine connection.
+    const systemPrompt = `You are an SEO content assistant for ThickTimber, a place-centric platform helping people discover real-world venues and neighborhoods for genuine connection.
 
 Given a blog post title and body content, generate optimized fields.
 

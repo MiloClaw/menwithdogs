@@ -7,7 +7,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <span className="font-serif text-lg font-semibold text-primary-foreground">
-              MainStreetIRL
+              ThickTimber
             </span>
             <p className="text-sm text-primary-foreground/70 mt-2">Real places. 
 Real community. 
@@ -96,10 +96,10 @@ Real Connection.
         {/* Bottom */}
         <div className="pt-8 md:pt-10 border-t border-primary-foreground/20 space-y-3">
           <p className="text-xs text-primary-foreground/60 text-center max-w-lg mx-auto">
-            MainStreetIRL provides place-based insights and community signals. Users choose how and where they engage independently.
+            ThickTimber provides place-based insights and community signals. Users choose how and where they engage independently.
           </p>
           <p className="text-sm text-primary-foreground/70 text-center">
-            © {new Date().getFullYear()} MainStreetIRL. All rights reserved.
+            © {new Date().getFullYear()} ThickTimber. All rights reserved.
           </p>
         </div>
       </div>

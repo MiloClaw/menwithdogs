@@ -16,12 +16,12 @@ const Privacy = () => {
               1. Introduction
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              MainStreetIRL ("we," "us," or "our") is committed to protecting your privacy. This 
+              ThickTimber ("we," "us," or "our") is committed to protecting your privacy. This 
               Privacy Policy explains how we collect, use, disclose, and safeguard your information 
               when you use our Service.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              By accessing or using MainStreetIRL, you agree to the terms of this Privacy Policy. 
+              By accessing or using ThickTimber, you agree to the terms of this Privacy Policy. 
               If you do not agree, please do not access or use the Service.
             </p>
           </section>
@@ -31,7 +31,7 @@ const Privacy = () => {
               2. Our Privacy Commitment
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              MainStreetIRL is designed around intentional privacy. We believe meaningful community 
+              ThickTimber is designed around intentional privacy. We believe meaningful community 
               is built through trust, not exposure. Our platform prioritizes:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4">
@@ -109,7 +109,7 @@ const Privacy = () => {
               <li><strong className="text-foreground">With your consent:</strong> When you explicitly authorize sharing</li>
               <li><strong className="text-foreground">Service providers:</strong> Trusted third parties who assist in operating the Service (e.g., hosting, analytics), bound by confidentiality obligations</li>
               <li><strong className="text-foreground">Legal requirements:</strong> When required by law, subpoena, or legal process</li>
-              <li><strong className="text-foreground">Safety and protection:</strong> To protect the rights, safety, or property of MainStreetIRL, our users, or the public</li>
+              <li><strong className="text-foreground">Safety and protection:</strong> To protect the rights, safety, or property of ThickTimber, our users, or the public</li>
               <li><strong className="text-foreground">Business transfers:</strong> In connection with a merger, acquisition, or sale of assets, with continued privacy protections</li>
             </ul>
           </section>
@@ -165,7 +165,7 @@ const Privacy = () => {
               <li><strong className="text-foreground">Opt-out:</strong> Opt out of certain data processing activities</li>
             </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              To exercise these rights, please contact us at privacy@mainstreetirl.com. We will 
+              To exercise these rights, please contact us at privacy@thicktimber.com. We will 
               respond to your request within the timeframe required by applicable law.
             </p>
           </section>
@@ -204,7 +204,7 @@ const Privacy = () => {
               12. Age Requirement
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              MainStreetIRL is intended for users 18 years of age and older. We do not knowingly 
+              ThickTimber is intended for users 18 years of age and older. We do not knowingly 
               collect personal information from individuals under 18. If we become aware that we 
               have collected data from someone under 18, we will take steps to delete that 
               information promptly.
@@ -239,7 +239,7 @@ const Privacy = () => {
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               If you have any questions about this Privacy Policy or our data practices, please 
-              contact us at privacy@mainstreetirl.com.
+              contact us at privacy@thicktimber.com.
             </p>
           </section>
         </div>

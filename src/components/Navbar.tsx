@@ -35,7 +35,7 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-shadow duration-200 ${isScrolled ? 'shadow-sm' : ''}`}>
       <div className="container flex items-center justify-between h-16 md:h-18">
         <Link to="/" className="font-serif text-lg md:text-xl font-semibold text-primary">
-          MainStreetIRL
+          ThickTimber
         </Link>
         
         {/* Desktop Navigation */}

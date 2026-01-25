@@ -125,7 +125,7 @@ const Community = () => {
 
             <div className="prose prose-lg prose-invert max-w-none text-primary-foreground/90">
               <p>
-                MainStreetIRL is a place-centric directory — a curated collection of 
+                ThickTimber is a place-centric directory — a curated collection of 
                 places where gay community already gathers. Coffee shops with regulars. 
                 Gyms with welcoming energy. Bars with character. Events worth attending.
               </p>

@@ -177,7 +177,7 @@ const FAQ = () => {
     <PageLayout>
       <SEOHead
         title="FAQ – Gay Community Directory for Friends & Couples"
-        description="Answers about how gay men and couples use MainStreetIRL to find community and make real-world friends. Learn about personalization, privacy, and what makes this different."
+        description="Answers about how gay men and couples use ThickTimber to find community and make real-world friends. Learn about personalization, privacy, and what makes this different."
         keywords="gay community FAQ, LGBTQ directory questions, gay friends app, gay couples community"
         canonicalPath="/faq"
         schema={faqSchema}
@@ -285,7 +285,7 @@ const FAQ = () => {
               We're here to help. Reach out and we'll get back to you.
             </p>
             <a 
-              href="mailto:hello@mainstreetirl.com" 
+              href="mailto:hello@thicktimber.com" 
               className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
             >
               Contact Us
