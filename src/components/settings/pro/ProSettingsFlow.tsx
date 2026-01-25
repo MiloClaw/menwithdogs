@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
  * - All selections are private and never exposed to admins
  */
 export function ProSettingsFlow() {
-  const { isLoading, stepMeta } = useProSettings();
+  const { isLoading, stepMeta, getVisibleSections } = useProSettings();
 
   if (isLoading) {
     return (
@@ -43,75 +43,105 @@ export function ProSettingsFlow() {
     );
   }
 
+  // Determine which steps have visible content
+  const hasStep1Content = getVisibleSections(1).length > 0;
+  const hasStep2Content = getVisibleSections(2).length > 0;
+  const hasStep3Content = getVisibleSections(3).length > 0;
+  const hasStep4Content = getVisibleSections(4).length > 0;
+
+  // Track if any step has content to show (for separator logic)
+  const visibleSteps = [
+    hasStep1Content && 1,
+    hasStep2Content && 2,
+    hasStep3Content && 3,
+    hasStep4Content && 4,
+  ].filter(Boolean) as number[];
+
   return (
     <div className="space-y-6">
       {/* Step 1: About You */}
-      <section className="space-y-4">
-        <div>
-          <h4 className="text-base font-medium text-foreground">
-            {stepMeta[1]?.title}
-          </h4>
-          {stepMeta[1]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              {stepMeta[1].helperText}
-            </p>
-          )}
-        </div>
-        <ProStepAboutYou />
-      </section>
+      {hasStep1Content && (
+        <section className="space-y-4">
+          <div>
+            <h4 className="text-base font-medium text-foreground">
+              {stepMeta[1]?.title}
+            </h4>
+            {stepMeta[1]?.helperText && (
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {stepMeta[1].helperText}
+              </p>
+            )}
+          </div>
+          <ProStepAboutYou />
+        </section>
+      )}
 
-      <Separator className="opacity-50" />
+      {hasStep1Content && visibleSteps.length > 1 && visibleSteps[0] === 1 && (
+        <Separator className="opacity-50" />
+      )}
 
       {/* Step 2: Who You Feel Comfortable Around */}
-      <section className="space-y-4">
-        <div>
-          <h4 className="text-base font-medium text-foreground">
-            {stepMeta[2]?.title}
-          </h4>
-          {stepMeta[2]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              {stepMeta[2].helperText}
-            </p>
-          )}
-        </div>
-        <ProStepComfort />
-      </section>
+      {hasStep2Content && (
+        <section className="space-y-4">
+          <div>
+            <h4 className="text-base font-medium text-foreground">
+              {stepMeta[2]?.title}
+            </h4>
+            {stepMeta[2]?.helperText && (
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {stepMeta[2].helperText}
+              </p>
+            )}
+          </div>
+          <ProStepComfort />
+        </section>
+      )}
 
-      <Separator className="opacity-50" />
+      {hasStep2Content && (hasStep3Content || hasStep4Content) && (
+        <Separator className="opacity-50" />
+      )}
 
       {/* Step 3: What You're Hoping to Find */}
-      <section className="space-y-4">
-        <div>
-          <h4 className="text-base font-medium text-foreground">
-            {stepMeta[3]?.title}
-          </h4>
-          {stepMeta[3]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              {stepMeta[3].helperText}
-            </p>
-          )}
-        </div>
-        <ProStepIntent />
-      </section>
+      {hasStep3Content && (
+        <section className="space-y-4">
+          <div>
+            <h4 className="text-base font-medium text-foreground">
+              {stepMeta[3]?.title}
+            </h4>
+            {stepMeta[3]?.helperText && (
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {stepMeta[3].helperText}
+              </p>
+            )}
+          </div>
+          <ProStepIntent />
+        </section>
+      )}
 
-      <Separator className="opacity-50" />
+      {hasStep3Content && hasStep4Content && (
+        <Separator className="opacity-50" />
+      )}
 
       {/* Step 4: How You Like to Spend Time Out */}
-      <section className="space-y-4">
-        <div>
-          <h4 className="text-base font-medium text-foreground">
-            {stepMeta[4]?.title}
-          </h4>
-          {stepMeta[4]?.helperText && (
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              {stepMeta[4].helperText}
-            </p>
-          )}
-        </div>
-        <ProStepSpacePreferences />
-      </section>
+      {hasStep4Content && (
+        <section className="space-y-4">
+          <div>
+            <h4 className="text-base font-medium text-foreground">
+              {stepMeta[4]?.title}
+            </h4>
+            {stepMeta[4]?.helperText && (
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {stepMeta[4].helperText}
+              </p>
+            )}
+          </div>
+          <ProStepSpacePreferences />
+        </section>
+      )}
 
-      <Separator className="opacity-50" />
+      {visibleSteps.length > 0 && (
+        <Separator className="opacity-50" />
+      )}
 
       {/* Summary */}
       <ProSettingsSummary />
