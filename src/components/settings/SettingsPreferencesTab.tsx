@@ -18,7 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import { TasteProfileCard } from './TasteProfileCard';
 import { PersonalizationSummary } from './PersonalizationSummary';
-import { ProSettingsFlow } from './pro';
+import { ProSettingsFlow, ProPreviewOverlay } from './pro';
 
 const SettingsPreferencesTab = () => {
   const { toast } = useToast();
@@ -276,49 +276,21 @@ const SettingsPreferencesTab = () => {
           </h3>
         </div>
         
-        {hasPaidTuning ? (
-          <>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              When people with similar routines, comfort levels, and interests spend time in the same places, 
-              patterns emerge. Pro uses these patterns to highlight places that tend to feel right for people 
-              who move through the world the way you do.
-            </p>
-            <p className="text-xs text-muted-foreground/70 italic">
-              This works at the place level — not the person level.
-            </p>
-            <ProSettingsFlow />
-          </>
-        ) : (
-          <div className="space-y-4">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              When people with similar routines, comfort levels, and interests spend time in the same places, 
-              patterns emerge. Pro helps the directory recognize these patterns — so place suggestions feel 
-              more grounded and less random.
-            </p>
-            <ul className="text-sm text-muted-foreground/80 space-y-2">
-              <li className="flex items-center gap-2">
-                <span className="text-xs opacity-60">•</span>
-                More precise neighborhood suggestions
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-xs opacity-60">•</span>
-                Better time-of-day relevance
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-xs opacity-60">•</span>
-                Places where shared patterns already exist
-              </li>
-            </ul>
-            <Button
-              variant="outline"
-              onClick={() => createCheckout()}
-              disabled={isCreatingCheckout}
-              className="min-h-[44px]"
-            >
-              {isCreatingCheckout ? 'Loading...' : 'Unlock Pro — $4.99/mo'}
-            </Button>
-          </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          When people with similar routines, comfort levels, and interests spend time in the same places, 
+          patterns emerge. Pro uses these patterns to highlight places that tend to feel right for people 
+          who move through the world the way you do.
+        </p>
+        
+        {hasPaidTuning && (
+          <p className="text-xs text-muted-foreground/70 italic">
+            This works at the place level — not the person level.
+          </p>
         )}
+
+        <ProPreviewOverlay>
+          <ProSettingsFlow />
+        </ProPreviewOverlay>
       </section>
 
       {/* Summary - What shapes your places (free users only, Pro gets it in ProSettingsSummary) */}

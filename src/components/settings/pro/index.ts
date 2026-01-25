@@ -5,3 +5,4 @@ export { ProStepIntent } from './ProStepIntent';
 export { ProStepSpacePreferences } from './ProStepSpacePreferences';
 export { ProOptionChips } from './ProOptionChips';
 export { ProSettingsSummary } from './ProSettingsSummary';
+export { ProPreviewOverlay } from './ProPreviewOverlay';
