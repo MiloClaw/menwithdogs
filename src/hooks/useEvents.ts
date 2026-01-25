@@ -24,6 +24,10 @@ export interface Event {
   created_by_role: string | null;
   inference_confidence: number | null;
   normalized_by_ai: boolean;
+  // Event posting subscription fields
+  stripe_subscription_id: string | null;
+  posted_by: string | null;
+  visibility_end_at: string | null;
 }
 
 export interface EventWithVenue extends Event {

@@ -2,21 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DollarSign, Users, TrendingUp, Crown } from 'lucide-react';
+import { DollarSign, Users, TrendingUp, Crown, Calendar } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { PRICING } from '@/lib/founders-pricing';
 
 interface RevenueMetrics {
   mrr: number;
   totalSubscribers: number;
   foundersCount: number;
   proCount: number;
+  eventCount: number;
   conversionRate: number;
   totalUsers: number;
 }
-
-// Founders = $2.99/month, Pro = $4.99/month
-const FOUNDERS_PRICE = 2.99;
-const PRO_PRICE = 4.99;
 
 export default function RevenueHealthCard() {
   const { data: metrics, isLoading } = useQuery({
@@ -25,7 +23,7 @@ export default function RevenueHealthCard() {
       // Get active subscriptions
       const { data: subscriptions } = await supabase
         .from('subscriptions')
-        .select('plan_id, status')
+        .select('plan_id, status, type')
         .in('status', ['active', 'trialing']);
       
       // Get total couples for conversion rate
@@ -41,13 +39,20 @@ export default function RevenueHealthCard() {
       ).length;
       
       const proCount = activeSubscriptions.filter(s => 
-        s.plan_id === 'pro_monthly' || s.plan_id === 'pro'
+        (s.plan_id === 'pro_monthly' || s.plan_id === 'pro') && 
+        s.type === 'pro'
+      ).length;
+      
+      const eventCount = activeSubscriptions.filter(s => 
+        s.type === 'event'
       ).length;
       
       const totalSubscribers = foundersCount + proCount;
       
-      // Calculate MRR
-      const mrr = (foundersCount * FOUNDERS_PRICE) + (proCount * PRO_PRICE);
+      // Calculate MRR using pricing config
+      const mrr = (foundersCount * PRICING.FOUNDERS.MONTHLY_AMOUNT) + 
+                  (proCount * PRICING.PRO.MONTHLY_AMOUNT) +
+                  (eventCount * PRICING.EVENT.MONTHLY_AMOUNT);
       
       // Conversion rate
       const totalUsers = totalCouples || 0;
@@ -60,6 +65,7 @@ export default function RevenueHealthCard() {
         totalSubscribers,
         foundersCount,
         proCount,
+        eventCount,
         conversionRate,
         totalUsers,
       };
@@ -113,7 +119,7 @@ export default function RevenueHealthCard() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5" />
-                  Subscribers
+                  PRO Subscribers
                 </span>
                 <span className="font-medium">{metrics.totalSubscribers}</span>
               </div>
@@ -128,6 +134,17 @@ export default function RevenueHealthCard() {
                     <TrendingUp className="h-3 w-3" />
                     <span>Pro: {metrics.proCount}</span>
                   </div>
+                </div>
+              )}
+              
+              {/* Event subscriptions */}
+              {metrics.eventCount > 0 && (
+                <div className="flex items-center justify-between text-sm pt-1">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Event Postings
+                  </span>
+                  <span className="font-medium">{metrics.eventCount}</span>
                 </div>
               )}
             </div>
