@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Menu, Heart, Settings, LogOut } from 'lucide-react';
 import logoConcept1 from '@/assets/logo-concept-1.png';
+import LogoGeneratorCard from '@/components/admin/logo/LogoGeneratorCard';
 
 const LogoTesting = () => {
   const [logoHeight, setLogoHeight] = useState(40);
@@ -54,6 +55,9 @@ const LogoTesting = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* AI Logo Generator */}
+        <LogoGeneratorCard sourceLogoUrl={logoConcept1} />
 
         {/* Size Variants */}
         <Card>
