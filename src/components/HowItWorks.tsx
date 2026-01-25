@@ -5,17 +5,17 @@ const steps = [{
   number: "01",
   icon: MapPin,
   title: "Browse and Add",
-  description: "Browse places that already exist in the directory. If a great place is missing - add it!"
+  description: "Browse trails, campsites, beaches, and outdoor spots in the directory. Missing a great place? Add it and help others discover it."
 }, {
   number: "02",
   icon: Bookmark,
   title: "Favorite and Return",
-  description: "Save the ones you genuinely enjoy and plan to visit again. Your favorites shape what you see. The more you save, the more relevant it gets."
+  description: "Save spots you genuinely enjoy and plan to revisit. Your favorites shape what you see — the more you save, the more relevant it gets."
 }, {
   number: "03",
   icon: RotateCcw,
   title: "Share",
-  description: "As more gay men use the directory, recommendations get smarter over time — and new patterns begin to surface across each city, often in unexpected places."
+  description: "As more outdoor gay men use the directory, recommendations get smarter — surfacing patterns across regions, often in unexpected places."
 }];
 const HowItWorks = () => {
   const sectionRef = useRef<HTMLElement>(null);

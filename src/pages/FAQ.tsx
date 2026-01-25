@@ -26,14 +26,14 @@ const faqSections: FAQSection[] = [
       {
         question: "What is this platform, exactly?",
         answer: [
-          "This is a place-centric directory — a curated collection of places and events that resonate with gay men.",
-          "It's not a social network. There are no public profiles, no feeds, no messaging. Just real-world places worth visiting."
+          "This is a place-centric directory — a curated collection of hiking trails, campsites, beaches, swimming holes, and outdoor spots that resonate with gay men who love nature.",
+          "It's not a social network. There are no public profiles, no feeds, no messaging. Just real-world outdoor places worth visiting."
         ]
       },
       {
         question: "How do I use it?",
         answer: [
-          "Browse places in your city, save your favorites, and discover events.",
+          "Browse outdoor places in your region, save your favorites, and discover events.",
           "The more you use it, the more relevant it becomes. Your activity shapes what you see — privately."
         ]
       },
@@ -41,7 +41,7 @@ const faqSections: FAQSection[] = [
         question: "Is this a social network?",
         answer: [
           "No. This platform is intentionally designed without social features.",
-          "No profiles to maintain. No feeds to scroll. No DMs to manage. The focus is entirely on places and events — not people."
+          "No profiles to maintain. No feeds to scroll. No DMs to manage. The focus is entirely on outdoor places and events — not people."
         ]
       }
     ]
@@ -52,14 +52,14 @@ const faqSections: FAQSection[] = [
       {
         question: "How does personalization work?",
         answer: [
-          "As more gay men use the directory — saving favorites, visiting places — the system learns shared patterns.",
+          "As more outdoor gay men use the directory — saving favorites, visiting places — the system learns shared patterns.",
           "These patterns power recommendations that get smarter over time, benefiting everyone."
         ]
       },
       {
         question: "What data do you use?",
         answer: [
-          "Your location (to show nearby places), your favorites, and your viewing patterns.",
+          "Your location (to show nearby outdoor spots), your favorites, and your viewing patterns.",
           "All of this stays private and is never shared."
         ]
       },
@@ -67,7 +67,7 @@ const faqSections: FAQSection[] = [
         question: "What's the difference between Free and Pro?",
         answer: [
           "Free members get the full directory with recommendations powered by collective patterns.",
-          "Pro members can privately add context — interests, hobbies, relationship dynamics — to surface places where their specific patterns overlap with others seeking similar things.",
+          "Pro members can privately add context — outdoor interests, activity level, preferences — to surface places where their specific patterns overlap with others seeking similar outdoor experiences.",
           "Both paths make the directory smarter. Pro just makes it smarter for you."
         ]
       }
@@ -105,22 +105,22 @@ const faqSections: FAQSection[] = [
       {
         question: "Who is this platform for?",
         answer: [
-          "This platform is intentionally designed for gay men — both single men and men in committed relationships — who want to discover welcoming places and form platonic friendships with other gay men.",
-          "The experience is built around clear boundaries, shared lived experience, and friendship-only connections. This is not a dating app."
+          "This platform is designed for gay men who love the outdoors — hiking, camping, beaches, nature — both single men and men in relationships who want to discover great outdoor spots and form platonic friendships with other outdoor gay men.",
+          "The experience is built around clear boundaries, shared experience, and friendship-only connections. This is not a dating app."
         ]
       },
       {
         question: "Is this a dating or hookup app?",
         answer: [
           "No. Dating, romantic matching, and sexual connections are not part of this platform — by design.",
-          "Everyone here joins with the same intention: friendship only."
+          "Everyone here joins with the same intention: outdoor community and friendship only."
         ]
       },
       {
         question: "Why is the platform focused specifically on gay men?",
         answer: [
           "We believe meaningful community is built through intentional design.",
-          "This platform focuses on gay men because the intake questions, personalization model, safety approach, and community norms are designed around that shared experience. A focused scope allows us to create a calmer, clearer, and more respectful experience for everyone involved."
+          "This platform focuses on gay men who love the outdoors because the intake questions, personalization model, and community norms are designed around that shared experience. A focused scope allows us to create a calmer, clearer, and more respectful experience for everyone involved."
         ]
       },
       {
@@ -141,7 +141,7 @@ const faqSections: FAQSection[] = [
         question: "Can single men and couples both join?",
         answer: [
           "Yes. Both single gay men and gay men in committed relationships are welcome.",
-          "Couples can share a profile and discover places together. Regardless of relationship status, the goal is the same: platonic friendship, clear boundaries, and real-world connection."
+          "Couples can share a profile and discover outdoor places together. Regardless of relationship status, the goal is the same: platonic friendship, clear boundaries, and real-world outdoor connection."
         ]
       }
     ]
@@ -176,9 +176,9 @@ const FAQ = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="FAQ – Gay Community Directory for Friends & Couples"
-        description="Answers about how gay men and couples use ThickTimber to find community and make real-world friends. Learn about personalization, privacy, and what makes this different."
-        keywords="gay community FAQ, LGBTQ directory questions, gay friends app, gay couples community"
+        title="FAQ – Outdoor Community Directory for Gay Men"
+        description="Answers about how gay men use ThickTimber to find hiking trails, campsites, and outdoor community. Learn about personalization, privacy, and what makes this different."
+        keywords="gay outdoor FAQ, LGBTQ hiking directory questions, gay camping community"
         canonicalPath="/faq"
         schema={faqSchema}
       />

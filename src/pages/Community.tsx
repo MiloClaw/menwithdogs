@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users, Coffee, Heart } from "lucide-react";
+import { Mountain, Tent, Waves, Compass } from "lucide-react";
 
 const Community = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -18,9 +18,9 @@ const Community = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Gay Community – Find Your People in Real Places"
-        description="Discover gay community in your city. A place-centric directory for gay men to find community, connection, and real-world belonging — without dating apps or social networks."
-        keywords="gay community, LGBTQ community, gay men community, find gay community, gay neighborhood, gay-friendly places, gay social spaces"
+        title="Gay Outdoor Community – Find Your People on the Trail"
+        description="Discover outdoor community for gay men. A place-centric directory for hiking trails, campsites, beaches, and nature spots — not dating apps or social networks."
+        keywords="gay outdoor community, LGBTQ hiking, gay camping, gay men outdoors, gay nature lovers, gay hiking groups"
         canonicalPath="/community"
       />
 
@@ -50,11 +50,11 @@ const Community = () => {
             </span>
             
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 text-balance">
-              What Is Gay Community Today?
+              What Is Gay Outdoor Community?
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Community isn't an app. It's the places where you feel at home — 
+              Community isn't an app. It's the trails you keep returning to — 
               and the people you meet when you show up.
             </p>
           </motion.div>
@@ -82,9 +82,10 @@ const Community = () => {
 
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p>
-                Gay community has always been built in real places — bars, coffee shops, 
-                gyms, bookstores, neighborhood spots. Places where showing up meant something. 
-                Where you could find people who understood without explanation.
+                Gay men who love the outdoors — hiking, camping, beaches, swimming holes — 
+                often feel disconnected from the broader gay community. The bar scene doesn't 
+                fit. Dating apps feel exhausting. And finding other gay men who share your 
+                love of nature feels almost accidental.
               </p>
               <p>
                 But somewhere along the way, we moved everything online. Apps promised 
@@ -93,11 +94,9 @@ const Community = () => {
                 but never quite connecting.
               </p>
               <p>
-                Meanwhile, the places that once anchored gay community — the bars, the 
-                bookstores, the neighborhood institutions — have been closing. And the 
-                ones that remain often feel harder to find or navigate, especially if 
-                you're new to a city, newly out, or simply looking for something beyond 
-                dating.
+                Meanwhile, the trails, campsites, and outdoor spaces where community could 
+                form feel harder to discover. Especially if you're new to an area, newly out, 
+                or simply looking for something beyond dating.
               </p>
             </div>
           </motion.div>
@@ -126,14 +125,15 @@ const Community = () => {
             <div className="prose prose-lg prose-invert max-w-none text-primary-foreground/90">
               <p>
                 ThickTimber is a place-centric directory — a curated collection of 
-                places where gay community already gathers. Coffee shops with regulars. 
-                Gyms with welcoming energy. Bars with character. Events worth attending.
+                outdoor spaces where gay men who love nature already gather. Hiking trails 
+                with welcoming energy. Campsites where you might find others. Beaches and 
+                swimming holes worth knowing about.
               </p>
               <p>
-                We help you discover these places in your city and, over time, learn 
+                We help you discover these places in your region and, over time, learn 
                 which ones resonate with people like you. Not through algorithms chasing 
-                engagement, but through quiet patterns that emerge when gay men share 
-                what matters to them.
+                engagement, but through quiet patterns that emerge when outdoor gay men 
+                share what matters to them.
               </p>
               <p>
                 This isn't a social network. There are no profiles to browse, no feeds 
@@ -166,24 +166,24 @@ const Community = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {
-                  icon: Coffee,
-                  title: "Coffee Shops",
-                  description: "The third places where conversation happens naturally. Where regulars become friends."
+                  icon: Mountain,
+                  title: "Hiking Trails",
+                  description: "The trails where regulars become familiar faces. Where a nod becomes a hello, and a hello becomes a conversation."
                 },
                 {
-                  icon: Users,
-                  title: "Gyms & Studios",
-                  description: "Spaces where wellness meets community. Where showing up consistently creates connection."
+                  icon: Tent,
+                  title: "Campsites",
+                  description: "Campgrounds where showing up consistently creates connection. Around the fire, under the stars."
                 },
                 {
-                  icon: MapPin,
-                  title: "Bars & Nightlife",
-                  description: "The anchor institutions of gay community. Historic and new, loud and quiet."
+                  icon: Waves,
+                  title: "Beaches & Swimming Holes",
+                  description: "The hidden gems and local favorites. Places where community forms naturally in the summer months."
                 },
                 {
-                  icon: Heart,
-                  title: "Events & Gatherings",
-                  description: "The moments that bring people together. Game nights, run clubs, volunteer days."
+                  icon: Compass,
+                  title: "Group Events",
+                  description: "Hiking groups, camping weekends, outdoor meetups. The gatherings that bring outdoor gay men together."
                 }
               ].map((item, index) => (
                 <motion.div
@@ -225,20 +225,19 @@ const Community = () => {
 
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p>
-                This is for gay men who want more than dating apps and endless feeds. 
-                Men who remember what community used to feel like — or wonder what it 
-                could become.
+                This is for gay men who feel more at ease on a trail than in a crowded bar. 
+                Men who love hiking, camping, beaches, and nature — and wonder where others 
+                like them actually go.
               </p>
               <p>
-                It's for single men looking for <Link to="/find-friends" className="text-primary hover:underline">friends</Link>, 
+                It's for single men looking for <Link to="/find-friends" className="text-primary hover:underline">friends</Link> who share their love of the outdoors, 
                 not just dates. For <Link to="/couples" className="text-primary hover:underline">couples</Link> who 
-                want to build friendships together. For introverts who prefer low-key 
-                coffee shops over crowded bars. For guys new to a city who need a 
-                starting point.
+                want to find others to explore with. For introverts who prefer a quiet 
+                trail over crowded spaces.
               </p>
               <p>
-                It's for anyone tired of the performance of social media and ready 
-                to invest in real places and real presence.
+                It's for anyone tired of the performance of dating apps and ready 
+                to invest in real places and real presence — outdoors.
               </p>
             </div>
           </motion.div>
@@ -258,10 +257,10 @@ const Community = () => {
               Start Here
             </span>
             <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-4 text-balance">
-              Ready to find your places?
+              Ready to find your trail?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Discover the places in your city where gay community already gathers.
+              Discover the outdoor spaces where gay men who love nature already gather.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -278,7 +277,7 @@ const Community = () => {
                 asChild
                 className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <Link to="/places">Explore Places</Link>
+                <Link to="/places">Explore Outdoors</Link>
               </Button>
             </div>
           </motion.div>

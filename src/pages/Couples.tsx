@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Shield, Clock, Eye, Users, Plane, Coffee, Heart } from "lucide-react";
+import { Shield, Clock, Eye, Users, Mountain, Tent, Heart } from "lucide-react";
 
 const Couples = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -18,9 +18,9 @@ const Couples = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Discover Together — Find Places for Both of You"
-        description="Temporarily link with a partner or friend to find places that work for both of you. Private, session-based discovery — no account sharing required."
-        keywords="discover together, couples places, friend recommendations, shared discovery, private place suggestions"
+        title="Discover Together — Find Outdoor Places for Both of You"
+        description="Temporarily link with a partner or friend to find hiking trails, campsites, and outdoor spots that work for both of you. Private, session-based discovery."
+        keywords="discover together, couples hiking, outdoor friends, shared discovery, private outdoor suggestions"
         canonicalPath="/couples"
       />
 
@@ -47,11 +47,11 @@ const Couples = () => {
             </span>
 
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 text-balance">
-              Find Places That Work for Both of You
+              Find Outdoor Places That Work for Both of You
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Without sharing your preferences. Without linking accounts. Just better recommendations — privately.
+              Without sharing your preferences. Without linking accounts. Just better outdoor recommendations — privately.
             </p>
           </motion.div>
         </div>
@@ -78,7 +78,7 @@ const Couples = () => {
               {[
                 "One of you generates a session code",
                 "Your partner scans or enters the code",
-                "The system finds places that resonate with both — privately",
+                "The system finds outdoor places that resonate with both — privately",
                 "Sessions expire in 24 hours. No permanent data.",
               ].map((step, index) => (
                 <motion.div
@@ -124,15 +124,15 @@ const Couples = () => {
                 {
                   title: "Your preferences stay yours",
                   description:
-                    "No profile sharing between users. Your saved places, your interests — completely private.",
+                    "No profile sharing between users. Your saved trails, your outdoor interests — completely private.",
                 },
                 {
                   title: "Works for any duo",
-                  description: "Couples, friends, travel companions, roommates. Anyone exploring together.",
+                  description: "Couples, hiking buddies, camping companions, travel partners. Anyone exploring the outdoors together.",
                 },
                 {
                   title: "Place-level intelligence",
-                  description: "The system doesn't match people. It surfaces places that work for both.",
+                  description: "The system doesn't match people. It surfaces outdoor spots that work for both.",
                 },
                 {
                   title: "Temporary by design",
@@ -186,7 +186,7 @@ const Couples = () => {
                 },
                 {
                   icon: Users,
-                  title: "We will try to surface places that work for both",
+                  title: "We surface places that work for both",
                   description: "Common ground — without exposing individual taste.",
                 },
                 {
@@ -233,23 +233,23 @@ const Couples = () => {
               {[
                 {
                   icon: Heart,
-                  title: "Couples planning date night",
-                  description: "Find restaurants and bars you'll both love — no more compromise debates.",
+                  title: "Couples planning a hiking trip",
+                  description: "Find trails and campsites you'll both love — no more compromise debates.",
                 },
                 {
-                  icon: Plane,
-                  title: "Friends visiting from out of town",
-                  description: "Quickly find spots that match both your tastes in an unfamiliar city.",
+                  icon: Mountain,
+                  title: "Outdoor buddies exploring new areas",
+                  description: "Quickly find spots that match both your outdoor styles in unfamiliar terrain.",
                 },
                 {
                   icon: Users,
-                  title: "Travel companions exploring together",
-                  description: "Discover places that resonate with both of you in real-time.",
+                  title: "Friends planning a camping weekend",
+                  description: "Discover campgrounds that resonate with both of you.",
                 },
                 {
-                  icon: Coffee,
-                  title: "Roommates finding neighborhood spots",
-                  description: "Build a shared list of go-to places near home.",
+                  icon: Tent,
+                  title: "Travel companions on a road trip",
+                  description: "Build a shared list of outdoor stops along your route.",
                 },
               ].map((item, index) => (
                 <motion.div
@@ -286,7 +286,7 @@ const Couples = () => {
               Ready to discover together?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Start a session with your partner, friend, or travel companion. Find places that work for both of you —
+              Start a session with your partner, hiking buddy, or travel companion. Find outdoor places that work for both of you —
               without sharing preferences.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -299,7 +299,7 @@ const Couples = () => {
                 asChild
                 className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <Link to="/places">Explore Places</Link>
+                <Link to="/places">Explore Outdoors</Link>
               </Button>
             </div>
           </motion.div>

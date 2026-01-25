@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Users, Coffee, Dumbbell, Calendar } from "lucide-react";
+import { Users, Mountain, Tent, Compass } from "lucide-react";
 
 const FindFriends = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -18,9 +18,9 @@ const FindFriends = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Find Gay Friends – Make Real Connections Beyond Dating Apps"
-        description="Looking for gay friends? Discover places where gay men actually meet in real life. Build platonic friendships through shared spaces — not swipes or profiles."
-        keywords="find gay friends, gay male friends, gay platonic friends, gay friendship, make gay friends, gay men friendship, LGBTQ friends"
+        title="Find Gay Outdoor Friends – Make Real Connections on the Trail"
+        description="Looking for gay friends who love the outdoors? Discover trails, campsites, and outdoor spots where you can find community — not on dating apps."
+        keywords="find gay hiking friends, gay outdoor friends, gay camping buddies, gay men hiking, LGBTQ outdoor community"
         canonicalPath="/find-friends"
       />
 
@@ -50,12 +50,12 @@ const FindFriends = () => {
             </span>
             
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 text-balance">
-              How Do Gay Men Find Friends?
+              How Do Outdoor Gay Men Find Friends?
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
               Not on dating apps. Not through algorithms. 
-              Through showing up — in real places, in real life.
+              Through showing up — on the trail, at the campsite, in real life.
             </p>
           </motion.div>
         </div>
@@ -82,21 +82,20 @@ const FindFriends = () => {
 
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p>
-                Finding gay friends as an adult is harder than anyone admits. Dating 
-                apps aren't designed for friendship. Social media creates the illusion 
-                of connection without the substance. And the traditional third places 
-                where friendships formed — bars, community centers, neighborhood spots — 
-                have either closed or feel harder to navigate.
+                Finding gay friends who love the outdoors is harder than anyone admits. 
+                Dating apps aren't designed for friendship. The bar scene doesn't fit 
+                your lifestyle. And the trails, campsites, and beaches where you'd 
+                naturally connect with others like you feel harder to discover.
               </p>
               <p>
                 If you're single, the pressure to date can make platonic connection 
                 feel like a consolation prize. If you're partnered, you might find 
-                that your social world shrinks to other couples, or that making new 
-                friends as a pair feels awkward.
+                that your social world shrinks, or that finding outdoor friends as 
+                a couple feels awkward.
               </p>
               <p>
-                And if you're introverted, newly out, or new to a city? The challenge 
-                multiplies. Where do you even start?
+                And if you're introverted, new to an area, or simply prefer nature 
+                over nightlife? The challenge multiplies. Where do you even start?
               </p>
             </div>
           </motion.div>
@@ -126,18 +125,18 @@ const FindFriends = () => {
               <p>
                 The best friendships don't happen because an algorithm matched your 
                 interests. They happen because you kept showing up to the same place. 
-                The coffee shop with the good light. The gym with the Saturday morning 
-                crowd. The bar with the trivia night.
+                The trail you hike every Saturday. The campsite you return to each season. 
+                The beach where you recognize the same faces.
               </p>
               <p>
-                ThickTimber helps you find those places — the ones where gay men 
-                already gather in your city. Not to force connection, but to create 
-                the conditions where it can happen naturally.
+                ThickTimber helps you find those places — the ones where gay men who 
+                love the outdoors already gather in your region. Not to force connection, 
+                but to create the conditions where it can happen naturally.
               </p>
               <p>
                 We believe friendship starts with presence. With being a regular. 
                 With the slow accumulation of nods, hellos, and eventually real 
-                conversation. No profiles. No intros. No pressure.
+                conversation — on the trail, around the campfire.
               </p>
             </div>
           </motion.div>
@@ -165,24 +164,24 @@ const FindFriends = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {
-                  icon: Coffee,
-                  title: "Third Places",
-                  description: "Coffee shops, bookstores, neighborhood spots. The low-pressure environments where regulars become friends over time."
+                  icon: Mountain,
+                  title: "Trail Runs & Day Hikes",
+                  description: "The trails where you see the same faces. Where shared pursuit creates natural bonding without forced socializing."
                 },
                 {
-                  icon: Dumbbell,
-                  title: "Activity Spaces",
-                  description: "Gyms, yoga studios, running clubs. Shared pursuit creates natural bonding without the awkwardness of forced socializing."
+                  icon: Tent,
+                  title: "Camping Trips",
+                  description: "Campgrounds and backcountry sites where evening conversations happen naturally around the fire."
                 },
                 {
-                  icon: Calendar,
-                  title: "Recurring Events",
-                  description: "Weekly game nights, monthly meetups, volunteer groups. Consistency builds familiarity, and familiarity builds friendship."
+                  icon: Compass,
+                  title: "Group Hikes & Outdoor Meetups",
+                  description: "Hiking groups, camping weekends, outdoor events. Consistency builds familiarity, and familiarity builds friendship."
                 },
                 {
                   icon: Users,
-                  title: "Interest Communities",
-                  description: "Book clubs, hiking groups, creative collectives. Shared interests provide natural conversation starters."
+                  title: "Beach Days & Swimming Holes",
+                  description: "The summer gathering spots. Places where community forms in the sunlight and shallow water."
                 }
               ].map((item, index) => (
                 <motion.div
@@ -225,8 +224,8 @@ const FindFriends = () => {
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p>
                 We're not building another app where you browse profiles and hope 
-                for the best. ThickTimber is a directory — a collection of places 
-                curated by and for gay men.
+                for the best. ThickTimber is a directory — a collection of outdoor 
+                places curated by and for gay men who love nature.
               </p>
               <p>
                 There are no public profiles. No feeds. No messaging. No pressure 
@@ -236,7 +235,7 @@ const FindFriends = () => {
               <p>
                 Whether you're single and looking for <Link to="/community" className="text-primary hover:underline">community</Link> or 
                 in a <Link to="/couples" className="text-primary hover:underline">couple</Link> looking 
-                to expand your social world, the path is the same: find the places, 
+                to expand your outdoor circle, the path is the same: find the trails, 
                 show up consistently, let connection happen.
               </p>
             </div>
@@ -257,10 +256,10 @@ const FindFriends = () => {
               Start Here
             </span>
             <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-4 text-balance">
-              Ready to find your places?
+              Ready to find your trail?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Discover where gay men actually spend time in your city — 
+              Discover the outdoor spots where gay men who love nature gather — 
               and start building the friendships you've been missing.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -278,7 +277,7 @@ const FindFriends = () => {
                 asChild
                 className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <Link to="/places">Explore Places</Link>
+                <Link to="/places">Explore Outdoors</Link>
               </Button>
             </div>
           </motion.div>
