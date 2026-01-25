@@ -59,14 +59,14 @@ const NationalParkDetail = () => {
 
         {/* Back Navigation Overlay */}
         <div className="absolute top-4 left-4 z-10">
-          <Button
+        <Button
             variant="secondary"
-            size="sm"
+            size="default"
             onClick={() => navigate('/places/national-parks')}
-            className="gap-2 shadow-lg bg-background/95 backdrop-blur-sm"
+            className="gap-2 shadow-lg bg-white text-foreground border border-border hover:bg-muted"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">All Parks</span>
+            <ArrowLeft className="h-5 w-5" />
+            <span className="font-medium">All Parks</span>
           </Button>
         </div>
       </section>
@@ -142,13 +142,13 @@ const NationalParkDetail = () => {
                 <Link
                   key={relatedPark.id}
                   to={`/places/national-parks/${relatedPark.id}`}
-                  className="group flex items-start gap-4 p-4 rounded-lg border border-border bg-card transition-all hover:bg-accent/50 hover:border-accent/50"
+                  className="group flex items-start gap-4 p-4 rounded-lg border border-border bg-card transition-all hover:bg-accent/50 hover:border-accent"
                 >
-                  <div className="flex-shrink-0 p-2 rounded-full bg-brand-green/10 group-hover:bg-brand-green/20 transition-colors">
-                    <Mountain className="h-4 w-4 text-brand-green" />
+                  <div className="flex-shrink-0 p-2.5 rounded-full bg-brand-green/10 group-hover:bg-brand-green/20 transition-colors">
+                    <Mountain className="h-5 w-5 text-brand-green" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-foreground leading-tight mb-1 group-hover:text-brand-green transition-colors">
+                    <h3 className="font-semibold text-foreground leading-tight mb-1 group-hover:text-primary transition-colors">
                       {relatedPark.name.replace(' National Park', '')}
                     </h3>
                     <p className="text-xs text-muted-foreground">
@@ -166,12 +166,12 @@ const NationalParkDetail = () => {
       <section className="py-12 md:py-16 bg-accent/30">
         <div className="container text-center">
           <Button
-            variant="outline"
+            variant="default"
             size="lg"
             onClick={() => navigate('/places/national-parks')}
             className="gap-2"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5" />
             Back to All National Parks
           </Button>
         </div>

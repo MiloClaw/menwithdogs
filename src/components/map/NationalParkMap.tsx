@@ -186,19 +186,19 @@ const NationalParkMap = ({
         <div className="absolute bottom-4 right-4 z-10">
           <Button
             variant="secondary"
-            size="sm"
+            size="default"
             onClick={toggleStyle}
-            className="gap-2 shadow-lg bg-background/95 backdrop-blur-sm"
+            className="gap-2 shadow-lg bg-white text-foreground border border-border hover:bg-muted"
           >
             {mapStyle === 'outdoors' ? (
               <>
-                <Satellite className="h-4 w-4" />
-                <span className="hidden sm:inline">Satellite</span>
+                <Satellite className="h-5 w-5" />
+                <span className="font-medium">Satellite</span>
               </>
             ) : (
               <>
-                <Mountain className="h-4 w-4" />
-                <span className="hidden sm:inline">Trails</span>
+                <Mountain className="h-5 w-5" />
+                <span className="font-medium">Trails</span>
               </>
             )}
           </Button>
