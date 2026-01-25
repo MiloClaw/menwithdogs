@@ -1067,6 +1067,13 @@ export type Database = {
             foreignKeyName: "place_context_density_context_key_fkey"
             columns: ["context_key"]
             isOneToOne: false
+            referencedRelation: "admin_outdoor_preference_debug"
+            referencedColumns: ["preference"]
+          },
+          {
+            foreignKeyName: "place_context_density_context_key_fkey"
+            columns: ["context_key"]
+            isOneToOne: false
             referencedRelation: "pro_context_definitions"
             referencedColumns: ["key"]
           },
@@ -1128,6 +1135,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "launched_cities_summary"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_context_priors_context_key_fkey"
+            columns: ["context_key"]
+            isOneToOne: false
+            referencedRelation: "admin_outdoor_preference_debug"
+            referencedColumns: ["preference"]
           },
           {
             foreignKeyName: "place_context_priors_context_key_fkey"
@@ -2029,6 +2043,18 @@ export type Database = {
           ready_to_launch_cities: number | null
           rejected_places: number | null
           total_couples: number | null
+        }
+        Relationships: []
+      }
+      admin_outdoor_preference_debug: {
+        Row: {
+          mapped_types: string[] | null
+          matched_place_names: string[] | null
+          matched_types: string[] | null
+          matching_favorites: number | null
+          preference: string | null
+          preference_label: string | null
+          user_id: string | null
         }
         Relationships: []
       }
