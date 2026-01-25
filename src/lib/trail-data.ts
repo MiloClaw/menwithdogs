@@ -431,6 +431,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1100,
       description: 'Take the Jenny Lake boat shuttle to cut 4 miles. Watch for moose.',
       trailhead: [-110.7261, 43.7706],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'delta-lake',
@@ -440,6 +442,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2300,
       description: 'Turquoise glacial lake beneath the Grand. Unmarked but well-worn social trail.',
       trailhead: [-110.6850, 43.7583],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'taggart-lake',
@@ -449,6 +453,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 350,
       description: 'Picturesque lake with Teton backdrop. Great for families.',
       trailhead: [-110.7330, 43.7020],
+      photoUrl: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'lake-solitude',
@@ -458,6 +464,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2400,
       description: 'Remote alpine lake at canyon\'s head. All-day adventure.',
       trailhead: [-110.7261, 43.7706],
+      photoUrl: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'inspiration-point',
@@ -467,6 +475,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 420,
       description: 'Jenny Lake overlook via shuttle. Combine with Hidden Falls.',
       trailhead: [-110.7261, 43.7706],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -480,6 +490,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 830,
       description: 'Continental Divide traverse from Logan Pass. Arrange shuttle or hitchhike back.',
       trailhead: [-113.7187, 48.6964],
+      photoUrl: 'https://images.unsplash.com/photo-1501908734255-16579c18c25f?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grinnell-glacier',
@@ -489,6 +501,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1600,
       description: 'Hike to one of the park\'s remaining glaciers. Take boat shuttle to save 4 miles.',
       trailhead: [-113.6548, 48.7974],
+      photoUrl: 'https://images.unsplash.com/photo-1520095972714-909e91b038e5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'avalanche-lake',
@@ -498,6 +512,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 730,
       description: 'Through old-growth cedar forest to glacial cirque. One of the park\'s most popular.',
       trailhead: [-113.8189, 48.6817],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hidden-lake',
@@ -507,6 +523,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 540,
       description: 'Boardwalk from Logan Pass through alpine meadows. Mountain goats common.',
       trailhead: [-113.7187, 48.6964],
+      photoUrl: 'https://images.unsplash.com/photo-1544077960-604201fe74bc?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'iceberg-lake',
@@ -516,6 +534,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1200,
       description: 'Lake with floating icebergs into summer. Spectacular cirque walls.',
       trailhead: [-113.6789, 48.7970],
+      photoUrl: 'https://images.unsplash.com/photo-1530041539828-114de669390e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -529,6 +549,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2763,
       description: 'Most popular route to LeConte Lodge. Spectacular arch and cliff faces.',
       trailhead: [-83.4511, 35.6308],
+      photoUrl: 'https://images.unsplash.com/photo-1527489377706-5bf97e608852?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'chimney-tops',
@@ -538,6 +560,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1400,
       description: 'Steep climb to rocky pinnacle. Trail damaged by 2016 fires but reopened.',
       trailhead: [-83.4728, 35.6281],
+      photoUrl: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'laurel-falls',
@@ -546,6 +570,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: '80-foot waterfall on paved trail. Very popular - go early.',
       trailhead: [-83.6117, 35.6700],
+      photoUrl: 'https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'abrams-falls',
@@ -555,6 +581,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 650,
       description: '20-foot wide falls in Cades Cove area. Swimming is dangerous.',
       trailhead: [-83.8450, 35.6042],
+      photoUrl: 'https://images.unsplash.com/photo-1552083375-1447ce886485?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'rainbow-falls',
@@ -564,6 +592,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1685,
       description: '80-foot falls that create rainbows on sunny afternoons.',
       trailhead: [-83.4953, 35.6736],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -576,6 +606,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Walk on the lowest point in North America at 282 feet below sea level.',
       trailhead: [-116.8325, 36.2296],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'golden-canyon',
@@ -585,6 +617,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Colorful canyon walls lead to dramatic red cliffs. Best in morning light.',
       trailhead: [-116.8470, 36.4206],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mosaic-canyon',
@@ -594,6 +628,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Polished marble narrows and mosaic breccia walls. Slot canyon feel.',
       trailhead: [-117.1467, 36.5703],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'telescope-peak',
@@ -603,6 +639,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 3000,
       description: 'Highest point in the park at 11,049 ft. Views from Badwater to Mt. Whitney.',
       trailhead: [-117.0808, 36.1694],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'natural-bridge',
@@ -612,6 +650,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Short canyon hike to a 35-foot natural rock bridge and dry waterfall.',
       trailhead: [-116.7806, 36.3472],
+      photoUrl: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mesquite-dunes',
@@ -620,6 +660,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Tallest dunes in the park at 100 feet. Best at sunrise or sunset.',
       trailhead: [-117.1161, 36.6117],
+      photoUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -751,6 +793,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Iconic temperate rainforest loop. Moss-draped maples and giant ferns.',
       trailhead: [-123.9328, 47.8608],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hurricane-hill',
@@ -760,6 +804,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 650,
       description: 'Alpine meadows with views of Mt. Olympus and Strait of Juan de Fuca.',
       trailhead: [-123.4989, 47.9742],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'sol-duc-falls',
@@ -769,6 +815,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Stunning three-pronged waterfall through old-growth forest.',
       trailhead: [-123.8364, 47.9553],
+      photoUrl: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'rialto-beach',
@@ -777,6 +825,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'moderate',
       description: 'Coastal walk past sea stacks to natural arch. Check tide tables.',
       trailhead: [-124.6378, 47.9206],
+      photoUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mount-storm-king',
@@ -786,6 +836,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2000,
       description: 'Steep scramble with ropes to Lake Crescent views. Not for acrophobes.',
       trailhead: [-123.7989, 48.0569],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'marymere-falls',
@@ -795,6 +847,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: '90-foot waterfall through old-growth. Combine with Storm King.',
       trailhead: [-123.7989, 48.0569],
+      photoUrl: 'https://images.unsplash.com/photo-1482192505345-5655af888cc4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
