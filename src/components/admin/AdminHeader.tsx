@@ -7,6 +7,14 @@ import { useToast } from '@/hooks/use-toast';
 const routeLabels: Record<string, string> = {
   '/admin': 'Dashboard',
   '/admin/users': 'User Management',
+  '/admin/founders': 'Founders Program',
+  '/admin/interests': 'Interest Management',
+  '/admin/pro-contexts': 'PRO Contexts',
+  '/admin/directory/cities': 'Cities',
+  '/admin/directory/metros': 'Metros',
+  '/admin/directory/places': 'Places',
+  '/admin/directory/events': 'Events',
+  '/admin/posts': 'Announcements',
   '/admin/blog': 'Blog Management',
 };
 
