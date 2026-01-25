@@ -44,75 +44,67 @@ interface SectionMeta {
   helperText: string;
 }
 
-// Section display metadata - human-first copy
+// Section display metadata - human-first copy (outdoor-aligned)
 const SECTION_META: Record<string, SectionMeta> = {
-  'about.gender': {
-    title: 'You are',
-    helperText: '',
-  },
+  // Step 1: About You (identity - overlap only)
   'about.age': {
     title: 'Your age range',
     helperText: '',
   },
   'about.relationship': {
-    title: 'Your relationship status',
+    title: 'Relationship status',
     helperText: '',
   },
-  'about.orientation': {
-    title: 'Sexual orientation (optional)',
+  'about.experience': {
+    title: 'Outdoor experience',
     helperText: '',
   },
-  'seeking.comfort': {
-    title: "I'm looking for places that are",
+  // Step 2: Lifestyle/How you move
+  'style.social': {
+    title: 'Social energy',
     helperText: '',
   },
-  'seeking.community': {
-    title: "Within LGBTQ+ spaces, I'm most interested in places that center",
+  'style.pace': {
+    title: 'Your pace',
     helperText: '',
   },
-  'seeking.relationship_context': {
-    title: 'In those spaces, I feel most comfortable around',
+  'style.crowds': {
+    title: 'Comfort with crowds',
     helperText: '',
   },
-  'intent.goal': {
-    title: "What you're hoping to find there",
+  // Step 3: Intent
+  'intent.connection': {
+    title: "What you're hoping for",
     helperText: '',
   },
-  'style.energy': {
-    title: 'What kind of energy feels right',
+  'intent.vibe': {
+    title: 'What draws you outside',
     helperText: '',
   },
-  'style.environment': {
-    title: 'Features you appreciate in a space',
-    helperText: '',
-  },
-  'style.timing': {
-    title: 'When you tend to go out',
-    helperText: '',
-  },
+  // Step 4: Activity
   'style.activity': {
     title: 'How you stay active',
     helperText: '',
   },
 };
 
-// Step metadata — place-centric copy
+// Step metadata — outdoor-first, place-centric copy
 const STEP_META: Record<number, { title: string; helperText: string }> = {
   1: {
     title: 'About you',
-    helperText: 'Helps the directory recognize places where people with similar patterns tend to gather. Private by default.',
+    helperText: 'Helps the directory recognize places where people with similar patterns gather. Private by default.',
   },
   2: {
-    title: 'Who you feel most comfortable around',
-    helperText: 'Some places naturally become hubs for certain routines and comfort levels. This helps surface spaces where overlap already exists.',
+    title: 'How you move through the world',
+    helperText: 'Your rhythm and comfort preferences help match places that feel right for how you explore.',
   },
   3: {
-    title: "What you're hoping to find there",
-    helperText: 'Helps the directory match your intent to places where similar goals tend to play out.',
+    title: 'What draws you outside',
+    helperText: 'Your intent helps surface places where similar goals tend to play out.',
   },
   4: {
-    title: 'How you like to spend time out',
-    helperText: 'Your energy and timing preferences help match places to your rhythm.',
+    title: 'How you stay active',
+    helperText: 'Your activities help highlight trails, parks, and spots that match your outdoor interests.',
   },
 };
 
