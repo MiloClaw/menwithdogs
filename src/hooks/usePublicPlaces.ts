@@ -63,13 +63,18 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
 
       if (error) throw error;
 
-      // For non-exploration mode with coordinates, apply radius filter client-side
-      if (!isExplorationMode && lat != null && lng != null) {
-        return (data as DirectoryPlace[]).filter(place => {
-          if (place.lat == null || place.lng == null) return false;
-          const distance = calculateDistanceMiles(lat, lng, place.lat, place.lng);
-          return distance <= radiusMiles;
-        });
+      // For non-exploration mode: apply radius filter only if coordinates exist
+      // If no location context, return all places (nationwide view for first-time visitors)
+      if (!isExplorationMode) {
+        if (lat != null && lng != null) {
+          return (data as DirectoryPlace[]).filter(place => {
+            if (place.lat == null || place.lng == null) return false;
+            const distance = calculateDistanceMiles(lat, lng, place.lat, place.lng);
+            return distance <= radiusMiles;
+          });
+        }
+        // No location set - return all places for nationwide discovery
+        return data as DirectoryPlace[];
       }
 
       return data as DirectoryPlace[];

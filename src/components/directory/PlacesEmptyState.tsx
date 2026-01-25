@@ -48,10 +48,8 @@ export function PlacesEmptyState({
     },
     'no-location': {
       icon: MapPinOff,
-      title: 'Your area is on the way',
-      // Priority 2: Refined copy - instructional clarity
-      description: 'Set your city to see places people actually go.',
-      // Priority 2: Promoted CTA - primary variant, larger size
+      title: 'Explore outdoor spots nationwide',
+      description: 'Set your location to see places nearby, or browse the full directory.',
       action: onSetCity && (
         <Button 
           variant="default" 
@@ -60,7 +58,7 @@ export function PlacesEmptyState({
           className="gap-2"
         >
           <MapPin className="h-4 w-4" />
-          Set your city
+          Set your location
         </Button>
       ),
     },
