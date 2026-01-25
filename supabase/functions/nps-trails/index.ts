@@ -31,43 +31,67 @@ serve(async (req) => {
 
     const [minLng, minLat, maxLng, maxLat] = bounds;
 
-    // Build geometry envelope for the bounding box query
-    const geometryParam = JSON.stringify({
-      xmin: minLng,
-      ymin: minLat,
-      xmax: maxLng,
-      ymax: maxLat,
-      spatialReference: { wkid: 4326 }
-    });
+    // Use simple bbox format: xmin,ymin,xmax,ymax
+    const geometryParam = `${minLng},${minLat},${maxLng},${maxLat}`;
 
     // Build query parameters
     const params = new URLSearchParams({
-      where: '1=1', // All trails in bounds
+      where: parkCode ? `UnitCode='${parkCode.toUpperCase()}'` : '1=1',
       geometry: geometryParam,
       geometryType: 'esriGeometryEnvelope',
+      inSR: '4326',
       spatialRel: 'esriSpatialRelIntersects',
       outFields: 'TrailName,TrailClass,TrailSurface,Miles,UnitCode',
       f: 'geojson',
       outSR: '4326',
     });
 
-    // If parkCode provided, filter by unit code (e.g., 'JOTR' for Joshua Tree)
-    if (parkCode) {
-      params.set('where', `UnitCode = '${parkCode.toUpperCase()}'`);
-    }
+    console.log(`Fetching NPS trails for parkCode: ${parkCode || 'all'}, bounds: ${geometryParam}`);
 
-    console.log(`Fetching NPS trails for bounds: ${bounds.join(', ')}, parkCode: ${parkCode || 'all'}`);
-
-    const response = await fetch(`${NPS_TRAILS_URL}?${params.toString()}`);
+    let response = await fetch(`${NPS_TRAILS_URL}?${params.toString()}`);
+    let data = await response.json();
     
-    if (!response.ok) {
-      console.error(`NPS API error: ${response.status} ${response.statusText}`);
-      throw new Error(`NPS API returned ${response.status}`);
+    // Check for ArcGIS error response
+    if (data.error) {
+      console.error(`ArcGIS error with UnitCode filter:`, JSON.stringify(data.error));
+      // Try without the UnitCode filter as fallback
+      params.set('where', '1=1');
+      response = await fetch(`${NPS_TRAILS_URL}?${params.toString()}`);
+      data = await response.json();
+      
+      if (data.error) {
+        console.error(`ArcGIS error with bounds-only query:`, JSON.stringify(data.error));
+        // Return empty FeatureCollection instead of error
+        return new Response(
+          JSON.stringify({ type: 'FeatureCollection', features: [] }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
-    const data = await response.json();
+    const featureCount = data.features?.length || 0;
+    console.log(`Found ${featureCount} trail features`);
 
-    console.log(`Found ${data.features?.length || 0} trail features`);
+    // If no features with UnitCode, try bounds-only
+    if (featureCount === 0 && parkCode) {
+      console.log('No features with UnitCode filter, retrying with bounds only...');
+      params.set('where', '1=1');
+      
+      response = await fetch(`${NPS_TRAILS_URL}?${params.toString()}`);
+      data = await response.json();
+      
+      if (!data.error) {
+        console.log(`Found ${data.features?.length || 0} trail features with bounds-only query`);
+      }
+    }
+
+    // Ensure we always return valid GeoJSON
+    if (!data.type || data.type !== 'FeatureCollection') {
+      return new Response(
+        JSON.stringify({ type: 'FeatureCollection', features: data.features || [] }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     return new Response(
       JSON.stringify(data),
@@ -79,11 +103,10 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Failed to fetch trail data',
         type: 'FeatureCollection',
         features: []
       }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
