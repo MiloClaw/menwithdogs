@@ -28,9 +28,27 @@ const LogoGeneratorCard = ({ sourceLogoUrl }: LogoGeneratorCardProps) => {
   const [customPrompt, setCustomPrompt] = useState('');
   const { isGenerating, generatedLogos, generateLogo, clearLogos } = useLogoGeneration();
 
+  // Convert local image to base64 data URL
+  const getBase64FromUrl = async (url: string): Promise<string> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const handleGenerate = async (prompt: string) => {
     if (!prompt.trim()) return;
-    await generateLogo(sourceLogoUrl, prompt);
+    try {
+      // Convert the source image to base64 so the AI gateway can read it
+      const base64Url = await getBase64FromUrl(sourceLogoUrl);
+      await generateLogo(base64Url, prompt);
+    } catch (error) {
+      console.error('Failed to convert image to base64:', error);
+    }
   };
 
   const handleDownload = (imageUrl: string, index: number) => {
