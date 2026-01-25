@@ -71,9 +71,9 @@ const BrandLockup = ({
       )}
       {showStripe && (
         <div className={cn("flex", stripe.container)}>
-          <div className={cn("rounded-full bg-[#152638]", stripe.bar)} />
-          <div className={cn("rounded-full bg-[#C5702A]", stripe.bar)} />
-          <div className={cn("rounded-full bg-[#3F5E4A]", stripe.bar)} />
+          <div className={cn("rounded-full bg-brand-navy", stripe.bar)} />
+          <div className={cn("rounded-full bg-brand-amber", stripe.bar)} />
+          <div className={cn("rounded-full bg-brand-green", stripe.bar)} />
         </div>
       )}
     </div>

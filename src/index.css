@@ -9,6 +9,11 @@
 
 @layer base {
   :root {
+    /* ThickTimber Brand Palette */
+    --brand-navy: #152638;
+    --brand-amber: #C5702A;
+    --brand-green: #3F5E4A;
+
     /* ThickTimber Color Palette */
     --background: 0 0% 100%;
     --foreground: 0 0% 11%;
