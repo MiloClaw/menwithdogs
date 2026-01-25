@@ -41,8 +41,8 @@ const Outdoors = () => {
     <PageLayout>
       <SEOHead
         title="Gay Outdoors - Community, Outside the Usual Places"
-        description="A directory for gay men who love hiking, camping, and the outdoors. Find trails, campsites, and swimming holes where outdoor gay men connect."
-        keywords="gay hiking, gay camping, LGBTQ outdoors, gay backpacking, gay nature, gay trail community, outdoor gay men"
+        description="A directory for gay men who love hiking, camping, and staying active outdoors. Find trails, campsites, and swimming holes where outdoor gay men connect."
+        keywords="gay hiking, gay camping, LGBTQ outdoors, gay backpacking, gay nature, gay trail community, outdoor gay men, gay active lifestyle, gay running groups"
         canonicalPath="/outdoors"
       />
 
@@ -88,7 +88,7 @@ const Outdoors = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
           >
-            Not everyone finds connection in bars or cafés. Some of us find it on trails, around campfires, or just being outside long enough to feel like ourselves again.
+            Not everyone finds connection in bars or cafés. Some of us find it on trails, around campfires, or just being active outside long enough to feel like ourselves again.
           </motion.p>
         </div>
       </section>
@@ -265,6 +265,9 @@ const Outdoors = () => {
                 This is for gay men who feel more at ease outside than in crowded rooms.
               </p>
               <p>
+                Whether you're a hiker, a runner, a cyclist, or just someone who feels better after time outside — this is for you.
+              </p>
+              <p>
                 For guys who hike alone but wouldn't mind company. For{" "}
                 <Link to="/couples" className="text-primary hover:underline">
                   couples
@@ -272,10 +275,7 @@ const Outdoors = () => {
                 looking for outdoor friends. For people who've moved somewhere new and don't know where to start.
               </p>
               <p>
-                You don't need to be an expert. You don't need to be especially social.
-              </p>
-              <p>
-                If being outdoors helps you feel more like yourself, you'll probably feel at home here.
+                You don't need to be an expert. You don't need to be especially social. If staying active outdoors helps you feel more like yourself, you'll probably feel at home here.
               </p>
             </motion.div>
           </div>

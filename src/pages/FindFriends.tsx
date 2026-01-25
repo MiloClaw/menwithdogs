@@ -19,8 +19,8 @@ const FindFriends = () => {
     <PageLayout>
       <SEOHead
         title="Find Gay Outdoor Friends – Make Real Connections on the Trail"
-        description="Looking for gay friends who love the outdoors? Discover trails, campsites, and outdoor spots where you can find community — not on dating apps."
-        keywords="find gay hiking friends, gay outdoor friends, gay camping buddies, gay men hiking, LGBTQ outdoor community"
+        description="Looking for gay friends who love the outdoors and staying active? Discover trails, campsites, and outdoor spots where you can find community — not on dating apps."
+        keywords="find gay hiking friends, gay outdoor friends, gay camping buddies, gay men hiking, LGBTQ outdoor community, gay active lifestyle, gay running buddies, gay cycling friends"
         canonicalPath="/find-friends"
       />
 
@@ -165,8 +165,8 @@ const FindFriends = () => {
               {[
                 {
                   icon: Mountain,
-                  title: "Trail Runs & Day Hikes",
-                  description: "The trails where you see the same faces. Where shared pursuit creates natural bonding without forced socializing."
+                  title: "Trail Runs & Active Hikes",
+                  description: "The trails where you see the same faces. Where shared pursuit — running, hiking, or just moving — creates natural bonding."
                 },
                 {
                   icon: Tent,
@@ -175,8 +175,8 @@ const FindFriends = () => {
                 },
                 {
                   icon: Compass,
-                  title: "Group Hikes & Outdoor Meetups",
-                  description: "Hiking groups, camping weekends, outdoor events. Consistency builds familiarity, and familiarity builds friendship."
+                  title: "Group Hikes & Active Meetups",
+                  description: "Hiking groups, running crews, cycling meetups, camping weekends. Consistency builds familiarity, and familiarity builds friendship."
                 },
                 {
                   icon: Users,
