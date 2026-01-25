@@ -3,12 +3,17 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { Button } from '@/components/ui/button';
-import { Mountain, Satellite, Loader2 } from 'lucide-react';
+import { Mountain, Satellite, Loader2, Route } from 'lucide-react';
+import { Trail, getTrailsForPark, getDifficultyLabel, DIFFICULTY_COLORS } from '@/lib/trail-data';
+import { createTrailheadMarkerElement, TrailMarkerPopupContent } from './TrailMarker';
+import TrailLegend from './TrailLegend';
+import { AnimatePresence } from 'framer-motion';
 
 interface NationalParkMapProps {
   lat: number;
   lng: number;
   parkName: string;
+  parkId?: string;
   initialZoom?: number;
 }
 
@@ -25,17 +30,49 @@ const TRAIL_LAYERS = ['road-path', 'road-steps', 'road-pedestrian'];
 const NationalParkMap = ({ 
   lat, 
   lng, 
-  parkName, 
+  parkName,
+  parkId,
   initialZoom = 10 
 }: NationalParkMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const trailMarkersRef = useRef<mapboxgl.Marker[]>([]);
   
   const { token, isLoading: tokenLoading, error: tokenError } = useMapboxToken();
   const [mapStyle, setMapStyle] = useState<MapStyle>('outdoors');
   const [isMapReady, setIsMapReady] = useState(false);
+  const [showTrails, setShowTrails] = useState(true);
+
+  // Get featured trails for this park
+  const featuredTrails = parkId ? getTrailsForPark(parkId) : [];
+
+  // Add trail markers to the map
+  const addTrailMarkers = useCallback((map: mapboxgl.Map, trails: Trail[]) => {
+    // Remove existing trail markers
+    trailMarkersRef.current.forEach(marker => marker.remove());
+    trailMarkersRef.current = [];
+
+    if (!showTrails) return;
+
+    trails.forEach(trail => {
+      const el = createTrailheadMarkerElement();
+      
+      const marker = new mapboxgl.Marker({ element: el })
+        .setLngLat(trail.trailhead)
+        .setPopup(
+          new mapboxgl.Popup({ 
+            offset: 15,
+            closeButton: true,
+            maxWidth: '300px',
+          }).setHTML(TrailMarkerPopupContent({ trail }))
+        )
+        .addTo(map);
+
+      trailMarkersRef.current.push(marker);
+    });
+  }, [showTrails]);
 
   // Setup trail interactivity (click and hover events)
   const setupTrailInteractivity = useCallback((map: mapboxgl.Map) => {
@@ -168,6 +205,11 @@ const NationalParkMap = ({
       // Setup trail interactivity
       trailCleanup = setupTrailInteractivity(map);
 
+      // Add featured trail markers
+      if (featuredTrails.length > 0) {
+        addTrailMarkers(map, featuredTrails);
+      }
+
       setIsMapReady(true);
     });
 
@@ -198,12 +240,20 @@ const NationalParkMap = ({
       if (popupRef.current) {
         popupRef.current.remove();
       }
+      trailMarkersRef.current.forEach(m => m.remove());
       marker.remove();
       map.remove();
       mapRef.current = null;
       markerRef.current = null;
     };
-  }, [token, lat, lng, parkName, initialZoom, setupTrailInteractivity]);
+  }, [token, lat, lng, parkName, initialZoom, setupTrailInteractivity, featuredTrails, addTrailMarkers]);
+
+  // Update trail markers when showTrails changes
+  useEffect(() => {
+    if (mapRef.current && isMapReady && featuredTrails.length > 0) {
+      addTrailMarkers(mapRef.current, featuredTrails);
+    }
+  }, [showTrails, isMapReady, featuredTrails, addTrailMarkers]);
 
   // Handle style changes
   const toggleStyle = useCallback(() => {
@@ -251,9 +301,19 @@ const NationalParkMap = ({
 
         // Re-setup trail interactivity after style change
         setupTrailInteractivity(map);
+
+        // Re-add trail markers
+        if (featuredTrails.length > 0 && showTrails) {
+          addTrailMarkers(map, featuredTrails);
+        }
       });
     }
-  }, [mapStyle, setupTrailInteractivity]);
+  }, [mapStyle, setupTrailInteractivity, featuredTrails, showTrails, addTrailMarkers]);
+
+  // Toggle trail visibility
+  const toggleTrails = useCallback(() => {
+    setShowTrails(prev => !prev);
+  }, []);
 
   if (tokenLoading) {
     return (
@@ -275,9 +335,34 @@ const NationalParkMap = ({
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="w-full h-full" />
       
-      {/* Style Toggle Button */}
+      {/* Trail Legend */}
+      <AnimatePresence>
+        {isMapReady && showTrails && featuredTrails.length > 0 && (
+          <TrailLegend />
+        )}
+      </AnimatePresence>
+
+      {/* Control Buttons */}
       {isMapReady && (
-        <div className="absolute bottom-4 right-4 z-10">
+        <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
+          {/* Trail Toggle Button - only show if park has featured trails */}
+          {featuredTrails.length > 0 && (
+            <Button
+              variant="secondary"
+              size="default"
+              onClick={toggleTrails}
+              className={`gap-2 shadow-lg border border-border ${
+                showTrails 
+                  ? 'bg-brand-green text-white hover:bg-brand-green/90' 
+                  : 'bg-white text-foreground hover:bg-muted'
+              }`}
+            >
+              <Route className="h-5 w-5" />
+              <span className="font-medium">{showTrails ? 'Hide Trails' : 'Show Trails'}</span>
+            </Button>
+          )}
+          
+          {/* Style Toggle Button */}
           <Button
             variant="secondary"
             size="default"
