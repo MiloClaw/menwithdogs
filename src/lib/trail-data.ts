@@ -12,6 +12,8 @@ export interface Trail {
   description: string;
   trailhead: [number, number]; // [lng, lat]
   isLoop?: boolean;
+  photoUrl?: string; // Scenic trail photo URL (NPS or Unsplash)
+  photoCredit?: string; // Attribution for the photo source
 }
 
 export interface ParkTrails {
@@ -39,6 +41,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1050,
       description: '360-degree panoramic views from the summit. One of the park\'s most rewarding hikes.',
       trailhead: [-116.1369, 33.9856],
+      photoUrl: 'https://images.unsplash.com/photo-1527489377706-5bf97e608852?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hidden-valley',
@@ -48,6 +52,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Loop through massive boulder formations. Great for rock scrambling and wildlife.',
       trailhead: [-116.1675, 34.0117],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1605540436563-5bca919ae766?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'barker-dam',
@@ -97,6 +103,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 4380,
       description: 'Iconic rim-to-river trail. Day hikers should turn around at 1.5 or 3-Mile Resthouse.',
       trailhead: [-112.1435, 36.0576],
+      photoUrl: 'https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'south-kaibab',
@@ -106,6 +114,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 4860,
       description: 'Steep descent with panoramic views. No water - carry plenty. Ooh Aah Point is a popular turnaround.',
       trailhead: [-112.0837, 36.0531],
+      photoUrl: 'https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'rim-trail',
@@ -114,6 +124,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'easy',
       description: 'Paved and flat. Walk any section for stunning canyon views. Connects major viewpoints.',
       trailhead: [-112.1397, 36.0571],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hermit-trail',
@@ -136,6 +148,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 4800,
       description: 'Iconic granite dome. Permit required for cables. Start before dawn.',
       trailhead: [-119.5584, 37.7270],
+      photoUrl: 'https://images.unsplash.com/photo-1562310503-a918c4c61e38?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mist-trail',
@@ -145,6 +159,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Get soaked by Vernal Fall spray. Continue to Nevada Fall for the full experience.',
       trailhead: [-119.5584, 37.7270],
+      photoUrl: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'yosemite-falls',
@@ -154,6 +170,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2700,
       description: 'Climb to top of North America\'s tallest waterfall. Best in spring.',
       trailhead: [-119.5972, 37.7457],
+      photoUrl: 'https://images.unsplash.com/photo-1568702846914-96b305d2uj79?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'valley-loop',
@@ -172,6 +190,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Reflections of Half Dome and Mt. Watkins. Best in spring when lake is full.',
       trailhead: [-119.5559, 37.7442],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -185,6 +205,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1488,
       description: 'Thrilling knife-edge ridge with chains. Permit required. Not for those afraid of heights.',
       trailhead: [-112.9508, 37.2592],
+      photoUrl: 'https://images.unsplash.com/photo-1535747831336-47bce9afb4c5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'the-narrows',
@@ -193,6 +215,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       difficulty: 'strenuous',
       description: 'Wade through the Virgin River between 2000ft canyon walls. Rent gear in Springdale.',
       trailhead: [-112.9469, 37.2850],
+      photoUrl: 'https://images.unsplash.com/photo-1496128858413-b36217c2ce36?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'observation-point',
@@ -202,6 +226,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2148,
       description: 'Highest viewpoint in Zion Canyon. Look down on Angels Landing.',
       trailhead: [-112.9380, 37.2693],
+      photoUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'riverside-walk',
@@ -232,6 +258,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Boardwalk loop around Old Faithful and nearby thermal features.',
       trailhead: [-110.8282, 44.4605],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1533167649158-6d508895b680?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grand-prismatic',
@@ -241,6 +269,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Best view of the famous rainbow hot spring. Short but steep.',
       trailhead: [-110.8381, 44.5247],
+      photoUrl: 'https://images.unsplash.com/photo-1563299796-17596ed6b017?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'uncle-tom-trail',
@@ -259,6 +289,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1400,
       description: 'Fire lookout with 360-degree views. Watch for bighorn sheep.',
       trailhead: [-110.4372, 44.7985],
+      photoUrl: 'https://images.unsplash.com/photo-1565363887715-39c2a8abc9c3?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'fairy-falls',
@@ -280,6 +312,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1740,
       description: 'Alpine lake beneath the Cathedral Spires. Scramble up The Loch and Timberline Falls.',
       trailhead: [-105.6421, 40.3117],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bear-lake',
@@ -289,6 +323,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'Scenic alpine lake with mountain reflections. Fully accessible.',
       trailhead: [-105.6456, 40.3117],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'emerald-lake-romo',
@@ -298,6 +334,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 650,
       description: 'Three alpine lakes: Nymph, Dream, and Emerald. One of the park\'s most popular.',
       trailhead: [-105.6456, 40.3117],
+      photoUrl: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'chasm-lake',
@@ -329,6 +367,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Iron rungs and ladders up cliff face. Closed during peregrine falcon nesting.',
       trailhead: [-68.1889, 44.3489],
+      photoUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'beehive',
@@ -347,6 +387,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       description: 'First place to see sunrise in the US (Oct-Mar). Paved summit loop.',
       trailhead: [-68.2253, 44.3522],
       isLoop: true,
+      photoUrl: 'https://images.unsplash.com/photo-1478827536114-da961b7f86d2?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'jordan-pond',
