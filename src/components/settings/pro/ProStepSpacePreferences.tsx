@@ -23,12 +23,13 @@ export function ProStepSpacePreferences() {
 
   return (
     <div className="space-y-4">
-      {visibleSections.map((section) => {
+      {visibleSections.map((section, index) => {
         const options = stepOptions[section] ?? [];
         const meta = sectionMeta[section];
 
         return (
           <div key={section} className="space-y-2">
+            {index > 0 && <div className="h-px bg-border/30 my-2" />}
             {meta?.title && (
               <span className="text-xs font-medium text-muted-foreground">
                 {meta.title}

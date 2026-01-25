@@ -48,21 +48,21 @@ export function TasteProfileCard() {
           Places you gravitate toward
         </h3>
         <div className="py-4 text-center">
-          <p className="text-sm text-muted-foreground mb-4">
-            Save a few places to see patterns emerge.
-          </p>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate('/places')}
-            className="min-h-[44px]"
-          >
-            Explore Places →
-          </Button>
-        </div>
-      </section>
-    );
-  }
+        <p className="text-sm text-muted-foreground mb-4">
+          Save a few spots to see patterns emerge.
+        </p>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => navigate('/places')}
+          className="min-h-[44px]"
+        >
+          Explore Outdoors →
+        </Button>
+      </div>
+    </section>
+  );
+}
 
   return (
     <section className="space-y-3">
