@@ -1,9 +1,11 @@
-import { useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2, Sparkles, Crown } from 'lucide-react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2, Sparkles, Crown, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useState } from 'react';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { useState, useEffect } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const navItems = [
   { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -24,14 +26,33 @@ const bottomNavItems = [
   { title: 'Announcements', href: '/admin/posts', icon: FileText },
 ];
 
+// Store the last non-admin route for smart "Back to App" navigation
+const LAST_APP_ROUTE_KEY = 'lastAppRoute';
+
 const AdminSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const currentPath = location.pathname;
-  const currentSearch = location.search;
+  const [sheetOpen, setSheetOpen] = useState(false);
   
   // Directory section is open by default
   const isDirectoryRoute = currentPath.startsWith('/admin/directory');
   const [directoryOpen, setDirectoryOpen] = useState<boolean>(true);
+
+  // Track last non-admin route
+  useEffect(() => {
+    const storedRoute = sessionStorage.getItem(LAST_APP_ROUTE_KEY);
+    // Only set if we don't have one stored or if we're coming from a non-admin route
+    if (!currentPath.startsWith('/admin') && currentPath !== '/auth') {
+      sessionStorage.setItem(LAST_APP_ROUTE_KEY, currentPath);
+    }
+  }, [currentPath]);
+
+  const handleBackToApp = () => {
+    const lastRoute = sessionStorage.getItem(LAST_APP_ROUTE_KEY) || '/places';
+    navigate(lastRoute);
+  };
 
   const isActive = (href: string) => {
     if (href === '/admin') {
@@ -46,6 +67,7 @@ const AdminSidebar = () => {
   const NavItem = ({ href, icon: Icon, title, highlight }: { href: string; icon: React.ElementType; title: string; highlight?: boolean }) => (
     <Link
       to={href}
+      onClick={() => setSheetOpen(false)}
       className={cn(
         'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
         isActive(href)
@@ -60,8 +82,8 @@ const AdminSidebar = () => {
     </Link>
   );
 
-  return (
-    <aside className="w-64 min-h-screen bg-card border-r border-border flex flex-col">
+  const SidebarContent = () => (
+    <>
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2">
@@ -73,7 +95,7 @@ const AdminSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-1">
           {/* Top nav items */}
           {navItems.map((item) => (
@@ -127,13 +149,40 @@ const AdminSidebar = () => {
 
       {/* Footer */}
       <div className="p-4 border-t border-border">
-        <Button variant="ghost" size="sm" className="w-full justify-start gap-2" asChild>
-          <Link to="/places">
-            <ArrowLeft className="h-4 w-4" />
-            Back to App
-          </Link>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full justify-start gap-2" 
+          onClick={handleBackToApp}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to App
         </Button>
       </div>
+    </>
+  );
+
+  // Mobile: render as Sheet
+  if (isMobile) {
+    return (
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="fixed top-3 left-3 z-50 md:hidden">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0 flex flex-col bg-card">
+          <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop: render as fixed sidebar
+  return (
+    <aside className="w-64 min-h-screen bg-card border-r border-border flex flex-col">
+      <SidebarContent />
     </aside>
   );
 };
