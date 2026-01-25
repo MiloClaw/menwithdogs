@@ -1,13 +1,21 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { Button } from '@/components/ui/button';
 import { Mountain, Satellite, Loader2, Route } from 'lucide-react';
-import { Trail, getTrailsForPark, getDifficultyLabel, DIFFICULTY_COLORS } from '@/lib/trail-data';
+import { Trail, getTrailsForPark } from '@/lib/trail-data';
 import { createTrailheadMarkerElement, TrailMarkerPopupContent } from './TrailMarker';
+import { TrailDetailSheet } from './TrailDetailSheet';
 import TrailLegend from './TrailLegend';
 import { AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useNPSTrails, getTrailClassColor } from '@/hooks/useNPSTrails';
+import { getNPSUnitCode } from '@/lib/nps-codes';
+
+export interface NationalParkMapRef {
+  flyToTrail: (trail: Trail) => void;
+}
 
 interface NationalParkMapProps {
   lat: number;
@@ -27,13 +35,17 @@ const MAP_STYLES: Record<MapStyle, string> = {
 // Trail layers available in Mapbox Outdoors style
 const TRAIL_LAYERS = ['road-path', 'road-steps', 'road-pedestrian'];
 
-const NationalParkMap = ({ 
+// NPS trail lines layer ID
+const NPS_TRAILS_SOURCE = 'nps-trails-data';
+const NPS_TRAILS_LAYER = 'nps-trails-lines';
+
+const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({ 
   lat, 
   lng, 
   parkName,
   parkId,
   initialZoom = 10 
-}: NationalParkMapProps) => {
+}, ref) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
@@ -44,9 +56,101 @@ const NationalParkMap = ({
   const [mapStyle, setMapStyle] = useState<MapStyle>('outdoors');
   const [isMapReady, setIsMapReady] = useState(false);
   const [showTrails, setShowTrails] = useState(true);
+  
+  // Mobile bottom sheet state
+  const isMobile = useIsMobile();
+  const [selectedTrail, setSelectedTrail] = useState<Trail | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Get featured trails for this park
   const featuredTrails = parkId ? getTrailsForPark(parkId) : [];
+  
+  // Get NPS unit code and compute bounds for NPS API
+  const npsCode = parkId ? getNPSUnitCode(parkId) : undefined;
+  const bounds: [number, number, number, number] = [
+    lng - 0.5, lat - 0.5, lng + 0.5, lat + 0.5
+  ];
+  
+  // Fetch NPS trail GeoJSON
+  const { data: npsTrailsData } = useNPSTrails({
+    parkCode: npsCode || '',
+    bounds,
+    enabled: !!npsCode && isMapReady,
+  });
+
+  // Expose flyToTrail method via ref
+  useImperativeHandle(ref, () => ({
+    flyToTrail: (trail: Trail) => {
+      if (mapRef.current) {
+        mapRef.current.flyTo({
+          center: trail.trailhead,
+          zoom: 14,
+          duration: 1500,
+        });
+        
+        // Open the trail's popup after flying
+        const marker = trailMarkersRef.current.find(m => {
+          const lngLat = m.getLngLat();
+          return lngLat.lng === trail.trailhead[0] && lngLat.lat === trail.trailhead[1];
+        });
+        
+        if (marker) {
+          if (isMobile) {
+            setSelectedTrail(trail);
+            setSheetOpen(true);
+          } else {
+            marker.togglePopup();
+          }
+        }
+      }
+    },
+  }), [isMobile]);
+
+  // Add NPS trail polylines to the map
+  const addNPSTrailsLayer = useCallback((map: mapboxgl.Map) => {
+    if (!npsTrailsData || !npsTrailsData.features || npsTrailsData.features.length === 0) return;
+    
+    // Remove existing source/layer if present
+    if (map.getLayer(NPS_TRAILS_LAYER)) {
+      map.removeLayer(NPS_TRAILS_LAYER);
+    }
+    if (map.getSource(NPS_TRAILS_SOURCE)) {
+      map.removeSource(NPS_TRAILS_SOURCE);
+    }
+    
+    if (!showTrails) return;
+    
+    // Add GeoJSON source
+    map.addSource(NPS_TRAILS_SOURCE, {
+      type: 'geojson',
+      data: npsTrailsData as GeoJSON.FeatureCollection,
+    });
+    
+    // Add line layer with difficulty-based coloring
+    map.addLayer({
+      id: NPS_TRAILS_LAYER,
+      type: 'line',
+      source: NPS_TRAILS_SOURCE,
+      paint: {
+        'line-color': [
+          'match',
+          ['coalesce', ['get', 'TrailClass'], '3'],
+          '1', getTrailClassColor(1),
+          '2', getTrailClassColor(2),
+          '3', getTrailClassColor(3),
+          '4', getTrailClassColor(4),
+          '5', getTrailClassColor(5),
+          '#3F5E4A', // default brand-green
+        ],
+        'line-width': 3,
+        'line-opacity': 0.8,
+      },
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+    });
+  }, [npsTrailsData, showTrails]);
 
   // Add trail markers to the map
   const addTrailMarkers = useCallback((map: mapboxgl.Map, trails: Trail[]) => {
@@ -59,20 +163,35 @@ const NationalParkMap = ({
     trails.forEach(trail => {
       const el = createTrailheadMarkerElement();
       
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat(trail.trailhead)
-        .setPopup(
-          new mapboxgl.Popup({ 
-            offset: 15,
-            closeButton: true,
-            maxWidth: '300px',
-          }).setHTML(TrailMarkerPopupContent({ trail }))
-        )
-        .addTo(map);
+      // On mobile, use bottom sheet instead of popup
+      if (isMobile) {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setSelectedTrail(trail);
+          setSheetOpen(true);
+        });
+        
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat(trail.trailhead)
+          .addTo(map);
+          
+        trailMarkersRef.current.push(marker);
+      } else {
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat(trail.trailhead)
+          .setPopup(
+            new mapboxgl.Popup({ 
+              offset: 20,
+              closeButton: true,
+              maxWidth: '300px',
+            }).setHTML(TrailMarkerPopupContent({ trail }))
+          )
+          .addTo(map);
 
-      trailMarkersRef.current.push(marker);
+        trailMarkersRef.current.push(marker);
+      }
     });
-  }, [showTrails]);
+  }, [showTrails, isMobile]);
 
   // Setup trail interactivity (click and hover events)
   const setupTrailInteractivity = useCallback((map: mapboxgl.Map) => {
@@ -254,6 +373,13 @@ const NationalParkMap = ({
       addTrailMarkers(mapRef.current, featuredTrails);
     }
   }, [showTrails, isMapReady, featuredTrails, addTrailMarkers]);
+  
+  // Add NPS trail polylines when data loads
+  useEffect(() => {
+    if (mapRef.current && isMapReady && npsTrailsData) {
+      addNPSTrailsLayer(mapRef.current);
+    }
+  }, [npsTrailsData, isMapReady, showTrails, addNPSTrailsLayer]);
 
   // Handle style changes
   const toggleStyle = useCallback(() => {
@@ -306,9 +432,14 @@ const NationalParkMap = ({
         if (featuredTrails.length > 0 && showTrails) {
           addTrailMarkers(map, featuredTrails);
         }
+        
+        // Re-add NPS trail polylines
+        if (npsTrailsData) {
+          addNPSTrailsLayer(map);
+        }
       });
     }
-  }, [mapStyle, setupTrailInteractivity, featuredTrails, showTrails, addTrailMarkers]);
+  }, [mapStyle, setupTrailInteractivity, featuredTrails, showTrails, addTrailMarkers, npsTrailsData, addNPSTrailsLayer]);
 
   // Toggle trail visibility
   const toggleTrails = useCallback(() => {
@@ -383,8 +514,17 @@ const NationalParkMap = ({
           </Button>
         </div>
       )}
+      
+      {/* Mobile Trail Detail Sheet */}
+      <TrailDetailSheet
+        trail={selectedTrail}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+      />
     </div>
   );
-};
+});
+
+NationalParkMap.displayName = 'NationalParkMap';
 
 export default NationalParkMap;
