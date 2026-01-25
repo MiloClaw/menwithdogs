@@ -458,13 +458,16 @@ export type Database = {
           is_recurring: boolean | null
           name: string
           normalized_by_ai: boolean | null
+          posted_by: string | null
           social_energy_level: number | null
           source: Database["public"]["Enums"]["place_source"]
           start_at: string
           status: Database["public"]["Enums"]["event_status"]
+          stripe_subscription_id: string | null
           submitted_by: string | null
           updated_at: string
           venue_place_id: string
+          visibility_end_at: string | null
         }
         Insert: {
           approved_at?: string | null
@@ -483,13 +486,16 @@ export type Database = {
           is_recurring?: boolean | null
           name: string
           normalized_by_ai?: boolean | null
+          posted_by?: string | null
           social_energy_level?: number | null
           source?: Database["public"]["Enums"]["place_source"]
           start_at: string
           status?: Database["public"]["Enums"]["event_status"]
+          stripe_subscription_id?: string | null
           submitted_by?: string | null
           updated_at?: string
           venue_place_id: string
+          visibility_end_at?: string | null
         }
         Update: {
           approved_at?: string | null
@@ -508,13 +514,16 @@ export type Database = {
           is_recurring?: boolean | null
           name?: string
           normalized_by_ai?: boolean | null
+          posted_by?: string | null
           social_energy_level?: number | null
           source?: Database["public"]["Enums"]["place_source"]
           start_at?: string
           status?: Database["public"]["Enums"]["event_status"]
+          stripe_subscription_id?: string | null
           submitted_by?: string | null
           updated_at?: string
           venue_place_id?: string
+          visibility_end_at?: string | null
         }
         Relationships: [
           {
@@ -1677,6 +1686,7 @@ export type Database = {
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          type: string
           updated_at: string | null
         }
         Insert: {
@@ -1690,6 +1700,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          type?: string
           updated_at?: string | null
         }
         Update: {
@@ -1703,6 +1714,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          type?: string
           updated_at?: string | null
         }
         Relationships: [
