@@ -130,7 +130,7 @@ const FindFriends = () => {
                 crowd. The bar with the trivia night.
               </p>
               <p>
-                MainStreetIRL helps you find those places — the ones where gay men 
+                ThickTimber helps you find those places — the ones where gay men 
                 already gather in your city. Not to force connection, but to create 
                 the conditions where it can happen naturally.
               </p>
@@ -225,7 +225,7 @@ const FindFriends = () => {
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p>
                 We're not building another app where you browse profiles and hope 
-                for the best. MainStreetIRL is a directory — a collection of places 
+                for the best. ThickTimber is a directory — a collection of places 
                 curated by and for gay men.
               </p>
               <p>

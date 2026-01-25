@@ -59,12 +59,12 @@ const About = () => {
   const aboutSchema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    "name": "About MainStreetIRL",
-    "description": "The story behind MainStreetIRL — rebuilding gay community through real places, not dating apps.",
-    "url": "https://mainstreetirl.com/about",
+    "name": "About ThickTimber",
+    "description": "The story behind ThickTimber — rebuilding gay community through real places, not dating apps.",
+    "url": "https://thicktimber.lovable.app/about",
     "mainEntity": {
       "@type": "Organization",
-      "name": "MainStreetIRL",
+      "name": "ThickTimber",
       "description": "A place-centric directory helping gay men and couples find community, friends, and real-world connection."
     }
   };
@@ -72,9 +72,9 @@ const About = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Why MainStreetIRL Exists – Gay Community Built Around Real Places"
-        description="The story behind MainStreetIRL — rebuilding gay community through real places, not dating apps. A place-first approach to finding friends and connection."
-        keywords="about MainStreetIRL, gay community platform, LGBTQ places directory, gay friendship app"
+        title="Why ThickTimber Exists – Gay Community Built Around Real Places"
+        description="The story behind ThickTimber — rebuilding gay community through real places, not dating apps. A place-first approach to finding friends and connection."
+        keywords="about ThickTimber, gay community platform, LGBTQ places directory, gay friendship app"
         canonicalPath="/about"
         schema={aboutSchema}
       />
@@ -116,7 +116,7 @@ const About = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl"
           >
-            The story behind MainStreetIRL
+            The story behind ThickTimber
           </motion.p>
         </div>
       </section>
@@ -200,7 +200,7 @@ const About = () => {
             </h2>
             <div className="space-y-6 text-base md:text-lg text-primary-foreground/90 leading-relaxed">
               <p>
-                MainStreetIRL is a private directory of places where gay community already 
+                ThickTimber is a private directory of places where gay community already 
                 gathers—curated by people who understand, not algorithms chasing engagement.
               </p>
               <p>
@@ -371,7 +371,7 @@ const About = () => {
                 you scrolling, but through real places and real presence.
               </p>
               <p>
-                We're building MainStreetIRL to strengthen local connection, reduce online 
+                We're building ThickTimber to strengthen local connection, reduce online 
                 fatigue, and lower the friction of meeting people organically. To help 
                 community grow where it actually lives: on main streets, in neighborhoods, 
                 at the places that matter.

@@ -63,7 +63,7 @@ const AdminDashboard = () => {
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">MainStreet IRL command center</p>
+          <p className="text-muted-foreground">ThickTimber command center</p>
         </div>
 
         {/* Hero Stats Bar - 6 key metrics with freshness indicator */}

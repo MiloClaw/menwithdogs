@@ -16,7 +16,7 @@ const Terms = () => {
               1. Acceptance of Terms
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              By accessing or using MainStreetIRL (the "Service"), you agree to be bound by these 
+              By accessing or using ThickTimber (the "Service"), you agree to be bound by these 
               Terms of Service ("Terms"). If you do not agree to these Terms, please do not access 
               or use the Service.
             </p>
@@ -32,7 +32,7 @@ const Terms = () => {
               2. Intended Use & Eligibility
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              MainStreetIRL is an intentionally designed social platform for gay men, including 
+              ThickTimber is an intentionally designed social platform for gay men, including 
               both single men and men in committed relationships, who are seeking platonic 
               friendships with other gay men.
             </p>
@@ -60,7 +60,7 @@ const Terms = () => {
               order to provide a clear, respectful, and consistent experience.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              While MainStreetIRL respects and affirms people of all gender identities and 
+              While ThickTimber respects and affirms people of all gender identities and 
               expressions, participation in the Service is limited to users whose use aligns 
               with the platform's defined community scope and intended purpose.
             </p>
@@ -78,7 +78,7 @@ const Terms = () => {
               Descriptions of the Service's purpose, intended users, boundaries, and community 
               guidelines provided on the website, during onboarding, or in FAQs are incorporated 
               by reference into these Terms and form part of the agreement between you and 
-              MainStreetIRL.
+              ThickTimber.
             </p>
           </section>
 
@@ -87,7 +87,7 @@ const Terms = () => {
               5. Use of the Service
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              MainStreetIRL is designed to help users discover local experiences and foster 
+              ThickTimber is designed to help users discover local experiences and foster 
               real-world, friendship-based community connections. The Service is intended for 
               personal, non-commercial use only.
             </p>
@@ -124,7 +124,7 @@ const Terms = () => {
               7. Scope Enforcement & Access Control
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              To maintain the integrity, safety, and purpose of the Service, MainStreetIRL 
+              To maintain the integrity, safety, and purpose of the Service, ThickTimber 
               reserves the right, at its sole discretion, to limit, suspend, or terminate 
               access to the Service if an account or usage is determined to fall outside 
               the platform's intended use or community scope.
@@ -141,7 +141,7 @@ const Terms = () => {
               8. No Guaranteed Access
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Access to the Service is provided at MainStreetIRL's discretion and is not 
+              Access to the Service is provided at ThickTimber's discretion and is not 
               guaranteed. We may modify, restrict, suspend, or discontinue access to the 
               Service at any time to support platform integrity, safety, or alignment with 
               its intended purpose.
@@ -154,7 +154,7 @@ const Terms = () => {
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
               The Service and its original content, features, and functionality are owned by 
-              MainStreetIRL and are protected by international copyright, trademark, patent, 
+              ThickTimber and are protected by international copyright, trademark, patent, 
               trade secret, and other intellectual property laws.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
@@ -168,7 +168,7 @@ const Terms = () => {
               10. Disclaimers
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              The Service is provided on an "as is" and "as available" basis. MainStreetIRL 
+              The Service is provided on an "as is" and "as available" basis. ThickTimber 
               makes no warranties, express or implied, regarding reliability, availability, 
               or suitability for any particular purpose.
             </p>
@@ -183,7 +183,7 @@ const Terms = () => {
               11. Limitation of Liability
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              To the fullest extent permitted by law, MainStreetIRL, its directors, employees, 
+              To the fullest extent permitted by law, ThickTimber, its directors, employees, 
               partners, and affiliates shall not be liable for any indirect, incidental, special, 
               consequential, or punitive damages, including loss of profits, data, use, goodwill, 
               or other intangible losses, resulting from access to or use of the Service.
@@ -218,7 +218,7 @@ const Terms = () => {
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               If you have any questions about these Terms of Service, please contact us at 
-              support@mainstreetirl.com.
+              support@thicktimber.com.
             </p>
           </section>
         </div>

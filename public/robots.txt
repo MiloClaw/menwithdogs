@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://mainstreetirl.com/sitemap.xml
+Sitemap: https://thicktimber.lovable.app/sitemap.xml
