@@ -15,7 +15,10 @@ const Footer = () => {
               <h2 className="font-serif text-2xl md:text-3xl font-semibold text-primary-foreground tracking-tight">
                 ThickTimber
               </h2>
-              <p className="font-serif text-sm italic text-primary-foreground/60 mt-2">
+              <span className="block text-xs font-sans font-medium tracking-[0.3em] text-primary-foreground/70 uppercase mt-1">
+                Social Club
+              </span>
+              <p className="font-serif text-sm italic text-primary-foreground/60 mt-3">
                 Real places. Real community. Real connection.
               </p>
             </div>
