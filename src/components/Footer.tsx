@@ -2,22 +2,25 @@ import { Link } from "react-router-dom";
 import logoBadge from "@/assets/logo-badge.png";
 
 const Footer = () => {
-  const linkClasses = "text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary-foreground after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left";
-  return <footer className="py-12 md:py-16 bg-primary">
-      <div className="container">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8 mb-8">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <img 
-              src={logoBadge} 
-              alt="ThickTimber - Real places. Real community. Real Connection."
-              className="h-20 md:h-24 w-auto"
-            />
-          </div>
-          
+  const linkClasses = "text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-200";
+  
+  return (
+    <footer className="py-16 md:py-20 lg:py-24 bg-primary">
+      <div className="container max-w-6xl">
+        {/* Logo - Centered Hero */}
+        <div className="flex justify-center mb-12 md:mb-16">
+          <img 
+            src={logoBadge} 
+            alt="ThickTimber - Real places. Real community. Real Connection."
+            className="h-28 md:h-36 lg:h-40 w-auto object-contain"
+          />
+        </div>
+        
+        {/* Navigation Grid - 4 Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center md:text-left">
           {/* Explore */}
           <div>
-            <h4 className="text-sm font-semibold text-primary-foreground mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
               Explore
             </h4>
             <nav className="flex flex-col gap-3">
@@ -25,16 +28,16 @@ const Footer = () => {
                 Places
               </Link>
               {/* Blog link hidden - uncomment when ready to launch
-               <Link to="/blog" className={linkClasses}>
+              <Link to="/blog" className={linkClasses}>
                 Blog
-               </Link>
-               */}
+              </Link>
+              */}
             </nav>
           </div>
           
           {/* Community */}
           <div>
-            <h4 className="text-sm font-semibold text-primary-foreground mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
               Community
             </h4>
             <nav className="flex flex-col gap-3">
@@ -58,7 +61,7 @@ const Footer = () => {
           
           {/* Company */}
           <div>
-            <h4 className="text-sm font-semibold text-primary-foreground mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
               Company
             </h4>
             <nav className="flex flex-col gap-3">
@@ -76,7 +79,7 @@ const Footer = () => {
           
           {/* Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-primary-foreground mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/80 mb-4">
               Legal
             </h4>
             <nav className="flex flex-col gap-3">
@@ -93,16 +96,18 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Bottom */}
-        <div className="pt-8 md:pt-10 border-t border-primary-foreground/20 space-y-3">
-          <p className="text-xs text-primary-foreground/60 text-center max-w-lg mx-auto">
-            ThickTimber provides place-based insights and community signals. Users choose how and where they engage independently.
+        {/* Bottom Bar */}
+        <div className="mt-12 md:mt-16 pt-8 border-t border-primary-foreground/10 text-center space-y-2">
+          <p className="text-xs text-primary-foreground/40 max-w-md mx-auto">
+            Place-based insights and community signals. Users choose how and where they engage independently.
           </p>
-          <p className="text-sm text-primary-foreground/70 text-center">
+          <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} ThickTimber. All rights reserved.
           </p>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
+
 export default Footer;
