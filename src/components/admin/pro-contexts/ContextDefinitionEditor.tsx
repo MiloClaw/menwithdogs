@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Shield, Eye, Layers, Check, icons, type LucideIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Shield, Eye, Layers, Check, icons, type LucideIcon, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import type { Json } from '@/integrations/supabase/types';
+import { GoogleTypesEditor } from './GoogleTypesEditor';
 
 // Dynamic icon component for preview
 function DynamicIcon({ name, className }: { name: string; className?: string }) {
@@ -43,6 +44,8 @@ interface ContextDefinition {
   influence_mode: string;
   sort_order: number | null;
   show_condition: Json | null;
+  // Intelligence mapping
+  maps_to_google_types: string[] | null;
 }
 
 const DOMAINS = ['about', 'comfort', 'intent', 'style'];
@@ -93,6 +96,8 @@ export function ContextDefinitionEditor() {
     influence_mode: 'boost',
     sort_order: 100,
     show_condition: '',
+    // Intelligence mapping
+    maps_to_google_types: [] as string[],
   });
 
   // Fetch definitions
@@ -140,12 +145,13 @@ export function ContextDefinitionEditor() {
           influence_mode: data.influence_mode,
           sort_order: data.sort_order,
           show_condition: showConditionJson,
+          maps_to_google_types: data.maps_to_google_types.length > 0 ? data.maps_to_google_types : null,
         });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Context created' });
+      toast({ title: 'Context created', description: 'Intelligence mappings applied.' });
       queryClient.invalidateQueries({ queryKey: ['admin-context-definitions'] });
       setIsCreateOpen(false);
       resetForm();
@@ -182,13 +188,16 @@ export function ContextDefinitionEditor() {
           influence_mode: data.influence_mode,
           sort_order: data.sort_order,
           show_condition: showConditionJson,
+          maps_to_google_types: data.maps_to_google_types && data.maps_to_google_types.length > 0 
+            ? data.maps_to_google_types 
+            : null,
         })
         .eq('id', id);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Context updated' });
+      toast({ title: 'Context updated', description: 'Intelligence mappings updated.' });
       queryClient.invalidateQueries({ queryKey: ['admin-context-definitions'] });
       setEditingId(null);
     },
@@ -232,6 +241,7 @@ export function ContextDefinitionEditor() {
       influence_mode: 'boost',
       sort_order: 100,
       show_condition: '',
+      maps_to_google_types: [],
     });
   };
 
@@ -252,6 +262,7 @@ export function ContextDefinitionEditor() {
       influence_mode: def.influence_mode || 'boost',
       sort_order: def.sort_order ?? 100,
       show_condition: def.show_condition ? JSON.stringify(def.show_condition, null, 2) : '',
+      maps_to_google_types: def.maps_to_google_types ?? [],
     });
   };
 
@@ -269,9 +280,13 @@ export function ContextDefinitionEditor() {
 
   const FormFields = ({ isEdit = false }: { isEdit?: boolean }) => (
     <Tabs defaultValue="basic" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="basic">Basic</TabsTrigger>
-        <TabsTrigger value="ui">UI Metadata</TabsTrigger>
+        <TabsTrigger value="ui">UI</TabsTrigger>
+        <TabsTrigger value="intelligence" className="gap-1">
+          <Brain className="h-3 w-3" />
+          Intel
+        </TabsTrigger>
         <TabsTrigger value="preview">Preview</TabsTrigger>
       </TabsList>
 
@@ -488,6 +503,14 @@ export function ContextDefinitionEditor() {
         </div>
       </TabsContent>
 
+      <TabsContent value="intelligence" className="space-y-4 pt-4">
+        <GoogleTypesEditor
+          value={formData.maps_to_google_types}
+          onChange={(types) => setFormData({ ...formData, maps_to_google_types: types })}
+          optionLabel={formData.label || formData.key}
+        />
+      </TabsContent>
+
       <TabsContent value="preview" className="space-y-6 pt-4">
         <div className="space-y-4">
           <div>
@@ -680,6 +703,12 @@ export function ContextDefinitionEditor() {
                               <Badge variant="outline" className="text-xs shrink-0">
                                 <Eye className="h-3 w-3 mr-1" />
                                 Conditional
+                              </Badge>
+                            )}
+                            {def.maps_to_google_types && def.maps_to_google_types.length > 0 && (
+                              <Badge variant="default" className="text-xs shrink-0 bg-primary/80">
+                                <Brain className="h-3 w-3 mr-1" />
+                                {def.maps_to_google_types.length} type{def.maps_to_google_types.length !== 1 ? 's' : ''}
                               </Badge>
                             )}
                           </div>
