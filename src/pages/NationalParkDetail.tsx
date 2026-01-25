@@ -1,18 +1,30 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Ruler, Mountain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PageLayout from '@/components/PageLayout';
 import SEOHead from '@/components/SEOHead';
-import NationalParkMap from '@/components/map/NationalParkMap';
+import NationalParkMap, { NationalParkMapRef } from '@/components/map/NationalParkMap';
+import { TrailListPanel } from '@/components/map/TrailListPanel';
 import { useNationalPark } from '@/hooks/useNationalPark';
+import { getTrailsForPark, Trail } from '@/lib/trail-data';
 import NotFound from './NotFound';
 
 const NationalParkDetail = () => {
   const { parkId } = useParams<{ parkId: string }>();
   const navigate = useNavigate();
   const { park, relatedParks, isNotFound } = useNationalPark(parkId);
+  const mapRef = useRef<NationalParkMapRef>(null);
+  
+  // Get featured trails for this park
+  const featuredTrails = parkId ? getTrailsForPark(parkId) : [];
+  
+  // Handle trail selection from list panel
+  const handleTrailSelect = useCallback((trail: Trail) => {
+    mapRef.current?.flyToTrail(trail);
+  }, []);
 
   if (isNotFound || !park) {
     return <NotFound />;
@@ -51,6 +63,7 @@ const NationalParkDetail = () => {
       {/* Hero Map Section */}
       <section className="relative h-[50vh] md:h-[60vh]">
         <NationalParkMap
+          ref={mapRef}
           lat={park.lat}
           lng={park.lng}
           parkName={park.name}
@@ -71,6 +84,14 @@ const NationalParkDetail = () => {
           </Button>
         </div>
       </section>
+      
+      {/* Trail List Panel - below map for discoverability */}
+      {featuredTrails.length > 0 && (
+        <TrailListPanel
+          trails={featuredTrails}
+          onTrailSelect={handleTrailSelect}
+        />
+      )}
 
       {/* Park Content */}
       <section className="container py-10 md:py-16">
