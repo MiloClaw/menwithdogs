@@ -1187,6 +1187,47 @@ export type Database = {
           },
         ]
       }
+      place_niche_tags: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          evidence_ref: string | null
+          evidence_type: string | null
+          id: string
+          place_id: string
+          tag: string
+          updated_at: string | null
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          evidence_ref?: string | null
+          evidence_type?: string | null
+          id?: string
+          place_id: string
+          tag: string
+          updated_at?: string | null
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          evidence_ref?: string | null
+          evidence_type?: string | null
+          id?: string
+          place_id?: string
+          tag?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_niche_tags_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       place_taxonomy: {
         Row: {
           computed_at: string | null
@@ -1626,6 +1667,7 @@ export type Database = {
           key: string
           label: string | null
           legacy_key: string | null
+          maps_to_google_types: string[] | null
           section: string | null
           show_condition: Json | null
           sort_order: number | null
@@ -1646,6 +1688,7 @@ export type Database = {
           key: string
           label?: string | null
           legacy_key?: string | null
+          maps_to_google_types?: string[] | null
           section?: string | null
           show_condition?: Json | null
           sort_order?: number | null
@@ -1666,6 +1709,7 @@ export type Database = {
           key?: string
           label?: string | null
           legacy_key?: string | null
+          maps_to_google_types?: string[] | null
           section?: string | null
           show_condition?: Json | null
           sort_order?: number | null

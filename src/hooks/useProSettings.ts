@@ -90,6 +90,10 @@ const SECTION_META: Record<string, SectionMeta> = {
     title: 'When you tend to go out',
     helperText: '',
   },
+  'style.activity': {
+    title: 'How you stay active',
+    helperText: '',
+  },
 };
 
 // Step metadata — place-centric copy

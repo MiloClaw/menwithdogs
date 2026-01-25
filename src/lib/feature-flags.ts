@@ -72,6 +72,15 @@ export const FEATURE_FLAGS = {
    * The product surfaces places, not conversations.
    */
   CHAT_ENABLED: false,
+  
+  /**
+   * DISABLED BY DEFAULT — Admin-only scaffolding
+   * 
+   * Controls visibility of place niche tags (e.g. clothing_optional).
+   * When enabled, allows admin curation of niche place attributes.
+   * User-facing features require explicit opt-in even when enabled.
+   */
+  NICHE_TAGS_ENABLED: false,
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;
