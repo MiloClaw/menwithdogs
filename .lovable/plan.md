@@ -1,396 +1,325 @@
 
-# Smart Directory Intelligence Rebuild
-## Implementation Plan
+
+# Phase 2: Community Tag System — Implementation Plan
+
+## Overview
+
+This phase implements a community-powered tagging system that captures local, contextual knowledge not available in Google Places data. The design follows the **Signals → Interpretation → Outcomes** architecture and enforces k-anonymity for privacy.
 
 ---
 
-## Executive Summary
+## Architecture Summary
 
-After extensive codebase analysis, the current architecture **already implements the core Signals → Interpretation → Outcomes model** outlined in the design document. The implementation plan focuses on:
-
-1. **Strengthening the foundation** (filling UI gaps for existing intelligence signals)
-2. **Adding the Community Tag System** (new capability not yet built)
-3. **Enhancing Settings UX** for better preference capture
-4. **Centralizing the ranking RPC** (optional Phase 3 optimization)
-
-**No destructive migration required** — this is an enhancement, not a rebuild.
-
----
-
-## Current State Analysis
-
-### What Already Exists
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **Unified Signals Table** | Implemented | `user_signals` with batching via `signal-batcher.ts` |
-| **Signal Types** | 12+ defined | view_place, save_place, explicit_preference, etc. |
-| **Affinity Computation** | Implemented | `compute_user_affinity` RPC with decay logic |
-| **Preference Definitions** | 27 definitions | Activities, intents, timing, usage, openness in DB |
-| **PRO Context System** | 30+ options | 4-step flow with influence_mode (overlap/boost) |
-| **Meta-Preferences** | In schema | uncertainty_tolerance, choice_priority, etc. |
-| **Preference Alignment** | Implemented | `get_preference_aligned_places` RPC for similar-user boost |
-| **Place Niche Tags** | Schema only | `place_niche_tags` table exists, admin-only |
-| **Feature Flags** | Locked | Social features permanently disabled |
-
-### What's Missing (Gaps to Fill)
-
-| Gap | Priority | Impact |
-|-----|----------|--------|
-| **Distance Preference UI** | P0 | Directly affects proximity weighting |
-| **Primary Time-of-Day UI** | P0 | Feeds opening hours boost |
-| **Geographic Affinity UI** | P1 | Exploration scope signal |
-| **Community Tag System** | P1 | User-submitted context signals |
-| **Tag Aggregation Pipeline** | P2 | k-anonymity threshold enforcement |
-| **Intent Grid Icon Consistency** | P2 | Brand polish (emoji → Lucide) |
-
----
-
-## Phase 1: Settings Page Intelligence Gaps
-**Duration: 2-3 days**
-
-### 1.1 Create Distance Preference Section
-
-**New file:** `src/components/profile/DistanceSection.tsx`
-
-Creates a single-select section for distance willingness:
-- Options: "Nearby (< 30 min)" / "Worth the drive" / "Day trip distance"
-- Saves to `user_preferences.distance_preference`
-- Immediately affects `distanceWeight` in `usePersonalizedPlaces.ts`
-
-**Design:**
-- Uses existing section card pattern (`bg-muted/30 rounded-xl p-6`)
-- Lucide icon: `MapPin` or `Navigation`
-- Radio-style single-select (not checkbox)
-
-### 1.2 Create Primary Time-of-Day Section
-
-**New file:** `src/components/profile/TimeOfDaySection.tsx`
-
-Creates a single-select for primary time preference:
-- Options: "Dawn / Early" / "Daytime" / "Golden hour" / "Flexible"
-- Saves to `user_preferences.time_preference`
-- Feeds `getTimeRelevanceBoost()` in personalization
-
-**Note:** This is separate from the existing `TimingSection` which captures multi-select arrays. The single-select `time_preference` has higher weight in ranking.
-
-### 1.3 Create Geographic Affinity Section
-
-**New file:** `src/components/profile/GeoAffinitySection.tsx`
-
-Creates a single-select for exploration scope:
-- Options: "Mostly one area" / "A few nearby areas" / "Anywhere nearby"
-- Saves to `user_preferences.geo_affinity`
-- Future: affects exploration radius in ranking
-
-### 1.4 Wire New Sections to Settings Tab
-
-**Modify:** `src/components/settings/SettingsPreferencesTab.tsx`
-
-- Add state for `timePreference`, `distancePreference`, `geoAffinity`
-- Add handlers to sync with `useUserPreferences`
-- Position sections in logical flow (after Profile Basics, before Activities)
-
-### 1.5 Update Profile Index
-
-**Modify:** `src/components/profile/index.ts`
-
-- Export new components: `DistanceSection`, `TimeOfDaySection`, `GeoAffinitySection`
-
-### 1.6 Add Options to Profile Options
-
-**Modify:** `src/lib/profile-options.ts`
-
-Add new option arrays:
-```typescript
-export const DISTANCE_OPTIONS: ProfileOption[] = [
-  { key: 'close', label: 'Nearby (< 30 min)' },
-  { key: 'medium', label: 'Worth the drive' },
-  { key: 'far', label: 'Day trip distance' },
-];
-
-export const TIME_OF_DAY_OPTIONS: ProfileOption[] = [
-  { key: 'dawn', label: 'Dawn / Early' },
-  { key: 'daytime', label: 'Daytime' },
-  { key: 'golden_hour', label: 'Golden hour' },
-  { key: 'flexible', label: 'Flexible' },
-];
-
-export const GEO_AFFINITY_OPTIONS: ProfileOption[] = [
-  { key: 'single_area', label: 'Mostly one area' },
-  { key: 'few_areas', label: 'A few nearby areas' },
-  { key: 'anywhere', label: 'Anywhere nearby' },
-];
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        COMMUNITY TAG SYSTEM                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  CANONICAL TAGS (Admin-Controlled Vocabulary)                              │
+│  ├── Culture: lgbtq_friendly, bear_popular, leather_scene                  │
+│  ├── Accessibility: wheelchair_accessible, dog_friendly                    │
+│  ├── Social: quiet_weekdays, cruisy_vibes, good_for_groups                 │
+│  └── Outdoor: clothing_optional, scenic_views, sunrise_spot                │
+│                                                                             │
+│  ┌──────────────┐    ┌──────────────────┐    ┌───────────────────────┐     │
+│  │ tag_signals  │ →  │ compute_tag_agg  │ →  │ place_tag_aggregates  │     │
+│  │ (append-only)│    │ (k≥3 threshold)  │    │ (public if threshold) │     │
+│  └──────────────┘    └──────────────────┘    └───────────────────────┘     │
+│       ↑                                                                     │
+│  User submits tag (only on saved places)                                   │
+│                                                                             │
+│  TAG SUGGESTIONS (Moderation Queue)                                        │
+│  └── Users suggest new tags → Admin reviews → Approved → Available         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Phase 2: Community Tag System
-**Duration: 3-4 days**
+## 2.1 Database Schema (Migration)
 
-### 2.1 Database Schema (Migration)
+### New Tables
 
-**Create new tables:**
+**Table 1: `canonical_tags`** — Admin-controlled vocabulary
 
-```sql
--- Canonical tags (admin-controlled vocabulary)
-CREATE TABLE canonical_tags (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT UNIQUE NOT NULL,
-  label TEXT NOT NULL,
-  category TEXT NOT NULL, -- culture, accessibility, social, outdoor
-  description TEXT,
-  is_sensitive BOOLEAN DEFAULT false,
-  applicable_google_types TEXT[] DEFAULT '{}',
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  created_by UUID REFERENCES auth.users(id)
-);
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | Primary key |
+| slug | text | Unique, URL-safe identifier |
+| label | text | Display name |
+| category | text | culture, accessibility, social, outdoor |
+| description | text | Tooltip text for users |
+| is_sensitive | boolean | Requires higher k-threshold |
+| applicable_google_types | text[] | Which place types can have this tag |
+| is_active | boolean | Soft delete |
+| created_at | timestamptz | Auto-set |
+| created_by | uuid | Admin who created |
 
--- User tag signals (append-only)
-CREATE TABLE tag_signals (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id),
-  place_id UUID NOT NULL REFERENCES places(id),
-  tag_slug TEXT NOT NULL REFERENCES canonical_tags(slug),
-  action TEXT NOT NULL CHECK (action IN ('add', 'remove')),
-  created_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(user_id, place_id, tag_slug, action, created_at)
-);
+**Table 2: `tag_signals`** — Append-only user signals
 
--- Aggregated tag visibility (computed, disposable)
-CREATE TABLE place_tag_aggregates (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  place_id UUID NOT NULL REFERENCES places(id),
-  tag_slug TEXT NOT NULL REFERENCES canonical_tags(slug),
-  unique_taggers INTEGER NOT NULL DEFAULT 0,
-  meets_k_threshold BOOLEAN NOT NULL DEFAULT false,
-  last_computed TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(place_id, tag_slug)
-);
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to auth.users |
+| place_id | uuid | FK to places |
+| tag_slug | text | FK to canonical_tags.slug |
+| action | text | 'add' or 'remove' |
+| created_at | timestamptz | Auto-set |
+| UNIQUE | | (user_id, place_id, tag_slug, action, created_at) |
 
--- User tag suggestions (moderation queue)
-CREATE TABLE tag_suggestions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id),
-  suggested_label TEXT NOT NULL,
-  suggested_category TEXT,
-  rationale TEXT,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'merged')),
-  reviewed_by UUID REFERENCES auth.users(id),
-  reviewed_at TIMESTAMPTZ,
-  merged_into_slug TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-```
+**Table 3: `place_tag_aggregates`** — Computed, disposable
 
-**RLS Policies:**
-- `canonical_tags`: Public read, admin write
-- `tag_signals`: User can insert own, admin can read all
-- `place_tag_aggregates`: Public read (only meets_k_threshold)
-- `tag_suggestions`: User can insert/view own, admin can manage
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | Primary key |
+| place_id | uuid | FK to places |
+| tag_slug | text | FK to canonical_tags.slug |
+| unique_taggers | integer | Count of distinct users |
+| meets_k_threshold | boolean | True if k≥3 (or k≥5 for sensitive) |
+| last_computed | timestamptz | Rebuild timestamp |
+| UNIQUE | | (place_id, tag_slug) |
 
-### 2.2 Admin Canonical Tags UI
+**Table 4: `tag_suggestions`** — Moderation queue
 
-**New file:** `src/pages/admin/TagManagement.tsx`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | Primary key |
+| user_id | uuid | FK to auth.users |
+| suggested_label | text | What user typed |
+| suggested_category | text | Optional category hint |
+| rationale | text | Why they want this tag |
+| status | text | pending, approved, rejected, merged |
+| reviewed_by | uuid | Admin who reviewed |
+| reviewed_at | timestamptz | When reviewed |
+| merged_into_slug | text | If merged into existing tag |
+| created_at | timestamptz | Auto-set |
 
-Admin interface to:
-- Create/edit/archive canonical tags
-- Set sensitivity levels
-- Map to applicable Google place types
-- Review tag suggestions
+### RLS Policies
 
-**Add route:** `/admin/tags` with `RequireRole` guard
+| Table | Policy | Command | Logic |
+|-------|--------|---------|-------|
+| canonical_tags | Public read | SELECT | `is_active = true` |
+| canonical_tags | Admin write | ALL | `has_role(auth.uid(), 'admin')` |
+| tag_signals | User insert own | INSERT | `auth.uid() = user_id` |
+| tag_signals | Admin read all | SELECT | `has_role(auth.uid(), 'admin')` |
+| place_tag_aggregates | Public read visible | SELECT | `meets_k_threshold = true` |
+| place_tag_aggregates | Admin read all | SELECT | `has_role(auth.uid(), 'admin')` |
+| tag_suggestions | User insert own | INSERT | `auth.uid() = user_id` |
+| tag_suggestions | User view own | SELECT | `auth.uid() = user_id` |
+| tag_suggestions | Admin manage | ALL | `has_role(auth.uid(), 'admin')` |
 
-### 2.3 User Tag Submission Component
-
-**New file:** `src/components/directory/PlaceTagSubmission.tsx`
-
-Component for saved places only:
-- Shows available canonical tags
-- Allows toggle on/off (creates signals)
-- "Suggest new tag" link to submission form
-- Only visible on places user has saved
-
-**Integration:** Add to `PlaceDetailModal.tsx` (gated by favorite status)
-
-### 2.4 Tag Aggregation Function
-
-**New edge function or scheduled RPC:**
+### Aggregation Function
 
 ```sql
 CREATE OR REPLACE FUNCTION compute_tag_aggregates()
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
-  k_threshold INTEGER := 3; -- Minimum unique taggers for visibility
+  k_default INTEGER := 3;
+  k_sensitive INTEGER := 5;
 BEGIN
-  -- Recompute all aggregates
-  INSERT INTO place_tag_aggregates (place_id, tag_slug, unique_taggers, meets_k_threshold)
+  -- Clear and recompute (rebuildable interpretation)
+  TRUNCATE place_tag_aggregates;
+  
+  INSERT INTO place_tag_aggregates (place_id, tag_slug, unique_taggers, meets_k_threshold, last_computed)
   SELECT 
     ts.place_id,
     ts.tag_slug,
     COUNT(DISTINCT ts.user_id) as unique_taggers,
-    COUNT(DISTINCT ts.user_id) >= k_threshold
+    CASE 
+      WHEN ct.is_sensitive THEN COUNT(DISTINCT ts.user_id) >= k_sensitive
+      ELSE COUNT(DISTINCT ts.user_id) >= k_default
+    END as meets_k_threshold,
+    NOW()
   FROM tag_signals ts
+  JOIN canonical_tags ct ON ct.slug = ts.tag_slug AND ct.is_active = true
   WHERE ts.action = 'add'
-  GROUP BY ts.place_id, ts.tag_slug
-  ON CONFLICT (place_id, tag_slug) 
-  DO UPDATE SET 
-    unique_taggers = EXCLUDED.unique_taggers,
-    meets_k_threshold = EXCLUDED.meets_k_threshold,
-    last_computed = now();
+    -- Only count if user still has net positive (more adds than removes)
+    AND NOT EXISTS (
+      SELECT 1 FROM tag_signals ts_remove
+      WHERE ts_remove.user_id = ts.user_id
+        AND ts_remove.place_id = ts.place_id
+        AND ts_remove.tag_slug = ts.tag_slug
+        AND ts_remove.action = 'remove'
+        AND ts_remove.created_at > ts.created_at
+    )
+  GROUP BY ts.place_id, ts.tag_slug, ct.is_sensitive;
 END;
 $$;
 ```
 
-### 2.5 Display Community Tags
+---
 
-**Modify:** `PlaceDetailModal.tsx` and `DirectoryPlaceCard.tsx`
+## 2.2 Admin Tag Management UI
 
-- Query `place_tag_aggregates` where `meets_k_threshold = true`
-- Display as: "Community tagged as: [tag labels]"
-- Never say "This place is..." — always "Community tagged as..."
+### New File: `src/pages/admin/TagManagement.tsx`
+
+**Features:**
+- List all canonical tags with category/status filters
+- Create new tags with slug auto-generation
+- Edit tag label, category, sensitivity, applicable place types
+- Toggle active/inactive
+- View tag suggestion queue with approve/reject/merge actions
+
+**UI Pattern:** Follow existing `InterestManagement.tsx` structure:
+- Stats cards (Total Tags, Active, Pending Suggestions)
+- Filter bar (Category, Status)
+- Data table with actions
+- Edit/Create dialogs
+
+### Route Addition
+
+**File:** `src/App.tsx`
+- Add: `<Route path="/admin/tags" element={<RequireRole role="admin"><TagManagement /></RequireRole>} />`
+
+**File:** `src/components/admin/AdminSidebar.tsx`
+- Add `{ title: 'Community Tags', href: '/admin/tags', icon: Tag }` after Pro Contexts
 
 ---
 
-## Phase 3: Intent Grid Polish
-**Duration: 1 day**
+## 2.3 User Tag Submission Component
 
-### 3.1 Replace Emoji Icons with Lucide
+### New File: `src/components/directory/PlaceTagSubmission.tsx`
 
-**Modify:** `src/lib/preference-prompts.ts`
+**Behavior:**
+- Only visible when user has saved the place (gated by `isFavorited`)
+- Shows available canonical tags for this place type
+- Toggle on/off creates signals (not direct writes)
+- "Suggest a tag" link opens suggestion modal
 
-Replace emoji strings with Lucide icon component names:
+**UI:**
+- Collapsible section: "Help others discover this place"
+- Grid of tag chips (toggle-able)
+- Subtle suggestion CTA
+
+### New Hook: `src/hooks/usePlaceTags.ts`
+
 ```typescript
-options: [
-  { value: 'trails', label: 'Trails & hikes', icon: 'Mountain' },
-  { value: 'campgrounds', label: 'Campgrounds', icon: 'Tent' },
-  { value: 'water', label: 'Water spots', icon: 'Waves' },
-  { value: 'scenic', label: 'Scenic views', icon: 'Sunrise' },
-  { value: 'outdoor_fitness', label: 'Outdoor fitness', icon: 'Footprints' },
-  { value: 'wildlife', label: 'Wildlife & nature', icon: 'TreeDeciduous' },
-  { value: 'provisions', label: 'Local provisions', icon: 'Beer' },
-]
+export function usePlaceTags(placeId: string) {
+  // Fetch visible aggregates for this place
+  // Fetch canonical tags applicable to place's Google types
+  // Submit tag signal (add/remove)
+  // Submit tag suggestion
+}
 ```
 
-**Modify:** `src/components/settings/SettingsPreferencesTab.tsx`
+### Integration Point
 
-- Import Lucide icons dynamically or via lookup
-- Render icon component instead of emoji text
+**File:** `src/components/directory/PlaceDetailModal.tsx`
 
----
+Add after `PlaceLinkedContent`:
+```tsx
+{/* Community Tags - only for saved places */}
+{saved && <PlaceTagSubmission placeId={place.id} placeGoogleTypes={place.google_types} />}
 
-## Phase 4: Documentation & Architecture
-**Duration: 1 day**
-
-### 4.1 Create ARCHITECTURE.md
-
-**New file:** `ARCHITECTURE.md`
-
-Document the Signals → Interpretation → Outcomes model:
-- Signal naming conventions
-- Affinity computation weights
-- Preference hierarchy
-- Privacy guardrails
-- Community tag k-anonymity rules
-
-### 4.2 Update Feature Flags
-
-**Modify:** `src/lib/feature-flags.ts`
-
-Add:
-```typescript
-COMMUNITY_TAGS_ENABLED: false, // Enable when k-threshold aggregation is live
+{/* Display visible tags for all users */}
+<PlaceTagDisplay placeId={place.id} />
 ```
 
 ---
 
-## Phase 5: Future Enhancements (Optional)
-**Not in immediate scope**
+## 2.4 Feature Flag Integration
 
-### 5.1 Centralized `directory_feed` RPC
+**File:** `src/lib/feature-flags.ts`
 
-If needed for cross-platform consistency or embedding intelligence:
-- Migrate ranking logic from client to database function
-- Single RPC: `directory_feed(user_id, city_id, context)`
-- Client renders results without knowing ranking internals
+Add new flag:
+```typescript
+/**
+ * DISABLED BY DEFAULT — Requires k-threshold aggregation
+ * 
+ * Controls visibility of community tags in directory.
+ * When enabled:
+ * - Users can submit tags on saved places
+ * - Aggregated tags appear on places meeting k-threshold
+ */
+COMMUNITY_TAGS_ENABLED: false,
+```
 
-**Current state is acceptable** — client-side ranking works and allows rapid iteration.
+---
 
-### 5.2 Place Embeddings (pgvector)
+## 2.5 Language Guardrails
 
-For advanced similarity and recommendation:
-- Add `embedding` column to places
-- Compute via edge function using OpenAI embeddings
-- Enable similarity search for "places like this"
+All UI copy must follow these patterns:
 
-### 5.3 Enhanced Compatibility Intelligence
-
-Extend `get_preference_aligned_places`:
-- Time-of-week behavior patterns
-- Distance willingness overlap
-- Activity preference intersection
+| Context | Correct | Incorrect |
+|---------|---------|-----------|
+| Tag display | "Community tagged as..." | "This place is..." |
+| Tag prompt | "Help others discover this place" | "Rate this place" |
+| Tag submission | "Add your experience" | "Tag this place" |
+| Empty state | "No community insights yet" | "No tags" |
 
 ---
 
 ## Files Summary
 
-| Phase | Action | File | Purpose |
-|-------|--------|------|---------|
-| 1 | Create | `src/components/profile/DistanceSection.tsx` | Distance preference UI |
-| 1 | Create | `src/components/profile/TimeOfDaySection.tsx` | Primary time selector |
-| 1 | Create | `src/components/profile/GeoAffinitySection.tsx` | Geographic scope |
-| 1 | Modify | `src/lib/profile-options.ts` | Add new option arrays |
-| 1 | Modify | `src/components/profile/index.ts` | Export new components |
-| 1 | Modify | `src/components/settings/SettingsPreferencesTab.tsx` | Wire new sections |
-| 2 | Migration | Database | Create tag tables with RLS |
-| 2 | Create | `src/pages/admin/TagManagement.tsx` | Admin tag curation |
-| 2 | Create | `src/components/directory/PlaceTagSubmission.tsx` | User tag signals |
-| 2 | Modify | `src/components/directory/PlaceDetailModal.tsx` | Display & submit tags |
-| 2 | Modify | `src/App.tsx` | Add /admin/tags route |
-| 3 | Modify | `src/lib/preference-prompts.ts` | Lucide icon mapping |
-| 3 | Modify | `SettingsPreferencesTab.tsx` | Render Lucide icons |
-| 4 | Create | `ARCHITECTURE.md` | System documentation |
-| 4 | Modify | `src/lib/feature-flags.ts` | Add COMMUNITY_TAGS flag |
-
----
-
-## Technical Guardrails (Preserved)
-
-These patterns from the design document are **already enforced** and will remain:
-
-1. **Ranking over Filtering** — Preferences affect order, never exclusion
-2. **Signal Separation** — Signals never encode interpretation
-3. **PRO influence_mode** — Step 1 = overlap, Steps 2-4 = boost
-4. **Privacy by default** — No user profiles exposed
-5. **k-anonymity for tags** — Minimum 3 taggers for visibility
-6. **Language guardrails** — "Community tagged as..." never "This place is..."
-7. **Rebuildable interpretation** — Aggregates are disposable caches
+| Action | File | Purpose |
+|--------|------|---------|
+| Migration | `supabase/migrations/YYYYMMDD_community_tags.sql` | 4 tables + RLS + function |
+| Create | `src/pages/admin/TagManagement.tsx` | Admin tag curation UI |
+| Create | `src/components/directory/PlaceTagSubmission.tsx` | User tag signals UI |
+| Create | `src/components/directory/PlaceTagDisplay.tsx` | Show visible tags |
+| Create | `src/hooks/usePlaceTags.ts` | Tag data + mutations |
+| Modify | `src/App.tsx` | Add /admin/tags route |
+| Modify | `src/components/admin/AdminSidebar.tsx` | Add nav item |
+| Modify | `src/components/directory/PlaceDetailModal.tsx` | Integrate tag components |
+| Modify | `src/lib/feature-flags.ts` | Add COMMUNITY_TAGS_ENABLED |
 
 ---
 
 ## Build Order
 
 ```text
-Week 1: Phase 1 (Settings Intelligence Gaps)
-├── Day 1: Create DistanceSection, TimeOfDaySection, GeoAffinitySection
-├── Day 2: Wire to SettingsPreferencesTab, update profile-options
-└── Day 3: Testing & polish
+Day 1: Database Migration
+├── Create canonical_tags table with seed data
+├── Create tag_signals table
+├── Create place_tag_aggregates table
+├── Create tag_suggestions table
+├── Add RLS policies
+└── Create compute_tag_aggregates() function
 
-Week 2: Phase 2 (Community Tags - Foundation)
-├── Day 1: Database migration (tables + RLS)
-├── Day 2: Admin TagManagement page
-├── Day 3: User PlaceTagSubmission component
-└── Day 4: Tag aggregation function, display in modals
+Day 2: Admin UI
+├── Create TagManagement.tsx page
+├── Add route to App.tsx
+├── Add nav item to AdminSidebar.tsx
+└── Test CRUD operations
 
-Week 3: Phase 3 & 4 (Polish & Documentation)
-├── Day 1: Replace emoji icons with Lucide
-├── Day 2: Create ARCHITECTURE.md
-└── Day 3: Feature flag updates, final testing
+Day 3: User-Facing Components
+├── Create usePlaceTags hook
+├── Create PlaceTagSubmission component
+├── Create PlaceTagDisplay component
+├── Integrate into PlaceDetailModal
+└── Add feature flag
+
+Day 4: Testing & Polish
+├── Test k-threshold enforcement
+├── Verify RLS policies
+├── Test suggestion queue workflow
+└── Language audit for guardrails
 ```
+
+---
+
+## Seed Data (Canonical Tags)
+
+Initial tags to seed:
+
+| Slug | Label | Category | Sensitive |
+|------|-------|----------|-----------|
+| lgbtq_friendly | LGBTQ+ Friendly | culture | false |
+| bear_crowd | Bear Crowd | culture | false |
+| leather_scene | Leather Scene | culture | true |
+| clothing_optional | Clothing Optional | outdoor | true |
+| cruisy_vibes | Cruisy Vibes | social | true |
+| quiet_weekdays | Quiet on Weekdays | social | false |
+| good_for_groups | Good for Groups | social | false |
+| dog_friendly | Dog Friendly | accessibility | false |
+| wheelchair_accessible | Wheelchair Accessible | accessibility | false |
+| sunrise_spot | Great for Sunrise | outdoor | false |
+| sunset_views | Great for Sunset | outdoor | false |
+| picnic_friendly | Picnic Friendly | outdoor | false |
 
 ---
 
@@ -398,8 +327,10 @@ Week 3: Phase 3 & 4 (Polish & Documentation)
 
 | Metric | Target |
 |--------|--------|
-| Settings completion rate | +20% (more fields = more signals) |
-| Preference coverage | 100% of affinity-affecting fields in UI |
-| Tag submission rate | >5% of active users submit tags |
-| Tag visibility | k=3 threshold enforced, aggregates rebuildable |
-| Brand consistency | 0 emoji icons in Settings (all Lucide) |
+| Admin can create/edit canonical tags | ✓ |
+| Users can only tag saved places | ✓ |
+| Tags only visible at k≥3 threshold | ✓ |
+| Sensitive tags require k≥5 | ✓ |
+| Aggregates are fully rebuildable | ✓ |
+| Language guardrails enforced | ✓ |
+
