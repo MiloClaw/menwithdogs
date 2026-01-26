@@ -1,192 +1,144 @@
 
-# Replace All Remaining Emoji Icons with Lucide Components
 
-## Scope
+# Fix Remaining Emojis in PRO Settings Flow
 
-Three components on the Settings page still use emoji icons that need to be converted to Lucide components for brand consistency:
+## Problem
 
-| Component | Location | Emojis Found |
-|-----------|----------|--------------|
-| `AffinityBar.tsx` | Taste Profile card | 11 emojis (category icons) |
-| `ProSettingsSummary.tsx` | "Spaces that feel right" section | 14 emojis (summary bullets) |
-| `TasteProfileCard.tsx` | CTA button | 1 arrow symbol |
-
----
-
-## Changes
-
-### File 1: `src/components/settings/AffinityBar.tsx`
-
-**Current:** Uses emoji strings in `CATEGORY_CONFIG` for place category icons.
-
-**Change:** Replace emoji strings with Lucide icon names and render dynamically.
-
-| Category | Current Emoji | Lucide Icon |
-|----------|---------------|-------------|
-| restaurant | 🍽️ | `UtensilsCrossed` |
-| cafe | ☕ | `Coffee` |
-| bar | 🍷 | `Wine` |
-| park | 🌳 | `TreePine` |
-| gym | 💪 | `Dumbbell` |
-| museum | 🎨 | `Palette` |
-| shopping | 🛍️ | `ShoppingBag` |
-| entertainment | ✨ | `Sparkles` |
-| spa | 🧘 | `Leaf` |
-| bakery | 🥐 | `Croissant` |
-| default | 📍 | `MapPin` |
-
-**Additional outdoor categories for the brand:**
-
-| Category | Lucide Icon |
-|----------|-------------|
-| trail | `Mountain` |
-| campground | `Tent` |
-| natural_feature | `TreeDeciduous` |
-| hiking_area | `Footprints` |
-| swimming_hole | `Waves` |
-
----
-
-### File 2: `src/components/settings/pro/ProSettingsSummary.tsx`
-
-**Current:** Uses emoji strings for summary bullet icons.
-
-**Change:** Replace emoji strings with Lucide icon names and render dynamically.
-
-| Context | Current Emoji | Lucide Icon |
-|---------|---------------|-------------|
-| Location | 📍 | `MapPin` |
-| LGBTQ | 🏳️‍🌈 | `Flag` |
-| Family | 👨‍👩‍👧 | `Users` |
-| Comfort | ✨ | `Sparkles` |
-| Community | 👥 | `UsersRound` |
-| Couples | 💑 | `Heart` |
-| Intent | 🎯 | `Target` |
-| Energy | ⚡ | `Zap` |
-| Environment | 🌿 | `Leaf` |
-| Morning | 🌅 | `Sunrise` |
-| Evening | 🌙 | `Moon` |
-| Weekend | 📅 | `Calendar` |
-| Distance | 📏 | `Ruler` |
-| Affinity | 🧭 | `Compass` |
-
----
-
-### File 3: `src/components/settings/TasteProfileCard.tsx`
-
-**Current:** Uses arrow emoji "→" in button text.
-
-**Change:** Replace with Lucide `ArrowRight` icon component.
+The PRO settings options (Steps 1-4) are displaying emojis because they are stored in the `pro_context_definitions` database table. The `ProOptionChips.tsx` component renders these directly:
 
 ```tsx
-// Before
-Explore Outdoors →
-
-// After
-Explore Outdoors <ArrowRight className="h-4 w-4 ml-1" />
+{option.icon && <span className="text-base">{option.icon}</span>}
 ```
+
+## Current Database State
+
+The `pro_context_definitions` table contains 37+ options with emoji icons:
+
+| Step | Section | Example Emojis |
+|------|---------|----------------|
+| 1 | about.experience | 🌱 ⛰️ 🏔️ |
+| 2 | style.social | 🚶 👥 👪 |
+| 2 | style.pace | 🐢 ⚖️ 🔥 |
+| 2 | style.crowds | 🌲 🤷 🎉 |
+| 3 | intent.connection | 🤝 👥 💑 🧘 |
+| 3 | intent.vibe | 🌅 🏔️ 📚 🏆 |
+| 4 | style.activity | 🥾 🏃 🚴 💪 🏊 🧗 🛶 ⛷️ 📷 |
 
 ---
 
-## Implementation Details
+## Solution
 
-### AffinityBar.tsx Pattern
+Two-part fix to ensure consistent Lucide icons:
+
+### Part 1: Update Database Values
+
+Replace emoji strings with Lucide icon names in `pro_context_definitions`:
+
+| Key | Current | Lucide Name |
+|-----|---------|-------------|
+| exp_new | 🌱 | `Sprout` |
+| exp_weekend | ⛰️ | `Mountain` |
+| exp_seasoned | 🏔️ | `MountainSnow` |
+| social_solo | 🚶 | `User` |
+| social_small | 👥 | `Users` |
+| social_group | 👪 | `UsersRound` |
+| pace_slow | 🐢 | `Snail` |
+| pace_balanced | ⚖️ | `Scale` |
+| pace_fast | 🔥 | `Flame` |
+| crowds_avoid | 🌲 | `TreePine` |
+| crowds_ok | 🤷 | `Meh` |
+| crowds_love | 🎉 | `PartyPopper` |
+| intent_buddy | 🤝 | `Handshake` |
+| intent_group | 👥 | `Users` |
+| intent_partner | 💑 | `Heart` |
+| intent_solo_social | 🧘 | `PersonStanding` |
+| vibe_quiet | 🌅 | `Sunrise` |
+| vibe_adventure | 🏔️ | `Mountain` |
+| vibe_learning | 📚 | `BookOpen` |
+| vibe_accomplish | 🏆 | `Trophy` |
+| hiker | 🥾 | `Footprints` |
+| runner | 🏃 | `PersonStanding` |
+| cyclist | 🚴 | `Bike` |
+| outdoor_fitness | 💪 | `Dumbbell` |
+| swimmer | 🏊 | `Waves` |
+| climber | 🧗 | `Mountain` |
+| paddler | 🛶 | `Ship` |
+| winter_sports | ⛷️ | `Snowflake` |
+| photographer | 📷 | `Camera` |
+
+### Part 2: Update ProOptionChips.tsx
+
+Add a Lucide icon mapping similar to other components:
 
 ```typescript
 import { 
-  MapPin, TreePine, Mountain, Tent, Waves, Footprints,
-  UtensilsCrossed, Coffee, Wine, Dumbbell, Palette,
-  ShoppingBag, Sparkles, Leaf, Croissant, TreeDeciduous,
-  type LucideIcon 
+  Sprout, Mountain, MountainSnow, User, Users, UsersRound,
+  Snail, Scale, Flame, TreePine, Meh, PartyPopper, Handshake,
+  Heart, PersonStanding, Sunrise, BookOpen, Trophy, Footprints,
+  Bike, Dumbbell, Waves, Ship, Snowflake, Camera,
+  type LucideIcon
 } from 'lucide-react';
 
-const CATEGORY_CONFIG: Record<string, { Icon: LucideIcon; label: string }> = {
-  trail: { Icon: Mountain, label: 'Trails' },
-  campground: { Icon: Tent, label: 'Campgrounds' },
-  natural_feature: { Icon: TreeDeciduous, label: 'Natural feature' },
-  hiking_area: { Icon: Footprints, label: 'Hiking area' },
-  park: { Icon: TreePine, label: 'Parks & Outdoors' },
-  // ... etc
-  default: { Icon: MapPin, label: 'Places' },
+const PRO_OPTION_ICONS: Record<string, LucideIcon> = {
+  Sprout, Mountain, MountainSnow, User, Users, UsersRound,
+  Snail, Scale, Flame, TreePine, Meh, PartyPopper, Handshake,
+  Heart, PersonStanding, Sunrise, BookOpen, Trophy, Footprints,
+  Bike, Dumbbell, Waves, Ship, Snowflake, Camera,
 };
-
-// In render:
-<config.Icon className="h-4 w-4 text-muted-foreground/70" />
 ```
 
-### ProSettingsSummary.tsx Pattern
+Update the render logic:
 
-```typescript
-import { MapPin, Flag, Users, Sparkles, ... } from 'lucide-react';
+```tsx
+// Before
+{option.icon && <span className="text-base">{option.icon}</span>}
 
-const SUMMARY_ICONS: Record<string, LucideIcon> = {
-  location: MapPin,
-  lgbtq: Flag,
-  family: Users,
-  // ... etc
-};
-
-// Build bullets with icon key instead of emoji
-summaryBullets.push({ 
-  iconKey: 'location', 
-  text: `Showing places in ${memberProfile.city}` 
-});
-
-// In render:
-{summaryBullets.map((bullet, idx) => {
-  const Icon = SUMMARY_ICONS[bullet.iconKey];
-  return (
-    <li key={idx} className="flex items-start gap-2">
-      <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" />
-      <span>{bullet.text}</span>
-    </li>
-  );
-})}
+// After
+{option.icon && (() => {
+  const IconComponent = PRO_OPTION_ICONS[option.icon];
+  return IconComponent 
+    ? <IconComponent className="h-4 w-4" />
+    : <span className="text-base">{option.icon}</span>;
+})()}
 ```
 
 ---
 
 ## Files Summary
 
-| Action | File | Purpose |
-|--------|------|---------|
-| Modify | `src/components/settings/AffinityBar.tsx` | Replace category emojis with Lucide icons |
-| Modify | `src/components/settings/pro/ProSettingsSummary.tsx` | Replace summary bullet emojis with Lucide icons |
-| Modify | `src/components/settings/TasteProfileCard.tsx` | Replace arrow emoji with ArrowRight icon |
+| Action | File/Table | Purpose |
+|--------|------------|---------|
+| Migration | `pro_context_definitions` table | Replace emoji icons with Lucide names |
+| Modify | `src/components/settings/pro/ProOptionChips.tsx` | Add icon mapping and render Lucide |
 
 ---
 
 ## Build Order
 
 ```text
-Step 1: AffinityBar.tsx
-├── Import Lucide icons (outdoor + urban categories)
-├── Change CATEGORY_CONFIG to use Icon component refs
-├── Add outdoor-specific categories (trail, campground, etc.)
-└── Update render to use <Icon /> component
+Step 1: Database Migration
+├── UPDATE pro_context_definitions SET icon = 'Sprout' WHERE key = 'exp_new'
+├── UPDATE pro_context_definitions SET icon = 'Mountain' WHERE key = 'exp_weekend'
+├── (... 25+ more updates)
+└── Verify all icon values are Lucide names
 
-Step 2: ProSettingsSummary.tsx
-├── Import Lucide icons for all summary types
-├── Create SUMMARY_ICONS mapping
-├── Change summaryBullets type to use iconKey instead of icon string
-└── Update render to use <Icon /> component
-
-Step 3: TasteProfileCard.tsx
-├── Import ArrowRight from lucide-react
-└── Replace "→" text with <ArrowRight /> component
+Step 2: Update ProOptionChips.tsx
+├── Import required Lucide icons
+├── Create PRO_OPTION_ICONS mapping
+├── Update render logic to check mapping
+└── Fallback to text span for unmapped icons
 ```
 
 ---
 
 ## Verification
 
-After implementation, the Settings page will have zero emoji icons:
+After implementation, the entire Settings page will use Lucide SVG icons:
 
 | Location | Before | After |
 |----------|--------|-------|
-| Taste Profile category bars | Emoji (🌳 🍽️) | Lucide SVG |
-| Pro Settings summary bullets | Emoji (📍 🎯) | Lucide SVG |
-| "Explore Outdoors" CTA | Arrow (→) | ArrowRight icon |
-| Intent grid | Already Lucide | Already Lucide |
-| Phase 3 preferences | Already Lucide | Already Lucide |
+| PRO Step 1 (Experience) | Emoji (🌱 ⛰️) | Lucide SVG |
+| PRO Step 2 (Social/Pace/Crowds) | Emoji (🚶 🐢 🌲) | Lucide SVG |
+| PRO Step 3 (Intent/Vibe) | Emoji (🤝 🌅) | Lucide SVG |
+| PRO Step 4 (Activity) | Emoji (🥾 🏃 🚴) | Lucide SVG |
 
