@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { User, Users } from 'lucide-react';
+import { User, Users, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -48,21 +48,22 @@ export function TasteProfileCard() {
           Places you gravitate toward
         </h3>
         <div className="py-4 text-center">
-        <p className="text-sm text-muted-foreground mb-4">
-          Save a few spots to see patterns emerge.
-        </p>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => navigate('/places')}
-          className="min-h-[44px]"
-        >
-          Explore Outdoors →
-        </Button>
-      </div>
-    </section>
-  );
-}
+          <p className="text-sm text-muted-foreground mb-4">
+            Save a few spots to see patterns emerge.
+          </p>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/places')}
+            className="min-h-[44px] gap-1"
+          >
+            Explore Outdoors
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-3">
