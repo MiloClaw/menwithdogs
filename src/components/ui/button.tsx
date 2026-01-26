@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg shadow-sm",
         ghost: "hover:bg-muted hover:text-foreground rounded-lg",
         link: "text-primary underline-offset-4 hover:underline",
-        // MainStreetIRL specific variants
+        // ThickTimber brand variants
         accent:
           "bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg font-semibold tracking-wide shadow-[0_4px_14px_0_hsl(var(--accent)/0.35)] hover:shadow-[0_6px_20px_0_hsl(var(--accent)/0.45)]",
         "accent-outline":

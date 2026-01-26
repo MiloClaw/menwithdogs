@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import BrandStripe from "@/components/BrandStripe";
 
 const FinalCTA = () => {
   const navigate = useNavigate();
@@ -15,10 +16,12 @@ const FinalCTA = () => {
   const ghostY = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   return (
-    <section
-      ref={sectionRef}
-      className="py-28 md:py-40 bg-primary text-primary-foreground relative overflow-hidden"
-    >
+    <>
+      <BrandStripe size="lg" />
+      <section
+        ref={sectionRef}
+        className="py-28 md:py-40 bg-primary text-primary-foreground relative overflow-hidden"
+      >
       {/* Ghost arrow with parallax */}
       <motion.span
         style={{ y: ghostY }}
@@ -81,6 +84,7 @@ const FinalCTA = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

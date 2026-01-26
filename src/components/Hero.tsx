@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-hiking-men.jpg";
+import BrandStripe from "@/components/BrandStripe";
+
 const Hero = () => {
   const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
@@ -54,7 +56,8 @@ const Hero = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-8 bg-background border-t border-border">
+      <div className="py-8 bg-background">
+        <BrandStripe size="md" className="mb-8" />
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-6">
           <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
             Get Started — Free

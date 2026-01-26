@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { z } from 'zod';
+import BrandLockup from '@/components/BrandLockup';
+import BrandStripe from '@/components/BrandStripe';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -216,8 +218,8 @@ const Auth = () => {
 
       {/* Header */}
       <header className="p-4 md:p-6 relative z-10">
-        <Link to="/" className="text-xl font-serif font-semibold text-primary">
-          MainStreetIRL
+        <Link to="/">
+          <BrandLockup size="sm" showSubtitle={false} />
         </Link>
       </header>
 
@@ -278,7 +280,8 @@ const Auth = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.2
-        }} className="border-l-4 border-accent pl-5 py-3">
+        }} className="relative pl-5 py-3">
+              <BrandStripe orientation="vertical" size="sm" className="absolute left-0 top-2 bottom-2" />
               <p className="text-muted-foreground leading-relaxed text-xs text-left">Your information stays private by default.  No public profiles unless you choose it. Your profile and settings only tune the directory to provide better recommendations for you.                                                                           <br />
                 ​
               </p>
