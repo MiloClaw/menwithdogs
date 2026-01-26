@@ -3,6 +3,42 @@ import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProSettings, ProSettingsOption } from '@/hooks/useProSettings';
+import {
+  Sprout, Mountain, MountainSnow, User, Users, UsersRound,
+  Snail, Scale, Flame, TreePine, Meh, PartyPopper, Handshake,
+  Heart, PersonStanding, Sunrise, BookOpen, Trophy, Footprints,
+  Bike, Dumbbell, Waves, Ship, Snowflake, Camera,
+  type LucideIcon
+} from 'lucide-react';
+
+// Mapping from Lucide icon names (stored in DB) to actual components
+const PRO_OPTION_ICONS: Record<string, LucideIcon> = {
+  Sprout,
+  Mountain,
+  MountainSnow,
+  User,
+  Users,
+  UsersRound,
+  Snail,
+  Scale,
+  Flame,
+  TreePine,
+  Meh,
+  PartyPopper,
+  Handshake,
+  Heart,
+  PersonStanding,
+  Sunrise,
+  BookOpen,
+  Trophy,
+  Footprints,
+  Bike,
+  Dumbbell,
+  Waves,
+  Ship,
+  Snowflake,
+  Camera,
+};
 
 interface ProOptionChipsProps {
   options: ProSettingsOption[];
@@ -52,6 +88,19 @@ export function ProOptionChips({ options, inputType = 'multi' }: ProOptionChipsP
     select(option);
   };
 
+  // Render icon from Lucide mapping or fallback to text
+  const renderIcon = (iconName: string | null) => {
+    if (!iconName) return null;
+    
+    const IconComponent = PRO_OPTION_ICONS[iconName];
+    if (IconComponent) {
+      return <IconComponent className="h-4 w-4" />;
+    }
+    
+    // Fallback for unmapped icons (e.g., legacy emoji strings)
+    return <span className="text-base">{iconName}</span>;
+  };
+
   return (
     <div className="space-y-1.5">
       {inputType === 'single' && (
@@ -80,7 +129,7 @@ export function ProOptionChips({ options, inputType = 'multi' }: ProOptionChipsP
               onClick={() => handleSelect(option)}
               disabled={isDisabled}
             >
-              {option.icon && <span className="text-base">{option.icon}</span>}
+              {renderIcon(option.icon)}
               <span>{option.label || option.key}</span>
               {selected && <Check className="h-3 w-3 ml-0.5" />}
             </Button>
