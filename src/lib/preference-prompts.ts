@@ -43,10 +43,10 @@ export const TIME_PROMPT: PromptDefinition = {
   footer: 'Helps prioritize places for you.',
   multiSelect: false,
   options: [
-    { value: 'dawn', label: 'Dawn / Early', icon: '🌅' },
-    { value: 'daytime', label: 'Daytime', icon: '☀️' },
-    { value: 'golden_hour', label: 'Golden hour', icon: '🌇' },
-    { value: 'flexible', label: 'Flexible', icon: '🔀' },
+    { value: 'dawn', label: 'Dawn / Early', icon: 'Sunrise' },
+    { value: 'daytime', label: 'Daytime', icon: 'Sun' },
+    { value: 'golden_hour', label: 'Golden hour', icon: 'Sunset' },
+    { value: 'flexible', label: 'Flexible', icon: 'Shuffle' },
   ],
 };
 
@@ -58,9 +58,9 @@ export const DISTANCE_PROMPT: PromptDefinition = {
   footer: 'Helps prioritize places for you.',
   multiSelect: false,
   options: [
-    { value: 'close', label: 'Nearby (< 30 min)', icon: '📍' },
-    { value: 'medium', label: 'Worth the drive', icon: '🚗' },
-    { value: 'far', label: 'Day trip distance', icon: '🗺️' },
+    { value: 'close', label: 'Nearby (< 30 min)', icon: 'MapPin' },
+    { value: 'medium', label: 'Worth the drive', icon: 'Car' },
+    { value: 'far', label: 'Day trip distance', icon: 'Map' },
   ],
 };
 
@@ -72,10 +72,10 @@ export const VIBE_PROMPT: PromptDefinition = {
   footer: 'This only tailors the places you see.',
   multiSelect: false,
   options: [
-    { value: 'quiet', label: 'Quiet / low-key', icon: '🤫' },
-    { value: 'balanced', label: 'Balanced', icon: '⚖️' },
-    { value: 'lively', label: 'Lively', icon: '🎉' },
-    { value: 'depends', label: 'Depends', icon: '🤷' },
+    { value: 'quiet', label: 'Quiet / low-key', icon: 'Volume' },
+    { value: 'balanced', label: 'Balanced', icon: 'Scale' },
+    { value: 'lively', label: 'Lively', icon: 'PartyPopper' },
+    { value: 'depends', label: 'Depends', icon: 'HelpCircle' },
   ],
 };
 
@@ -105,9 +105,9 @@ export const GEO_PROMPT: PromptDefinition = {
   footer: 'This only tailors the places you see.',
   multiSelect: false,
   options: [
-    { value: 'single_area', label: 'Mostly one area', icon: '🎯' },
-    { value: 'few_areas', label: 'A few nearby areas', icon: '🔄' },
-    { value: 'anywhere', label: 'Anywhere nearby', icon: '🌐' },
+    { value: 'single_area', label: 'Mostly one area', icon: 'Target' },
+    { value: 'few_areas', label: 'A few nearby areas', icon: 'RefreshCw' },
+    { value: 'anywhere', label: 'Anywhere nearby', icon: 'Globe' },
   ],
 };
 
