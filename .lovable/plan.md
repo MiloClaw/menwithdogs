@@ -1,215 +1,345 @@
 
 
-# Settings Page Copy Refinement Plan
+# Typography & Button Refinement Implementation Plan
 
-## Overview
+## Executive Summary
 
-After reviewing all copy across the Settings page, I've identified clarity improvements and one functional issue. All changes maintain the existing private, place-centric tone while making the purpose of each preference clearer for new users.
-
----
-
-## Changes Summary
-
-| File | Change Type | Purpose |
-|------|-------------|---------|
-| `GeoAffinitySection.tsx` | Copy refinement | Clarify the question |
-| `PlaceUsageSection.tsx` | Copy refinement | Remove undefined "these places" reference |
-| `OpennessSection.tsx` | Copy + Option refinement | Better align options with the question |
-| `AdventureStyleSection.tsx` | Copy refinement | Clarify section title |
-| `WeatherFlexibilitySection.tsx` | Copy refinement | Explain what "noting conditions" means |
-| `GearReadinessSection.tsx` | Copy refinement | Clarify "appropriate" |
-| `NaturePrioritiesSection.tsx` | Copy refinement | Remove product jargon |
-| `PatternsSection.tsx` | Remove non-functional button | Fix false affordance |
-| `profile-options.ts` | Option refinement | Update OpennessSection options |
+This plan standardizes typography for improved hierarchy and accessibility, while ensuring all buttons follow a consistent, robust design language aligned with the ThickTimber brand identity.
 
 ---
 
-## Detailed Changes
+## Part 1: Typography Refinements
 
-### 1. GeoAffinitySection.tsx
+### Current Issues Identified
 
-**Before:**
-```
-Question: "How do you like to explore?"
-Helper: "Helps us understand your discovery style."
-```
+| Issue | Location | Current | Problem |
+|-------|----------|---------|---------|
+| Flat hierarchy | Section headers | All use `text-base` | No visual differentiation between primary sections and sub-sections |
+| Accessibility | Helper text | `text-xs` (12px) | Below WCAG accessibility threshold for some users |
+| Accessibility | PRO hints | `text-[10px]` | Too small for mobile readability |
+| Brand disconnect | Tab labels | Sans-serif | Doesn't match the `font-serif` page title |
+| Inconsistency | Account tab | Uses `text-lg` for "Your Account" | Preferences tab uses `text-base` for section headers |
 
-**After:**
-```
-Question: "How spread out are your favorite spots?"
-Helper: "Helps us know whether to show places nearby or farther out."
-```
+### Typography Changes
 
----
+#### 1.1 Scale Up Helper Text (Accessibility Fix)
 
-### 2. PlaceUsageSection.tsx
+**Files to modify:**
+- `src/components/profile/DistanceSection.tsx`
+- `src/components/profile/TimeOfDaySection.tsx`
+- `src/components/profile/GeoAffinitySection.tsx`
+- `src/components/profile/PlaceUsageSection.tsx`
+- `src/components/profile/OpennessSection.tsx`
+- `src/components/profile/AdventureStyleSection.tsx`
+- `src/components/profile/WeatherFlexibilitySection.tsx`
+- `src/components/profile/GearReadinessSection.tsx`
+- `src/components/profile/NaturePrioritiesSection.tsx`
+- `src/components/profile/PrivacySection.tsx`
+- `src/components/settings/SettingsPreferencesTab.tsx` (intent section, intro paragraph)
 
-**Before:**
-```
-Question: "When you go to these places, it's usually for..."
-```
-
-**After:**
-```
-Question: "When you head outdoors, it's usually for..."
-```
-
----
-
-### 3. OpennessSection.tsx + profile-options.ts
-
-**Before:**
-```
-Question: "How open are you to meeting new people?"
-Options:
-- I usually keep to myself
-- I'm comfortable with familiar faces
-- I'm open to casual conversation
-- I'm open to meeting others through shared activities
-- I'm usually out with a partner or friends  ← doesn't fit the question
-```
-
-**After:**
-```
-Question: "How open are you to meeting new people?"
-Options:
-- I prefer to keep to myself
-- I'm comfortable with familiar faces
-- Open to casual conversation
-- Happy to connect over shared activities
-```
-
-Remove the "I'm usually out with a partner or friends" option since it's about WHO you go with (covered by TrailCompanions), not OPENNESS to new connections.
-
----
-
-### 4. AdventureStyleSection.tsx
-
-**Before:**
-```
-Title: "Your usual approach"
-Helper: "Helps us match your comfort level."
-```
-
-**After:**
-```
-Title: "Trail comfort"
-Helper: "Helps us suggest trails that match your style."
-```
-
----
-
-### 5. WeatherFlexibilitySection.tsx
-
-**Before:**
-```
-Helper: "We'll note conditions when relevant."
-```
-
-**After:**
-```
-Helper: "Helps us suggest alternatives when conditions change."
-```
-
----
-
-### 6. GearReadinessSection.tsx
-
-**Before:**
-```
-Helper: "Helps us suggest appropriate spots."
-```
-
-**After:**
-```
-Helper: "Matches you with trails that fit your setup."
-```
-
----
-
-### 7. NaturePrioritiesSection.tsx
-
-**Before:**
-```
-Helper: "Pick up to 2. Shapes what we surface."
-```
-
-**After:**
-```
-Helper: "Pick up to 2. Helps us find the right spots."
-```
-
----
-
-### 8. PatternsSection.tsx — Remove Non-Functional Button
-
-**Current issue:** The "Looks right" button exists but does nothing when clicked, creating a false affordance.
-
-**Action:** Remove the button until functionality is added. Keep the section as read-only display.
-
-**Before:**
+**Change:**
 ```tsx
-<div className="flex gap-2 pt-2">
-  <Button variant="outline" size="sm" className="min-h-[44px] gap-2">
-    <Check className="h-4 w-4" />
-    Looks right
-  </Button>
-</div>
+// Before
+<p className="text-xs text-muted-foreground">
+
+// After
+<p className="text-sm text-muted-foreground leading-relaxed">
 ```
 
-**After:** Remove this block entirely.
+**Impact:** Helper text increases from 12px to 14px with improved line height for multi-line content.
+
+#### 1.2 Scale Up PRO Hint Text
+
+**File to modify:**
+- `src/components/settings/pro/ProOptionChips.tsx`
+
+**Change:**
+```tsx
+// Before (line 51)
+<span className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">
+
+// After
+<span className="text-xs text-muted-foreground/50 uppercase tracking-wide">
+```
+
+**Impact:** PRO "Choose one" hint increases from 10px to 12px.
+
+#### 1.3 Apply Serif to Tab Labels
+
+**File to modify:**
+- `src/pages/Settings.tsx`
+
+**Change:**
+```tsx
+// Before (lines 109-120)
+<TabsTrigger 
+  value="preferences" 
+  className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base transition-colors"
+>
+
+// After
+<TabsTrigger 
+  value="preferences" 
+  className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base font-serif font-medium transition-colors"
+>
+```
+
+**Impact:** Tab labels now match the editorial serif identity of the page title.
+
+#### 1.4 Standardize Section Header Hierarchy
+
+**Files to modify:**
+- All profile section components (see 1.1 list)
+- `src/components/settings/SettingsPreferencesTab.tsx`
+- `src/components/settings/pro/ProSettingsFlow.tsx`
+
+**Hierarchy definition:**
+```text
+├── Page Title: text-3xl font-serif font-medium (existing - no change)
+├── Primary Section Headers: text-base font-medium (standardize all)
+├── Collapsible Headers: text-sm font-semibold uppercase tracking-wide
+└── Sub-section Headers (Phase 3): text-sm font-medium
+```
+
+**Changes:**
+
+**For collapsible trigger in SettingsPreferencesTab.tsx (line 322):**
+```tsx
+// Before
+<span className="text-base font-medium tracking-wide text-foreground">
+  How you explore
+</span>
+
+// After
+<span className="text-sm font-semibold uppercase tracking-wide text-foreground">
+  How you explore
+</span>
+```
+
+**For Phase 3 sub-sections (AdventureStyleSection, etc.):**
+```tsx
+// Before
+<h4 className="text-sm font-medium text-foreground">
+
+// After (no change - this is correct for sub-sections)
+<h4 className="text-sm font-medium text-foreground">
+```
+
+#### 1.5 Scale Up Privacy Bullets
+
+**File to modify:**
+- `src/components/profile/PrivacySection.tsx`
+
+**Change:**
+```tsx
+// Before (line 36)
+<ul className="space-y-1.5 list-disc list-inside text-xs">
+
+// After
+<ul className="space-y-2 list-disc list-inside text-sm leading-relaxed">
+```
 
 ---
 
-## Files to Modify
+## Part 2: Button Consistency
 
-| File | Lines Changed |
-|------|---------------|
-| `src/components/profile/GeoAffinitySection.tsx` | ~2 lines (question + helper) |
-| `src/components/profile/PlaceUsageSection.tsx` | 1 line (question) |
-| `src/components/profile/OpennessSection.tsx` | 0 lines (options come from profile-options.ts) |
-| `src/lib/profile-options.ts` | ~4 lines (OPENNESS_OPTIONS array) |
-| `src/components/profile/AdventureStyleSection.tsx` | ~2 lines (title + helper) |
-| `src/components/profile/WeatherFlexibilitySection.tsx` | 1 line (helper) |
-| `src/components/profile/GearReadinessSection.tsx` | 1 line (helper) |
-| `src/components/profile/NaturePrioritiesSection.tsx` | 1 line (helper) |
-| `src/components/profile/PatternsSection.tsx` | ~5 lines (remove button block) |
+### Current Button Audit
+
+| Location | Variant | Size | Styling | Issue |
+|----------|---------|------|---------|-------|
+| Account tab - Change password | `ghost` | `sm` | `h-9 text-sm` | Inconsistent height |
+| Account tab - Manage/Upgrade | `ghost`/`default` | `sm` | `h-9 text-sm` | Correct |
+| Account tab - Delete Account | `destructive` | `sm` | `min-h-[44px]` | Correct touch target |
+| Dialog - Cancel/Submit | `outline`/`default` | default | No explicit height | May be shorter than 44px |
+| Intent grid buttons | `default`/`outline` | custom | `h-auto py-3` | Correct |
+| PRO chips | `default`/`outline` | `sm` | `min-h-[44px]` | Correct |
+| Back button | `ghost` | `icon` | default | Correct |
+| Entry cards | Link cards | - | `min-h-[48px]` implied | Correct |
+
+### Button Standardization Rules
+
+**Minimum touch target:** All interactive buttons must be `min-h-[44px]` for mobile accessibility.
+
+**Variant usage:**
+- **Primary actions:** `variant="default"` (Deep Navy fill)
+- **Secondary actions:** `variant="outline"` (border with transparent fill)
+- **Tertiary/inline actions:** `variant="ghost"` (no border, subtle hover)
+- **Destructive actions:** `variant="destructive"` (red fill)
+
+**Typography:**
+- Font: `text-sm font-medium` (already in base button component)
+- Uppercase NOT required (matches ThickTimber editorial voice)
+
+### Button Changes
+
+#### 2.1 Standardize Account Tab Ghost Buttons
+
+**File to modify:**
+- `src/components/settings/SettingsAccountTab.tsx`
+
+**Changes:**
+```tsx
+// Line 62-68 - Change password button
+<Button 
+  variant="ghost" 
+  size="sm"
+  className="h-9 text-sm hover:bg-muted/50 transition-colors"
+
+// After
+<Button 
+  variant="ghost" 
+  size="sm"
+  className="min-h-[44px] px-4 text-sm hover:bg-muted/50 transition-colors"
+```
+
+```tsx
+// Line 101-109 - Manage button
+<Button
+  variant="ghost"
+  size="sm"
+  className="h-9 text-sm hover:bg-muted/50 transition-colors"
+
+// After
+<Button
+  variant="ghost"
+  size="sm"
+  className="min-h-[44px] px-4 text-sm hover:bg-muted/50 transition-colors"
+```
+
+```tsx
+// Line 111-119 - Upgrade button
+<Button
+  variant="default"
+  size="sm"
+  className="h-9 text-sm"
+
+// After
+<Button
+  variant="default"
+  size="sm"
+  className="min-h-[44px] px-6 text-sm"
+```
+
+#### 2.2 Standardize Dialog Buttons
+
+**File to modify:**
+- `src/components/settings/ChangePasswordDialog.tsx`
+
+**Changes:**
+```tsx
+// Lines 126-135 - Dialog footer buttons
+<Button 
+  type="button" 
+  variant="outline" 
+  onClick={() => onOpenChange(false)}
+>
+  Cancel
+</Button>
+<Button type="submit" disabled={isSubmitting}>
+
+// After
+<Button 
+  type="button" 
+  variant="outline" 
+  className="min-h-[44px]"
+  onClick={() => onOpenChange(false)}
+>
+  Cancel
+</Button>
+<Button 
+  type="submit" 
+  className="min-h-[44px]" 
+  disabled={isSubmitting}
+>
+```
+
+#### 2.3 Standardize Account Actions Trigger
+
+**File to modify:**
+- `src/components/settings/SettingsAccountTab.tsx`
+
+**Change:**
+```tsx
+// Lines 129-138 - Account actions trigger
+<Button 
+  variant="ghost" 
+  className="w-full justify-between h-12 text-muted-foreground hover:text-foreground transition-colors"
+>
+
+// After (h-12 = 48px, already meets 44px minimum - no change needed)
+```
 
 ---
 
-## Persistence Confirmation
+## Part 3: Files Summary
 
-User choices **DO remain intact until changed**. The architecture is correct:
+### Files to Modify
 
-1. Each `onChange` handler calls `updatePreferences()` which immediately persists to the database
-2. On page load, `useQuery` fetches saved preferences and populates local state
-3. The `useEffect` syncs server data to local state when preferences change
-
-No changes needed for persistence logic.
+| File | Changes |
+|------|---------|
+| `src/pages/Settings.tsx` | Add `font-serif font-medium` to TabsTrigger |
+| `src/components/settings/SettingsPreferencesTab.tsx` | Scale helper text, update collapsible header |
+| `src/components/settings/SettingsAccountTab.tsx` | Standardize button heights |
+| `src/components/settings/ChangePasswordDialog.tsx` | Add min-height to dialog buttons |
+| `src/components/settings/pro/ProOptionChips.tsx` | Scale PRO hint text |
+| `src/components/settings/pro/ProSettingsFlow.tsx` | Scale helper text |
+| `src/components/profile/DistanceSection.tsx` | Scale helper text |
+| `src/components/profile/TimeOfDaySection.tsx` | Scale helper text |
+| `src/components/profile/GeoAffinitySection.tsx` | Scale helper text |
+| `src/components/profile/PlaceUsageSection.tsx` | Scale helper text |
+| `src/components/profile/OpennessSection.tsx` | Scale helper text |
+| `src/components/profile/AdventureStyleSection.tsx` | Scale helper text |
+| `src/components/profile/WeatherFlexibilitySection.tsx` | Scale helper text |
+| `src/components/profile/GearReadinessSection.tsx` | Scale helper text |
+| `src/components/profile/NaturePrioritiesSection.tsx` | Scale helper text |
+| `src/components/profile/PrivacySection.tsx` | Scale helper text and bullets |
 
 ---
 
-## Build Order
+## Part 4: Implementation Order
 
 ```text
-Step 1: Update profile-options.ts (OPENNESS_OPTIONS)
-Step 2: Update copy in profile section components (parallel)
+Step 1: Typography foundation
+├── Update src/pages/Settings.tsx (serif tabs)
+├── Update src/components/settings/SettingsPreferencesTab.tsx (collapsible header + helper text)
+└── Update src/components/settings/pro/ProOptionChips.tsx (hint text)
+
+Step 2: Profile section helper text (parallel)
+├── DistanceSection.tsx
+├── TimeOfDaySection.tsx
 ├── GeoAffinitySection.tsx
 ├── PlaceUsageSection.tsx
+├── OpennessSection.tsx
 ├── AdventureStyleSection.tsx
 ├── WeatherFlexibilitySection.tsx
 ├── GearReadinessSection.tsx
-└── NaturePrioritiesSection.tsx
-Step 3: Remove non-functional button from PatternsSection.tsx
+├── NaturePrioritiesSection.tsx
+└── PrivacySection.tsx
+
+Step 3: PRO flow helper text
+└── Update src/components/settings/pro/ProSettingsFlow.tsx
+
+Step 4: Button standardization
+├── Update src/components/settings/SettingsAccountTab.tsx
+└── Update src/components/settings/ChangePasswordDialog.tsx
 ```
 
 ---
 
 ## Result
 
-After these changes, a new user will:
-- Understand the PURPOSE of each preference question
-- Not encounter undefined references ("these places")
-- Not see options that don't align with the question asked
-- Not encounter non-functional UI elements
+After implementation:
+
+**Typography:**
+- Helper text scales from 12px to 14px (improved readability)
+- PRO hints scale from 10px to 12px (meets accessibility baseline)
+- Tab labels use editorial serif to match page title
+- Clear visual hierarchy between primary sections and sub-sections
+- Collapsible headers are differentiated with uppercase + tracking
+
+**Buttons:**
+- All interactive buttons meet 44px minimum touch target
+- Consistent height across Account tab actions
+- Dialog buttons match the rest of the page
+- Maintains ThickTimber's robust, masculine aesthetic with rounded-full buttons and clear visual weight
 
