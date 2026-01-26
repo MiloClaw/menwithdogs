@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Heart, Sparkles, Check } from 'lucide-react';
+import { Heart, Sparkles, Check, Compass, ChevronDown } from 'lucide-react';
+import { Mountain, Tent, Waves, Sunrise, HeartPulse, TreeDeciduous, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -13,6 +14,11 @@ import { cn } from '@/lib/utils';
 import { TasteProfileCard } from './TasteProfileCard';
 import { ProSettingsFlow, ProPreviewOverlay } from './pro';
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
   ProfileBasicsSection,
   ActivitiesSection,
   PlaceUsageSection,
@@ -23,7 +29,24 @@ import {
   DistanceSection,
   TimeOfDaySection,
   GeoAffinitySection,
+  AdventureStyleSection,
+  TrailCompanionsSection,
+  EffortPreferenceSection,
+  WeatherFlexibilitySection,
+  GearReadinessSection,
+  NaturePrioritiesSection,
 } from '@/components/profile';
+
+// Map icon names to Lucide components
+const INTENT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Mountain,
+  Tent,
+  Waves,
+  Sunrise,
+  HeartPulse,
+  TreeDeciduous,
+  Store,
+};
 
 const SettingsPreferencesTab = () => {
   const { toast } = useToast();
@@ -41,10 +64,18 @@ const SettingsPreferencesTab = () => {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [selectedIntents, setSelectedIntents] = useState<string[]>([]);
   
-  // New intelligence-affecting preferences
+  // Intelligence-affecting preferences
   const [distancePreference, setDistancePreference] = useState<string | null>(null);
   const [timePreference, setTimePreference] = useState<string | null>(null);
   const [geoAffinity, setGeoAffinity] = useState<string | null>(null);
+  
+  // Phase 3: Outdoor decision-style preferences
+  const [adventureStyle, setAdventureStyle] = useState<string | null>(null);
+  const [trailCompanions, setTrailCompanions] = useState<string | null>(null);
+  const [effortPreference, setEffortPreference] = useState<string | null>(null);
+  const [weatherFlexibility, setWeatherFlexibility] = useState<string | null>(null);
+  const [gearReadiness, setGearReadiness] = useState<string | null>(null);
+  const [naturePriorities, setNaturePriorities] = useState<string[]>([]);
 
   // Sync from server preferences
   useEffect(() => {
@@ -57,10 +88,17 @@ const SettingsPreferencesTab = () => {
       setDisplayName(preferences.display_name || null);
       setProfilePhotoUrl(preferences.profile_photo_url || null);
       setSelectedIntents(preferences.intent_preferences || []);
-      // New preferences
+      // Context preferences
       setDistancePreference(preferences.distance_preference || null);
       setTimePreference(preferences.time_preference || null);
       setGeoAffinity(preferences.geo_affinity || null);
+      // Phase 3: Outdoor decision-style (mapped from repurposed columns)
+      setAdventureStyle(preferences.uncertainty_tolerance || null);
+      setTrailCompanions(preferences.return_preference || null);
+      setEffortPreference(preferences.planning_horizon || null);
+      setWeatherFlexibility(preferences.weather_flexibility || null);
+      setGearReadiness(preferences.gear_readiness || null);
+      setNaturePriorities(preferences.sensory_sensitivity || []);
     }
   }, [preferences]);
 
@@ -100,7 +138,7 @@ const SettingsPreferencesTab = () => {
     updatePreferences({ profile_photo_url: url });
   }, [updatePreferences]);
 
-  // New intelligence preference handlers
+  // Context preference handlers
   const handleDistanceChange = useCallback((value: string) => {
     setDistancePreference(value);
     updatePreferences({ distance_preference: value });
@@ -116,6 +154,37 @@ const SettingsPreferencesTab = () => {
     updatePreferences({ geo_affinity: value });
   }, [updatePreferences]);
 
+  // Phase 3: Outdoor decision-style handlers
+  const handleAdventureStyleChange = useCallback((value: string) => {
+    setAdventureStyle(value);
+    updatePreferences({ uncertainty_tolerance: value });
+  }, [updatePreferences]);
+
+  const handleTrailCompanionsChange = useCallback((value: string) => {
+    setTrailCompanions(value);
+    updatePreferences({ return_preference: value });
+  }, [updatePreferences]);
+
+  const handleEffortPreferenceChange = useCallback((value: string) => {
+    setEffortPreference(value);
+    updatePreferences({ planning_horizon: value });
+  }, [updatePreferences]);
+
+  const handleWeatherFlexibilityChange = useCallback((value: string) => {
+    setWeatherFlexibility(value);
+    updatePreferences({ weather_flexibility: value });
+  }, [updatePreferences]);
+
+  const handleGearReadinessChange = useCallback((value: string) => {
+    setGearReadiness(value);
+    updatePreferences({ gear_readiness: value });
+  }, [updatePreferences]);
+
+  const handleNaturePrioritiesChange = useCallback((values: string[]) => {
+    setNaturePriorities(values);
+    updatePreferences({ sensory_sensitivity: values });
+  }, [updatePreferences]);
+
   const handleIntentToggle = (value: string) => {
     const newIntents = selectedIntents.includes(value)
       ? selectedIntents.filter(v => v !== value)
@@ -129,6 +198,7 @@ const SettingsPreferencesTab = () => {
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
       {options.map(opt => {
         const isSelected = selectedIntents.includes(opt.value);
+        const IconComponent = opt.icon ? INTENT_ICONS[opt.icon] : null;
         return (
           <Button
             key={opt.value}
@@ -140,7 +210,11 @@ const SettingsPreferencesTab = () => {
             onClick={() => handleIntentToggle(opt.value)}
             disabled={isUpdating}
           >
-            <span className="text-xl">{opt.icon}</span>
+            {IconComponent ? (
+              <IconComponent className="h-5 w-5" />
+            ) : (
+              <span className="text-xl">{opt.icon}</span>
+            )}
             <span className="text-xs font-medium">{opt.label}</span>
             {isSelected && (
               <Check className="h-3 w-3 absolute top-2 right-2" />
@@ -168,21 +242,21 @@ const SettingsPreferencesTab = () => {
         isUpdating={isUpdating}
       />
 
-      {/* NEW: Distance Preference */}
+      {/* Distance Preference */}
       <DistanceSection
         selected={distancePreference}
         onChange={handleDistanceChange}
         isUpdating={isUpdating}
       />
 
-      {/* NEW: Primary Time of Day */}
+      {/* Primary Time of Day */}
       <TimeOfDaySection
         selected={timePreference}
         onChange={handleTimePreferenceChange}
         isUpdating={isUpdating}
       />
 
-      {/* NEW: Geographic Affinity */}
+      {/* Geographic Affinity */}
       <GeoAffinitySection
         selected={geoAffinity}
         onChange={handleGeoAffinityChange}
@@ -217,7 +291,7 @@ const SettingsPreferencesTab = () => {
         isUpdating={isUpdating}
       />
 
-      {/* Intent - What draws you outside (kept from original) */}
+      {/* Intent - What draws you outside */}
       <section className="bg-muted/30 rounded-xl p-6 space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -236,6 +310,61 @@ const SettingsPreferencesTab = () => {
         <div className="pt-2">
           <TasteProfileCard />
         </div>
+      </section>
+
+      {/* Phase 3: How you explore (Collapsible) */}
+      <section className="bg-muted/30 rounded-xl p-6">
+        <Collapsible defaultOpen={false}>
+          <CollapsibleTrigger className="flex items-center gap-2 w-full text-left group">
+            <Compass className="h-4 w-4 text-muted-foreground/70" />
+            <span className="text-base font-medium tracking-wide text-foreground">
+              How you explore
+            </span>
+            <ChevronDown className="h-4 w-4 ml-auto text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">
+            These quietly shape what the directory shows you.
+          </p>
+          <CollapsibleContent className="space-y-6 pt-2">
+            <div className="h-px bg-border/30" />
+            <AdventureStyleSection
+              selected={adventureStyle}
+              onChange={handleAdventureStyleChange}
+              isUpdating={isUpdating}
+            />
+            <div className="h-px bg-border/30" />
+            <TrailCompanionsSection
+              selected={trailCompanions}
+              onChange={handleTrailCompanionsChange}
+              isUpdating={isUpdating}
+            />
+            <div className="h-px bg-border/30" />
+            <EffortPreferenceSection
+              selected={effortPreference}
+              onChange={handleEffortPreferenceChange}
+              isUpdating={isUpdating}
+            />
+            <div className="h-px bg-border/30" />
+            <WeatherFlexibilitySection
+              selected={weatherFlexibility}
+              onChange={handleWeatherFlexibilityChange}
+              isUpdating={isUpdating}
+            />
+            <div className="h-px bg-border/30" />
+            <GearReadinessSection
+              selected={gearReadiness}
+              onChange={handleGearReadinessChange}
+              isUpdating={isUpdating}
+            />
+            <div className="h-px bg-border/30" />
+            <NaturePrioritiesSection
+              selected={naturePriorities}
+              onChange={handleNaturePrioritiesChange}
+              isUpdating={isUpdating}
+              maxSelections={2}
+            />
+          </CollapsibleContent>
+        </Collapsible>
       </section>
 
       {/* Section 6: Places & Patterns (Read-only) */}

@@ -10,3 +10,10 @@ export { ProfileCheckboxGroup } from './ProfileCheckboxGroup';
 export { DistanceSection } from './DistanceSection';
 export { TimeOfDaySection } from './TimeOfDaySection';
 export { GeoAffinitySection } from './GeoAffinitySection';
+// Phase 3: Outdoor Decision-Style Preferences
+export { AdventureStyleSection } from './AdventureStyleSection';
+export { TrailCompanionsSection } from './TrailCompanionsSection';
+export { EffortPreferenceSection } from './EffortPreferenceSection';
+export { WeatherFlexibilitySection } from './WeatherFlexibilitySection';
+export { GearReadinessSection } from './GearReadinessSection';
+export { NaturePrioritiesSection } from './NaturePrioritiesSection';

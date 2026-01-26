@@ -69,3 +69,54 @@ export const GEO_AFFINITY_OPTIONS: ProfileOption[] = [
   { key: 'few_areas', label: 'A few nearby areas' },
   { key: 'anywhere', label: 'Anywhere nearby' },
 ];
+
+// ═══════════════════════════════════════════════════════════════════════
+// PHASE 3: OUTDOOR DECISION-STYLE PREFERENCES
+// ═══════════════════════════════════════════════════════════════════════
+
+// Adventure Style (single-select) - comfort with remote vs. established
+export const ADVENTURE_STYLE_OPTIONS: ProfileOption[] = [
+  { key: 'well_marked', label: 'Stick to well-marked trails' },
+  { key: 'mix_both', label: 'Mix of established and off-path' },
+  { key: 'explore_remote', label: 'Seek out remote spots' },
+];
+
+// Trail Companions (single-select) - who users typically go with
+export const TRAIL_COMPANIONS_OPTIONS: ProfileOption[] = [
+  { key: 'solo', label: 'Usually solo' },
+  { key: 'small_group', label: 'With 1-2 close friends' },
+  { key: 'group', label: 'Larger groups / organized outings' },
+  { key: 'mix', label: 'Depends on the day' },
+];
+
+// Effort Preference (single-select) - intensity level
+export const EFFORT_PREFERENCE_OPTIONS: ProfileOption[] = [
+  { key: 'easy', label: 'Easy / casual pace' },
+  { key: 'moderate', label: 'Moderate challenge' },
+  { key: 'strenuous', label: 'Push myself / strenuous' },
+  { key: 'varies', label: 'Varies by mood' },
+];
+
+// Weather Flexibility (single-select) - willingness to go out in conditions
+export const WEATHER_FLEXIBILITY_OPTIONS: ProfileOption[] = [
+  { key: 'fair_only', label: 'Clear, fair conditions' },
+  { key: 'light_weather', label: 'Light rain / overcast is fine' },
+  { key: 'any_weather', label: 'I go out in almost anything' },
+];
+
+// Gear Readiness (single-select) - equipment level
+export const GEAR_READINESS_OPTIONS: ProfileOption[] = [
+  { key: 'casual', label: 'Basics only (day pack, sneakers)' },
+  { key: 'equipped', label: 'Well-equipped (boots, layers)' },
+  { key: 'ultralight', label: 'Dialed in (technical, ultralight)' },
+];
+
+// Nature Priorities (multi-select, max 2) - what matters most when choosing
+export const NATURE_PRIORITIES_OPTIONS: ProfileOption[] = [
+  { key: 'solitude', label: 'Solitude & quiet' },
+  { key: 'scenery', label: 'Scenic beauty' },
+  { key: 'wildlife', label: 'Wildlife / nature' },
+  { key: 'accessibility', label: 'Easy access & parking' },
+  { key: 'dog_friendly', label: 'Dog-friendly' },
+  { key: 'water_access', label: 'Water access' },
+];

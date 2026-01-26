@@ -14,12 +14,14 @@ export interface UserPreferences {
   geo_affinity: string | null;
   // Phase 2: Intent
   intent_preferences: string[];
-  // Phase 3: Decision-style meta-preferences
-  choice_priority: string[];
-  uncertainty_tolerance: string | null;
-  return_preference: string | null;
-  sensory_sensitivity: string[];
-  planning_horizon: string | null;
+  // Phase 3: Outdoor decision-style preferences
+  choice_priority: string[]; // Legacy - kept for compatibility
+  uncertainty_tolerance: string | null; // Reused for adventure_style
+  return_preference: string | null; // Reused for trail_companions
+  sensory_sensitivity: string[]; // Reused for nature_priorities
+  planning_horizon: string | null; // Reused for effort_preference
+  weather_flexibility: string | null; // New
+  gear_readiness: string | null; // New
   // Profile Preferences (new)
   activities: string[];
   place_usage: string[];
@@ -66,6 +68,8 @@ export function useUserPreferences() {
           sensory_sensitivity: Array.isArray(data.sensory_sensitivity)
             ? data.sensory_sensitivity as string[]
             : [],
+          weather_flexibility: data.weather_flexibility || null,
+          gear_readiness: data.gear_readiness || null,
           // Profile arrays
           activities: Array.isArray(data.activities)
             ? data.activities as string[]
@@ -99,12 +103,14 @@ export function useUserPreferences() {
       geo_affinity: string | null;
       // Phase 2
       intent_preferences: string[];
-      // Phase 3: Decision-style
+      // Phase 3: Outdoor decision-style
       choice_priority: string[];
       uncertainty_tolerance: string | null;
       return_preference: string | null;
       sensory_sensitivity: string[];
       planning_horizon: string | null;
+      weather_flexibility: string | null;
+      gear_readiness: string | null;
       // Profile Preferences
       activities: string[];
       place_usage: string[];
@@ -235,12 +241,13 @@ export function useUserPreferences() {
       case 'geo': return preferences.geo_affinity;
       // Phase 2
       case 'intent': return preferences.intent_preferences;
-      // Phase 3
-      case 'choice_priority': return preferences.choice_priority;
-      case 'uncertainty': return preferences.uncertainty_tolerance;
-      case 'return_pref': return preferences.return_preference;
-      case 'sensory': return preferences.sensory_sensitivity;
-      case 'planning': return preferences.planning_horizon;
+      // Phase 3: Outdoor decision-style (some reuse existing columns)
+      case 'adventure_style': return preferences.uncertainty_tolerance;
+      case 'trail_companions': return preferences.return_preference;
+      case 'effort_preference': return preferences.planning_horizon;
+      case 'weather_flexibility': return preferences.weather_flexibility;
+      case 'gear_readiness': return preferences.gear_readiness;
+      case 'nature_priorities': return preferences.sensory_sensitivity;
       default: return null;
     }
   };
