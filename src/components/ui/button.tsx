@@ -10,20 +10,20 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-sm",
+          "bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg shadow-sm",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full shadow-sm",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg shadow-sm",
         outline:
-          "border border-primary/80 bg-transparent text-primary hover:bg-primary hover:text-primary-foreground rounded-full shadow-sm",
+          "border border-primary/80 bg-transparent text-primary hover:bg-primary hover:text-primary-foreground rounded-lg shadow-sm",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full shadow-sm",
-        ghost: "hover:bg-muted hover:text-foreground rounded-full",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg shadow-sm",
+        ghost: "hover:bg-muted hover:text-foreground rounded-lg",
         link: "text-primary underline-offset-4 hover:underline",
         // MainStreetIRL specific variants
         accent:
-          "bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-semibold tracking-wide shadow-[0_4px_14px_0_hsl(var(--accent)/0.35)] hover:shadow-[0_6px_20px_0_hsl(var(--accent)/0.45)]",
+          "bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg font-semibold tracking-wide shadow-[0_4px_14px_0_hsl(var(--accent)/0.35)] hover:shadow-[0_6px_20px_0_hsl(var(--accent)/0.45)]",
         "accent-outline":
-          "border border-accent/80 bg-transparent text-accent hover:bg-accent hover:text-accent-foreground rounded-full font-semibold tracking-wide shadow-sm",
+          "border border-accent/80 bg-transparent text-accent hover:bg-accent hover:text-accent-foreground rounded-lg font-semibold tracking-wide shadow-sm",
         nav: "text-primary hover:text-accent font-medium bg-transparent",
       },
       size: {

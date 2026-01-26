@@ -34,7 +34,7 @@ export function ProSettingsFlow() {
             <Skeleton className="h-4 w-64" />
             <div className="flex flex-wrap gap-2">
               {[1, 2, 3].map((j) => (
-                <Skeleton key={j} className="h-11 w-24 rounded-full" />
+                <Skeleton key={j} className="h-11 w-24 rounded-lg" />
               ))}
             </div>
           </div>
