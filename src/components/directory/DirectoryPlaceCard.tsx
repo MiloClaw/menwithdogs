@@ -23,6 +23,7 @@ export interface DirectoryPlace {
   opening_hours: unknown;
   lat: number | null;
   lng: number | null;
+  google_types: string[] | null;
   distance?: number;
   isRelevant?: boolean; // For personalization badge
 }

@@ -49,6 +49,7 @@ const BlogPostPage = () => {
         google_maps_url: data.google_maps_url,
         phone_number: data.phone_number,
         opening_hours: data.opening_hours,
+        google_types: data.google_types,
       });
       setIsPlaceModalOpen(true);
     }
