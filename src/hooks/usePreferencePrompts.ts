@@ -141,21 +141,24 @@ export function usePreferencePrompts() {
       case 'intent':
         updates.intent_preferences = value as string[];
         break;
-      // Phase 3: Decision-style meta-preferences
-      case 'choice_priority':
-        updates.choice_priority = value as string[];
+      // Phase 3: Outdoor decision-style preferences
+      case 'adventure_style':
+        updates.uncertainty_tolerance = value as string; // Reusing column
         break;
-      case 'uncertainty':
-        updates.uncertainty_tolerance = value as string;
+      case 'trail_companions':
+        updates.return_preference = value as string; // Reusing column
         break;
-      case 'return_pref':
-        updates.return_preference = value as string;
+      case 'effort_preference':
+        updates.planning_horizon = value as string; // Reusing column
         break;
-      case 'sensory':
-        updates.sensory_sensitivity = value as string[];
+      case 'weather_flexibility':
+        updates.weather_flexibility = value as string;
         break;
-      case 'planning':
-        updates.planning_horizon = value as string;
+      case 'gear_readiness':
+        updates.gear_readiness = value as string;
+        break;
+      case 'nature_priorities':
+        updates.sensory_sensitivity = value as string[]; // Reusing column
         break;
     }
 

@@ -2122,6 +2122,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           distance_preference: string | null
+          gear_readiness: string | null
           geo_affinity: string | null
           id: string
           intent_preferences: Json | null
@@ -2139,6 +2140,7 @@ export type Database = {
           updated_at: string
           user_id: string
           vibe_preference: string | null
+          weather_flexibility: string | null
         }
         Insert: {
           activities?: string[] | null
@@ -2147,6 +2149,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           distance_preference?: string | null
+          gear_readiness?: string | null
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
@@ -2164,6 +2167,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           vibe_preference?: string | null
+          weather_flexibility?: string | null
         }
         Update: {
           activities?: string[] | null
@@ -2172,6 +2176,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           distance_preference?: string | null
+          gear_readiness?: string | null
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
@@ -2189,6 +2194,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vibe_preference?: string | null
+          weather_flexibility?: string | null
         }
         Relationships: []
       }

@@ -12,7 +12,8 @@
 
 export type PromptType = 
   | 'time' | 'distance' | 'vibe' | 'intent' | 'geo'
-  | 'choice_priority' | 'uncertainty' | 'return_pref' | 'sensory' | 'planning';
+  | 'adventure_style' | 'trail_companions' | 'effort_preference' 
+  | 'weather_flexibility' | 'gear_readiness' | 'nature_priorities';
 
 export interface PromptOption {
   value: string;
@@ -86,13 +87,13 @@ export const INTENT_PROMPT: PromptDefinition = {
   footer: 'This helps us show more of what you like.',
   multiSelect: true,
   options: [
-    { value: 'trails', label: 'Trails & hikes', icon: '🥾' },
-    { value: 'campgrounds', label: 'Campgrounds', icon: '🏕️' },
-    { value: 'water', label: 'Water spots', icon: '🏊' },
-    { value: 'scenic', label: 'Scenic views', icon: '🌄' },
-    { value: 'outdoor_fitness', label: 'Outdoor fitness', icon: '🏃' },
-    { value: 'wildlife', label: 'Wildlife & nature', icon: '🦌' },
-    { value: 'provisions', label: 'Local provisions', icon: '🍺' },
+    { value: 'trails', label: 'Trails & hikes', icon: 'Mountain' },
+    { value: 'campgrounds', label: 'Campgrounds', icon: 'Tent' },
+    { value: 'water', label: 'Water spots', icon: 'Waves' },
+    { value: 'scenic', label: 'Scenic views', icon: 'Sunrise' },
+    { value: 'outdoor_fitness', label: 'Outdoor fitness', icon: 'HeartPulse' },
+    { value: 'wildlife', label: 'Wildlife & nature', icon: 'TreeDeciduous' },
+    { value: 'provisions', label: 'Local provisions', icon: 'Store' },
   ],
 };
 
@@ -111,87 +112,100 @@ export const GEO_PROMPT: PromptDefinition = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════
-// PHASE 3: DECISION-STYLE META-PREFERENCES
+// PHASE 3: OUTDOOR DECISION-STYLE PREFERENCES
 // ═══════════════════════════════════════════════════════════════════════
 // 
-// These explain HOW users make decisions, not WHAT they want.
+// These explain HOW outdoor enthusiasts make decisions, not what they want.
 // They apply as soft multipliers only — never filters, never absolute.
 // ═══════════════════════════════════════════════════════════════════════
 
-// Choice Priority - what matters most when choosing (multi-select, max 2)
-export const CHOICE_PRIORITY_PROMPT: PromptDefinition = {
-  type: 'choice_priority',
+// Adventure Style - comfort with remote vs. established trails
+export const ADVENTURE_STYLE_PROMPT: PromptDefinition = {
+  type: 'adventure_style',
   header: 'Quick question',
-  question: 'When choosing a place, what matters most to you?',
-  footer: 'Pick up to 2. Helps us surface the right places.',
+  question: "When you head outdoors, what's your usual approach?",
+  footer: 'Helps us match your comfort level.',
+  multiSelect: false,
+  options: [
+    { value: 'well_marked', label: 'Stick to well-marked trails', icon: 'MapPin' },
+    { value: 'mix_both', label: 'Mix of established and off-path', icon: 'Compass' },
+    { value: 'explore_remote', label: 'Seek out remote spots', icon: 'Map' },
+  ],
+};
+
+// Trail Companions - who users typically go with
+export const TRAIL_COMPANIONS_PROMPT: PromptDefinition = {
+  type: 'trail_companions',
+  header: 'One more thing',
+  question: 'Who do you usually go outdoors with?',
+  footer: 'Private — just for better suggestions.',
+  multiSelect: false,
+  options: [
+    { value: 'solo', label: 'Usually solo', icon: 'User' },
+    { value: 'small_group', label: 'With 1-2 close friends', icon: 'Users' },
+    { value: 'group', label: 'Larger groups / organized outings', icon: 'UsersRound' },
+    { value: 'mix', label: 'Depends on the day', icon: 'Shuffle' },
+  ],
+};
+
+// Effort Preference - intensity level
+export const EFFORT_PREFERENCE_PROMPT: PromptDefinition = {
+  type: 'effort_preference',
+  header: 'What kind of effort feels right?',
+  question: 'Think about your typical outings.',
+  footer: 'Helps us match difficulty levels.',
+  multiSelect: false,
+  options: [
+    { value: 'easy', label: 'Easy / casual pace', icon: 'Footprints' },
+    { value: 'moderate', label: 'Moderate challenge', icon: 'TrendingUp' },
+    { value: 'strenuous', label: 'Push myself / strenuous', icon: 'Mountain' },
+    { value: 'varies', label: 'Varies by mood', icon: 'Shuffle' },
+  ],
+};
+
+// Weather Flexibility - willingness to go out in various conditions
+export const WEATHER_FLEXIBILITY_PROMPT: PromptDefinition = {
+  type: 'weather_flexibility',
+  header: 'How do you feel about weather?',
+  question: 'When conditions are less than ideal...',
+  footer: "We'll note conditions when relevant.",
+  multiSelect: false,
+  options: [
+    { value: 'fair_only', label: 'Clear, fair conditions', icon: 'Sun' },
+    { value: 'light_weather', label: 'Light rain / overcast is fine', icon: 'CloudSun' },
+    { value: 'any_weather', label: 'I go out in almost anything', icon: 'CloudRain' },
+  ],
+};
+
+// Gear Readiness - equipment level
+export const GEAR_READINESS_PROMPT: PromptDefinition = {
+  type: 'gear_readiness',
+  header: 'How equipped are you?',
+  question: 'Think about your outdoor gear.',
+  footer: 'Helps us suggest appropriate spots.',
+  multiSelect: false,
+  options: [
+    { value: 'casual', label: 'Basics only (day pack, sneakers)', icon: 'Backpack' },
+    { value: 'equipped', label: 'Well-equipped (boots, layers)', icon: 'ShoppingBag' },
+    { value: 'ultralight', label: 'Dialed in (technical, ultralight)', icon: 'Gem' },
+  ],
+};
+
+// Nature Priorities - what matters most when choosing a spot (multi-select, max 2)
+export const NATURE_PRIORITIES_PROMPT: PromptDefinition = {
+  type: 'nature_priorities',
+  header: 'When picking a spot...',
+  question: 'What matters most to you?',
+  footer: 'Pick up to 2. Shapes what we surface.',
   multiSelect: true,
   maxSelections: 2,
   options: [
-    { value: 'convenience', label: 'Convenience & ease', icon: '⚡' },
-    { value: 'atmosphere', label: 'Atmosphere & comfort', icon: '🛋️' },
-    { value: 'quality', label: 'Quality & craft', icon: '✨' },
-    { value: 'social_energy', label: 'Social energy', icon: '👥' },
-    { value: 'familiarity', label: 'Familiarity / routine', icon: '🔁' },
-    { value: 'novelty', label: 'Discovery & novelty', icon: '🗺️' },
-  ],
-};
-
-// Uncertainty Tolerance - how user feels about new places
-export const UNCERTAINTY_PROMPT: PromptDefinition = {
-  type: 'uncertainty',
-  header: 'One more thing',
-  question: 'How do you usually feel about trying new places?',
-  footer: 'Helps us balance familiar and new.',
-  multiSelect: false,
-  options: [
-    { value: 'prefer_known', label: 'I prefer places I already know', icon: '🏠' },
-    { value: 'mix_both', label: 'I mix familiar and new', icon: '⚖️' },
-    { value: 'enjoy_new', label: 'I enjoy discovering new spots', icon: '🔍' },
-  ],
-};
-
-// Return vs One-Off Preference
-export const RETURN_PREF_PROMPT: PromptDefinition = {
-  type: 'return_pref',
-  header: 'What kind of places do you value more?',
-  question: 'Think about what you usually look forward to.',
-  footer: 'This helps us understand your style.',
-  multiSelect: false,
-  options: [
-    { value: 'return_often', label: 'Places I return to often', icon: '🔄' },
-    { value: 'one_off', label: 'Special occasion / one-off places', icon: '🎉' },
-    { value: 'mix_both', label: 'A mix of both', icon: '⚖️' },
-  ],
-};
-
-// Sensory Sensitivity - accessibility without labels
-export const SENSORY_PROMPT: PromptDefinition = {
-  type: 'sensory',
-  header: 'Are there things that tend to make a place less enjoyable?',
-  question: 'Select any that apply — or skip if none.',
-  footer: 'Private. Never filters, only adjusts.',
-  multiSelect: true,
-  options: [
-    { value: 'loud_music', label: 'Loud music', icon: '🔊' },
-    { value: 'bright_lights', label: 'Bright lighting', icon: '💡' },
-    { value: 'tight_spaces', label: 'Tight spaces', icon: '📦' },
-    { value: 'long_waits', label: 'Long waits', icon: '⏳' },
-    { value: 'crowds', label: 'Crowds', icon: '👥' },
-  ],
-};
-
-// Planning Horizon - how far ahead user plans
-export const PLANNING_PROMPT: PromptDefinition = {
-  type: 'planning',
-  header: 'How far ahead do you usually decide where to go?',
-  question: 'Think about your typical planning style.',
-  footer: 'Helps us with timing.',
-  multiSelect: false,
-  options: [
-    { value: 'on_the_spot', label: 'On the spot', icon: '⚡' },
-    { value: 'same_day', label: 'Same day', icon: '📅' },
-    { value: 'few_days', label: 'A few days ahead', icon: '🗓️' },
-    { value: 'routine', label: 'Part of a routine', icon: '🔁' },
+    { value: 'solitude', label: 'Solitude & quiet', icon: 'TreePine' },
+    { value: 'scenery', label: 'Scenic beauty', icon: 'Sunrise' },
+    { value: 'wildlife', label: 'Wildlife / nature', icon: 'Bird' },
+    { value: 'accessibility', label: 'Easy access & parking', icon: 'ParkingCircle' },
+    { value: 'dog_friendly', label: 'Dog-friendly', icon: 'Dog' },
+    { value: 'water_access', label: 'Water access', icon: 'Waves' },
   ],
 };
 
@@ -203,12 +217,13 @@ export const ALL_PROMPTS: PromptDefinition[] = [
   // Phase 2: Intent
   INTENT_PROMPT,
   GEO_PROMPT,
-  // Phase 3: Decision-style
-  CHOICE_PRIORITY_PROMPT,
-  UNCERTAINTY_PROMPT,
-  RETURN_PREF_PROMPT,
-  SENSORY_PROMPT,
-  PLANNING_PROMPT,
+  // Phase 3: Outdoor Decision-style
+  ADVENTURE_STYLE_PROMPT,
+  TRAIL_COMPANIONS_PROMPT,
+  EFFORT_PREFERENCE_PROMPT,
+  WEATHER_FLEXIBILITY_PROMPT,
+  GEAR_READINESS_PROMPT,
+  NATURE_PRIORITIES_PROMPT,
 ];
 
 /**
@@ -239,12 +254,13 @@ export const PROMPT_TRIGGERS: PromptTriggerCondition[] = [
   { type: 'intent', minSaves: 5, minBrowses: 0, minSessions: 2 },
   { type: 'geo', minSaves: 3, minBrowses: 10, minSessions: 2 },
   
-  // Phase 3: Decision-style prompts (higher thresholds)
-  { type: 'uncertainty', minSaves: 4, minBrowses: 10, minSessions: 2 },
-  { type: 'choice_priority', minSaves: 5, minBrowses: 15, minSessions: 3 },
-  { type: 'return_pref', minSaves: 6, minBrowses: 20, minSessions: 3 },
-  { type: 'planning', minSaves: 7, minBrowses: 20, minSessions: 3 },
-  { type: 'sensory', minSaves: 8, minBrowses: 25, minSessions: 4 },
+  // Phase 3: Outdoor decision-style prompts (higher thresholds)
+  { type: 'adventure_style', minSaves: 4, minBrowses: 10, minSessions: 2 },
+  { type: 'trail_companions', minSaves: 5, minBrowses: 15, minSessions: 3 },
+  { type: 'effort_preference', minSaves: 6, minBrowses: 15, minSessions: 3 },
+  { type: 'weather_flexibility', minSaves: 7, minBrowses: 20, minSessions: 3 },
+  { type: 'gear_readiness', minSaves: 8, minBrowses: 20, minSessions: 3 },
+  { type: 'nature_priorities', minSaves: 10, minBrowses: 25, minSessions: 4 },
 ];
 
 export function getPromptDefinition(type: PromptType): PromptDefinition | undefined {
