@@ -28,6 +28,7 @@
  */
 
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { usePublicPlaces, UsePublicPlacesOptions } from './usePublicPlaces';
 import { useUserAffinity } from './useUserAffinity';
 import { useUserPreferences } from './useUserPreferences';
@@ -35,6 +36,7 @@ import { useAuth } from './useAuth';
 import { getExpandedCategories } from '@/lib/category-aliases';
 import { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
 import { calculateDistanceMiles } from '@/lib/distance';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PersonalizedPlace extends DirectoryPlace {
   distance?: number;
@@ -106,10 +108,37 @@ interface UsePersonalizedPlacesOptions extends UsePublicPlacesOptions {
  * for distance sorting, not user's home location.
  */
 export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { data: places, isLoading, isSwitchingLocation, ...rest } = usePublicPlaces(options);
   const { affinities } = useUserAffinity();
   const { preferences } = useUserPreferences();
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // PHASE 6: PREFERENCE-ALIGNED PLACES (Similar User Boost)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Fetch places that are popular among users with similar preferences.
+  // This provides a gentle boost without exposing which users favorited what.
+  const { data: alignmentBoosts } = useQuery({
+    queryKey: ['preference-aligned-places', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return new Map<string, number>();
+      
+      const { data, error } = await supabase.rpc('get_preference_aligned_places', {
+        _user_id: user.id
+      });
+      
+      if (error) {
+        console.warn('Failed to fetch alignment boosts:', error);
+        return new Map<string, number>();
+      }
+      
+      return new Map(data?.map((d: { place_id: string; alignment_boost: number }) => 
+        [d.place_id, d.alignment_boost]
+      ) ?? []);
+    },
+    enabled: !!user?.id && !!preferences?.allow_place_visibility,
+    staleTime: 5 * 60 * 1000, // 5 min cache
+  });
   
   // Determine if we're in exploration mode (viewing a different city)
   const isExplorationMode = !!(options.city && options.state);
@@ -318,6 +347,16 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
         }
       }
       
+      // ═════════════════════════════════════════════════════════════════
+      // PHASE 6: PREFERENCE ALIGNMENT BOOST
+      // ═════════════════════════════════════════════════════════════════
+      // Boost places favorited by users with similar preference profiles.
+      // This never exposes which users - only that the place resonates
+      // with people who have similar activities/timing preferences.
+      if (alignmentBoosts && alignmentBoosts.has(place.id)) {
+        relevanceScore += alignmentBoosts.get(place.id) || 0;
+      }
+      
       // Determine if this place is "relevant" for badge (threshold raised to reduce badge inflation)
       const isRelevant = relevanceScore >= 0.5;
       
@@ -381,6 +420,7 @@ export function usePersonalizedPlaces(options: UsePersonalizedPlacesOptions) {
     returnBoost,
     choicePriorityModifiers,
     options.biasCoords,
+    alignmentBoosts,
   ]);
   
   return {
