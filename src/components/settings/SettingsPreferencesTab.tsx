@@ -22,7 +22,6 @@ import {
   ProfileBasicsSection,
   ActivitiesSection,
   PlaceUsageSection,
-  TimingSection,
   OpennessSection,
   PatternsSection,
   PrivacySection,
@@ -36,6 +35,7 @@ import {
   GearReadinessSection,
   NaturePrioritiesSection,
 } from '@/components/profile';
+import { useProSettings } from '@/hooks/useProSettings';
 
 // Map icon names to Lucide components
 const INTENT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -53,11 +53,11 @@ const SettingsPreferencesTab = () => {
   const { isAuthenticated } = useAuth();
   const { preferences, updatePreferences, isUpdating } = useUserPreferences();
   const { hasPaidTuning } = useSubscription();
+  const { isSelected: isProSelected } = useProSettings();
   
   // Local state for profile preferences
   const [activities, setActivities] = useState<string[]>([]);
   const [placeUsage, setPlaceUsage] = useState<string[]>([]);
-  const [timingPreferences, setTimingPreferences] = useState<string[]>([]);
   const [openness, setOpenness] = useState<string[]>([]);
   const [allowPlaceVisibility, setAllowPlaceVisibility] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -82,7 +82,6 @@ const SettingsPreferencesTab = () => {
     if (preferences) {
       setActivities(preferences.activities || []);
       setPlaceUsage(preferences.place_usage || []);
-      setTimingPreferences(preferences.timing_preferences || []);
       setOpenness(preferences.openness || []);
       setAllowPlaceVisibility(preferences.allow_place_visibility || false);
       setDisplayName(preferences.display_name || null);
@@ -113,10 +112,7 @@ const SettingsPreferencesTab = () => {
     updatePreferences({ place_usage: newPlaceUsage });
   }, [updatePreferences]);
 
-  const handleTimingChange = useCallback((newTiming: string[]) => {
-    setTimingPreferences(newTiming);
-    updatePreferences({ timing_preferences: newTiming });
-  }, [updatePreferences]);
+  // handleTimingChange removed — TimingSection consolidated into TimeOfDaySection
 
   const handleOpennessChange = useCallback((newOpenness: string[]) => {
     setOpenness(newOpenness);
@@ -184,6 +180,15 @@ const SettingsPreferencesTab = () => {
     setNaturePriorities(values);
     updatePreferences({ sensory_sensitivity: values });
   }, [updatePreferences]);
+
+  // PRO coverage detection — hide redundant free sections when PRO equivalents are answered
+  const PRO_ACTIVITY_KEYS = ['hiker', 'runner', 'cyclist', 'outdoor_fitness', 'swimmer', 'climber', 'paddler', 'winter_sports', 'photographer'];
+  const PRO_SOCIAL_KEYS = ['social_solo', 'social_small', 'social_group'];
+  const PRO_PACE_KEYS = ['pace_slow', 'pace_balanced', 'pace_fast'];
+
+  const hasProActivitySelections = PRO_ACTIVITY_KEYS.some(key => isProSelected(key));
+  const hasProSocialSelection = PRO_SOCIAL_KEYS.some(key => isProSelected(key));
+  const hasProPaceSelection = PRO_PACE_KEYS.some(key => isProSelected(key));
 
   const handleIntentToggle = (value: string) => {
     const newIntents = selectedIntents.includes(value)
@@ -263,12 +268,14 @@ const SettingsPreferencesTab = () => {
         isUpdating={isUpdating}
       />
 
-      {/* Section 2: Activities You Actually Do */}
-      <ActivitiesSection
-        selected={activities}
-        onChange={handleActivitiesChange}
-        isUpdating={isUpdating}
-      />
+      {/* Section 2: Activities — hidden if PRO Step 4 activities selected */}
+      {!hasProActivitySelections && (
+        <ActivitiesSection
+          selected={activities}
+          onChange={handleActivitiesChange}
+          isUpdating={isUpdating}
+        />
+      )}
 
       {/* Section 3: How You Usually Use Places */}
       <PlaceUsageSection
@@ -277,12 +284,7 @@ const SettingsPreferencesTab = () => {
         isUpdating={isUpdating}
       />
 
-      {/* Section 4: When You Usually Go */}
-      <TimingSection
-        selected={timingPreferences}
-        onChange={handleTimingChange}
-        isUpdating={isUpdating}
-      />
+      {/* TimingSection removed — consolidated into TimeOfDaySection above */}
 
       {/* Section 5: Openness (Private) */}
       <OpennessSection
@@ -333,18 +335,28 @@ const SettingsPreferencesTab = () => {
               isUpdating={isUpdating}
             />
             <div className="h-px bg-border/30" />
-            <TrailCompanionsSection
-              selected={trailCompanions}
-              onChange={handleTrailCompanionsChange}
-              isUpdating={isUpdating}
-            />
-            <div className="h-px bg-border/30" />
-            <EffortPreferenceSection
-              selected={effortPreference}
-              onChange={handleEffortPreferenceChange}
-              isUpdating={isUpdating}
-            />
-            <div className="h-px bg-border/30" />
+            {/* Trail Companions — hidden if PRO social selected */}
+            {!hasProSocialSelection && (
+              <>
+                <TrailCompanionsSection
+                  selected={trailCompanions}
+                  onChange={handleTrailCompanionsChange}
+                  isUpdating={isUpdating}
+                />
+                <div className="h-px bg-border/30" />
+              </>
+            )}
+            {/* Effort Preference — hidden if PRO pace selected */}
+            {!hasProPaceSelection && (
+              <>
+                <EffortPreferenceSection
+                  selected={effortPreference}
+                  onChange={handleEffortPreferenceChange}
+                  isUpdating={isUpdating}
+                />
+                <div className="h-px bg-border/30" />
+              </>
+            )}
             <WeatherFlexibilitySection
               selected={weatherFlexibility}
               onChange={handleWeatherFlexibilityChange}
