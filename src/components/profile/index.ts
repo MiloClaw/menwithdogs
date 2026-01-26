@@ -2,7 +2,7 @@ export { ProfileBasicsSection } from './ProfileBasicsSection';
 export { ProfilePhotoUpload } from './ProfilePhotoUpload';
 export { ActivitiesSection } from './ActivitiesSection';
 export { PlaceUsageSection } from './PlaceUsageSection';
-export { TimingSection } from './TimingSection';
+// TimingSection removed — consolidated into TimeOfDaySection
 export { OpennessSection } from './OpennessSection';
 export { PatternsSection } from './PatternsSection';
 export { PrivacySection } from './PrivacySection';

@@ -9,8 +9,9 @@ interface OpennessSectionProps {
 }
 
 /**
- * Section 5: When you're out, which of these feel true?
- * Private preferences - never exposed to other users
+ * Section 5: Connection readiness — how open are you to meeting new people?
+ * Distinct from "who you go with" (TrailCompanions) or PRO social energy.
+ * Private preferences - never exposed to other users.
  */
 export function OpennessSection({
   selected,
@@ -23,7 +24,7 @@ export function OpennessSection({
         <div className="flex items-center gap-2 mb-1">
           <Users className="h-4 w-4 text-muted-foreground/70" />
           <h3 className="text-base font-medium tracking-wide text-foreground">
-            When you're out, which of these feel true?
+            How open are you to meeting new people?
           </h3>
         </div>
         <div className="flex items-center gap-1.5">
