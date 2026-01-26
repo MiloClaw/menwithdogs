@@ -35,6 +35,7 @@ const SettingsPreferencesTab = () => {
   const [openness, setOpenness] = useState<string[]>([]);
   const [allowPlaceVisibility, setAllowPlaceVisibility] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [selectedIntents, setSelectedIntents] = useState<string[]>([]);
 
   // Sync from server preferences
@@ -46,6 +47,7 @@ const SettingsPreferencesTab = () => {
       setOpenness(preferences.openness || []);
       setAllowPlaceVisibility(preferences.allow_place_visibility || false);
       setDisplayName(preferences.display_name || null);
+      setProfilePhotoUrl(preferences.profile_photo_url || null);
       setSelectedIntents(preferences.intent_preferences || []);
     }
   }, [preferences]);
@@ -79,6 +81,11 @@ const SettingsPreferencesTab = () => {
   const handleDisplayNameChange = useCallback((name: string) => {
     setDisplayName(name);
     updatePreferences({ display_name: name || null });
+  }, [updatePreferences]);
+
+  const handleProfilePhotoChange = useCallback((url: string | null) => {
+    setProfilePhotoUrl(url);
+    updatePreferences({ profile_photo_url: url });
   }, [updatePreferences]);
 
   const handleIntentToggle = (value: string) => {
@@ -128,6 +135,8 @@ const SettingsPreferencesTab = () => {
       <ProfileBasicsSection
         displayName={displayName}
         onDisplayNameChange={handleDisplayNameChange}
+        profilePhotoUrl={profilePhotoUrl}
+        onProfilePhotoChange={handleProfilePhotoChange}
         isUpdating={isUpdating}
       />
 
