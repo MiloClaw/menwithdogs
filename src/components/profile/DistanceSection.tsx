@@ -28,7 +28,7 @@ export function DistanceSection({
             How far are you willing to travel?
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Helps us prioritize places at the right distance for you.
         </p>
       </div>

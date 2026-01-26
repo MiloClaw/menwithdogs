@@ -43,7 +43,7 @@ export function NaturePrioritiesSection({
             What matters most
           </h4>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Pick up to {maxSelections}. Helps us find the right spots.
         </p>
       </div>

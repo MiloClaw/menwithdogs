@@ -29,7 +29,7 @@ export function OpennessSection({
         </div>
         <div className="flex items-center gap-1.5">
           <Lock className="h-3 w-3 text-muted-foreground/50" />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Private. Never shared. Can be changed anytime.
           </p>
         </div>

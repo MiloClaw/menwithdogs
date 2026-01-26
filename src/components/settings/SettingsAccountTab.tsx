@@ -62,7 +62,7 @@ const SettingsAccountTab = () => {
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-9 text-sm hover:bg-muted/50 transition-colors"
+              className="min-h-[44px] px-4 text-sm hover:bg-muted/50 transition-colors"
               onClick={() => setPasswordDialogOpen(true)}
             >
               Change
@@ -101,7 +101,7 @@ const SettingsAccountTab = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-9 text-sm hover:bg-muted/50 transition-colors"
+                  className="min-h-[44px] px-4 text-sm hover:bg-muted/50 transition-colors"
                   onClick={() => openCustomerPortal()}
                   disabled={isOpeningPortal}
                 >
@@ -111,7 +111,7 @@ const SettingsAccountTab = () => {
                 <Button
                   variant="default"
                   size="sm"
-                  className="h-9 text-sm"
+                  className="min-h-[44px] px-6 text-sm"
                   onClick={() => createCheckout()}
                   disabled={isCreatingCheckout}
                 >

@@ -28,7 +28,7 @@ export function AdventureStyleSection({
             Trail comfort
           </h4>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Helps us suggest trails that match your style.
         </p>
       </div>

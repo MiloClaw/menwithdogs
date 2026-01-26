@@ -233,7 +233,7 @@ const SettingsPreferencesTab = () => {
   return (
     <div className="space-y-8">
       {/* Trust-building intro */}
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground leading-relaxed">
         These settings quietly shape what the directory surfaces for you. 
         Everything here is private and can be changed anytime.
       </p>
@@ -302,7 +302,7 @@ const SettingsPreferencesTab = () => {
               What draws you outside?
             </h3>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Select any that speak to you. Helps us recommend better places.
           </p>
         </div>
@@ -319,12 +319,12 @@ const SettingsPreferencesTab = () => {
         <Collapsible defaultOpen={false}>
           <CollapsibleTrigger className="flex items-center gap-2 w-full text-left group">
             <Compass className="h-4 w-4 text-muted-foreground/70" />
-            <span className="text-base font-medium tracking-wide text-foreground">
+            <span className="text-sm font-semibold uppercase tracking-wide text-foreground">
               How you explore
             </span>
             <ChevronDown className="h-4 w-4 ml-auto text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
           </CollapsibleTrigger>
-          <p className="text-xs text-muted-foreground mt-1 mb-4">
+          <p className="text-sm text-muted-foreground mt-1 mb-4 leading-relaxed">
             These quietly shape what the directory shows you.
           </p>
           <CollapsibleContent className="space-y-6 pt-2">
@@ -394,7 +394,7 @@ const SettingsPreferencesTab = () => {
           </h3>
         </div>
         
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           When people with similar routines, comfort levels, and interests spend time in the same places, 
           patterns emerge. Pro uses these patterns to highlight places that tend to feel right for people 
           who move through the world the way you do.

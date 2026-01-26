@@ -26,7 +26,7 @@ export function PlaceUsageSection({
             When you head outdoors, it's usually for...
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Select all that apply.
         </p>
       </div>

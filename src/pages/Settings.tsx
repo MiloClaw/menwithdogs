@@ -108,13 +108,13 @@ const Settings = () => {
           <TabsList className="w-full bg-transparent border-b border-border rounded-none p-0 h-auto mb-10">
             <TabsTrigger 
               value="preferences" 
-              className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base transition-colors"
+              className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base font-serif font-medium transition-colors"
             >
               Preferences
             </TabsTrigger>
             <TabsTrigger 
               value="account" 
-              className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-base transition-colors"
+              className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 text-base font-serif font-medium transition-colors"
             >
               Account
             </TabsTrigger>

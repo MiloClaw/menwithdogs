@@ -104,7 +104,7 @@ export function ProOptionChips({ options, inputType = 'multi' }: ProOptionChipsP
   return (
     <div className="space-y-1.5">
       {inputType === 'single' && (
-        <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">
+        <span className="text-xs text-muted-foreground/50 uppercase tracking-wide">
           Choose one
         </span>
       )}

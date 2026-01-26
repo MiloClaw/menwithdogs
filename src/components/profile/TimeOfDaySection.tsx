@@ -28,7 +28,7 @@ export function TimeOfDaySection({
             When do you usually head out?
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We'll prioritize places that match your rhythm.
         </p>
       </div>
