@@ -17,6 +17,89 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PromptDefinition } from '@/lib/preference-prompts';
 import { cn } from '@/lib/utils';
+import {
+  // Phase 1: Context prompts
+  Sunrise,
+  Sun,
+  Sunset,
+  Shuffle,
+  MapPin,
+  Car,
+  Map,
+  Volume,
+  Scale,
+  PartyPopper,
+  HelpCircle,
+  Target,
+  RefreshCw,
+  Globe,
+  // Phase 2: Intent
+  Mountain,
+  Tent,
+  Waves,
+  HeartPulse,
+  TreeDeciduous,
+  Store,
+  // Phase 3: Outdoor decision
+  Compass,
+  Users,
+  UsersRound,
+  User,
+  Footprints,
+  TrendingUp,
+  CloudSun,
+  CloudRain,
+  Backpack,
+  ShoppingBag,
+  Gem,
+  TreePine,
+  Bird,
+  ParkingCircle,
+  Dog,
+  type LucideIcon,
+} from 'lucide-react';
+
+// Icon mapping for all prompt options
+const PROMPT_ICONS: Record<string, LucideIcon> = {
+  // Phase 1: Context prompts
+  Sunrise,
+  Sun,
+  Sunset,
+  Shuffle,
+  MapPin,
+  Car,
+  Map,
+  Volume,
+  Scale,
+  PartyPopper,
+  HelpCircle,
+  Target,
+  RefreshCw,
+  Globe,
+  // Phase 2: Intent
+  Mountain,
+  Tent,
+  Waves,
+  HeartPulse,
+  TreeDeciduous,
+  Store,
+  // Phase 3: Outdoor decision
+  Compass,
+  Users,
+  UsersRound,
+  User,
+  Footprints,
+  TrendingUp,
+  CloudSun,
+  CloudRain,
+  Backpack,
+  ShoppingBag,
+  Gem,
+  TreePine,
+  Bird,
+  ParkingCircle,
+  Dog,
+};
 
 interface PreferencePromptProps {
   prompt: PromptDefinition;
@@ -81,6 +164,19 @@ const PreferencePrompt = ({
     onOpenChange(newOpen);
   };
 
+  // Render icon - either Lucide component or fallback to text
+  const renderIcon = (iconName?: string) => {
+    if (!iconName) return null;
+    
+    const IconComponent = PROMPT_ICONS[iconName];
+    if (IconComponent) {
+      return <IconComponent className="h-4 w-4 mr-2" />;
+    }
+    
+    // Fallback for any unrecognized icon names (shouldn't happen with proper mapping)
+    return <span className="mr-2">{iconName}</span>;
+  };
+
   const content = (
     <div className="space-y-6">
       {/* Selection counter for capped multi-select */}
@@ -109,7 +205,7 @@ const PreferencePrompt = ({
               )}
               onClick={() => handleOptionClick(option.value)}
             >
-              {option.icon && <span className="mr-2">{option.icon}</span>}
+              {renderIcon(option.icon)}
               {option.label}
             </Button>
           );
