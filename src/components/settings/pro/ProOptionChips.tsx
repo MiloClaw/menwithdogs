@@ -120,7 +120,7 @@ export function ProOptionChips({ options, inputType = 'multi' }: ProOptionChipsP
               variant={selected ? 'default' : 'outline'}
               size="sm"
               className={cn(
-                'rounded-full min-h-[44px] px-5 transition-all duration-100 ease-out gap-2',
+                'rounded-lg min-h-[44px] px-5 transition-all duration-100 ease-out gap-2',
                 'active:scale-95',
                 selected && 'ring-2 ring-primary/15 ring-offset-1 shadow-sm',
                 !selected && 'hover:opacity-90',
