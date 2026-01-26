@@ -306,15 +306,33 @@ const LogoTesting = () => {
             </div>
             
             {/* Standalone Stripe for Hat Brim / Accessory */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <p className="text-sm font-medium">Standalone Brand Stripe (hat brim, wristband)</p>
-              <div className="flex gap-4 items-center">
-                <BrandStripe size="md" width={120} />
-                <span className="text-xs text-muted-foreground">120px</span>
+              
+              {/* Light variant on light background */}
+              <div className="bg-gray-100 rounded-lg p-4 space-y-2">
+                <p className="text-xs text-muted-foreground mb-2">Light variant (navy bar)</p>
+                <div className="flex gap-4 items-center">
+                  <BrandStripe size="md" width={120} variant="light" />
+                  <span className="text-xs text-muted-foreground">120px</span>
+                </div>
+                <div className="flex gap-4 items-center">
+                  <BrandStripe size="lg" width={200} variant="light" />
+                  <span className="text-xs text-muted-foreground">200px</span>
+                </div>
               </div>
-              <div className="flex gap-4 items-center">
-                <BrandStripe size="lg" width={200} />
-                <span className="text-xs text-muted-foreground">200px</span>
+              
+              {/* Dark variant on dark background */}
+              <div className="bg-[hsl(213,52%,12%)] rounded-lg p-4 space-y-2">
+                <p className="text-xs text-white/60 mb-2">Dark variant (white bar)</p>
+                <div className="flex gap-4 items-center">
+                  <BrandStripe size="md" width={120} variant="dark" />
+                  <span className="text-xs text-white/60">120px</span>
+                </div>
+                <div className="flex gap-4 items-center">
+                  <BrandStripe size="lg" width={200} variant="dark" />
+                  <span className="text-xs text-white/60">200px</span>
+                </div>
               </div>
             </div>
           </CardContent>
