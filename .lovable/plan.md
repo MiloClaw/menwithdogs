@@ -1,205 +1,215 @@
 
 
-# Settings Page Intelligence Audit — Redundancy & Gap Analysis
+# Settings Page Copy Refinement Plan
 
-## Summary
+## Overview
 
-After reviewing all preference questions across the Settings page, I've identified **6 redundancies** where similar questions are asked in multiple places, and **2 potential gaps** where the intelligence system could benefit from additional signals.
+After reviewing all copy across the Settings page, I've identified clarity improvements and one functional issue. All changes maintain the existing private, place-centric tone while making the purpose of each preference clearer for new users.
 
 ---
 
-## Current Architecture (4 Layers)
+## Changes Summary
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Layer 1: TOP-LEVEL FREE PREFERENCES                           │
-│  ─────────────────────────────────────────────────────────────  │
-│  Profile Basics, Distance, Time of Day, Geo Affinity,          │
-│  Activities, Place Usage, Timing, Openness                     │
-│  → Stored in user_preferences table                            │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  Layer 2: INTENT GRID (Free)                                   │
-│  ─────────────────────────────────────────────────────────────  │
-│  "What draws you outside?" — 7 category options                 │
-│  → Stored in user_preferences.intent_preferences               │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  Layer 3: HOW YOU EXPLORE (Collapsible Phase 3)                │
-│  ─────────────────────────────────────────────────────────────  │
-│  Adventure Style, Trail Companions, Effort Preference,         │
-│  Weather Flexibility, Gear Readiness, Nature Priorities        │
-│  → Stored in repurposed user_preferences columns               │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  Layer 4: PRO "SPACES THAT FEEL RIGHT" (Paid/Preview)          │
-│  ─────────────────────────────────────────────────────────────  │
-│  Step 1: Age, Relationship, Experience (overlap mode)          │
-│  Step 2: Social, Pace, Crowds (boost mode)                     │
-│  Step 3: Connection Intent, Vibe (boost mode)                  │
-│  Step 4: Activities (boost mode)                               │
-│  → Stored as user_signals with pro_selection type              │
-└─────────────────────────────────────────────────────────────────┘
+| File | Change Type | Purpose |
+|------|-------------|---------|
+| `GeoAffinitySection.tsx` | Copy refinement | Clarify the question |
+| `PlaceUsageSection.tsx` | Copy refinement | Remove undefined "these places" reference |
+| `OpennessSection.tsx` | Copy + Option refinement | Better align options with the question |
+| `AdventureStyleSection.tsx` | Copy refinement | Clarify section title |
+| `WeatherFlexibilitySection.tsx` | Copy refinement | Explain what "noting conditions" means |
+| `GearReadinessSection.tsx` | Copy refinement | Clarify "appropriate" |
+| `NaturePrioritiesSection.tsx` | Copy refinement | Remove product jargon |
+| `PatternsSection.tsx` | Remove non-functional button | Fix false affordance |
+| `profile-options.ts` | Option refinement | Update OpennessSection options |
+
+---
+
+## Detailed Changes
+
+### 1. GeoAffinitySection.tsx
+
+**Before:**
+```
+Question: "How do you like to explore?"
+Helper: "Helps us understand your discovery style."
+```
+
+**After:**
+```
+Question: "How spread out are your favorite spots?"
+Helper: "Helps us know whether to show places nearby or farther out."
 ```
 
 ---
 
-## Redundancies Identified
+### 2. PlaceUsageSection.tsx
 
-### 1. Activities — Asked Twice
-
-| Free Section | PRO Section |
-|--------------|-------------|
-| `ActivitiesSection`: Walking/hiking, Running, Gym, Climbing, Swimming, Camping, Casual outdoor | PRO Step 4: Hiking, Running, Cycling, Outdoor Fitness, Swimming, Climbing, Paddling, Winter Sports, Photography |
-
-**Problem:** User sees overlapping activity questions. PRO version is more comprehensive with Google Place type mappings that power the affinity engine.
-
-**Recommendation:** Hide `ActivitiesSection` (Layer 1) when PRO Step 4 has selections, or remove it entirely since PRO covers this better with intelligence integration.
-
----
-
-### 2. Timing — Asked Twice
-
-| Free Section | Also Free Section |
-|--------------|-------------------|
-| `TimeOfDaySection` (single-select): Dawn, Daytime, Golden hour, Flexible | `TimingSection` (multi-select): Early mornings, Late mornings, Afternoons, Evenings, Weekdays, Weekends |
-
-**Problem:** Two timing questions with overlapping concepts (dawn ≈ early mornings, daytime ≈ afternoons).
-
-**Recommendation:** Consolidate into one section. Keep single-select `TimeOfDaySection` (powers opening hours boost) and remove multi-select `TimingSection`, OR merge them logically.
-
----
-
-### 3. Social Style — Asked Three Times
-
-| Location | Question |
-|----------|----------|
-| `OpennessSection` | "Keep to myself", "Comfortable with familiar faces", "Open to meeting others" |
-| `TrailCompanionsSection` (Phase 3) | "Usually solo", "With 1-2 close friends", "Larger groups" |
-| PRO Step 2 `style.social` | "Solo seeker", "Small crew", "The more the merrier" |
-
-**Problem:** Three places asking essentially the same question about social preferences.
-
-**Recommendation:**
-- Keep PRO `style.social` (powers place rankings)
-- Consider conditional logic: hide `TrailCompanionsSection` when PRO Step 2 is answered
-- Refocus `OpennessSection` purely on "openness to meeting new people" (connection intent)
-
----
-
-### 4. Pace/Effort — Asked Twice
-
-| Free Section | PRO Section |
-|--------------|-------------|
-| `EffortPreferenceSection` (Phase 3): Easy, Moderate, Strenuous, Varies | PRO Step 2 `style.pace`: Slow and scenic, Balanced, Fast and intense |
-
-**Problem:** Overlapping intensity/pace questions.
-
-**Recommendation:** Hide `EffortPreferenceSection` when PRO Step 2 `style.pace` is selected, or consolidate.
-
----
-
-### 5. Intent/Vibe — Asked Twice
-
-| Free Section | PRO Section |
-|--------------|-------------|
-| `INTENT_PROMPT` grid: Trails, Campgrounds, Water, Scenic, Outdoor fitness, Wildlife, Provisions | PRO Step 3 `intent.vibe`: Quiet contemplation, Adventure, Learning, Accomplishment |
-
-**Problem:** Both sections ask "what draws you outside" with different framings. The free grid focuses on *place categories*, while PRO focuses on *emotional intent*.
-
-**Recommendation:** These are actually complementary, not redundant. Keep both — the free grid powers category filtering while PRO powers affinity scoring.
-
----
-
-### 6. Crowd Preference — Partially Redundant
-
-| Location | Question |
-|----------|----------|
-| PRO Step 2 `style.crowds` | "Avoid crowds", "Don't mind them", "Energy of a crowd" |
-| `NaturePrioritiesSection` option | "Solitude & quiet" |
-
-**Problem:** Crowd preference appears in both PRO Step 2 and as a nature priority option.
-
-**Recommendation:** This is acceptable — different contexts (general crowd tolerance vs. nature-specific solitude seeking). No action needed.
-
----
-
-## Intelligence Gaps Identified
-
-### Gap 1: Accessibility Needs
-
-**Current state:** No question about accessibility requirements (wheelchair access, stroller-friendly, etc.)
-
-**Impact:** Cannot boost accessible trails/parks for users who need them.
-
-**Recommendation:** Add to PRO Step 1 (identity/overlap mode) or Phase 3 as single-select:
-- "I need accessible paths/trails"
-- "Stroller-friendly spots"
-- "No special requirements"
-
-### Gap 2: Seasonal Activity Preference
-
-**Current state:** No question about seasonal preferences.
-
-**Impact:** Cannot recommend winter vs. summer activities intelligently.
-
-**Recommendation:** Consider adding to PRO Step 4 or Phase 3:
-- "I'm most active in: Spring / Summer / Fall / Winter / Year-round"
-
----
-
-## Recommended Changes
-
-### Priority 1: Consolidate Timing (Quick Win)
-Remove `TimingSection` (multi-select early/late mornings, weekdays/weekends) since `TimeOfDaySection` (single-select dawn/daytime/golden hour) already captures the primary signal.
-
-### Priority 2: Add Conditional Hiding for Redundant Sections
-When PRO Step 2 has `style.social` selected:
-- Add subtle visual indicator to `TrailCompanionsSection` that it's "covered by PRO"
-- Or hide it entirely to reduce cognitive load
-
-When PRO Step 4 has activity selections:
-- Consider hiding/dimming `ActivitiesSection` to avoid re-answering
-
-### Priority 3: Rename for Clarity
-- `OpennessSection` → Focus on "Openness to meeting new people" (connection readiness)
-- This differentiates it from `TrailCompanionsSection` (who you go with) and PRO `style.social` (group size preference)
-
-### Priority 4: Future — Add Accessibility Question
-Add to PRO Step 1 with `influence_mode = 'overlap'`:
-```sql
-INSERT INTO pro_context_definitions (key, label, section, step, influence_mode)
-VALUES 
-  ('acc_standard', 'No accessibility needs', 'about.accessibility', 1, 'overlap'),
-  ('acc_wheelchair', 'Wheelchair/mobility accessible', 'about.accessibility', 1, 'overlap'),
-  ('acc_stroller', 'Stroller-friendly preferred', 'about.accessibility', 1, 'overlap');
+**Before:**
 ```
+Question: "When you go to these places, it's usually for..."
+```
+
+**After:**
+```
+Question: "When you head outdoors, it's usually for..."
+```
+
+---
+
+### 3. OpennessSection.tsx + profile-options.ts
+
+**Before:**
+```
+Question: "How open are you to meeting new people?"
+Options:
+- I usually keep to myself
+- I'm comfortable with familiar faces
+- I'm open to casual conversation
+- I'm open to meeting others through shared activities
+- I'm usually out with a partner or friends  ← doesn't fit the question
+```
+
+**After:**
+```
+Question: "How open are you to meeting new people?"
+Options:
+- I prefer to keep to myself
+- I'm comfortable with familiar faces
+- Open to casual conversation
+- Happy to connect over shared activities
+```
+
+Remove the "I'm usually out with a partner or friends" option since it's about WHO you go with (covered by TrailCompanions), not OPENNESS to new connections.
+
+---
+
+### 4. AdventureStyleSection.tsx
+
+**Before:**
+```
+Title: "Your usual approach"
+Helper: "Helps us match your comfort level."
+```
+
+**After:**
+```
+Title: "Trail comfort"
+Helper: "Helps us suggest trails that match your style."
+```
+
+---
+
+### 5. WeatherFlexibilitySection.tsx
+
+**Before:**
+```
+Helper: "We'll note conditions when relevant."
+```
+
+**After:**
+```
+Helper: "Helps us suggest alternatives when conditions change."
+```
+
+---
+
+### 6. GearReadinessSection.tsx
+
+**Before:**
+```
+Helper: "Helps us suggest appropriate spots."
+```
+
+**After:**
+```
+Helper: "Matches you with trails that fit your setup."
+```
+
+---
+
+### 7. NaturePrioritiesSection.tsx
+
+**Before:**
+```
+Helper: "Pick up to 2. Shapes what we surface."
+```
+
+**After:**
+```
+Helper: "Pick up to 2. Helps us find the right spots."
+```
+
+---
+
+### 8. PatternsSection.tsx — Remove Non-Functional Button
+
+**Current issue:** The "Looks right" button exists but does nothing when clicked, creating a false affordance.
+
+**Action:** Remove the button until functionality is added. Keep the section as read-only display.
+
+**Before:**
+```tsx
+<div className="flex gap-2 pt-2">
+  <Button variant="outline" size="sm" className="min-h-[44px] gap-2">
+    <Check className="h-4 w-4" />
+    Looks right
+  </Button>
+</div>
+```
+
+**After:** Remove this block entirely.
 
 ---
 
 ## Files to Modify
 
-| Action | File | Purpose |
-|--------|------|---------|
-| Remove | `src/components/profile/TimingSection.tsx` | Consolidate with TimeOfDaySection |
-| Modify | `src/components/settings/SettingsPreferencesTab.tsx` | Remove TimingSection import/usage |
-| Modify | `src/components/profile/OpennessSection.tsx` | Rename/refocus copy |
-| Consider | `src/components/profile/ActivitiesSection.tsx` | Add conditional hiding when PRO Step 4 answered |
-| Future | Database migration | Add accessibility options to PRO Step 1 |
+| File | Lines Changed |
+|------|---------------|
+| `src/components/profile/GeoAffinitySection.tsx` | ~2 lines (question + helper) |
+| `src/components/profile/PlaceUsageSection.tsx` | 1 line (question) |
+| `src/components/profile/OpennessSection.tsx` | 0 lines (options come from profile-options.ts) |
+| `src/lib/profile-options.ts` | ~4 lines (OPENNESS_OPTIONS array) |
+| `src/components/profile/AdventureStyleSection.tsx` | ~2 lines (title + helper) |
+| `src/components/profile/WeatherFlexibilitySection.tsx` | 1 line (helper) |
+| `src/components/profile/GearReadinessSection.tsx` | 1 line (helper) |
+| `src/components/profile/NaturePrioritiesSection.tsx` | 1 line (helper) |
+| `src/components/profile/PatternsSection.tsx` | ~5 lines (remove button block) |
 
 ---
 
-## Summary Decision Matrix
+## Persistence Confirmation
 
-| Redundancy | Action | Effort |
-|------------|--------|--------|
-| Activities (free vs PRO) | Conditional hide or remove | Medium |
-| Timing (two sections) | Remove `TimingSection` | Low |
-| Social (three sections) | Rename/refocus `OpennessSection` | Low |
-| Pace/Effort | Conditional hide | Medium |
-| Intent/Vibe | Keep both (complementary) | None |
-| Crowds | Keep both (different contexts) | None |
+User choices **DO remain intact until changed**. The architecture is correct:
+
+1. Each `onChange` handler calls `updatePreferences()` which immediately persists to the database
+2. On page load, `useQuery` fetches saved preferences and populates local state
+3. The `useEffect` syncs server data to local state when preferences change
+
+No changes needed for persistence logic.
+
+---
+
+## Build Order
+
+```text
+Step 1: Update profile-options.ts (OPENNESS_OPTIONS)
+Step 2: Update copy in profile section components (parallel)
+├── GeoAffinitySection.tsx
+├── PlaceUsageSection.tsx
+├── AdventureStyleSection.tsx
+├── WeatherFlexibilitySection.tsx
+├── GearReadinessSection.tsx
+└── NaturePrioritiesSection.tsx
+Step 3: Remove non-functional button from PatternsSection.tsx
+```
+
+---
+
+## Result
+
+After these changes, a new user will:
+- Understand the PURPOSE of each preference question
+- Not encounter undefined references ("these places")
+- Not see options that don't align with the question asked
+- Not encounter non-functional UI elements
 
