@@ -20,6 +20,14 @@ export interface UserPreferences {
   return_preference: string | null;
   sensory_sensitivity: string[];
   planning_horizon: string | null;
+  // Profile Preferences (new)
+  activities: string[];
+  place_usage: string[];
+  timing_preferences: string[];
+  openness: string[];
+  display_name: string | null;
+  profile_photo_url: string | null;
+  allow_place_visibility: boolean;
   // Meta
   prompts_shown: Record<string, string>; // { time: "2024-01-01", vibe: null }
   created_at: string;
@@ -58,6 +66,20 @@ export function useUserPreferences() {
           sensory_sensitivity: Array.isArray(data.sensory_sensitivity)
             ? data.sensory_sensitivity as string[]
             : [],
+          // Profile arrays
+          activities: Array.isArray(data.activities)
+            ? data.activities as string[]
+            : [],
+          place_usage: Array.isArray(data.place_usage)
+            ? data.place_usage as string[]
+            : [],
+          timing_preferences: Array.isArray(data.timing_preferences)
+            ? data.timing_preferences as string[]
+            : [],
+          openness: Array.isArray(data.openness)
+            ? data.openness as string[]
+            : [],
+          allow_place_visibility: data.allow_place_visibility ?? false,
           prompts_shown: data.prompts_shown as Record<string, string> || {},
         } as UserPreferences;
       }
@@ -83,6 +105,14 @@ export function useUserPreferences() {
       return_preference: string | null;
       sensory_sensitivity: string[];
       planning_horizon: string | null;
+      // Profile Preferences
+      activities: string[];
+      place_usage: string[];
+      timing_preferences: string[];
+      openness: string[];
+      display_name: string | null;
+      profile_photo_url: string | null;
+      allow_place_visibility: boolean;
       // Meta
       prompts_shown: Record<string, string>;
     }>) => {

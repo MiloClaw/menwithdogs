@@ -2160,7 +2160,14 @@ export type Database = {
       compute_overlap_affinity: { Args: { _session_id: string }; Returns: Json }
       compute_place_aggregates: { Args: never; Returns: undefined }
       compute_user_affinity:
-        | { Args: { _user_id: string }; Returns: undefined }
+        | {
+            Args: { _user_id: string }
+            Returns: {
+              affinity_score: number
+              category: string
+              source_type: string
+            }[]
+          }
         | { Args: { _is_pro?: boolean; _user_id: string }; Returns: undefined }
       count_founders_redemptions: {
         Args: { _city_id?: string }
@@ -2261,6 +2268,13 @@ export type Database = {
       get_pending_overlap_session: {
         Args: { _session_id: string }
         Returns: Json
+      }
+      get_preference_aligned_places: {
+        Args: { _user_id: string }
+        Returns: {
+          alignment_boost: number
+          place_id: string
+        }[]
       }
       get_public_events: {
         Args: { _limit?: number; _status?: string; _venue_place_id?: string }
