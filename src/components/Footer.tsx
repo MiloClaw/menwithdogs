@@ -12,7 +12,7 @@ const Footer = () => {
           
           {/* Zone A: Brand Anchor */}
           <div className="space-y-6">
-            <BrandLockup size="lg" variant="dark" showStripe />
+            <BrandLockup size="lg" variant="dark" showStripe centered />
             <p className="font-serif text-sm italic text-primary-foreground/60">
               Real places. Real community. Real connection.
             </p>
