@@ -2358,6 +2358,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Surreal Arctic dunes up to 100 feet high.',
       trailhead: [-158.9500, 66.9500],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'little-kobuk-sand-dunes',
@@ -2367,6 +2369,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'More accessible dune field near river.',
       trailhead: [-159.0500, 66.9200],
+      photoUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'hunt-river-route',
@@ -2376,6 +2380,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1500,
       description: 'Caribou migration corridor through mountains.',
       trailhead: [-158.5000, 67.1000],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'salmon-river-traverse',
@@ -2385,6 +2391,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1800,
       description: 'Multi-day wilderness route following river.',
       trailhead: [-158.2000, 67.0000],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'onion-portage-area',
@@ -2394,6 +2402,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Historic caribou crossing and hunting site.',
       trailhead: [-158.5000, 66.9800],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2406,6 +2416,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Beautiful waterfall through spruce forest.',
       trailhead: [-154.2300, 60.2050],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'tanalian-mountain-trail',
@@ -2415,6 +2427,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 3400,
       description: 'Summit panoramas of Lake Clark and volcanoes.',
       trailhead: [-154.2300, 60.2050],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'kontrashibuna-lake-trail',
@@ -2424,6 +2438,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Alpine lake surrounded by tundra meadows.',
       trailhead: [-154.2500, 60.2200],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'twin-lakes-route',
@@ -2433,6 +2449,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1500,
       description: 'Remote turquoise lakes below volcanic peaks.',
       trailhead: [-153.5000, 60.6000],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'port-alsworth-beach-walk',
@@ -2442,6 +2460,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Lakeshore stroll near park headquarters.',
       trailhead: [-154.3000, 60.2000],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2454,6 +2474,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Walk onto glacier from historic Kennecott.',
       trailhead: [-142.8850, 61.4850],
+      photoUrl: 'https://images.unsplash.com/photo-1530041539828-114de669390e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bonanza-mine-trail',
@@ -2463,6 +2485,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 3800,
       description: 'Historic copper mine with stunning views.',
       trailhead: [-142.8830, 61.4870],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'erie-mine-trail',
@@ -2472,6 +2496,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2500,
       description: 'Mining ruins above Kennecott townsite.',
       trailhead: [-142.8900, 61.4900],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'jumbo-mine-trail',
@@ -2481,6 +2507,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1200,
       description: 'Well-preserved historic mine structures.',
       trailhead: [-142.8800, 61.4800],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'nabesna-road-trails',
@@ -2490,6 +2518,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Accessible trails from park road corridor.',
       trailhead: [-143.0500, 62.4000],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2506,6 +2536,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Dramatic sea cliffs on Santa Cruz Island.',
       trailhead: [-119.5550, 34.0500],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'scorpion-canyon-loop',
@@ -2515,6 +2547,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Historic ranch and canyon exploration.',
       trailhead: [-119.5500, 34.0470],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'prisoners-harbor-to-pelican-bay',
@@ -2524,6 +2558,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Coastal traverse with endemic plant life.',
       trailhead: [-119.6850, 34.0200],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'inspiration-point-trail',
@@ -2533,6 +2569,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Sweeping views of Anacapa Island.',
       trailhead: [-119.4350, 34.0150],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'water-canyon-trail',
@@ -2542,6 +2580,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 700,
       description: 'Beach access on Santa Rosa Island.',
       trailhead: [-120.1000, 33.9600],
+      photoUrl: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2554,6 +2594,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'One of the largest waterfalls in the park.',
       trailhead: [-118.5550, 36.7960],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'zumwalt-meadow-loop',
@@ -2563,6 +2605,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Lush meadow beneath towering granite walls.',
       trailhead: [-118.5700, 36.7800],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'big-stump-loop',
@@ -2572,6 +2616,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Historic logging area with massive stumps.',
       trailhead: [-118.9650, 36.7500],
+      photoUrl: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'roaring-river-falls',
@@ -2581,6 +2627,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 30,
       description: 'Short walk to powerful cascade.',
       trailhead: [-118.5850, 36.7750],
+      photoUrl: 'https://images.unsplash.com/photo-1440581572325-0bea30075d9d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'general-grant-tree-trail',
@@ -2590,6 +2638,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Third-largest tree in the world.',
       trailhead: [-118.9700, 36.7460],
+      photoUrl: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2602,6 +2652,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1300,
       description: 'Dramatic volcanic spires with condor sightings.',
       trailhead: [-121.1880, 36.4850],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bear-gulch-cave-trail',
@@ -2611,6 +2663,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 350,
       description: 'Talus caves with seasonal bat colonies.',
       trailhead: [-121.1850, 36.4800],
+      photoUrl: 'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'balconies-cave-trail',
@@ -2620,6 +2674,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Explore dramatic talus cave system.',
       trailhead: [-121.2150, 36.4900],
+      photoUrl: 'https://images.unsplash.com/photo-1504699439244-a9c2fc9c437b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'condor-gulch-trail',
@@ -2629,6 +2685,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1100,
       description: 'Prime California condor viewing area.',
       trailhead: [-121.1870, 36.4860],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bench-trail',
@@ -2638,6 +2696,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Connecting trail with wildflower displays.',
       trailhead: [-121.1900, 36.4820],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2654,6 +2714,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Canyon rim views with interpretive signs.',
       trailhead: [-107.7250, 38.5750],
+      photoUrl: 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'oak-flat-loop',
@@ -2663,6 +2725,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Descend to Gambel oak grove on canyon wall.',
       trailhead: [-107.7300, 38.5700],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'warner-point-nature-trail',
@@ -2672,6 +2736,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Highest viewpoint on South Rim at 8,300 ft.',
       trailhead: [-107.6850, 38.5500],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'north-vista-trail',
@@ -2681,6 +2747,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1100,
       description: 'Hike to Green Mountain overlook.',
       trailhead: [-107.7100, 38.5950],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'gunnison-route',
@@ -2690,6 +2758,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1800,
       description: 'Steep descent to river, chains required.',
       trailhead: [-107.7200, 38.5650],
+      photoUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2702,6 +2772,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 699,
       description: 'First major ridge with panoramic views.',
       trailhead: [-105.5150, 37.7330],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'star-dune-route',
@@ -2711,6 +2783,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 750,
       description: 'Tallest dune in North America at 755 ft.',
       trailhead: [-105.5150, 37.7330],
+      photoUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mosca-pass-trail',
@@ -2720,6 +2794,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1500,
       description: 'Historic route through montane forest.',
       trailhead: [-105.5200, 37.7200],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'medano-lake-trail',
@@ -2729,6 +2805,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2600,
       description: 'Alpine lake beneath rugged peaks.',
       trailhead: [-105.5100, 37.7400],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'dunes-overlook-trail',
@@ -2738,6 +2816,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 350,
       description: 'Forest walk with dune field panorama.',
       trailhead: [-105.5300, 37.7250],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2750,6 +2830,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Ancient trees over 4,000 years old.',
       trailhead: [-114.2180, 38.9850],
+      photoUrl: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'wheeler-peak-summit-trail',
@@ -2759,6 +2841,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2900,
       description: 'Nevada\'s second-highest peak at 13,063 ft.',
       trailhead: [-114.2200, 38.9900],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'alpine-lakes-loop',
@@ -2768,6 +2852,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Stella and Teresa lakes beneath Wheeler Peak.',
       trailhead: [-114.2180, 38.9870],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'lehman-creek-trail',
@@ -2777,6 +2863,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2050,
       description: 'Connector from visitor center to Wheeler Peak.',
       trailhead: [-114.2200, 39.0050],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mountain-view-nature-trail',
@@ -2786,6 +2874,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Short loop near Lehman Caves entrance.',
       trailhead: [-114.2200, 39.0050],
+      photoUrl: 'https://images.unsplash.com/photo-1504699439244-a9c2fc9c437b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2798,6 +2888,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Blue-striped badlands with petrified logs.',
       trailhead: [-109.7870, 34.9350],
+      photoUrl: 'https://images.unsplash.com/photo-1531877911583-7e6e81da6e80?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'crystal-forest-trail',
@@ -2807,6 +2899,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Dense concentration of colorful petrified wood.',
       trailhead: [-109.8000, 34.8600],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'giant-logs-trail',
@@ -2816,6 +2910,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 30,
       description: 'Largest petrified logs in the park.',
       trailhead: [-109.7850, 34.8150],
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'painted-desert-rim-trail',
@@ -2825,6 +2921,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Colorful badlands views at north entrance.',
       trailhead: [-109.7800, 35.0650],
+      photoUrl: 'https://images.unsplash.com/photo-1559666126-84f389727b9a?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'puerco-pueblo-trail',
@@ -2834,6 +2932,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 20,
       description: 'Ancestral Puebloan ruins and petroglyphs.',
       trailhead: [-109.7900, 34.9700],
+      photoUrl: 'https://images.unsplash.com/photo-1527142879-95b035a7de7b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2846,6 +2946,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Scenic desert views with saguaro forest.',
       trailhead: [-110.7380, 32.1850],
+      photoUrl: 'https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'signal-hill-trail',
@@ -2855,6 +2957,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Ancient Hohokam petroglyphs on boulders.',
       trailhead: [-111.2100, 32.2550],
+      photoUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'douglas-spring-trail',
@@ -2864,6 +2968,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2200,
       description: 'Rincon Mountain wilderness access.',
       trailhead: [-110.6950, 32.1750],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mica-view-loop',
@@ -2873,6 +2979,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Accessible loop through saguaro forest.',
       trailhead: [-110.7350, 32.1700],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cactus-forest-trail',
@@ -2882,6 +2990,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 150,
       description: 'Loop through Rincon Mountain foothills.',
       trailhead: [-110.7300, 32.1650],
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2894,6 +3004,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Boardwalk through dunes with wildlife info.',
       trailhead: [-106.1750, 32.7800],
+      photoUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'alkali-flat-trail',
@@ -2903,6 +3015,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 150,
       description: 'Remote desert basin, backcountry markers.',
       trailhead: [-106.2200, 32.7750],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'backcountry-camping-loop',
@@ -2912,6 +3026,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Overnight permit area deep in dunes.',
       trailhead: [-106.2100, 32.7780],
+      photoUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'interdune-boardwalk',
@@ -2921,6 +3037,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 10,
       description: 'Accessible path into dune field.',
       trailhead: [-106.1700, 32.7850],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'playa-trail',
@@ -2930,6 +3048,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 20,
       description: 'Short walk to seasonal playa lake.',
       trailhead: [-106.1800, 32.7820],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2946,6 +3066,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Waterfront stroll at visitor center.',
       trailhead: [-80.3250, 25.4700],
+      photoUrl: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'elliott-key-loop',
@@ -2955,6 +3077,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 10,
       description: 'Tropical hardwood forest on largest key.',
       trailhead: [-80.2100, 25.4500],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'boca-chita-key-trail',
@@ -2964,6 +3088,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Historic lighthouse and harbor views.',
       trailhead: [-80.1750, 25.4700],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'adams-key-trail',
@@ -2973,6 +3099,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Quiet island with picnic facilities.',
       trailhead: [-80.2350, 25.4000],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'spite-highway',
@@ -2982,6 +3110,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 5,
       description: 'Overgrown road through Elliott Key.',
       trailhead: [-80.2100, 25.4550],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -2994,6 +3124,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 10,
       description: 'Elevated path through floodplain forest.',
       trailhead: [-80.8220, 33.8300],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'weston-lake-loop-trail',
@@ -3003,6 +3135,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 30,
       description: 'Oxbow lake through champion trees.',
       trailhead: [-80.8220, 33.8300],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'river-trail',
@@ -3012,6 +3146,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Backcountry route to Congaree River.',
       trailhead: [-80.8200, 33.8280],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bluff-trail',
@@ -3021,6 +3157,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 40,
       description: 'Higher ground with diverse forest.',
       trailhead: [-80.8250, 33.8350],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'kingsnake-trail',
@@ -3030,6 +3168,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 60,
       description: 'Long loop through remote backcountry.',
       trailhead: [-80.8200, 33.8280],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3042,6 +3182,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Boardwalk to 65-foot waterfall.',
       trailhead: [-81.5380, 41.2770],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'blue-hen-falls-trail',
@@ -3051,6 +3193,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Scenic cascade in hemlock ravine.',
       trailhead: [-81.5550, 41.2650],
+      photoUrl: 'https://images.unsplash.com/photo-1440581572325-0bea30075d9d?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'ledges-trail',
@@ -3060,6 +3204,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Sandstone formations with ice box caves.',
       trailhead: [-81.5600, 41.2300],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'stanford-trail',
@@ -3069,6 +3215,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 350,
       description: 'Connects to Brandywine Falls through forest.',
       trailhead: [-81.5350, 41.2800],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'buckeye-trail-valley-section',
@@ -3078,6 +3226,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2000,
       description: 'Long-distance trail segment through park.',
       trailhead: [-81.5700, 41.2200],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3090,6 +3240,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 30,
       description: 'Self-guided tour of massive Civil War fort.',
       trailhead: [-82.8730, 24.6290],
+      photoUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'garden-key-beach-circuit',
@@ -3099,6 +3251,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Walk around the island perimeter.',
       trailhead: [-82.8720, 24.6285],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'moat-walk',
@@ -3108,6 +3262,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Wade through fort moat at low tide.',
       trailhead: [-82.8730, 24.6288],
+      photoUrl: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'coaling-dock-pier-walk',
@@ -3117,6 +3273,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Historic dock with snorkeling access.',
       trailhead: [-82.8740, 24.6295],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bush-key-seasonal-trail',
@@ -3126,6 +3284,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Bird nesting island, closed Feb-Sept.',
       trailhead: [-82.8680, 24.6300],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3138,6 +3298,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Dune ridges with Lake Michigan views.',
       trailhead: [-87.2100, 41.6250],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'mount-baldy-trail',
@@ -3147,6 +3309,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 180,
       description: 'Living dune that moves 4 feet/year.',
       trailhead: [-86.8900, 41.7100],
+      photoUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cowles-bog-trail',
@@ -3156,6 +3320,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 150,
       description: 'Wetlands and beach through diverse habitats.',
       trailhead: [-87.0900, 41.6500],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'dune-succession-trail',
@@ -3165,6 +3331,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Ecology lesson on plant succession.',
       trailhead: [-87.2050, 41.6230],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'bailly-homestead-trail',
@@ -3174,6 +3342,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Historic French-Canadian fur trader site.',
       trailhead: [-87.1100, 41.6350],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3186,6 +3356,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 5000,
       description: 'Main spine of island, 4-5 day traverse.',
       trailhead: [-88.4900, 48.0990],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'scoville-point-loop',
@@ -3195,6 +3367,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Rocky shoreline with lighthouse views.',
       trailhead: [-88.4850, 48.1000],
+      photoUrl: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'suzys-cave-trail',
@@ -3204,6 +3378,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Sea arch and wave-carved cave.',
       trailhead: [-88.4850, 48.0980],
+      photoUrl: 'https://images.unsplash.com/photo-1504699439244-a9c2fc9c437b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'lookout-louise-trail',
@@ -3213,6 +3389,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 250,
       description: 'Panoramic view of Canadian shore.',
       trailhead: [-88.8500, 48.0600],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'feldtmann-lake-loop',
@@ -3222,6 +3400,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2500,
       description: 'Multi-day backpack through remote west end.',
       trailhead: [-89.1700, 47.9500],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3234,6 +3414,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Rim walk above famous climbing cliffs.',
       trailhead: [-81.0530, 38.0680],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'long-point-trail',
@@ -3243,6 +3425,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Classic view of New River Gorge Bridge.',
       trailhead: [-81.0830, 38.0700],
+      photoUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'kaymoor-miners-trail',
@@ -3252,6 +3436,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: '821 steps to historic coal mine ruins.',
       trailhead: [-81.0600, 38.0500],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'grandview-rim-trail',
@@ -3261,6 +3447,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 150,
       description: 'Stunning canyon overlooks near Main Overlook.',
       trailhead: [-80.8900, 37.8300],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'turkey-spur-rock-trail',
@@ -3270,6 +3458,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 200,
       description: 'Rhododendron-lined path to overlook.',
       trailhead: [-80.8850, 37.8350],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3286,6 +3476,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1600,
       description: 'Summit ridge with harbor and rainforest views.',
       trailhead: [-170.6900, -14.2700],
+      photoUrl: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'tuafanua-trail',
@@ -3295,6 +3487,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Coastal walk through traditional villages.',
       trailhead: [-170.6800, -14.2650],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'pola-island-trail',
@@ -3304,6 +3498,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Rocky islet with seabird colonies.',
       trailhead: [-170.6000, -14.2550],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'ofu-beach-loop',
@@ -3313,6 +3509,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Pristine coral reef and palm-fringed beach.',
       trailhead: [-169.6750, -14.1800],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'amalau-valley-rainforest',
@@ -3322,6 +3520,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 800,
       description: 'Dense tropical forest with flying foxes.',
       trailhead: [-170.6850, -14.2600],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3334,6 +3534,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 20,
       description: 'Mississippi River walk with Arch views.',
       trailhead: [-90.1850, 38.6240],
+      photoUrl: 'https://images.unsplash.com/photo-1569013045876-f94ec7f51a82?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'old-courthouse-walk',
@@ -3343,6 +3545,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 10,
       description: 'Historic courthouse with Dred Scott exhibits.',
       trailhead: [-90.1890, 38.6260],
+      photoUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'arch-grounds-loop',
@@ -3352,6 +3556,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 30,
       description: 'Circle the iconic stainless steel arch.',
       trailhead: [-90.1850, 38.6250],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'luther-ely-smith-square',
@@ -3361,6 +3567,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 0,
       description: 'Park entrance with fountains and gardens.',
       trailhead: [-90.1870, 38.6265],
+      photoUrl: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'north-gateway-walk',
@@ -3370,6 +3578,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 10,
       description: 'Connection to Laclede\'s Landing.',
       trailhead: [-90.1840, 38.6280],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3382,6 +3592,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1800,
       description: 'Iconic alpine pass with glacier views.',
       trailhead: [-121.0750, 48.4750],
+      photoUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'thunder-knob-trail',
@@ -3391,6 +3603,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 500,
       description: 'Diablo Lake panorama from forested knob.',
       trailhead: [-121.1100, 48.7100],
+      photoUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'diablo-lake-trail',
@@ -3400,6 +3614,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1400,
       description: 'Turquoise glacial lake loop.',
       trailhead: [-121.1150, 48.7150],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'maple-pass-loop',
@@ -3409,6 +3625,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 2150,
       description: 'Premier fall foliage with lake views.',
       trailhead: [-120.7350, 48.5200],
+      photoUrl: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'ross-dam-trail',
@@ -3418,6 +3636,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Steep descent to massive hydroelectric dam.',
       trailhead: [-121.0650, 48.7300],
+      photoUrl: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3430,6 +3650,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'World-famous beach with underwater snorkel trail.',
       trailhead: [-64.7700, 18.3530],
+      photoUrl: 'https://images.unsplash.com/photo-1559827291-9c1806f8a3c6?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'reef-bay-trail',
@@ -3439,6 +3661,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 1000,
       description: 'Petroglyphs, sugar ruins, and beach access.',
       trailhead: [-64.7350, 18.3300],
+      photoUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'ram-head-trail',
@@ -3448,6 +3672,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Dramatic headland with Caribbean views.',
       trailhead: [-64.7200, 18.3100],
+      photoUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'lind-point-trail',
@@ -3457,6 +3683,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 250,
       description: 'Connects Cruz Bay to Honeymoon Beach.',
       trailhead: [-64.7930, 18.3320],
+      photoUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cinnamon-bay-nature-loop',
@@ -3466,6 +3694,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 100,
       description: 'Sugar plantation ruins and tropical forest.',
       trailhead: [-64.7530, 18.3550],
+      photoUrl: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 
@@ -3478,6 +3708,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 50,
       description: 'Historic cave entrance with breathing wind.',
       trailhead: [-103.4800, 43.5570],
+      photoUrl: 'https://images.unsplash.com/photo-1504699439244-a9c2fc9c437b?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'rankin-ridge-trail',
@@ -3487,6 +3719,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 300,
       description: 'Highest point in park with fire tower.',
       trailhead: [-103.4250, 43.5200],
+      photoUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'cold-brook-canyon-trail',
@@ -3496,6 +3730,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 400,
       description: 'Prairie and ponderosa pine forest.',
       trailhead: [-103.4780, 43.5550],
+      photoUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'centennial-trail-wind-cave',
@@ -3505,6 +3741,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 600,
       description: 'Long-distance trail crossing mixed-grass prairie.',
       trailhead: [-103.4300, 43.5100],
+      photoUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
     {
       id: 'elk-mountain-trail',
@@ -3514,6 +3752,8 @@ export const PARK_TRAILS: Record<string, Trail[]> = {
       elevationGain: 450,
       description: 'Wildlife viewing with bison and elk.',
       trailhead: [-103.4700, 43.5400],
+      photoUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+      photoCredit: 'Unsplash',
     },
   ],
 };
