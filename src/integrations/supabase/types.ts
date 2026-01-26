@@ -121,6 +121,45 @@ export type Database = {
         }
         Relationships: []
       }
+      canonical_tags: {
+        Row: {
+          applicable_google_types: string[] | null
+          category: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_sensitive: boolean | null
+          label: string
+          slug: string
+        }
+        Insert: {
+          applicable_google_types?: string[] | null
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_sensitive?: boolean | null
+          label: string
+          slug: string
+        }
+        Update: {
+          applicable_google_types?: string[] | null
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_sensitive?: boolean | null
+          label?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
           auto_launch_threshold: number
@@ -1242,6 +1281,48 @@ export type Database = {
           },
         ]
       }
+      place_tag_aggregates: {
+        Row: {
+          id: string
+          last_computed: string | null
+          meets_k_threshold: boolean
+          place_id: string
+          tag_slug: string
+          unique_taggers: number
+        }
+        Insert: {
+          id?: string
+          last_computed?: string | null
+          meets_k_threshold?: boolean
+          place_id: string
+          tag_slug: string
+          unique_taggers?: number
+        }
+        Update: {
+          id?: string
+          last_computed?: string | null
+          meets_k_threshold?: boolean
+          place_id?: string
+          tag_slug?: string
+          unique_taggers?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_tag_aggregates_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_tag_aggregates_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "canonical_tags"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       place_taxonomy: {
         Row: {
           computed_at: string | null
@@ -1785,6 +1866,95 @@ export type Database = {
           },
         ]
       }
+      tag_signals: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          place_id: string
+          tag_slug: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          place_id: string
+          tag_slug: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          place_id?: string
+          tag_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_signals_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_signals_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "canonical_tags"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      tag_suggestions: {
+        Row: {
+          created_at: string | null
+          id: string
+          merged_into_slug: string | null
+          rationale: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          suggested_category: string | null
+          suggested_label: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          merged_into_slug?: string | null
+          rationale?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suggested_category?: string | null
+          suggested_label: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          merged_into_slug?: string | null
+          rationale?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suggested_category?: string | null
+          suggested_label?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_suggestions_merged_into_slug_fkey"
+            columns: ["merged_into_slug"]
+            isOneToOne: false
+            referencedRelation: "canonical_tags"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       taxonomy_nodes: {
         Row: {
           created_at: string | null
@@ -2159,6 +2329,7 @@ export type Database = {
       cleanup_expired_overlap_sessions: { Args: never; Returns: undefined }
       compute_overlap_affinity: { Args: { _session_id: string }; Returns: Json }
       compute_place_aggregates: { Args: never; Returns: undefined }
+      compute_tag_aggregates: { Args: never; Returns: undefined }
       compute_user_affinity:
         | {
             Args: { _user_id: string }

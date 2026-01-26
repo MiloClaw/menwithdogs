@@ -1,5 +1,5 @@
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2, Sparkles, Crown, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, MapPin, ArrowLeft, Tags, Calendar, ChevronDown, Building2, Sparkles, Crown, Menu, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -13,6 +13,7 @@ const navItems = [
   { title: 'Founders', href: '/admin/founders', icon: Crown },
   { title: 'Interests', href: '/admin/interests', icon: Tags },
   { title: 'Pro Contexts', href: '/admin/pro-contexts', icon: Sparkles },
+  { title: 'Community Tags', href: '/admin/tags', icon: Tag },
 ];
 
 const directoryItems = [

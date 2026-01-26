@@ -81,6 +81,16 @@ export const FEATURE_FLAGS = {
    * User-facing features require explicit opt-in even when enabled.
    */
   NICHE_TAGS_ENABLED: false,
+  
+  /**
+   * DISABLED BY DEFAULT — Requires k-threshold aggregation
+   * 
+   * Controls visibility of community tags in directory.
+   * When enabled:
+   * - Users can submit tags on saved places
+   * - Aggregated tags appear on places meeting k-threshold
+   */
+  COMMUNITY_TAGS_ENABLED: false,
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;
