@@ -1,150 +1,97 @@
 
 
-# Brand Stripe Dark Mode Visibility Fix
+# Discord/OG Preview Update Plan
 
-## Problem
+## Objective
 
-The brand stripe's navy bar (`#152638`) is nearly invisible on dark backgrounds because:
-- The footer background is `bg-primary` → `hsl(213, 52%, 12%)` ≈ `#152638`
-- The brand-navy color is `#152638`
-- Navy on navy = invisible
-
-## Solution
-
-Make both `BrandLockup` and `BrandStripe` components context-aware, swapping the navy bar to white when displayed on dark backgrounds.
+Update the Open Graph (Discord/social) preview to:
+1. Use the hero hiking image instead of the abstract brand lockup
+2. Update the description to be more grounded and masculine: "Real places. Real community. Real connection."
 
 ---
 
-## Changes
+## Current State
 
-### File 1: `src/components/BrandLockup.tsx`
+**Current OG Image:** `public/og-image.png` (abstract mountain/brand lockup)
 
-Update the stripe rendering to use white instead of navy when `variant="dark"`:
-
-```tsx
-// Line 84: Change navy bar color based on variant
-<div className={cn(
-  "flex-1 rounded-full",
-  variant === 'dark' ? 'bg-white' : 'bg-brand-navy',
-  stripe.bar
-)} />
-```
-
-**Full context (lines 78-88):**
-```tsx
-{showStripe && (
-  <div className={cn(
-    "flex",
-    stripe.container,
-    centered && "mx-auto"
-  )}>
-    <div className={cn(
-      "flex-1 rounded-full",
-      variant === 'dark' ? 'bg-white' : 'bg-brand-navy',  // Context-aware
-      stripe.bar
-    )} />
-    <div className={cn("flex-1 rounded-full bg-brand-amber", stripe.bar)} />
-    <div className={cn("flex-1 rounded-full bg-brand-green", stripe.bar)} />
-  </div>
-)}
-```
+**Current Description:**
+> "Find gay community near you. Discover places where gay men and couples connect in real life — not on dating apps."
 
 ---
 
-### File 2: `src/components/BrandStripe.tsx`
+## Changes Required
 
-Add a `variant` prop to control the color scheme:
+### Step 1: Copy Hero Image to Public Folder
 
-```tsx
-interface BrandStripeProps {
-  orientation?: 'horizontal' | 'vertical';
-  size?: 'sm' | 'md' | 'lg';
-  width?: 'full' | 'auto' | number;
-  variant?: 'light' | 'dark';  // NEW
-  className?: string;
-}
+The hero image (`src/assets/hero-hiking-men.jpg`) must be copied to the `public` folder so it can be referenced in meta tags (meta tags can't use bundled assets).
 
-const BrandStripe = ({ 
-  orientation = 'horizontal', 
-  size = 'md',
-  width = 'full',
-  variant = 'light',  // Default to light (navy bar)
-  className 
-}: BrandStripeProps) => {
-  // ... existing code ...
-  
-  // First bar: white on dark, navy on light
-  const firstBarColor = variant === 'dark' ? 'bg-white' : 'bg-brand-navy';
-  
-  return (
-    <div className={cn(...)}>
-      <div className={cn(
-        "flex-1",
-        firstBarColor,  // Context-aware
-        isHorizontal ? "rounded-l-full" : "rounded-t-full"
-      )} />
-      <div className="flex-1 bg-brand-amber" />
-      <div className={cn(
-        "flex-1 bg-brand-green",
-        isHorizontal ? "rounded-r-full" : "rounded-b-full"
-      )} />
-    </div>
-  );
-};
-```
+**Action:** Copy `src/assets/hero-hiking-men.jpg` → `public/og-hero.jpg`
 
 ---
 
-### File 3: `src/components/FinalCTA.tsx`
+### Step 2: Update `index.html` Meta Tags
 
-Update the BrandStripe usage to use dark variant:
+**File:** `index.html`
 
-```tsx
-// Line 20: Add variant="dark"
-<BrandStripe size="lg" variant="dark" />
+| Line | Current | Updated |
+|------|---------|---------|
+| 16 | `og:description` - "Find gay community near you. Discover places where gay men and couples connect in real life — not on dating apps." | "Real places. Real community. Real connection." |
+| 19 | `og:image` - `/og-image.png` | `/og-hero.jpg` |
+| 24 | `twitter:image` - `/og-image.png` | `/og-hero.jpg` |
+| 25 | `twitter:description` - "Find gay community near you..." | "Real places. Real community. Real connection." |
+
+**Updated meta tags:**
+```html
+<!-- Open Graph -->
+<meta property="og:title" content="ThickTimber – Gay Community, Friends & Places" />
+<meta property="og:description" content="Real places. Real community. Real connection." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://thicktimber.lovable.app" />
+<meta property="og:image" content="https://thicktimber.lovable.app/og-hero.jpg" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@ThickTimber" />
+<meta name="twitter:title" content="ThickTimber – Gay Community & Friends" />
+<meta name="twitter:image" content="https://thicktimber.lovable.app/og-hero.jpg" />
+<meta name="twitter:description" content="Real places. Real community. Real connection." />
 ```
-
----
-
-### File 4: `src/pages/admin/LogoTesting.tsx`
-
-Update the Logo Wear Preview section to demonstrate the dark variant behavior, confirming visibility on both backgrounds.
 
 ---
 
 ## Visual Result
 
 ```text
-BEFORE (Navy bar invisible)         AFTER (White bar visible)
+BEFORE (Abstract brand lockup)        AFTER (Hero hiking image)
 
-Light Background:                   Light Background:
-███ ███ ███                         ███ ███ ███
-Navy Amber Green                    Navy Amber Green
-  ↑ visible                           ↑ visible
+┌─────────────────────────────┐       ┌─────────────────────────────┐
+│ ThickTimber                 │       │                             │
+│ Real Community. Real Places.│       │   [Three men hiking         │
+│ Real Life.                  │       │    together on a trail]     │
+│ 🏔️ Abstract mountains       │       │                             │
+└─────────────────────────────┘       └─────────────────────────────┘
 
-Dark Background:                    Dark Background:
-    ███ ███                         ███ ███ ███
-    Amber Green                     White Amber Green
-  ↑ invisible!                        ↑ visible!
+Description:                          Description:
+"Find gay community near you.         "Real places. Real community.
+Discover places where gay men          Real connection."
+and couples connect..."
 ```
 
 ---
 
-## Files to Modify
+## Files Summary
 
-| File | Changes |
-|------|---------|
-| `src/components/BrandLockup.tsx` | Swap navy to white when `variant="dark"` |
-| `src/components/BrandStripe.tsx` | Add `variant` prop, swap navy to white on dark |
-| `src/components/FinalCTA.tsx` | Pass `variant="dark"` to BrandStripe |
-| `src/pages/admin/LogoTesting.tsx` | Update previews to show both variants |
+| File | Action |
+|------|--------|
+| `public/og-hero.jpg` | **Create** (copy from `src/assets/hero-hiking-men.jpg`) |
+| `index.html` | **Update** lines 16, 19, 24, 25 with new image path and description |
 
 ---
 
-## Design Rationale
+## Important Note
 
-1. **Accessibility**: Ensures the brand stripe is always visible regardless of background
-2. **Brand Integrity**: Maintains the 3-color sequence (first-amber-green) with appropriate contrast
-3. **Consistency**: Both `BrandLockup` and `BrandStripe` follow the same variant logic
-4. **Backward Compatible**: Default `variant="light"` preserves existing navy behavior
+After publishing, Discord caches OG previews. To refresh:
+1. Use Discord's preview refresh (paste link, delete, paste again)
+2. Or use Facebook's Sharing Debugger / Twitter Card Validator to force a refresh
+
+The old `og-image.png` can remain as a backup or for other uses.
 
