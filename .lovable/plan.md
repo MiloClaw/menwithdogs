@@ -1,67 +1,148 @@
 
-
-# Replace Remaining Emoji Icons with Lucide Components
+# Replace All Remaining Emoji Icons with Lucide Components
 
 ## Scope
 
-The Settings page and its profile components are mostly consistent with Lucide icons. However, the prompt definitions in `src/lib/preference-prompts.ts` still contain emoji icons for Phase 1 prompts that should be converted for brand consistency.
+Three components on the Settings page still use emoji icons that need to be converted to Lucide components for brand consistency:
 
----
-
-## Current State
-
-| Prompt | Current Icons | Used In |
-|--------|---------------|---------|
-| `TIME_PROMPT` | 🌅 ☀️ 🌇 🔀 | Behavioral prompts (triggered during browsing) |
-| `DISTANCE_PROMPT` | 📍 🚗 🗺️ | Behavioral prompts |
-| `VIBE_PROMPT` | 🤫 ⚖️ 🎉 🤷 | Behavioral prompts (currently disabled) |
-| `GEO_PROMPT` | 🎯 🔄 🌐 | Behavioral prompts |
-
-**Already Using Lucide:**
-- `INTENT_PROMPT` options (Mountain, Tent, Waves, etc.)
-- All Phase 3 prompts (MapPin, Compass, Users, etc.)
-- All profile section component headers
-- All Settings page section icons
+| Component | Location | Emojis Found |
+|-----------|----------|--------------|
+| `AffinityBar.tsx` | Taste Profile card | 11 emojis (category icons) |
+| `ProSettingsSummary.tsx` | "Spaces that feel right" section | 14 emojis (summary bullets) |
+| `TasteProfileCard.tsx` | CTA button | 1 arrow symbol |
 
 ---
 
 ## Changes
 
-### Task 1: Update `preference-prompts.ts` - Replace Emoji Icons
+### File 1: `src/components/settings/AffinityBar.tsx`
 
-**File:** `src/lib/preference-prompts.ts`
+**Current:** Uses emoji strings in `CATEGORY_CONFIG` for place category icons.
 
-Replace all remaining emoji icons with Lucide icon names:
+**Change:** Replace emoji strings with Lucide icon names and render dynamically.
 
-| Prompt | Value | Current | Lucide Replacement |
-|--------|-------|---------|-------------------|
-| TIME_PROMPT | dawn | 🌅 | `Sunrise` |
-| TIME_PROMPT | daytime | ☀️ | `Sun` |
-| TIME_PROMPT | golden_hour | 🌇 | `Sunset` |
-| TIME_PROMPT | flexible | 🔀 | `Shuffle` |
-| DISTANCE_PROMPT | close | 📍 | `MapPin` |
-| DISTANCE_PROMPT | medium | 🚗 | `Car` |
-| DISTANCE_PROMPT | far | 🗺️ | `Map` |
-| VIBE_PROMPT | quiet | 🤫 | `Volume` |
-| VIBE_PROMPT | balanced | ⚖️ | `Scale` |
-| VIBE_PROMPT | lively | 🎉 | `PartyPopper` |
-| VIBE_PROMPT | depends | 🤷 | `HelpCircle` |
-| GEO_PROMPT | single_area | 🎯 | `Target` |
-| GEO_PROMPT | few_areas | 🔄 | `RefreshCw` |
-| GEO_PROMPT | anywhere | 🌐 | `Globe` |
+| Category | Current Emoji | Lucide Icon |
+|----------|---------------|-------------|
+| restaurant | 🍽️ | `UtensilsCrossed` |
+| cafe | ☕ | `Coffee` |
+| bar | 🍷 | `Wine` |
+| park | 🌳 | `TreePine` |
+| gym | 💪 | `Dumbbell` |
+| museum | 🎨 | `Palette` |
+| shopping | 🛍️ | `ShoppingBag` |
+| entertainment | ✨ | `Sparkles` |
+| spa | 🧘 | `Leaf` |
+| bakery | 🥐 | `Croissant` |
+| default | 📍 | `MapPin` |
+
+**Additional outdoor categories for the brand:**
+
+| Category | Lucide Icon |
+|----------|-------------|
+| trail | `Mountain` |
+| campground | `Tent` |
+| natural_feature | `TreeDeciduous` |
+| hiking_area | `Footprints` |
+| swimming_hole | `Waves` |
 
 ---
 
-### Task 2: Update `PreferencePrompt.tsx` to Render Lucide Icons
+### File 2: `src/components/settings/pro/ProSettingsSummary.tsx`
 
-**File:** `src/components/preferences/PreferencePrompt.tsx`
+**Current:** Uses emoji strings for summary bullet icons.
 
-This component renders the behavioral prompts. It needs to be updated to dynamically render Lucide icons instead of emoji spans, similar to the pattern already used in `SettingsPreferencesTab.tsx`.
+**Change:** Replace emoji strings with Lucide icon names and render dynamically.
 
-**Changes:**
-1. Import the additional Lucide icons needed
-2. Create an icon mapping object
-3. Update the render logic to use Lucide components when icon name is found in the map
+| Context | Current Emoji | Lucide Icon |
+|---------|---------------|-------------|
+| Location | 📍 | `MapPin` |
+| LGBTQ | 🏳️‍🌈 | `Flag` |
+| Family | 👨‍👩‍👧 | `Users` |
+| Comfort | ✨ | `Sparkles` |
+| Community | 👥 | `UsersRound` |
+| Couples | 💑 | `Heart` |
+| Intent | 🎯 | `Target` |
+| Energy | ⚡ | `Zap` |
+| Environment | 🌿 | `Leaf` |
+| Morning | 🌅 | `Sunrise` |
+| Evening | 🌙 | `Moon` |
+| Weekend | 📅 | `Calendar` |
+| Distance | 📏 | `Ruler` |
+| Affinity | 🧭 | `Compass` |
+
+---
+
+### File 3: `src/components/settings/TasteProfileCard.tsx`
+
+**Current:** Uses arrow emoji "→" in button text.
+
+**Change:** Replace with Lucide `ArrowRight` icon component.
+
+```tsx
+// Before
+Explore Outdoors →
+
+// After
+Explore Outdoors <ArrowRight className="h-4 w-4 ml-1" />
+```
+
+---
+
+## Implementation Details
+
+### AffinityBar.tsx Pattern
+
+```typescript
+import { 
+  MapPin, TreePine, Mountain, Tent, Waves, Footprints,
+  UtensilsCrossed, Coffee, Wine, Dumbbell, Palette,
+  ShoppingBag, Sparkles, Leaf, Croissant, TreeDeciduous,
+  type LucideIcon 
+} from 'lucide-react';
+
+const CATEGORY_CONFIG: Record<string, { Icon: LucideIcon; label: string }> = {
+  trail: { Icon: Mountain, label: 'Trails' },
+  campground: { Icon: Tent, label: 'Campgrounds' },
+  natural_feature: { Icon: TreeDeciduous, label: 'Natural feature' },
+  hiking_area: { Icon: Footprints, label: 'Hiking area' },
+  park: { Icon: TreePine, label: 'Parks & Outdoors' },
+  // ... etc
+  default: { Icon: MapPin, label: 'Places' },
+};
+
+// In render:
+<config.Icon className="h-4 w-4 text-muted-foreground/70" />
+```
+
+### ProSettingsSummary.tsx Pattern
+
+```typescript
+import { MapPin, Flag, Users, Sparkles, ... } from 'lucide-react';
+
+const SUMMARY_ICONS: Record<string, LucideIcon> = {
+  location: MapPin,
+  lgbtq: Flag,
+  family: Users,
+  // ... etc
+};
+
+// Build bullets with icon key instead of emoji
+summaryBullets.push({ 
+  iconKey: 'location', 
+  text: `Showing places in ${memberProfile.city}` 
+});
+
+// In render:
+{summaryBullets.map((bullet, idx) => {
+  const Icon = SUMMARY_ICONS[bullet.iconKey];
+  return (
+    <li key={idx} className="flex items-start gap-2">
+      <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" />
+      <span>{bullet.text}</span>
+    </li>
+  );
+})}
+```
 
 ---
 
@@ -69,72 +150,43 @@ This component renders the behavioral prompts. It needs to be updated to dynamic
 
 | Action | File | Purpose |
 |--------|------|---------|
-| Modify | `src/lib/preference-prompts.ts` | Replace emoji strings with Lucide icon names |
-| Modify | `src/components/preferences/PreferencePrompt.tsx` | Render Lucide icons dynamically |
-
----
-
-## Icon Mapping Reference
-
-The complete icon map for all prompts will include:
-
-```typescript
-const PROMPT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  // Phase 1: Context prompts
-  Sunrise,      // TIME: dawn
-  Sun,          // TIME: daytime
-  Sunset,       // TIME: golden_hour
-  Shuffle,      // TIME: flexible
-  MapPin,       // DISTANCE: close
-  Car,          // DISTANCE: medium
-  Map,          // DISTANCE: far
-  Volume,       // VIBE: quiet (disabled)
-  Scale,        // VIBE: balanced (disabled)
-  PartyPopper,  // VIBE: lively (disabled)
-  HelpCircle,   // VIBE: depends (disabled)
-  Target,       // GEO: single_area
-  RefreshCw,    // GEO: few_areas
-  Globe,        // GEO: anywhere
-  
-  // Phase 2: Intent (already done)
-  Mountain, Tent, Waves, Sunrise, HeartPulse, TreeDeciduous, Store,
-  
-  // Phase 3: Outdoor decision (already done)
-  Compass, Users, UsersRound, User, Footprints, TrendingUp,
-  CloudSun, CloudRain, Backpack, ShoppingBag, Gem,
-  TreePine, Bird, ParkingCircle, Dog,
-};
-```
+| Modify | `src/components/settings/AffinityBar.tsx` | Replace category emojis with Lucide icons |
+| Modify | `src/components/settings/pro/ProSettingsSummary.tsx` | Replace summary bullet emojis with Lucide icons |
+| Modify | `src/components/settings/TasteProfileCard.tsx` | Replace arrow emoji with ArrowRight icon |
 
 ---
 
 ## Build Order
 
 ```text
-Step 1: Update preference-prompts.ts
-├── Replace TIME_PROMPT emoji icons → Lucide names
-├── Replace DISTANCE_PROMPT emoji icons → Lucide names
-├── Replace VIBE_PROMPT emoji icons → Lucide names
-└── Replace GEO_PROMPT emoji icons → Lucide names
+Step 1: AffinityBar.tsx
+├── Import Lucide icons (outdoor + urban categories)
+├── Change CATEGORY_CONFIG to use Icon component refs
+├── Add outdoor-specific categories (trail, campground, etc.)
+└── Update render to use <Icon /> component
 
-Step 2: Update PreferencePrompt.tsx
-├── Import all required Lucide icons
-├── Create PROMPT_ICONS mapping object
-├── Update render logic to check mapping
-└── Fallback to emoji span if icon not found
+Step 2: ProSettingsSummary.tsx
+├── Import Lucide icons for all summary types
+├── Create SUMMARY_ICONS mapping
+├── Change summaryBullets type to use iconKey instead of icon string
+└── Update render to use <Icon /> component
+
+Step 3: TasteProfileCard.tsx
+├── Import ArrowRight from lucide-react
+└── Replace "→" text with <ArrowRight /> component
 ```
 
 ---
 
 ## Verification
 
-After implementation, all preference-related UI will use Lucide icons:
+After implementation, the Settings page will have zero emoji icons:
 
-| Location | Status |
-|----------|--------|
-| Settings → Profile sections (headers) | Already Lucide |
-| Settings → Intent grid | Already Lucide |
-| Settings → How you explore (Phase 3) | Already Lucide |
-| Behavioral prompts (TIME, DISTANCE, GEO) | Will be Lucide |
-| VIBE prompt (disabled) | Will be Lucide (future-proofed) |
+| Location | Before | After |
+|----------|--------|-------|
+| Taste Profile category bars | Emoji (🌳 🍽️) | Lucide SVG |
+| Pro Settings summary bullets | Emoji (📍 🎯) | Lucide SVG |
+| "Explore Outdoors" CTA | Arrow (→) | ArrowRight icon |
+| Intent grid | Already Lucide | Already Lucide |
+| Phase 3 preferences | Already Lucide | Already Lucide |
 
