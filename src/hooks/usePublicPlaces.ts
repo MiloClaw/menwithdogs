@@ -47,7 +47,8 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
           phone_number,
           opening_hours,
           lat,
-          lng
+          lng,
+          google_types
         `)
         .eq('status', 'approved');
 

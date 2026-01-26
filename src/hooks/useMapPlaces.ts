@@ -86,6 +86,7 @@ export function useMapPlaces(bounds: MapBounds | null, enabled: boolean = true) 
           google_maps_url,
           phone_number,
           opening_hours,
+          google_types,
           status,
           source
         `)
