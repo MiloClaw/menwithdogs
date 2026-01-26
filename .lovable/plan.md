@@ -1,197 +1,157 @@
 
-# Minor Alignment Fixes & Brand Bar Enhancement Plan
 
-## Executive Summary
+# Logo Wear Optimization Plan
 
-This plan addresses three minor alignment issues identified during the brand review and introduces strategic opportunities to utilize the ThickTimber brand stripe (Navy, Amber, Green) across high-visibility touchpoints to reinforce brand identity.
+## Objective
 
----
-
-## Part 1: Minor Alignment Fixes
-
-### 1.1 FilterChip Rounding Inconsistency
-
-**File:** `src/components/FilterChip.tsx`
-
-**Issue:** Uses `rounded-button` CSS variable instead of the standardized `rounded-lg`
-
-**Change:**
-```tsx
-// Line 13
-
-// BEFORE
-"px-3 md:px-4 py-2 md:py-2.5 rounded-button text-sm font-medium..."
-
-// AFTER
-"px-3 md:px-4 py-2 md:py-2.5 rounded-lg text-sm font-medium..."
-```
-
-**Impact:** Filter chips in the directory now match the structured button aesthetic used site-wide.
+Enhance the BrandLockup and BrandStripe components to ensure they are balanced, centered, and production-ready for logo wear (t-shirts, hats, stickers, embroidery, etc.).
 
 ---
 
-### 1.2 Legacy Brand Comment in Button Component
+## Current Issues Identified
 
-**File:** `src/components/ui/button.tsx`
+### BrandLockup Component
 
-**Issue:** Line 21 contains a comment referencing the old brand name "MainStreetIRL"
+| Issue | Current | Problem |
+|-------|---------|---------|
+| Stripe width | Fixed widths (`w-5`, `w-6`, `w-8`) | Bars don't scale proportionally with wordmark |
+| Stripe alignment | Left-aligned via `flex` | Not centered under the wordmark |
+| Centering support | `inline-block` container | No easy way to center the entire lockup |
+| Stripe gaps | Fixed `gap-1` or `gap-1.5` | Creates uneven spacing at different sizes |
 
-**Change:**
-```tsx
-// Line 21
+### BrandStripe Component
 
-// BEFORE
-// MainStreetIRL specific variants
-
-// AFTER
-// ThickTimber brand variants
-```
-
-**Impact:** Code documentation reflects current brand identity.
-
----
-
-### 1.3 Hardcoded Logo Text on Auth Page
-
-**File:** `src/pages/Auth.tsx`
-
-**Issue:** Lines 218-222 use hardcoded "MainStreetIRL" text instead of the `BrandLockup` component
-
-**Change:**
-```tsx
-// Lines 218-222
-
-// BEFORE
-<header className="p-4 md:p-6 relative z-10">
-  <Link to="/" className="text-xl font-serif font-semibold text-primary">
-    MainStreetIRL
-  </Link>
-</header>
-
-// AFTER
-<header className="p-4 md:p-6 relative z-10">
-  <Link to="/">
-    <BrandLockup size="sm" showSubtitle={false} />
-  </Link>
-</header>
-```
-
-**Additional:** Add import for `BrandLockup` at top of file:
-```tsx
-import BrandLockup from "@/components/BrandLockup";
-```
-
-**Impact:** Auth page displays correct brand identity with consistent typography.
+| Issue | Current | Problem |
+|-------|---------|---------|
+| Width mode | Only `w-full` or fixed height | Cannot create a compact, centered stripe for logos |
+| No fixed-width option | Uses `flex-1` | Stripe always expands to fill container |
 
 ---
 
-## Part 2: Brand Bar Enhancement Opportunities
+## Solution Overview
 
-The brand stripe (Navy → Amber → Green) is a distinctive visual element currently used only in the Footer. Strategic placement can reinforce brand recognition at key moments.
+### 1. Add Centering Support to BrandLockup
 
-### 2.1 Auth Page — Privacy Callout Enhancement
+Add a `centered` prop that applies `text-center` and centers the stripe under the wordmark.
 
-**File:** `src/pages/Auth.tsx`
+### 2. Make Stripe Width Proportional
 
-**Opportunity:** Replace the single `border-l-4 border-accent` on the signup privacy reassurance with a brand-colored gradient border
+Replace fixed-width bars with percentage-based widths that match the visual weight of the wordmark.
 
-**Current (line 281):**
-```tsx
-className="border-l-4 border-accent pl-5 py-3"
-```
+### 3. Create a Compact Stripe Variant
 
-**Proposed:**
-```tsx
-className="relative pl-5 py-3"
-// Add brand stripe as a left border element
-```
+Add a `compact` option to BrandStripe for logo contexts where we need a self-contained, fixed-width stripe that can be centered independently.
 
-**Implementation:** Add a vertical brand stripe component:
-```tsx
-{/* Brand stripe accent */}
-<div className="absolute left-0 top-0 bottom-0 w-1 flex flex-col">
-  <div className="flex-1 bg-brand-navy rounded-t-full" />
-  <div className="flex-1 bg-brand-amber" />
-  <div className="flex-1 bg-brand-green rounded-b-full" />
-</div>
-```
+### 4. Add Logo Wear Preview to Admin
 
-**Impact:** Reinforces brand identity at the critical signup moment while maintaining the visual weight of the privacy callout.
+Extend the LogoTesting page to include a dedicated "Logo Wear Preview" section showing the centered lockup on merchandise mockups.
 
 ---
 
-### 2.2 Hero Section — CTA Divider Enhancement
+## Detailed Changes
 
-**File:** `src/components/Hero.tsx`
+### File 1: `src/components/BrandLockup.tsx`
 
-**Opportunity:** Replace the plain `border-t border-border` separator between hero image and CTA section with a horizontal brand stripe
+**Add centering support:**
 
-**Current (line 57):**
 ```tsx
-<div className="py-8 bg-background border-t border-border">
+interface BrandLockupProps {
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'light' | 'dark';
+  showSubtitle?: boolean;
+  showStripe?: boolean;
+  centered?: boolean;  // NEW
+  className?: string;
+}
 ```
 
-**Proposed:**
+**Update stripe configuration for centered, proportional bars:**
+
 ```tsx
-<div className="py-8 bg-background">
-  {/* Brand stripe divider */}
-  <div className="flex h-1 mb-8">
-    <div className="flex-1 bg-brand-navy" />
-    <div className="flex-1 bg-brand-amber" />
-    <div className="flex-1 bg-brand-green" />
-  </div>
-  ...
+const stripeConfig = {
+  sm: { 
+    bar: 'h-0.5',           // Height only - width set by container
+    container: 'mt-2 gap-0.5 w-[60%]',  // Proportional width, centered
+  },
+  md: { 
+    bar: 'h-0.5', 
+    container: 'mt-3 gap-0.5 w-[60%]',
+  },
+  lg: { 
+    bar: 'h-1', 
+    container: 'mt-4 gap-1 w-[60%]',
+  },
+};
 ```
 
-**Impact:** Creates a distinctive brand moment between the hero imagery and primary CTAs. High-visibility placement on the homepage.
+**Update render logic for centering:**
+
+```tsx
+const BrandLockup = ({ 
+  size = 'md', 
+  variant = 'light',
+  showSubtitle = true,
+  showStripe = false,
+  centered = false,  // NEW default
+  className 
+}: BrandLockupProps) => {
+  // ... existing code ...
+
+  return (
+    <div className={cn(
+      "inline-block",
+      centered && "text-center",  // Center text when enabled
+      className
+    )}>
+      <span className={cn(
+        "block font-serif font-semibold tracking-tight",
+        sizes.wordmark,
+        colors.wordmark
+      )}>
+        ThickTimber
+      </span>
+      {showSubtitle && (
+        <span className={cn(
+          "block font-sans font-medium uppercase",
+          sizes.subtitle,
+          colors.subtitle
+        )}>
+          Social Club
+        </span>
+      )}
+      {showStripe && (
+        <div className={cn(
+          "flex",
+          stripe.container,
+          centered && "mx-auto"  // Center stripe when enabled
+        )}>
+          <div className={cn("flex-1 rounded-full bg-brand-navy")} />
+          <div className={cn("flex-1 rounded-full bg-brand-amber")} />
+          <div className={cn("flex-1 rounded-full bg-brand-green")} />
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+**Key changes:**
+- `centered` prop enables text centering and stripe centering via `mx-auto`
+- Stripe bars now use `flex-1` (equal thirds) instead of fixed widths
+- Stripe container has a proportional width (`w-[60%]`) relative to the text
+- Reduced gap between bars for tighter visual cohesion
 
 ---
 
-### 2.3 Final CTA Section — Top Border Enhancement
+### File 2: `src/components/BrandStripe.tsx`
 
-**File:** `src/components/FinalCTA.tsx`
-
-**Opportunity:** Add a horizontal brand stripe at the top of the dark CTA section to "lift" it from the preceding content
-
-**Current (line 20):**
-```tsx
-className="py-28 md:py-40 bg-primary text-primary-foreground relative overflow-hidden"
-```
-
-**Proposed:**
-```tsx
-<>
-  {/* Brand stripe transition */}
-  <div className="flex h-1.5">
-    <div className="flex-1 bg-brand-navy" />
-    <div className="flex-1 bg-brand-amber" />
-    <div className="flex-1 bg-brand-green" />
-  </div>
-  <section
-    ref={sectionRef}
-    className="py-28 md:py-40 bg-primary text-primary-foreground relative overflow-hidden"
-  >
-    ...
-  </section>
-</>
-```
-
-**Impact:** Creates a polished transition between light content and dark footer CTA areas. Reinforces the brand visual system.
-
----
-
-### 2.4 Create Reusable BrandStripe Component
-
-**New File:** `src/components/BrandStripe.tsx`
-
-To maintain consistency and DRY principles, create a reusable component:
+**Add fixed-width mode for logo contexts:**
 
 ```tsx
-import { cn } from "@/lib/utils";
-
 interface BrandStripeProps {
   orientation?: 'horizontal' | 'vertical';
   size?: 'sm' | 'md' | 'lg';
+  width?: 'full' | 'auto' | number;  // NEW - control stripe width
   className?: string;
 }
 
@@ -201,21 +161,39 @@ const sizeConfig = {
   lg: { horizontal: 'h-1.5', vertical: 'w-1.5' },
 };
 
+const widthConfig = {
+  full: 'w-full',
+  auto: 'w-24',  // Default auto width for logo contexts
+};
+
 const BrandStripe = ({ 
   orientation = 'horizontal', 
   size = 'md',
+  width = 'full',  // Default to full-width (existing behavior)
   className 
 }: BrandStripeProps) => {
   const isHorizontal = orientation === 'horizontal';
   const sizeClass = sizeConfig[size][orientation];
   
+  // Determine width class or inline style
+  const widthClass = typeof width === 'number' 
+    ? undefined 
+    : widthConfig[width];
+  const widthStyle = typeof width === 'number' 
+    ? { width: `${width}px` } 
+    : undefined;
+  
   return (
-    <div className={cn(
-      "flex",
-      isHorizontal ? "flex-row w-full" : "flex-col h-full",
-      sizeClass,
-      className
-    )}>
+    <div 
+      className={cn(
+        "flex",
+        isHorizontal ? "flex-row" : "flex-col h-full",
+        isHorizontal && widthClass,
+        sizeClass,
+        className
+      )}
+      style={widthStyle}
+    >
       <div className={cn(
         "flex-1 bg-brand-navy",
         isHorizontal ? "rounded-l-full" : "rounded-t-full"
@@ -228,100 +206,166 @@ const BrandStripe = ({
     </div>
   );
 };
-
-export default BrandStripe;
 ```
 
-**Usage Examples:**
-```tsx
-// Horizontal divider
-<BrandStripe orientation="horizontal" size="md" />
+**Key changes:**
+- `width` prop accepts `'full'` (default), `'auto'` (96px), or a custom number
+- Allows fixed-width stripes for logo/merchandise contexts
+- Maintains backward compatibility with existing full-width usage
 
-// Vertical accent (e.g., callout border)
-<BrandStripe orientation="vertical" size="sm" className="absolute left-0 top-2 bottom-2" />
+---
+
+### File 3: `src/pages/admin/LogoTesting.tsx`
+
+**Add Logo Wear Preview section:**
+
+```tsx
+import BrandLockup from '@/components/BrandLockup';
+import BrandStripe from '@/components/BrandStripe';
+
+// Add inside the component, after existing cards:
+
+{/* Logo Wear Preview */}
+<Card>
+  <CardHeader>
+    <CardTitle className="text-lg">Logo Wear Preview</CardTitle>
+  </CardHeader>
+  <CardContent className="space-y-8">
+    <p className="text-sm text-muted-foreground">
+      Centered lockup optimized for t-shirts, hats, and merchandise.
+    </p>
+    
+    {/* Light Background - T-shirt */}
+    <div className="bg-gray-100 rounded-lg p-12 flex items-center justify-center min-h-[200px]">
+      <BrandLockup 
+        size="lg" 
+        variant="light" 
+        showStripe 
+        centered 
+      />
+    </div>
+    
+    {/* Dark Background - Navy T-shirt */}
+    <div className="bg-[hsl(213,52%,12%)] rounded-lg p-12 flex items-center justify-center min-h-[200px]">
+      <BrandLockup 
+        size="lg" 
+        variant="dark" 
+        showStripe 
+        centered 
+      />
+    </div>
+    
+    {/* Stacked Sizes */}
+    <div className="grid grid-cols-3 gap-4">
+      {(['sm', 'md', 'lg'] as const).map((sz) => (
+        <div key={sz} className="bg-muted rounded-lg p-6 flex flex-col items-center justify-center min-h-[160px]">
+          <BrandLockup 
+            size={sz} 
+            showStripe 
+            centered 
+          />
+          <p className="text-xs text-muted-foreground mt-4">{sz}</p>
+        </div>
+      ))}
+    </div>
+    
+    {/* Standalone Stripe for Hat Brim / Accessory */}
+    <div className="space-y-2">
+      <p className="text-sm font-medium">Standalone Brand Stripe (hat brim, wristband)</p>
+      <div className="flex gap-4 items-center">
+        <BrandStripe size="md" width={120} />
+        <span className="text-xs text-muted-foreground">120px</span>
+      </div>
+      <div className="flex gap-4 items-center">
+        <BrandStripe size="lg" width={200} />
+        <span className="text-xs text-muted-foreground">200px</span>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 ```
 
 ---
 
-## Part 3: Files Summary
-
-### Files to Modify
+## Files Summary
 
 | File | Type | Changes |
 |------|------|---------|
-| `src/components/FilterChip.tsx` | Fix | Change `rounded-button` to `rounded-lg` |
-| `src/components/ui/button.tsx` | Fix | Update comment from "MainStreetIRL" to "ThickTimber" |
-| `src/pages/Auth.tsx` | Fix + Enhancement | Replace hardcoded text with BrandLockup; add vertical brand stripe to privacy callout |
-| `src/components/Hero.tsx` | Enhancement | Add horizontal brand stripe divider |
-| `src/components/FinalCTA.tsx` | Enhancement | Add horizontal brand stripe at top |
-
-### New Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/BrandStripe.tsx` | Reusable brand stripe component for consistent implementation |
-
----
-
-## Part 4: Implementation Order
-
-```text
-Step 1: Create foundation component
-└── Create src/components/BrandStripe.tsx
-
-Step 2: Minor alignment fixes (parallel)
-├── Update src/components/FilterChip.tsx (rounded-lg)
-├── Update src/components/ui/button.tsx (comment)
-└── Update src/pages/Auth.tsx (BrandLockup import + header)
-
-Step 3: Brand bar enhancements (parallel)
-├── Update src/pages/Auth.tsx (privacy callout stripe)
-├── Update src/components/Hero.tsx (CTA divider)
-└── Update src/components/FinalCTA.tsx (top stripe)
-```
+| `src/components/BrandLockup.tsx` | Update | Add `centered` prop, proportional stripe width, centered stripe via `mx-auto` |
+| `src/components/BrandStripe.tsx` | Update | Add `width` prop for fixed-width mode |
+| `src/pages/admin/LogoTesting.tsx` | Update | Add Logo Wear Preview section with centered lockups and standalone stripes |
 
 ---
 
 ## Visual Result
 
-After implementation, the brand stripe will appear at these key touchpoints:
+After implementation:
+
+```text
+BEFORE (Left-aligned, fixed bars)       AFTER (Centered, proportional)
+                                        
+ThickTimber                                    ThickTimber
+SOCIAL CLUB                                    SOCIAL CLUB
+█ █ █ ← uneven gaps, left-aligned        ████████████ ← centered, balanced
+                                        
+```
+
+**Logo Wear Preview Card:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│  Homepage                                                       │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Hero Image                                               │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│  ████████████ ████████████ ████████████  ← Brand stripe divider │
-│  [Get Started]  [Explore Places]                                │
+│  Logo Wear Preview                                              │
 │                                                                 │
-│  ... content ...                                                │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                                                         │    │
+│  │                     ThickTimber                         │    │
+│  │                     SOCIAL CLUB                         │    │
+│  │                   ██████████████                        │    │
+│  │           (Gray T-shirt mockup background)              │    │
+│  └─────────────────────────────────────────────────────────┘    │
 │                                                                 │
-│  ████████████ ████████████ ████████████  ← Final CTA stripe    │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Dark CTA Section: "Ready to find your trail?"            │  │
-│  └───────────────────────────────────────────────────────────┘  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                                                         │    │
+│  │                     ThickTimber                         │    │
+│  │                     SOCIAL CLUB                         │    │
+│  │                   ██████████████                        │    │
+│  │          (Navy T-shirt mockup background)               │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                 │
+│  Standalone Brand Stripe:                                       │
+│  ████████████████████████████████████ 120px                    │
+│  ████████████████████████████████████████████████████ 200px    │
 └─────────────────────────────────────────────────────────────────┘
+```
 
-┌─────────────────────────────────────────────────────────────────┐
-│  Auth Page (Signup Mode)                                        │
-│                                                                 │
-│  ThickTimber                                                    │
-│  SOCIAL CLUB  ← BrandLockup (replaces "MainStreetIRL")          │
-│                                                                 │
-│  █  Your information stays private by default.                  │
-│  █  No public profiles unless you choose it...                  │
-│  █  ← Vertical brand stripe accent                              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+---
+
+## Implementation Order
+
+```text
+Step 1: Update BrandLockup component
+└── Add centered prop and proportional stripe
+
+Step 2: Update BrandStripe component
+└── Add width prop for fixed-width mode
+
+Step 3: Update LogoTesting page
+└── Add Logo Wear Preview section with mockups
 ```
 
 ---
 
 ## Design Rationale
 
-1. **Consistency:** Fixes ensure all interactive elements follow the `rounded-lg` standard established in the button component
-2. **Brand Recognition:** The 3-color stripe creates a distinctive visual signature that users will associate with ThickTimber
-3. **Strategic Placement:** Brand stripes appear at high-visibility moments (hero, CTAs, auth) without overwhelming the design
-4. **Maintainability:** The reusable `BrandStripe` component ensures consistent implementation and easy future updates
-5. **Subtlety:** Stripe sizes are intentionally small (0.5px-1.5px) to add polish without visual noise
+1. **Centering:** The `centered` prop makes it trivial to use the lockup in any centered context (merchandise, hero sections, email headers)
+
+2. **Proportional stripe:** Using `w-[60%]` ensures the stripe scales visually with the wordmark at any size
+
+3. **Equal-width bars:** `flex-1` on each bar guarantees perfect 1:1:1 color distribution
+
+4. **Backward compatibility:** All existing usages continue to work unchanged; new props are optional
+
+5. **Fixed-width stripe:** Enables use of the brand stripe on accessories where full-width doesn't make sense (hat brims, wristbands, labels)
+
+6. **Admin preview:** Gives stakeholders a dedicated view for approving logo wear assets before production
+
