@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useToast } from '@/hooks/use-toast';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface EventSubscription {
   stripe_subscription_id: string;
@@ -48,6 +49,7 @@ export function useSubscription() {
   const { couple } = useCouple();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAdmin } = useUserRole();
 
   const { data: subscription, isLoading, refetch } = useQuery({
     queryKey: ['subscription', user?.id],
@@ -276,11 +278,11 @@ export function useSubscription() {
     subscription: subscription ?? defaultSubscription,
     isLoading,
     
-    // Convenience accessors
-    hasPaidTuning: subscription?.has_paid_tuning ?? false,
-    isPro: subscription?.has_pro ?? false,
-    hasPro: subscription?.has_pro ?? false,
-    hasEventPosting: subscription?.has_event_posting ?? false,
+    // Convenience accessors - admins get full access for testing/development
+    hasPaidTuning: (subscription?.has_paid_tuning ?? false) || isAdmin,
+    isPro: (subscription?.has_pro ?? false) || isAdmin,
+    hasPro: (subscription?.has_pro ?? false) || isAdmin,
+    hasEventPosting: (subscription?.has_event_posting ?? false) || isAdmin,
     eventSubscriptions: subscription?.event_subscriptions ?? [],
     isFounders: subscription?.is_founders ?? false,
     isAmbassador: subscription?.is_ambassador ?? false,
