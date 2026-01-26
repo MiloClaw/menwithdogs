@@ -125,12 +125,17 @@ const ChangePasswordDialog = ({ open, onOpenChange }: ChangePasswordDialogProps)
             <DialogFooter>
               <Button 
                 type="button" 
-                variant="outline" 
+                variant="outline"
+                className="min-h-[44px]"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                className="min-h-[44px]" 
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? 'Updating...' : 'Update Password'}
               </Button>
             </DialogFooter>

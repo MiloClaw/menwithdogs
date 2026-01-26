@@ -28,7 +28,7 @@ export function GeoAffinitySection({
             How spread out are your favorite spots?
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Helps us know whether to show places nearby or farther out.
         </p>
       </div>

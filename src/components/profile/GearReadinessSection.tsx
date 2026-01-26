@@ -28,7 +28,7 @@ export function GearReadinessSection({
             Gear readiness
           </h4>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Matches you with trails that fit your setup.
         </p>
       </div>

@@ -28,7 +28,7 @@ export function WeatherFlexibilitySection({
             Weather flexibility
           </h4>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Helps us suggest alternatives when conditions change.
         </p>
       </div>

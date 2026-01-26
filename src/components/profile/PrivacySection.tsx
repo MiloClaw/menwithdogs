@@ -28,12 +28,12 @@ export function PrivacySection({
         </div>
       </div>
 
-      <div className="space-y-3 text-sm text-muted-foreground">
+      <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
         <p>
           Your preferences are used privately to improve place recommendations. 
           Nothing is public by default.
         </p>
-        <ul className="space-y-1.5 list-disc list-inside text-xs">
+        <ul className="space-y-2 list-disc list-inside text-sm leading-relaxed">
           <li>Preferences are never shown to other users</li>
           <li>Used only to personalize what you see</li>
           <li>You can change or clear anything anytime</li>
@@ -48,7 +48,7 @@ export function PrivacySection({
               <Eye className="h-4 w-4 text-muted-foreground/70" />
               Allow place-based visibility
             </Label>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               When enabled, places you save may be boosted for others with similar preferences. 
               Your identity is never revealed.
             </p>
