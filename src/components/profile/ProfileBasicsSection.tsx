@@ -8,16 +8,21 @@ import { useCouple } from '@/hooks/useCouple';
 import { useEnsureRelationshipUnit } from '@/hooks/useEnsureRelationshipUnit';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceDetails } from '@/hooks/useGooglePlaces';
+import { ProfilePhotoUpload } from './ProfilePhotoUpload';
 
 interface ProfileBasicsSectionProps {
   displayName: string | null;
   onDisplayNameChange: (name: string) => void;
+  profilePhotoUrl: string | null;
+  onProfilePhotoChange: (url: string | null) => void;
   isUpdating?: boolean;
 }
 
 export function ProfileBasicsSection({
   displayName,
   onDisplayNameChange,
+  profilePhotoUrl,
+  onProfilePhotoChange,
   isUpdating = false,
 }: ProfileBasicsSectionProps) {
   const { toast } = useToast();
@@ -67,6 +72,14 @@ export function ProfileBasicsSection({
           Helps us personalize your experience
         </p>
       </div>
+
+      {/* Profile Photo */}
+      <ProfilePhotoUpload
+        value={profilePhotoUrl}
+        displayName={displayName}
+        onChange={onProfilePhotoChange}
+        disabled={isUpdating}
+      />
 
       {/* Name */}
       <div className="space-y-3">
