@@ -4,6 +4,7 @@ interface BrandStripeProps {
   orientation?: 'horizontal' | 'vertical';
   size?: 'sm' | 'md' | 'lg';
   width?: 'full' | 'auto' | number;
+  variant?: 'light' | 'dark';
   className?: string;
 }
 
@@ -22,6 +23,7 @@ const BrandStripe = ({
   orientation = 'horizontal', 
   size = 'md',
   width = 'full',
+  variant = 'light',
   className 
 }: BrandStripeProps) => {
   const isHorizontal = orientation === 'horizontal';
@@ -33,6 +35,8 @@ const BrandStripe = ({
   const widthStyle = typeof width === 'number' 
     ? { width: `${width}px` } 
     : undefined;
+  
+  const firstBarColor = variant === 'dark' ? 'bg-white' : 'bg-brand-navy';
   
   return (
     <div 
@@ -46,7 +50,8 @@ const BrandStripe = ({
       style={widthStyle}
     >
       <div className={cn(
-        "flex-1 bg-brand-navy",
+        "flex-1",
+        firstBarColor,
         isHorizontal ? "rounded-l-full" : "rounded-t-full"
       )} />
       <div className="flex-1 bg-brand-amber" />

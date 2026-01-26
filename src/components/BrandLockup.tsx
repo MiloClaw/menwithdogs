@@ -81,7 +81,11 @@ const BrandLockup = ({
           stripe.container,
           centered && "mx-auto"
         )}>
-          <div className={cn("flex-1 rounded-full bg-brand-navy", stripe.bar)} />
+          <div className={cn(
+            "flex-1 rounded-full",
+            variant === 'dark' ? 'bg-white' : 'bg-brand-navy',
+            stripe.bar
+          )} />
           <div className={cn("flex-1 rounded-full bg-brand-amber", stripe.bar)} />
           <div className={cn("flex-1 rounded-full bg-brand-green", stripe.bar)} />
         </div>

@@ -17,7 +17,7 @@ const FinalCTA = () => {
 
   return (
     <>
-      <BrandStripe size="lg" />
+      <BrandStripe size="lg" variant="dark" />
       <section
         ref={sectionRef}
         className="py-28 md:py-40 bg-primary text-primary-foreground relative overflow-hidden"
