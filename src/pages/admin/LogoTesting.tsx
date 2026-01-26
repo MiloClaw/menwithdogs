@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Menu, Heart, Settings, LogOut } from 'lucide-react';
 import logoConcept1 from '@/assets/logo-concept-1.png';
 import LogoGeneratorCard from '@/components/admin/logo/LogoGeneratorCard';
+import BrandLockup from '@/components/BrandLockup';
+import BrandStripe from '@/components/BrandStripe';
 
 const LogoTesting = () => {
   const [logoHeight, setLogoHeight] = useState(40);
@@ -254,6 +256,65 @@ const LogoTesting = () => {
                   </button>
                 </div>
                 <Menu className="md:hidden w-5 h-5 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Logo Wear Preview */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Logo Wear Preview</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <p className="text-sm text-muted-foreground">
+              Centered lockup optimized for t-shirts, hats, and merchandise.
+            </p>
+            
+            {/* Light Background - T-shirt */}
+            <div className="bg-gray-100 rounded-lg p-12 flex items-center justify-center min-h-[200px]">
+              <BrandLockup 
+                size="lg" 
+                variant="light" 
+                showStripe 
+                centered 
+              />
+            </div>
+            
+            {/* Dark Background - Navy T-shirt */}
+            <div className="bg-[hsl(213,52%,12%)] rounded-lg p-12 flex items-center justify-center min-h-[200px]">
+              <BrandLockup 
+                size="lg" 
+                variant="dark" 
+                showStripe 
+                centered 
+              />
+            </div>
+            
+            {/* Stacked Sizes */}
+            <div className="grid grid-cols-3 gap-4">
+              {(['sm', 'md', 'lg'] as const).map((sz) => (
+                <div key={sz} className="bg-muted rounded-lg p-6 flex flex-col items-center justify-center min-h-[160px]">
+                  <BrandLockup 
+                    size={sz} 
+                    showStripe 
+                    centered 
+                  />
+                  <p className="text-xs text-muted-foreground mt-4">{sz}</p>
+                </div>
+              ))}
+            </div>
+            
+            {/* Standalone Stripe for Hat Brim / Accessory */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Standalone Brand Stripe (hat brim, wristband)</p>
+              <div className="flex gap-4 items-center">
+                <BrandStripe size="md" width={120} />
+                <span className="text-xs text-muted-foreground">120px</span>
+              </div>
+              <div className="flex gap-4 items-center">
+                <BrandStripe size="lg" width={200} />
+                <span className="text-xs text-muted-foreground">200px</span>
               </div>
             </div>
           </CardContent>
