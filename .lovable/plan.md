@@ -1,345 +1,165 @@
 
 
-# Typography & Button Refinement Implementation Plan
+# Button Shape Standardization — Settings Page
 
-## Executive Summary
+## Objective
 
-This plan standardizes typography for improved hierarchy and accessibility, while ensuring all buttons follow a consistent, robust design language aligned with the ThickTimber brand identity.
-
----
-
-## Part 1: Typography Refinements
-
-### Current Issues Identified
-
-| Issue | Location | Current | Problem |
-|-------|----------|---------|---------|
-| Flat hierarchy | Section headers | All use `text-base` | No visual differentiation between primary sections and sub-sections |
-| Accessibility | Helper text | `text-xs` (12px) | Below WCAG accessibility threshold for some users |
-| Accessibility | PRO hints | `text-[10px]` | Too small for mobile readability |
-| Brand disconnect | Tab labels | Sans-serif | Doesn't match the `font-serif` page title |
-| Inconsistency | Account tab | Uses `text-lg` for "Your Account" | Preferences tab uses `text-base` for section headers |
-
-### Typography Changes
-
-#### 1.1 Scale Up Helper Text (Accessibility Fix)
-
-**Files to modify:**
-- `src/components/profile/DistanceSection.tsx`
-- `src/components/profile/TimeOfDaySection.tsx`
-- `src/components/profile/GeoAffinitySection.tsx`
-- `src/components/profile/PlaceUsageSection.tsx`
-- `src/components/profile/OpennessSection.tsx`
-- `src/components/profile/AdventureStyleSection.tsx`
-- `src/components/profile/WeatherFlexibilitySection.tsx`
-- `src/components/profile/GearReadinessSection.tsx`
-- `src/components/profile/NaturePrioritiesSection.tsx`
-- `src/components/profile/PrivacySection.tsx`
-- `src/components/settings/SettingsPreferencesTab.tsx` (intent section, intro paragraph)
-
-**Change:**
-```tsx
-// Before
-<p className="text-xs text-muted-foreground">
-
-// After
-<p className="text-sm text-muted-foreground leading-relaxed">
-```
-
-**Impact:** Helper text increases from 12px to 14px with improved line height for multi-line content.
-
-#### 1.2 Scale Up PRO Hint Text
-
-**File to modify:**
-- `src/components/settings/pro/ProOptionChips.tsx`
-
-**Change:**
-```tsx
-// Before (line 51)
-<span className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">
-
-// After
-<span className="text-xs text-muted-foreground/50 uppercase tracking-wide">
-```
-
-**Impact:** PRO "Choose one" hint increases from 10px to 12px.
-
-#### 1.3 Apply Serif to Tab Labels
-
-**File to modify:**
-- `src/pages/Settings.tsx`
-
-**Change:**
-```tsx
-// Before (lines 109-120)
-<TabsTrigger 
-  value="preferences" 
-  className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base transition-colors"
->
-
-// After
-<TabsTrigger 
-  value="preferences" 
-  className="min-h-[48px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 mr-6 text-base font-serif font-medium transition-colors"
->
-```
-
-**Impact:** Tab labels now match the editorial serif identity of the page title.
-
-#### 1.4 Standardize Section Header Hierarchy
-
-**Files to modify:**
-- All profile section components (see 1.1 list)
-- `src/components/settings/SettingsPreferencesTab.tsx`
-- `src/components/settings/pro/ProSettingsFlow.tsx`
-
-**Hierarchy definition:**
-```text
-├── Page Title: text-3xl font-serif font-medium (existing - no change)
-├── Primary Section Headers: text-base font-medium (standardize all)
-├── Collapsible Headers: text-sm font-semibold uppercase tracking-wide
-└── Sub-section Headers (Phase 3): text-sm font-medium
-```
-
-**Changes:**
-
-**For collapsible trigger in SettingsPreferencesTab.tsx (line 322):**
-```tsx
-// Before
-<span className="text-base font-medium tracking-wide text-foreground">
-  How you explore
-</span>
-
-// After
-<span className="text-sm font-semibold uppercase tracking-wide text-foreground">
-  How you explore
-</span>
-```
-
-**For Phase 3 sub-sections (AdventureStyleSection, etc.):**
-```tsx
-// Before
-<h4 className="text-sm font-medium text-foreground">
-
-// After (no change - this is correct for sub-sections)
-<h4 className="text-sm font-medium text-foreground">
-```
-
-#### 1.5 Scale Up Privacy Bullets
-
-**File to modify:**
-- `src/components/profile/PrivacySection.tsx`
-
-**Change:**
-```tsx
-// Before (line 36)
-<ul className="space-y-1.5 list-disc list-inside text-xs">
-
-// After
-<ul className="space-y-2 list-disc list-inside text-sm leading-relaxed">
-```
+Replace the current `rounded-full` (pill) button shape with `rounded-lg` (8px corners) across all interactive elements on the Settings page. This creates a more structured, masculine aesthetic that aligns with the robust card styling already used in checkbox groups.
 
 ---
 
-## Part 2: Button Consistency
+## Design Decision
 
-### Current Button Audit
+| Shape | Visual | Use Case |
+|-------|--------|----------|
+| `rounded-full` | Softer, feminine | Being replaced |
+| `rounded-lg` | Structured, masculine | New standard for Settings |
 
-| Location | Variant | Size | Styling | Issue |
-|----------|---------|------|---------|-------|
-| Account tab - Change password | `ghost` | `sm` | `h-9 text-sm` | Inconsistent height |
-| Account tab - Manage/Upgrade | `ghost`/`default` | `sm` | `h-9 text-sm` | Correct |
-| Account tab - Delete Account | `destructive` | `sm` | `min-h-[44px]` | Correct touch target |
-| Dialog - Cancel/Submit | `outline`/`default` | default | No explicit height | May be shorter than 44px |
-| Intent grid buttons | `default`/`outline` | custom | `h-auto py-3` | Correct |
-| PRO chips | `default`/`outline` | `sm` | `min-h-[44px]` | Correct |
-| Back button | `ghost` | `icon` | default | Correct |
-| Entry cards | Link cards | - | `min-h-[48px]` implied | Correct |
-
-### Button Standardization Rules
-
-**Minimum touch target:** All interactive buttons must be `min-h-[44px]` for mobile accessibility.
-
-**Variant usage:**
-- **Primary actions:** `variant="default"` (Deep Navy fill)
-- **Secondary actions:** `variant="outline"` (border with transparent fill)
-- **Tertiary/inline actions:** `variant="ghost"` (no border, subtle hover)
-- **Destructive actions:** `variant="destructive"` (red fill)
-
-**Typography:**
-- Font: `text-sm font-medium` (already in base button component)
-- Uppercase NOT required (matches ThickTimber editorial voice)
-
-### Button Changes
-
-#### 2.1 Standardize Account Tab Ghost Buttons
-
-**File to modify:**
-- `src/components/settings/SettingsAccountTab.tsx`
-
-**Changes:**
-```tsx
-// Line 62-68 - Change password button
-<Button 
-  variant="ghost" 
-  size="sm"
-  className="h-9 text-sm hover:bg-muted/50 transition-colors"
-
-// After
-<Button 
-  variant="ghost" 
-  size="sm"
-  className="min-h-[44px] px-4 text-sm hover:bg-muted/50 transition-colors"
-```
-
-```tsx
-// Line 101-109 - Manage button
-<Button
-  variant="ghost"
-  size="sm"
-  className="h-9 text-sm hover:bg-muted/50 transition-colors"
-
-// After
-<Button
-  variant="ghost"
-  size="sm"
-  className="min-h-[44px] px-4 text-sm hover:bg-muted/50 transition-colors"
-```
-
-```tsx
-// Line 111-119 - Upgrade button
-<Button
-  variant="default"
-  size="sm"
-  className="h-9 text-sm"
-
-// After
-<Button
-  variant="default"
-  size="sm"
-  className="min-h-[44px] px-6 text-sm"
-```
-
-#### 2.2 Standardize Dialog Buttons
-
-**File to modify:**
-- `src/components/settings/ChangePasswordDialog.tsx`
-
-**Changes:**
-```tsx
-// Lines 126-135 - Dialog footer buttons
-<Button 
-  type="button" 
-  variant="outline" 
-  onClick={() => onOpenChange(false)}
->
-  Cancel
-</Button>
-<Button type="submit" disabled={isSubmitting}>
-
-// After
-<Button 
-  type="button" 
-  variant="outline" 
-  className="min-h-[44px]"
-  onClick={() => onOpenChange(false)}
->
-  Cancel
-</Button>
-<Button 
-  type="submit" 
-  className="min-h-[44px]" 
-  disabled={isSubmitting}
->
-```
-
-#### 2.3 Standardize Account Actions Trigger
-
-**File to modify:**
-- `src/components/settings/SettingsAccountTab.tsx`
-
-**Change:**
-```tsx
-// Lines 129-138 - Account actions trigger
-<Button 
-  variant="ghost" 
-  className="w-full justify-between h-12 text-muted-foreground hover:text-foreground transition-colors"
->
-
-// After (h-12 = 48px, already meets 44px minimum - no change needed)
-```
+The `rounded-lg` shape (approx 8px radius via `--radius` CSS variable) matches the checkbox card styling the user selected, providing visual consistency.
 
 ---
 
-## Part 3: Files Summary
+## Scope
 
 ### Files to Modify
 
-| File | Changes |
-|------|---------|
-| `src/pages/Settings.tsx` | Add `font-serif font-medium` to TabsTrigger |
-| `src/components/settings/SettingsPreferencesTab.tsx` | Scale helper text, update collapsible header |
-| `src/components/settings/SettingsAccountTab.tsx` | Standardize button heights |
-| `src/components/settings/ChangePasswordDialog.tsx` | Add min-height to dialog buttons |
-| `src/components/settings/pro/ProOptionChips.tsx` | Scale PRO hint text |
-| `src/components/settings/pro/ProSettingsFlow.tsx` | Scale helper text |
-| `src/components/profile/DistanceSection.tsx` | Scale helper text |
-| `src/components/profile/TimeOfDaySection.tsx` | Scale helper text |
-| `src/components/profile/GeoAffinitySection.tsx` | Scale helper text |
-| `src/components/profile/PlaceUsageSection.tsx` | Scale helper text |
-| `src/components/profile/OpennessSection.tsx` | Scale helper text |
-| `src/components/profile/AdventureStyleSection.tsx` | Scale helper text |
-| `src/components/profile/WeatherFlexibilitySection.tsx` | Scale helper text |
-| `src/components/profile/GearReadinessSection.tsx` | Scale helper text |
-| `src/components/profile/NaturePrioritiesSection.tsx` | Scale helper text |
-| `src/components/profile/PrivacySection.tsx` | Scale helper text and bullets |
+| File | Current Shape | Elements Affected |
+|------|---------------|-------------------|
+| `src/components/ui/button.tsx` | `rounded-full` on all variants | All button variants (default, outline, destructive, secondary, ghost, accent, accent-outline) |
+| `src/components/settings/pro/ProOptionChips.tsx` | `rounded-full` override | PRO option chips |
+| `src/components/settings/pro/ProSettingsFlow.tsx` | `rounded-full` on skeletons | Loading skeleton chips |
 
 ---
 
-## Part 4: Implementation Order
+## Detailed Changes
 
-```text
-Step 1: Typography foundation
-├── Update src/pages/Settings.tsx (serif tabs)
-├── Update src/components/settings/SettingsPreferencesTab.tsx (collapsible header + helper text)
-└── Update src/components/settings/pro/ProOptionChips.tsx (hint text)
+### 1. Button Component — Core Variants
 
-Step 2: Profile section helper text (parallel)
-├── DistanceSection.tsx
-├── TimeOfDaySection.tsx
-├── GeoAffinitySection.tsx
-├── PlaceUsageSection.tsx
-├── OpennessSection.tsx
-├── AdventureStyleSection.tsx
-├── WeatherFlexibilitySection.tsx
-├── GearReadinessSection.tsx
-├── NaturePrioritiesSection.tsx
-└── PrivacySection.tsx
+**File:** `src/components/ui/button.tsx`
 
-Step 3: PRO flow helper text
-└── Update src/components/settings/pro/ProSettingsFlow.tsx
+Replace `rounded-full` with `rounded-lg` in all button variants:
 
-Step 4: Button standardization
-├── Update src/components/settings/SettingsAccountTab.tsx
-└── Update src/components/settings/ChangePasswordDialog.tsx
+```tsx
+// Lines 11-27 - buttonVariants
+
+// BEFORE
+default: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-sm",
+destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full shadow-sm",
+outline: "border border-primary/80 bg-transparent text-primary hover:bg-primary hover:text-primary-foreground rounded-full shadow-sm",
+secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full shadow-sm",
+ghost: "hover:bg-muted hover:text-foreground rounded-full",
+accent: "bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-semibold...",
+"accent-outline": "border border-accent/80 bg-transparent text-accent hover:bg-accent hover:text-accent-foreground rounded-full font-semibold...",
+
+// AFTER
+default: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg shadow-sm",
+destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg shadow-sm",
+outline: "border border-primary/80 bg-transparent text-primary hover:bg-primary hover:text-primary-foreground rounded-lg shadow-sm",
+secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg shadow-sm",
+ghost: "hover:bg-muted hover:text-foreground rounded-lg",
+accent: "bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg font-semibold...",
+"accent-outline": "border border-accent/80 bg-transparent text-accent hover:bg-accent hover:text-accent-foreground rounded-lg font-semibold...",
+```
+
+**Note:** The `nav` and `link` variants don't have explicit border-radius, so no change needed.
+
+---
+
+### 2. PRO Option Chips
+
+**File:** `src/components/settings/pro/ProOptionChips.tsx`
+
+Update the chip buttons from `rounded-full` to `rounded-lg`:
+
+```tsx
+// Line 123
+
+// BEFORE
+'rounded-full min-h-[44px] px-5 transition-all duration-100 ease-out gap-2',
+
+// AFTER
+'rounded-lg min-h-[44px] px-5 transition-all duration-100 ease-out gap-2',
 ```
 
 ---
 
-## Result
+### 3. PRO Flow Skeleton Loaders
+
+**File:** `src/components/settings/pro/ProSettingsFlow.tsx`
+
+Update skeleton chips to match the new button shape:
+
+```tsx
+// Line 37
+
+// BEFORE
+<Skeleton key={j} className="h-11 w-24 rounded-full" />
+
+// AFTER
+<Skeleton key={j} className="h-11 w-24 rounded-lg" />
+```
+
+---
+
+## Visual Result
 
 After implementation:
 
-**Typography:**
-- Helper text scales from 12px to 14px (improved readability)
-- PRO hints scale from 10px to 12px (meets accessibility baseline)
-- Tab labels use editorial serif to match page title
-- Clear visual hierarchy between primary sections and sub-sections
-- Collapsible headers are differentiated with uppercase + tracking
+```text
+BEFORE (Pill Shape)              AFTER (Structured Shape)
+┌──────────────────────────┐     ┌──────────────────────────┐
+│  (    Update Password   )│     │  ┌──────────────────┐    │
+│  (    Manage Account    )│     │  │  Update Password │    │
+│  (    Delete Account    )│     │  │  Manage Account  │    │
+│                          │     │  │  Delete Account  │    │
+│  Intent Grid:            │     │                          │
+│  ( 🏔️ Trails )           │     │  Intent Grid:            │
+│  ( ⛺ Campgrounds )       │     │  ┌────────┐ ┌──────────┐ │
+│                          │     │  │🏔️ Trails│ │⛺ Camps  │ │
+│  PRO Chips:              │     │                          │
+│  ( Solo seeker )         │     │  PRO Chips:              │
+│  ( Small crew )          │     │  ┌───────────┐           │
+└──────────────────────────┘     │  │Solo seeker│           │
+                                 └──────────────────────────┘
+```
 
-**Buttons:**
-- All interactive buttons meet 44px minimum touch target
-- Consistent height across Account tab actions
-- Dialog buttons match the rest of the page
-- Maintains ThickTimber's robust, masculine aesthetic with rounded-full buttons and clear visual weight
+---
+
+## Implementation Order
+
+```text
+Step 1: Update core button component
+└── src/components/ui/button.tsx (affects all buttons site-wide)
+
+Step 2: Update settings-specific overrides (parallel)
+├── src/components/settings/pro/ProOptionChips.tsx
+└── src/components/settings/pro/ProSettingsFlow.tsx
+```
+
+---
+
+## Impact Analysis
+
+**Settings Page:**
+- All buttons will have `rounded-lg` corners
+- Intent grid buttons will match checkbox cards
+- PRO chips will have consistent styling
+- Skeleton loaders will match loaded state
+
+**Site-Wide:**
+- This change affects the core button component
+- All pages using `<Button>` will get the new shape
+- This creates brand consistency across the entire app
+- Matches the structured, masculine aesthetic of ThickTimber
+
+---
+
+## Alternative Approach (If Needed)
+
+If you want to keep `rounded-full` buttons elsewhere on the site but only use `rounded-lg` on the Settings page, I could instead:
+
+1. Create a `settings` variant in the button component
+2. Or pass `className="rounded-lg"` overrides only on Settings page buttons
+
+Let me know if you'd prefer the site-wide change or a Settings-only approach.
 
