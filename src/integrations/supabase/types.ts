@@ -1946,54 +1946,75 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          activities: string[] | null
+          allow_place_visibility: boolean | null
           choice_priority: Json | null
           created_at: string
+          display_name: string | null
           distance_preference: string | null
           geo_affinity: string | null
           id: string
           intent_preferences: Json | null
+          openness: string[] | null
+          place_usage: string[] | null
           planning_horizon: string | null
           preferences_updated_at: string | null
+          profile_photo_url: string | null
           prompts_shown: Json | null
           return_preference: string | null
           sensory_sensitivity: Json | null
           time_preference: string | null
+          timing_preferences: string[] | null
           uncertainty_tolerance: string | null
           updated_at: string
           user_id: string
           vibe_preference: string | null
         }
         Insert: {
+          activities?: string[] | null
+          allow_place_visibility?: boolean | null
           choice_priority?: Json | null
           created_at?: string
+          display_name?: string | null
           distance_preference?: string | null
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
+          openness?: string[] | null
+          place_usage?: string[] | null
           planning_horizon?: string | null
           preferences_updated_at?: string | null
+          profile_photo_url?: string | null
           prompts_shown?: Json | null
           return_preference?: string | null
           sensory_sensitivity?: Json | null
           time_preference?: string | null
+          timing_preferences?: string[] | null
           uncertainty_tolerance?: string | null
           updated_at?: string
           user_id: string
           vibe_preference?: string | null
         }
         Update: {
+          activities?: string[] | null
+          allow_place_visibility?: boolean | null
           choice_priority?: Json | null
           created_at?: string
+          display_name?: string | null
           distance_preference?: string | null
           geo_affinity?: string | null
           id?: string
           intent_preferences?: Json | null
+          openness?: string[] | null
+          place_usage?: string[] | null
           planning_horizon?: string | null
           preferences_updated_at?: string | null
+          profile_photo_url?: string | null
           prompts_shown?: Json | null
           return_preference?: string | null
           sensory_sensitivity?: Json | null
           time_preference?: string | null
+          timing_preferences?: string[] | null
           uncertainty_tolerance?: string | null
           updated_at?: string
           user_id?: string
