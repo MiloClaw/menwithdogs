@@ -20,6 +20,9 @@ import {
   OpennessSection,
   PatternsSection,
   PrivacySection,
+  DistanceSection,
+  TimeOfDaySection,
+  GeoAffinitySection,
 } from '@/components/profile';
 
 const SettingsPreferencesTab = () => {
@@ -37,6 +40,11 @@ const SettingsPreferencesTab = () => {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [selectedIntents, setSelectedIntents] = useState<string[]>([]);
+  
+  // New intelligence-affecting preferences
+  const [distancePreference, setDistancePreference] = useState<string | null>(null);
+  const [timePreference, setTimePreference] = useState<string | null>(null);
+  const [geoAffinity, setGeoAffinity] = useState<string | null>(null);
 
   // Sync from server preferences
   useEffect(() => {
@@ -49,6 +57,10 @@ const SettingsPreferencesTab = () => {
       setDisplayName(preferences.display_name || null);
       setProfilePhotoUrl(preferences.profile_photo_url || null);
       setSelectedIntents(preferences.intent_preferences || []);
+      // New preferences
+      setDistancePreference(preferences.distance_preference || null);
+      setTimePreference(preferences.time_preference || null);
+      setGeoAffinity(preferences.geo_affinity || null);
     }
   }, [preferences]);
 
@@ -86,6 +98,22 @@ const SettingsPreferencesTab = () => {
   const handleProfilePhotoChange = useCallback((url: string | null) => {
     setProfilePhotoUrl(url);
     updatePreferences({ profile_photo_url: url });
+  }, [updatePreferences]);
+
+  // New intelligence preference handlers
+  const handleDistanceChange = useCallback((value: string) => {
+    setDistancePreference(value);
+    updatePreferences({ distance_preference: value });
+  }, [updatePreferences]);
+
+  const handleTimePreferenceChange = useCallback((value: string) => {
+    setTimePreference(value);
+    updatePreferences({ time_preference: value });
+  }, [updatePreferences]);
+
+  const handleGeoAffinityChange = useCallback((value: string) => {
+    setGeoAffinity(value);
+    updatePreferences({ geo_affinity: value });
   }, [updatePreferences]);
 
   const handleIntentToggle = (value: string) => {
@@ -137,6 +165,27 @@ const SettingsPreferencesTab = () => {
         onDisplayNameChange={handleDisplayNameChange}
         profilePhotoUrl={profilePhotoUrl}
         onProfilePhotoChange={handleProfilePhotoChange}
+        isUpdating={isUpdating}
+      />
+
+      {/* NEW: Distance Preference */}
+      <DistanceSection
+        selected={distancePreference}
+        onChange={handleDistanceChange}
+        isUpdating={isUpdating}
+      />
+
+      {/* NEW: Primary Time of Day */}
+      <TimeOfDaySection
+        selected={timePreference}
+        onChange={handleTimePreferenceChange}
+        isUpdating={isUpdating}
+      />
+
+      {/* NEW: Geographic Affinity */}
+      <GeoAffinitySection
+        selected={geoAffinity}
+        onChange={handleGeoAffinityChange}
         isUpdating={isUpdating}
       />
 

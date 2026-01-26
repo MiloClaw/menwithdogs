@@ -7,3 +7,6 @@ export { OpennessSection } from './OpennessSection';
 export { PatternsSection } from './PatternsSection';
 export { PrivacySection } from './PrivacySection';
 export { ProfileCheckboxGroup } from './ProfileCheckboxGroup';
+export { DistanceSection } from './DistanceSection';
+export { TimeOfDaySection } from './TimeOfDaySection';
+export { GeoAffinitySection } from './GeoAffinitySection';
