@@ -25,11 +25,11 @@ export function GeoAffinitySection({
         <div className="flex items-center gap-2 mb-1">
           <Compass className="h-4 w-4 text-muted-foreground/70" />
           <h3 className="text-base font-medium tracking-wide text-foreground">
-            How do you like to explore?
+            How spread out are your favorite spots?
           </h3>
         </div>
         <p className="text-xs text-muted-foreground">
-          Helps us understand your discovery style.
+          Helps us know whether to show places nearby or farther out.
         </p>
       </div>
 

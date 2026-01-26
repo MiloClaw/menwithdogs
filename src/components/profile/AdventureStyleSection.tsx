@@ -25,11 +25,11 @@ export function AdventureStyleSection({
         <div className="flex items-center gap-2 mb-1">
           <Compass className="h-4 w-4 text-muted-foreground/70" />
           <h4 className="text-sm font-medium text-foreground">
-            Your usual approach
+            Trail comfort
           </h4>
         </div>
         <p className="text-xs text-muted-foreground">
-          Helps us match your comfort level.
+          Helps us suggest trails that match your style.
         </p>
       </div>
 

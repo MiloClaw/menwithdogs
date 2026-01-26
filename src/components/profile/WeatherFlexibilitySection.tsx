@@ -29,7 +29,7 @@ export function WeatherFlexibilitySection({
           </h4>
         </div>
         <p className="text-xs text-muted-foreground">
-          We'll note conditions when relevant.
+          Helps us suggest alternatives when conditions change.
         </p>
       </div>
 

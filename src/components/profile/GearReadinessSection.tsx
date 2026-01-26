@@ -29,7 +29,7 @@ export function GearReadinessSection({
           </h4>
         </div>
         <p className="text-xs text-muted-foreground">
-          Helps us suggest appropriate spots.
+          Matches you with trails that fit your setup.
         </p>
       </div>
 
