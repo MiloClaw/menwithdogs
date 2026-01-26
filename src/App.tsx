@@ -42,6 +42,7 @@ import MetroManagement from "./pages/admin/MetroManagement";
 import ProContextManagement from "./pages/admin/ProContextManagement";
 import FoundersManagement from "./pages/admin/FoundersManagement";
 import LogoTesting from "./pages/admin/LogoTesting";
+import TagManagement from "./pages/admin/TagManagement";
 import { RequireRole } from "./components/auth/RequireRole";
 
 const queryClient = new QueryClient();
@@ -108,6 +109,7 @@ const App = () => (
               <Route path="/admin/posts" element={<RequireRole role="admin"><PostManagement /></RequireRole>} />
               <Route path="/admin/pro-contexts" element={<RequireRole role="admin"><ProContextManagement /></RequireRole>} />
               <Route path="/admin/logo-testing" element={<RequireRole role="admin"><LogoTesting /></RequireRole>} />
+              <Route path="/admin/tags" element={<RequireRole role="admin"><TagManagement /></RequireRole>} />
               
               {/* Legacy admin blog route */}
               <Route path="/admin/blog" element={<Navigate to="/admin/posts" replace />} />
