@@ -1,19 +1,34 @@
+import { 
+  MapPin, TreePine, Mountain, Tent, Waves, Footprints,
+  UtensilsCrossed, Coffee, Wine, Dumbbell, Palette,
+  ShoppingBag, Sparkles, Leaf, Croissant, TreeDeciduous,
+  type LucideIcon 
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Category display config
-const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
-  restaurant: { icon: '🍽️', label: 'Restaurants' },
-  cafe: { icon: '☕', label: 'Coffee & Cafes' },
-  bar: { icon: '🍷', label: 'Bars & Lounges' },
-  park: { icon: '🌳', label: 'Parks & Outdoors' },
-  gym: { icon: '💪', label: 'Fitness' },
-  museum: { icon: '🎨', label: 'Culture' },
-  shopping: { icon: '🛍️', label: 'Shopping' },
-  entertainment: { icon: '✨', label: 'Entertainment' },
-  spa: { icon: '🧘', label: 'Wellness' },
-  bakery: { icon: '🥐', label: 'Bakeries' },
+// Category display config with Lucide icons
+const CATEGORY_CONFIG: Record<string, { Icon: LucideIcon; label: string }> = {
+  // Outdoor categories (brand priority)
+  trail: { Icon: Mountain, label: 'Trails' },
+  campground: { Icon: Tent, label: 'Campgrounds' },
+  natural_feature: { Icon: TreeDeciduous, label: 'Natural Features' },
+  hiking_area: { Icon: Footprints, label: 'Hiking Areas' },
+  swimming_hole: { Icon: Waves, label: 'Swimming Holes' },
+  park: { Icon: TreePine, label: 'Parks & Outdoors' },
+  
+  // Urban categories
+  restaurant: { Icon: UtensilsCrossed, label: 'Restaurants' },
+  cafe: { Icon: Coffee, label: 'Coffee & Cafes' },
+  bar: { Icon: Wine, label: 'Bars & Lounges' },
+  gym: { Icon: Dumbbell, label: 'Fitness' },
+  museum: { Icon: Palette, label: 'Culture' },
+  shopping: { Icon: ShoppingBag, label: 'Shopping' },
+  entertainment: { Icon: Sparkles, label: 'Entertainment' },
+  spa: { Icon: Leaf, label: 'Wellness' },
+  bakery: { Icon: Croissant, label: 'Bakeries' },
+  
   // Fallback for unknown categories
-  default: { icon: '📍', label: 'Places' },
+  default: { Icon: MapPin, label: 'Places' },
 };
 
 interface AffinityBarProps {
@@ -36,13 +51,15 @@ export function AffinityBar({ category, score }: AffinityBarProps) {
     label: category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, ' '),
   };
   
+  const IconComponent = config.Icon;
+  
   // DRIFT-LOCK: Visual range capped to 30-90% to prevent score inference
   // Users should not be able to deduce relative affinity weights from bar widths
   const clampedPercentage = Math.max(30, Math.min(90, Math.round(score * 100)));
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-base w-5 text-center flex-shrink-0 opacity-70">{config.icon}</span>
+      <IconComponent className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <span className="text-sm text-muted-foreground truncate block mb-1">
           {config.label}
