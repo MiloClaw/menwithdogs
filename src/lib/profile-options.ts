@@ -39,13 +39,12 @@ export const TIMING_OPTIONS: ProfileOption[] = [
   { key: 'weekends', label: 'Weekends' },
 ];
 
-// Section 5: Openness (Private)
+// Section 5: Openness (Private) — connection readiness, not group size
 export const OPENNESS_OPTIONS: ProfileOption[] = [
-  { key: 'keep_to_myself', label: 'I usually keep to myself' },
+  { key: 'keep_to_myself', label: 'I prefer to keep to myself' },
   { key: 'familiar_faces', label: "I'm comfortable with familiar faces" },
-  { key: 'casual_conversation', label: "I'm open to casual conversation" },
-  { key: 'open_to_meeting', label: "I'm open to meeting others through shared activities" },
-  { key: 'with_partner_friends', label: "I'm usually out with a partner or friends" },
+  { key: 'casual_conversation', label: 'Open to casual conversation' },
+  { key: 'open_to_meeting', label: 'Happy to connect over shared activities' },
 ];
 
 // Distance Preference (single-select) - affects proximity weighting

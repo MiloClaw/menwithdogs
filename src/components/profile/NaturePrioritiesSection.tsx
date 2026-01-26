@@ -44,7 +44,7 @@ export function NaturePrioritiesSection({
           </h4>
         </div>
         <p className="text-xs text-muted-foreground">
-          Pick up to {maxSelections}. Shapes what we surface.
+          Pick up to {maxSelections}. Helps us find the right spots.
         </p>
       </div>
 

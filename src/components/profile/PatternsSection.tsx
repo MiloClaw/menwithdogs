@@ -1,5 +1,4 @@
-import { MapPin, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MapPin } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -101,13 +100,6 @@ export function PatternsSection() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="flex gap-2 pt-2">
-        <Button variant="outline" size="sm" className="min-h-[44px] gap-2">
-          <Check className="h-4 w-4" />
-          Looks right
-        </Button>
       </div>
     </section>
   );

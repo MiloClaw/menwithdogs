@@ -23,7 +23,7 @@ export function PlaceUsageSection({
         <div className="flex items-center gap-2 mb-1">
           <Compass className="h-4 w-4 text-muted-foreground/70" />
           <h3 className="text-base font-medium tracking-wide text-foreground">
-            When you go to these places, it's usually for...
+            When you head outdoors, it's usually for...
           </h3>
         </div>
         <p className="text-xs text-muted-foreground">
