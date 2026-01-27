@@ -48,7 +48,13 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
           opening_hours,
           lat,
           lng,
-          google_types
+          google_types,
+          allows_dogs,
+          wheelchair_accessible_entrance,
+          wheelchair_accessible_restroom,
+          wheelchair_accessible_seating,
+          outdoor_seating,
+          has_restroom
         `)
         .eq('status', 'approved');
 
