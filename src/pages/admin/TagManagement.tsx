@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, RefreshCw, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Plus, RefreshCw, MessageSquare, AlertTriangle, MapPin } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { GoogleTypesCheckboxList } from '@/components/admin/tags/GoogleTypesCheckboxList';
+import { toast } from '@/hooks/use-toast';
 import {
   useCanonicalTags,
   useTagSuggestions,
@@ -22,7 +23,9 @@ import {
   useReviewTagSuggestion,
   useComputeTagAggregates,
   CanonicalTag,
+  TagSuggestionWithPlace,
 } from '@/hooks/usePlaceTags';
+import { useApplyPlaceTag } from '@/hooks/usePlaceNicheTags';
 
 const CATEGORIES = ['culture', 'accessibility', 'social', 'outdoor'] as const;
 
@@ -40,10 +43,54 @@ export default function TagManagement() {
   const updateTag = useUpdateCanonicalTag();
   const reviewSuggestion = useReviewTagSuggestion();
   const computeAggregates = useComputeTagAggregates();
+  const applyTag = useApplyPlaceTag();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<CanonicalTag | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  // Handler for approving a tag suggestion and applying it to the place
+  const handleApproveSuggestion = async (suggestion: TagSuggestionWithPlace) => {
+    const slug = suggestion.suggested_label
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '');
+    
+    // Check if canonical tag exists
+    const existingTag = tags?.find(t => t.slug === slug);
+    if (!existingTag) {
+      toast({
+        title: 'Canonical tag not found',
+        description: `Create a canonical tag with slug "${slug}" first, then approve this suggestion.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setApprovingId(suggestion.id);
+    try {
+      // Apply tag to place if place_id exists
+      if (suggestion.place_id) {
+        await applyTag.mutateAsync({
+          placeId: suggestion.place_id,
+          tag: slug,
+          evidenceRef: suggestion.id,
+        });
+      }
+      
+      // Mark suggestion as approved
+      reviewSuggestion.mutate({ id: suggestion.id, status: 'approved' });
+    } catch (error) {
+      toast({
+        title: 'Error applying tag',
+        description: error instanceof Error ? error.message : 'Failed to apply tag to place',
+        variant: 'destructive',
+      });
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
   // Form state for create/edit
   const [formData, setFormData] = useState({
@@ -309,12 +356,24 @@ export default function TagManagement() {
                   <Card key={suggestion.id}>
                     <CardContent className="py-4">
                       <div className="flex justify-between items-start">
-                        <div>
+                        <div className="flex-1">
                           <div className="font-medium">{suggestion.suggested_label}</div>
                           {suggestion.suggested_category && (
                             <Badge className={categoryColors[suggestion.suggested_category]} variant="outline">
                               {suggestion.suggested_category}
                             </Badge>
+                          )}
+                          {suggestion.places?.name && (
+                            <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              <span className="font-medium">Place:</span> {suggestion.places.name}
+                            </p>
+                          )}
+                          {!suggestion.place_id && (
+                            <p className="text-sm text-amber-600 mt-2 flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              No place linked
+                            </p>
                           )}
                           {suggestion.rationale && (
                             <p className="text-sm text-muted-foreground mt-2">{suggestion.rationale}</p>
@@ -333,9 +392,10 @@ export default function TagManagement() {
                           </Button>
                           <Button
                             size="sm"
-                            onClick={() => reviewSuggestion.mutate({ id: suggestion.id, status: 'approved' })}
+                            onClick={() => handleApproveSuggestion(suggestion)}
+                            disabled={approvingId === suggestion.id}
                           >
-                            Approve
+                            {approvingId === suggestion.id ? 'Applying...' : 'Approve'}
                           </Button>
                         </div>
                       </div>

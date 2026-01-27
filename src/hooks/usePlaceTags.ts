@@ -37,6 +37,7 @@ export interface TagSignal {
 export interface TagSuggestion {
   id: string;
   user_id: string;
+  place_id: string | null;
   suggested_label: string;
   suggested_category: 'culture' | 'accessibility' | 'social' | 'outdoor' | null;
   rationale: string | null;
@@ -165,6 +166,11 @@ export function useSubmitTagSignal() {
   });
 }
 
+// Extended type for suggestions with place context
+export interface TagSuggestionWithPlace extends TagSuggestion {
+  places?: { id: string; name: string } | null;
+}
+
 // Hook for tag suggestions (admin view)
 export function useTagSuggestions(status?: string) {
   return useQuery({
@@ -172,7 +178,7 @@ export function useTagSuggestions(status?: string) {
     queryFn: async () => {
       let query = supabase
         .from('tag_suggestions')
-        .select('*')
+        .select('*, places!tag_suggestions_place_id_fkey(id, name)')
         .order('created_at', { ascending: false });
 
       if (status) {
@@ -181,7 +187,7 @@ export function useTagSuggestions(status?: string) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as TagSuggestion[];
+      return data as TagSuggestionWithPlace[];
     },
   });
 }
