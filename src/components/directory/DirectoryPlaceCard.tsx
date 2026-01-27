@@ -25,7 +25,14 @@ export interface DirectoryPlace {
   lng: number | null;
   google_types: string[] | null;
   distance?: number;
-  isRelevant?: boolean; // For personalization badge
+  isRelevant?: boolean;
+  // Google-verified amenity attributes
+  allows_dogs?: boolean | null;
+  wheelchair_accessible_entrance?: boolean | null;
+  wheelchair_accessible_restroom?: boolean | null;
+  wheelchair_accessible_seating?: boolean | null;
+  outdoor_seating?: boolean | null;
+  has_restroom?: boolean | null;
 }
 
 interface DirectoryPlaceCardProps {

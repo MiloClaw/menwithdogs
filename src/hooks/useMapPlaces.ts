@@ -88,7 +88,13 @@ export function useMapPlaces(bounds: MapBounds | null, enabled: boolean = true) 
           opening_hours,
           google_types,
           status,
-          source
+          source,
+          allows_dogs,
+          wheelchair_accessible_entrance,
+          wheelchair_accessible_restroom,
+          wheelchair_accessible_seating,
+          outdoor_seating,
+          has_restroom
         `)
         .eq('status', 'approved')
         .gte('lat', debouncedBounds.south)
