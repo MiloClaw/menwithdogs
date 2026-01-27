@@ -1,129 +1,169 @@
 
-# Replace Google Place Types Input with Checkbox Multi-Select
+# Fix: Admin Tag Approval Workflow Missing Tag Application Step
 
-## Current State
+## Problem Identified
 
-The Tag Management edit dialog uses a simple text input for "Applicable Google Place Types":
-- Admins must know and manually type Google Place type values (e.g., `bar, restaurant, cafe`)
-- No visibility into available options
-- Error-prone and hard to discover valid types
+When an admin approves a user-submitted tag suggestion:
+- The `tag_suggestions.status` is updated to `'approved'`
+- **But the tag is never actually applied to the place**
 
-## Proposed Solution
+Database evidence:
+- `tag_suggestions` has 1 approved record for "Clothing Optional" on Blacks Beach Trailhead (`place_id: c0aca251-...`)
+- `place_niche_tags` table is **completely empty** (0 records)
 
-Replace the text input with a grouped checkbox list showing all 160+ Google Place Types from `GOOGLE_PLACE_TYPES`, organized by category (Food, Nightlife, Entertainment, etc.).
+This means the modal correctly shows nothing because no tags have been inserted into `place_niche_tags`.
 
-### Visual Design
+## Root Cause
 
-```text
-┌────────────────────────────────────────────────────────┐
-│ Applicable Google Place Types                          │
-│ Select which place types this tag applies to           │
-├────────────────────────────────────────────────────────┤
-│ ☐ Select All                                           │
-├────────────────────────────────────────────────────────┤
-│ ▼ Food & Dining (33 types)                             │
-│   ☐ Restaurant                                         │
-│   ☐ Café                                               │
-│   ☐ Bakery                                             │
-│   ☐ Coffee Shop                                        │
-│   ...                                                  │
-├────────────────────────────────────────────────────────┤
-│ ▼ Nightlife (6 types)                                  │
-│   ☑ Bar                    ← checked                   │
-│   ☑ Pub                    ← checked                   │
-│   ☐ Night Club                                         │
-│   ...                                                  │
-├────────────────────────────────────────────────────────┤
-│ ▼ Outdoor & Nature (16 types)                          │
-│   ☐ Park                                               │
-│   ☐ Hiking Area                                        │
-│   ...                                                  │
-└────────────────────────────────────────────────────────┘
-│ Leave all unchecked to apply to all place types        │
-└────────────────────────────────────────────────────────┘
+The `useReviewTagSuggestion` hook in `src/hooks/usePlaceTags.ts` only updates the suggestion status:
+
+```typescript
+// Current behavior - only updates status, doesn't apply tag
+const { error } = await supabase
+  .from('tag_suggestions')
+  .update({
+    status,
+    merged_into_slug: mergedIntoSlug,
+    reviewed_at: new Date().toISOString(),
+  })
+  .eq('id', id);
 ```
 
-### Implementation Details
+It does NOT:
+1. Create a canonical tag entry (if the tag is new)
+2. Insert a record into `place_niche_tags` to link the tag to the place
 
-#### 1. Create New Component: `GoogleTypesCheckboxList.tsx`
+## Solution
 
-**Location:** `src/components/admin/tags/GoogleTypesCheckboxList.tsx`
+Enhance the admin approval workflow to:
 
-**Props:**
-- `selectedTypes: string[]` - Currently selected Google Place type values
-- `onChange: (types: string[]) => void` - Callback when selection changes
+1. **Show place context** in the Suggestions tab so admins know which place the tag is for
+2. **When approving**, automatically apply the tag to `place_niche_tags` using the existing `useApplyPlaceTag` hook
+3. **Handle canonical tag creation** - either require the tag to exist first, or prompt admin to create it
 
-**Features:**
-- Uses `GOOGLE_PLACE_TYPES` and `PLACE_TYPE_CATEGORIES` from `src/lib/google-places-types.ts`
-- Groups types by category with collapsible sections using Radix Collapsible
-- Shows count of types per category
-- "Select All" checkbox at top
-- Category-level "Select All" checkbox for each group
-- Scrollable container with max-height for the dialog
-- Touch-friendly checkboxes (44px targets)
+### Implementation Plan
 
-#### 2. Update TagForm Component
+#### Task 1: Fetch Place Context for Suggestions
+
+**File:** `src/hooks/usePlaceTags.ts` (lines 167-186)
+
+Update `useTagSuggestions` to join with `places` table to get the place name:
+
+```typescript
+const { data, error } = await supabase
+  .from('tag_suggestions')
+  .select('*, places!tag_suggestions_place_id_fkey(id, name)')
+  .order('created_at', { ascending: false });
+```
+
+#### Task 2: Display Place Name in Suggestions UI
+
+**File:** `src/pages/admin/TagManagement.tsx` (lines 308-324)
+
+Show which place the suggestion is for in the card:
+
+```tsx
+<p className="text-sm text-muted-foreground mt-2">
+  <strong>Place:</strong> {suggestion.places?.name ?? 'No place linked'}
+</p>
+```
+
+#### Task 3: Update Approval Handler to Apply Tag
 
 **File:** `src/pages/admin/TagManagement.tsx`
 
-**Changes:**
-- Import the new `GoogleTypesCheckboxList` component
-- Change `formData.applicable_google_types` from `string` to `string[]`
-- Replace the text `Input` with the new checkbox component
-- Update `handleCreateTag` and `handleUpdateTag` to pass array directly (no split/join needed)
-- Update `openEditDialog` to set array directly (no join needed)
-- Update `resetForm` to use `[]` instead of `''`
+When approving a suggestion that has a `place_id`:
+1. Check if a matching canonical tag exists by slug
+2. If not, prompt admin to create it first OR auto-create it
+3. Insert into `place_niche_tags` with:
+   - `place_id` from suggestion
+   - `tag` = canonical tag slug
+   - `evidence_type` = `'admin_approved'`
+   - `evidence_ref` = suggestion ID
+   - `confidence` = 1.0
 
-#### 3. Form Data Type Update
+Create a new handler:
 
-**Before:**
 ```typescript
-const [formData, setFormData] = useState({
-  // ...
-  applicable_google_types: '', // comma-separated string
-});
+const applyTag = useApplyPlaceTag(); // from usePlaceNicheTags
+
+const handleApproveSuggestion = async (suggestion: TagSuggestion) => {
+  const slug = suggestion.suggested_label
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '');
+  
+  // Check if canonical tag exists
+  const existingTag = tags?.find(t => t.slug === slug);
+  if (!existingTag) {
+    // Option A: Create it automatically
+    // Option B: Show toast asking admin to create it first
+    toast.error('Create this canonical tag first before approving');
+    return;
+  }
+  
+  // Apply tag to place
+  if (suggestion.place_id) {
+    await applyTag.mutateAsync({
+      placeId: suggestion.place_id,
+      tag: slug,
+      evidenceRef: suggestion.id,
+    });
+  }
+  
+  // Mark suggestion as approved
+  reviewSuggestion.mutate({ id: suggestion.id, status: 'approved' });
+};
 ```
 
-**After:**
+#### Task 4: Import and Use `useApplyPlaceTag`
+
+**File:** `src/pages/admin/TagManagement.tsx`
+
 ```typescript
-const [formData, setFormData] = useState({
-  // ...
-  applicable_google_types: [] as string[], // array of type values
-});
+import { useApplyPlaceTag } from '@/hooks/usePlaceNicheTags';
+
+// In component:
+const applyTag = useApplyPlaceTag();
+```
+
+#### Task 5: Fix RLS Policy for Public Tag Display
+
+**Issue:** The `place_niche_tags` table has admin-only RLS:
+```sql
+Policy: Admins can manage niche tags
+Command: ALL
+Using: has_role(auth.uid(), 'admin')
+```
+
+**Need to add:** A SELECT policy for public/authenticated users to read tags:
+
+```sql
+CREATE POLICY "Anyone can read niche tags"
+ON place_niche_tags FOR SELECT
+USING (true);
 ```
 
 ---
 
-## Technical Specifications
+## Summary of Changes
 
-### Component Structure
+| File | Change |
+|------|--------|
+| `src/hooks/usePlaceTags.ts` | Join `places` table in `useTagSuggestions` query |
+| `src/pages/admin/TagManagement.tsx` | Display place name in suggestion cards |
+| `src/pages/admin/TagManagement.tsx` | Import `useApplyPlaceTag` hook |
+| `src/pages/admin/TagManagement.tsx` | Create `handleApproveSuggestion` that applies tag + updates status |
+| Database migration | Add public SELECT policy on `place_niche_tags` |
 
-```typescript
-// src/components/admin/tags/GoogleTypesCheckboxList.tsx
-interface GoogleTypesCheckboxListProps {
-  selectedTypes: string[];
-  onChange: (types: string[]) => void;
-}
+---
 
-// Uses:
-// - GOOGLE_PLACE_TYPES from '@/lib/google-places-types'
-// - PLACE_TYPE_CATEGORIES from '@/lib/google-places-types'
-// - Checkbox from '@/components/ui/checkbox'
-// - Collapsible from '@/components/ui/collapsible'
-// - ScrollArea from '@/components/ui/scroll-area'
-```
+## Expected Outcome
 
-### Files to Create/Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/components/admin/tags/GoogleTypesCheckboxList.tsx` | Create | New checkbox list component |
-| `src/pages/admin/TagManagement.tsx` | Modify | Update TagForm to use new component |
-
-### UX Considerations
-
-1. **Mobile-first**: Each checkbox row has adequate tap target
-2. **Discoverability**: All types visible and searchable
-3. **Efficiency**: Category-level select/deselect for bulk operations
-4. **Clarity**: Empty selection = applies to all (existing behavior preserved)
-5. **Performance**: Collapsible sections prevent overwhelming the DOM with 160+ visible checkboxes initially
+After implementation:
+1. Admin sees which place each tag suggestion is for
+2. Clicking "Approve" on a suggestion:
+   - Inserts a record into `place_niche_tags` linking the tag to the place
+   - Updates suggestion status to `approved`
+3. Users viewing the place modal will see "Community tagged" section with the approved tag
+4. The "Clothing Optional" tag will appear on Blacks Beach Trailhead after re-approval
