@@ -1,135 +1,129 @@
 
-# Fix: Tags Missing When Opening Place Modal from Map View
+# Replace Google Place Types Input with Checkbox Multi-Select
 
-## Root Cause Analysis
+## Current State
 
-Two issues are causing tags not to display:
+The Tag Management edit dialog uses a simple text input for "Applicable Google Place Types":
+- Admins must know and manually type Google Place type values (e.g., `bar, restaurant, cafe`)
+- No visibility into available options
+- Error-prone and hard to discover valid types
 
-### Issue 1: Google-Verified Badges Not Rendering
-The `useMapPlaces` hook (used when panning the map) queries places but **omits the six amenity columns** that were recently added. When a place is fetched via map viewport, these fields are `undefined`, causing `PlaceAttributeBadges` to skip rendering.
+## Proposed Solution
 
-**Data Flow:**
+Replace the text input with a grouped checkbox list showing all 160+ Google Place Types from `GOOGLE_PLACE_TYPES`, organized by category (Food, Nightlife, Entertainment, etc.).
+
+### Visual Design
+
 ```text
-Map pan/zoom → useMapPlaces → SELECT (missing amenity fields) → PlaceDetailModal → PlaceAttributeBadges → place.allows_dogs === undefined → No badges
+┌────────────────────────────────────────────────────────┐
+│ Applicable Google Place Types                          │
+│ Select which place types this tag applies to           │
+├────────────────────────────────────────────────────────┤
+│ ☐ Select All                                           │
+├────────────────────────────────────────────────────────┤
+│ ▼ Food & Dining (33 types)                             │
+│   ☐ Restaurant                                         │
+│   ☐ Café                                               │
+│   ☐ Bakery                                             │
+│   ☐ Coffee Shop                                        │
+│   ...                                                  │
+├────────────────────────────────────────────────────────┤
+│ ▼ Nightlife (6 types)                                  │
+│   ☑ Bar                    ← checked                   │
+│   ☑ Pub                    ← checked                   │
+│   ☐ Night Club                                         │
+│   ...                                                  │
+├────────────────────────────────────────────────────────┤
+│ ▼ Outdoor & Nature (16 types)                          │
+│   ☐ Park                                               │
+│   ☐ Hiking Area                                        │
+│   ...                                                  │
+└────────────────────────────────────────────────────────┘
+│ Leave all unchecked to apply to all place types        │
+└────────────────────────────────────────────────────────┘
 ```
 
-**Additionally:** The `DirectoryPlace` TypeScript interface doesn't include the amenity fields, causing a type mismatch.
+### Implementation Details
 
-### Issue 2: Community Tags Not Rendering
-The `place_niche_tags` table has **no records** for Blacks Beach Trailhead (or most places). This is expected because:
-- Community tags require admin approval before appearing
-- No tags have been applied yet via the admin workflow
-- This is a data gap, not a code bug
+#### 1. Create New Component: `GoogleTypesCheckboxList.tsx`
+
+**Location:** `src/components/admin/tags/GoogleTypesCheckboxList.tsx`
+
+**Props:**
+- `selectedTypes: string[]` - Currently selected Google Place type values
+- `onChange: (types: string[]) => void` - Callback when selection changes
+
+**Features:**
+- Uses `GOOGLE_PLACE_TYPES` and `PLACE_TYPE_CATEGORIES` from `src/lib/google-places-types.ts`
+- Groups types by category with collapsible sections using Radix Collapsible
+- Shows count of types per category
+- "Select All" checkbox at top
+- Category-level "Select All" checkbox for each group
+- Scrollable container with max-height for the dialog
+- Touch-friendly checkboxes (44px targets)
+
+#### 2. Update TagForm Component
+
+**File:** `src/pages/admin/TagManagement.tsx`
+
+**Changes:**
+- Import the new `GoogleTypesCheckboxList` component
+- Change `formData.applicable_google_types` from `string` to `string[]`
+- Replace the text `Input` with the new checkbox component
+- Update `handleCreateTag` and `handleUpdateTag` to pass array directly (no split/join needed)
+- Update `openEditDialog` to set array directly (no join needed)
+- Update `resetForm` to use `[]` instead of `''`
+
+#### 3. Form Data Type Update
+
+**Before:**
+```typescript
+const [formData, setFormData] = useState({
+  // ...
+  applicable_google_types: '', // comma-separated string
+});
+```
+
+**After:**
+```typescript
+const [formData, setFormData] = useState({
+  // ...
+  applicable_google_types: [] as string[], // array of type values
+});
+```
 
 ---
 
-## Implementation Plan
+## Technical Specifications
 
-### Task 1: Update `useMapPlaces` Query
-**File:** `src/hooks/useMapPlaces.ts`
-
-Add the six amenity columns to the Supabase select query (lines 70-92):
+### Component Structure
 
 ```typescript
-.select(`
-  id,
-  google_place_id,
-  name,
-  formatted_address,
-  city,
-  state,
-  lat,
-  lng,
-  primary_category,
-  rating,
-  user_ratings_total,
-  price_level,
-  stored_photo_urls,
-  photos,
-  website_url,
-  google_maps_url,
-  phone_number,
-  opening_hours,
-  google_types,
-  status,
-  source,
-  allows_dogs,
-  wheelchair_accessible_entrance,
-  wheelchair_accessible_restroom,
-  wheelchair_accessible_seating,
-  outdoor_seating,
-  has_restroom
-`)
-```
-
-### Task 2: Update `DirectoryPlace` Interface
-**File:** `src/components/directory/DirectoryPlaceCard.tsx`
-
-Add the amenity fields to the TypeScript interface (after line 26):
-
-```typescript
-export interface DirectoryPlace {
-  id: string;
-  google_place_id: string;
-  name: string;
-  primary_category: string;
-  city: string | null;
-  state: string | null;
-  formatted_address: string | null;
-  rating: number | null;
-  user_ratings_total: number | null;
-  price_level: number | null;
-  photos: unknown;
-  stored_photo_urls: string[] | null;
-  website_url: string | null;
-  google_maps_url: string | null;
-  phone_number: string | null;
-  opening_hours: unknown;
-  lat: number | null;
-  lng: number | null;
-  google_types: string[] | null;
-  distance?: number;
-  isRelevant?: boolean;
-  // Google-verified amenity attributes
-  allows_dogs?: boolean | null;
-  wheelchair_accessible_entrance?: boolean | null;
-  wheelchair_accessible_restroom?: boolean | null;
-  wheelchair_accessible_seating?: boolean | null;
-  outdoor_seating?: boolean | null;
-  has_restroom?: boolean | null;
+// src/components/admin/tags/GoogleTypesCheckboxList.tsx
+interface GoogleTypesCheckboxListProps {
+  selectedTypes: string[];
+  onChange: (types: string[]) => void;
 }
+
+// Uses:
+// - GOOGLE_PLACE_TYPES from '@/lib/google-places-types'
+// - PLACE_TYPE_CATEGORIES from '@/lib/google-places-types'
+// - Checkbox from '@/components/ui/checkbox'
+// - Collapsible from '@/components/ui/collapsible'
+// - ScrollArea from '@/components/ui/scroll-area'
 ```
 
----
+### Files to Create/Modify
 
-## Why Community Tags Are Empty
+| File | Action | Description |
+|------|--------|-------------|
+| `src/components/admin/tags/GoogleTypesCheckboxList.tsx` | Create | New checkbox list component |
+| `src/pages/admin/TagManagement.tsx` | Modify | Update TagForm to use new component |
 
-The `place_niche_tags` table currently has **no records** for Blacks Beach Trailhead. This is the expected state because:
+### UX Considerations
 
-1. Community tags flow from user suggestions through admin approval
-2. No users have suggested tags for this place yet
-3. No admin has manually applied tags
-
-The "Community tagged" section will appear once:
-- A user suggests a tag via the "Suggest a tag" button
-- An admin reviews and approves it in Tag Management
-- The tag gets inserted into `place_niche_tags` with `evidence_type='admin_approved'`
-
----
-
-## Technical Summary
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Google badges missing from map view | `useMapPlaces` query missing 6 columns | Add columns to select query |
-| Type errors possible | `DirectoryPlace` interface incomplete | Add 6 optional amenity fields |
-| Community tags empty | No `place_niche_tags` records exist | Data gap - no code fix needed |
-
----
-
-## Expected Outcome
-
-After these changes:
-- Opening any place from the map will show "Verified by Google" badges (Dog Friendly, Wheelchair Accessible, etc.) if the data exists in the database
-- Blacks Beach Trailhead will show the "Dog Friendly" badge (already has `allows_dogs: true`)
-- The "Community tagged" section will remain hidden until tags are applied via the admin workflow
+1. **Mobile-first**: Each checkbox row has adequate tap target
+2. **Discoverability**: All types visible and searchable
+3. **Efficiency**: Category-level select/deselect for bulk operations
+4. **Clarity**: Empty selection = applies to all (existing behavior preserved)
+5. **Performance**: Collapsible sections prevent overwhelming the DOM with 160+ visible checkboxes initially
