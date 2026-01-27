@@ -128,6 +128,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           description: string | null
+          has_page: boolean | null
           id: string
           is_active: boolean | null
           is_sensitive: boolean | null
@@ -140,6 +141,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          has_page?: boolean | null
           id?: string
           is_active?: boolean | null
           is_sensitive?: boolean | null
@@ -152,6 +154,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          has_page?: boolean | null
           id?: string
           is_active?: boolean | null
           is_sensitive?: boolean | null
@@ -1881,6 +1884,59 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "couples"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      tag_pages: {
+        Row: {
+          body_markdown: string
+          created_at: string | null
+          external_link_label: string | null
+          external_link_url: string | null
+          id: string
+          is_published: boolean | null
+          seo_description: string | null
+          seo_title: string | null
+          subtitle: string | null
+          tag_slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          body_markdown: string
+          created_at?: string | null
+          external_link_label?: string | null
+          external_link_url?: string | null
+          id?: string
+          is_published?: boolean | null
+          seo_description?: string | null
+          seo_title?: string | null
+          subtitle?: string | null
+          tag_slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          body_markdown?: string
+          created_at?: string | null
+          external_link_label?: string | null
+          external_link_url?: string | null
+          id?: string
+          is_published?: boolean | null
+          seo_description?: string | null
+          seo_title?: string | null
+          subtitle?: string | null
+          tag_slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_pages_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: true
+            referencedRelation: "canonical_tags"
+            referencedColumns: ["slug"]
           },
         ]
       }
