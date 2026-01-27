@@ -1,169 +1,194 @@
 
-# Fix: Admin Tag Approval Workflow Missing Tag Application Step
+# Plan: Improve UX for User-Suggested Tags
 
-## Problem Identified
+## Summary
 
-When an admin approves a user-submitted tag suggestion:
-- The `tag_suggestions.status` is updated to `'approved'`
-- **But the tag is never actually applied to the place**
+This plan addresses the user experience for community tag submissions and ensures the complete workflow from user suggestion through admin approval to tag display is functioning correctly.
 
-Database evidence:
-- `tag_suggestions` has 1 approved record for "Clothing Optional" on Blacks Beach Trailhead (`place_id: c0aca251-...`)
-- `place_niche_tags` table is **completely empty** (0 records)
+## Current State
 
-This means the modal correctly shows nothing because no tags have been inserted into `place_niche_tags`.
+| Component | Status | Issue |
+|-----------|--------|-------|
+| Tag suggestion dialog | Working | Only available if user saved the place |
+| Admin review UI | Working | Shows place context correctly |
+| Tag application on approval | Fixed | Uses `useApplyPlaceTag` hook |
+| RLS for public read | Fixed | Policy exists: "Anyone can read niche tags" |
+| Tag display in modal | Ready | Will show once `place_niche_tags` has data |
 
-## Root Cause
+**Critical Issue**: The previously approved "Clothing Optional" tag was approved before the fix was deployed, so it was never inserted into `place_niche_tags`. The admin needs to re-approve it to trigger the new workflow.
 
-The `useReviewTagSuggestion` hook in `src/hooks/usePlaceTags.ts` only updates the suggestion status:
+---
 
-```typescript
-// Current behavior - only updates status, doesn't apply tag
-const { error } = await supabase
-  .from('tag_suggestions')
-  .update({
-    status,
-    merged_into_slug: mergedIntoSlug,
-    reviewed_at: new Date().toISOString(),
-  })
-  .eq('id', id);
-```
+## Implementation Tasks
 
-It does NOT:
-1. Create a canonical tag entry (if the tag is new)
-2. Insert a record into `place_niche_tags` to link the tag to the place
+### Task 1: Reduce Friction for Tag Suggestions
 
-## Solution
+**Problem**: Users must save a place before they can suggest a tag (high friction).
 
-Enhance the admin approval workflow to:
+**Solution**: Allow any authenticated user to suggest tags, regardless of save status.
 
-1. **Show place context** in the Suggestions tab so admins know which place the tag is for
-2. **When approving**, automatically apply the tag to `place_niche_tags` using the existing `useApplyPlaceTag` hook
-3. **Handle canonical tag creation** - either require the tag to exist first, or prompt admin to create it
+**File**: `src/components/directory/PlaceDetailModal.tsx`
 
-### Implementation Plan
-
-#### Task 1: Fetch Place Context for Suggestions
-
-**File:** `src/hooks/usePlaceTags.ts` (lines 167-186)
-
-Update `useTagSuggestions` to join with `places` table to get the place name:
-
-```typescript
-const { data, error } = await supabase
-  .from('tag_suggestions')
-  .select('*, places!tag_suggestions_place_id_fkey(id, name)')
-  .order('created_at', { ascending: false });
-```
-
-#### Task 2: Display Place Name in Suggestions UI
-
-**File:** `src/pages/admin/TagManagement.tsx` (lines 308-324)
-
-Show which place the suggestion is for in the card:
-
+**Current Code (lines 381-392)**:
 ```tsx
-<p className="text-sm text-muted-foreground mt-2">
-  <strong>Place:</strong> {suggestion.places?.name ?? 'No place linked'}
-</p>
+{isAuthenticated && saved && (
+  <Button
+    variant="ghost"
+    ...
+    onClick={() => setSuggestionOpen(true)}
+  >
+    <Plus className="h-4 w-4 mr-1.5" />
+    Suggest a tag to help others discover this place
+  </Button>
+)}
 ```
 
-#### Task 3: Update Approval Handler to Apply Tag
-
-**File:** `src/pages/admin/TagManagement.tsx`
-
-When approving a suggestion that has a `place_id`:
-1. Check if a matching canonical tag exists by slug
-2. If not, prompt admin to create it first OR auto-create it
-3. Insert into `place_niche_tags` with:
-   - `place_id` from suggestion
-   - `tag` = canonical tag slug
-   - `evidence_type` = `'admin_approved'`
-   - `evidence_ref` = suggestion ID
-   - `confidence` = 1.0
-
-Create a new handler:
-
-```typescript
-const applyTag = useApplyPlaceTag(); // from usePlaceNicheTags
-
-const handleApproveSuggestion = async (suggestion: TagSuggestion) => {
-  const slug = suggestion.suggested_label
-    .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_]/g, '');
-  
-  // Check if canonical tag exists
-  const existingTag = tags?.find(t => t.slug === slug);
-  if (!existingTag) {
-    // Option A: Create it automatically
-    // Option B: Show toast asking admin to create it first
-    toast.error('Create this canonical tag first before approving');
-    return;
-  }
-  
-  // Apply tag to place
-  if (suggestion.place_id) {
-    await applyTag.mutateAsync({
-      placeId: suggestion.place_id,
-      tag: slug,
-      evidenceRef: suggestion.id,
-    });
-  }
-  
-  // Mark suggestion as approved
-  reviewSuggestion.mutate({ id: suggestion.id, status: 'approved' });
-};
-```
-
-#### Task 4: Import and Use `useApplyPlaceTag`
-
-**File:** `src/pages/admin/TagManagement.tsx`
-
-```typescript
-import { useApplyPlaceTag } from '@/hooks/usePlaceNicheTags';
-
-// In component:
-const applyTag = useApplyPlaceTag();
-```
-
-#### Task 5: Fix RLS Policy for Public Tag Display
-
-**Issue:** The `place_niche_tags` table has admin-only RLS:
-```sql
-Policy: Admins can manage niche tags
-Command: ALL
-Using: has_role(auth.uid(), 'admin')
-```
-
-**Need to add:** A SELECT policy for public/authenticated users to read tags:
-
-```sql
-CREATE POLICY "Anyone can read niche tags"
-ON place_niche_tags FOR SELECT
-USING (true);
+**Proposed Change**:
+```tsx
+{isAuthenticated && (
+  <Button
+    variant="ghost"
+    size="sm"
+    className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto"
+    onClick={() => setSuggestionOpen(true)}
+  >
+    <Plus className="h-4 w-4 mr-1.5" />
+    Suggest a tag to help others discover this place
+  </Button>
+)}
 ```
 
 ---
 
-## Summary of Changes
+### Task 2: Add Success Feedback for Tag Submissions
+
+**Problem**: Users don't get clear feedback when their suggestion is submitted.
+
+**File**: `src/hooks/usePlaceTags.ts` (useSubmitTagSuggestion hook, around line 220)
+
+**Proposed Change**: Add success toast in the mutation's `onSuccess`:
+
+```typescript
+onSuccess: () => {
+  queryClient.invalidateQueries({ queryKey: ['tag-suggestions'] });
+  toast({
+    title: 'Tag suggested',
+    description: 'Thanks for helping! We\'ll review your suggestion.',
+  });
+},
+```
+
+---
+
+### Task 3: Re-approve Existing Tag to Populate place_niche_tags
+
+**Problem**: The "Clothing Optional" tag was approved before the fix, so `place_niche_tags` remains empty.
+
+**Solution**: Manual admin action needed:
+
+1. Go to `/admin/tags` -> Suggestions tab
+2. Change the filter to show all suggestions (not just pending)
+3. Find the approved "Clothing Optional" suggestion for Blacks Beach Trailhead
+4. Either:
+   - Delete and re-submit the suggestion, then re-approve
+   - OR run a one-time data fix query to insert the missing tag
+
+**Alternative - Data Fix Query** (run in backend):
+```sql
+INSERT INTO place_niche_tags (place_id, tag, confidence, evidence_type, evidence_ref)
+SELECT 
+  ts.place_id,
+  ct.slug,
+  1.0,
+  'admin_approved',
+  ts.id::text
+FROM tag_suggestions ts
+JOIN canonical_tags ct ON LOWER(REPLACE(ts.suggested_label, ' ', '_')) = ct.slug
+WHERE ts.status = 'approved'
+  AND ts.place_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM place_niche_tags pnt 
+    WHERE pnt.place_id = ts.place_id AND pnt.tag = ct.slug
+  );
+```
+
+---
+
+### Task 4: Add "Re-Apply" Button for Previously Approved Suggestions (Optional Enhancement)
+
+**Problem**: Admin cannot easily re-apply tags that were approved before the fix.
+
+**File**: `src/pages/admin/TagManagement.tsx`
+
+**Proposed Change**: In the Suggestions tab, add a "Re-Apply" button for approved suggestions that don't have a corresponding `place_niche_tags` entry.
+
+This would require:
+1. Joining `tag_suggestions` with `place_niche_tags` to detect missing applications
+2. Adding a "Re-Apply" action button for these cases
+
+---
+
+## Visual Flow After Implementation
+
+```text
+User Flow:
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. User opens Place Modal (from list or map)                   │
+├─────────────────────────────────────────────────────────────────┤
+│ 2. User clicks "Suggest a tag to help others discover..."      │
+│    (Now available to ALL authenticated users)                  │
+├─────────────────────────────────────────────────────────────────┤
+│ 3. Tag Suggestion Dialog opens                                 │
+│    - Shows place name for context                              │
+│    - User enters tag name, category, rationale                 │
+├─────────────────────────────────────────────────────────────────┤
+│ 4. User submits → Toast confirms "Tag suggested"               │
+│    - Suggestion stored with place_id                           │
+└─────────────────────────────────────────────────────────────────┘
+
+Admin Flow:
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Admin opens /admin/tags → Suggestions tab                   │
+├─────────────────────────────────────────────────────────────────┤
+│ 2. Sees suggestion with:                                       │
+│    - Suggested label                                           │
+│    - Place name (e.g., "Blacks Beach Trailhead")              │
+│    - User's rationale                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ 3. Admin clicks "Approve"                                      │
+│    - Checks if canonical tag exists                            │
+│    - Inserts into place_niche_tags                             │
+│    - Updates suggestion status                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+Display Flow:
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. User opens Place Modal                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ 2. PlaceAttributeBadges component fetches place_niche_tags     │
+├─────────────────────────────────────────────────────────────────┤
+│ 3. Displays under "Community tagged" section:                  │
+│    [Clothing Optional]                                         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/hooks/usePlaceTags.ts` | Join `places` table in `useTagSuggestions` query |
-| `src/pages/admin/TagManagement.tsx` | Display place name in suggestion cards |
-| `src/pages/admin/TagManagement.tsx` | Import `useApplyPlaceTag` hook |
-| `src/pages/admin/TagManagement.tsx` | Create `handleApproveSuggestion` that applies tag + updates status |
-| Database migration | Add public SELECT policy on `place_niche_tags` |
+| `src/components/directory/PlaceDetailModal.tsx` | Remove `saved` requirement for tag suggestion button |
+| `src/hooks/usePlaceTags.ts` | Add success toast in `useSubmitTagSuggestion` |
+
+## Data Migration
+
+Run backfill query to apply any previously-approved suggestions that weren't inserted into `place_niche_tags`.
 
 ---
 
-## Expected Outcome
+## Technical Notes
 
-After implementation:
-1. Admin sees which place each tag suggestion is for
-2. Clicking "Approve" on a suggestion:
-   - Inserts a record into `place_niche_tags` linking the tag to the place
-   - Updates suggestion status to `approved`
-3. Users viewing the place modal will see "Community tagged" section with the approved tag
-4. The "Clothing Optional" tag will appear on Blacks Beach Trailhead after re-approval
+- The `PlaceTagSubmission` component (for toggling existing tags) remains disabled via `COMMUNITY_TAGS_ENABLED: false`. This is intentional per the product rules - direct tag application bypasses admin moderation.
+- The suggestion workflow requires admin review before tags become visible, maintaining quality control.
+- All changes are consistent across list view and map view since they both use `PlaceDetailModal`.
