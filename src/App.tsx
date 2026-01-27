@@ -43,6 +43,7 @@ import ProContextManagement from "./pages/admin/ProContextManagement";
 import FoundersManagement from "./pages/admin/FoundersManagement";
 import LogoTesting from "./pages/admin/LogoTesting";
 import TagManagement from "./pages/admin/TagManagement";
+import TagPage from "./pages/TagPage";
 import { RequireRole } from "./components/auth/RequireRole";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,9 @@ const App = () => (
               {/* Blog for announcements */}
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
+              
+              {/* Tag pages */}
+              <Route path="/tags/:slug" element={<TagPage />} />
               
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />

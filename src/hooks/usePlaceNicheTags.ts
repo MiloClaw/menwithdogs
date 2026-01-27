@@ -11,10 +11,15 @@ export interface PlaceNicheTag {
   evidence_ref: string | null;
   created_at: string | null;
   updated_at: string | null;
+  canonical_tags?: {
+    label: string;
+    slug: string;
+    has_page: boolean | null;
+  } | null;
 }
 
 /**
- * Fetch niche tags for a specific place
+ * Fetch niche tags for a specific place with canonical tag info
  */
 export function usePlaceNicheTags(placeId: string | undefined) {
   return useQuery({
@@ -22,14 +27,32 @@ export function usePlaceNicheTags(placeId: string | undefined) {
     queryFn: async () => {
       if (!placeId) return [];
       
-      const { data, error } = await supabase
+      // Fetch niche tags
+      const { data: nicheTags, error: nicheError } = await supabase
         .from('place_niche_tags')
         .select('*')
         .eq('place_id', placeId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as PlaceNicheTag[];
+      if (nicheError) throw nicheError;
+      if (!nicheTags || nicheTags.length === 0) return [];
+
+      // Fetch canonical tags for these niche tags
+      const tagSlugs = nicheTags.map(nt => nt.tag);
+      const { data: canonicalTags, error: canonicalError } = await supabase
+        .from('canonical_tags')
+        .select('slug, label, has_page')
+        .in('slug', tagSlugs);
+
+      if (canonicalError) throw canonicalError;
+
+      // Merge the data
+      const canonicalMap = new Map(canonicalTags?.map(ct => [ct.slug, ct]) ?? []);
+      
+      return nicheTags.map(nt => ({
+        ...nt,
+        canonical_tags: canonicalMap.get(nt.tag) ?? null,
+      })) as PlaceNicheTag[];
     },
     enabled: !!placeId,
   });

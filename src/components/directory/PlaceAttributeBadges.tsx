@@ -1,7 +1,7 @@
+import { Link } from 'react-router-dom';
 import { Check, Users, Dog, Accessibility, Bath, Trees } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { usePlaceNicheTags } from '@/hooks/usePlaceNicheTags';
-import { useCanonicalTags } from '@/hooks/usePlaceTags';
 
 interface PlaceAttributeBadgesProps {
   place: {
@@ -36,19 +36,17 @@ const GOOGLE_ATTRIBUTES: GoogleAttribute[] = [
  */
 const PlaceAttributeBadges = ({ place }: PlaceAttributeBadgesProps) => {
   const { data: nicheTags } = usePlaceNicheTags(place.id);
-  const { data: canonicalTags } = useCanonicalTags();
 
   // Collect Google-verified attributes
   const googleBadges = GOOGLE_ATTRIBUTES.filter(attr => place[attr.key] === true);
 
-  // Map niche tags to canonical labels
-  const communityBadges = nicheTags?.map(nt => {
-    const canonical = canonicalTags?.find(c => c.slug === nt.tag);
-    return {
-      id: nt.id,
-      label: canonical?.label ?? nt.tag,
-    };
-  }) ?? [];
+  // Map niche tags to canonical labels with page info
+  const communityBadges = nicheTags?.map(nt => ({
+    id: nt.id,
+    label: nt.canonical_tags?.label ?? nt.tag,
+    slug: nt.canonical_tags?.slug ?? nt.tag,
+    hasPage: nt.canonical_tags?.has_page ?? false,
+  })) ?? [];
 
   // Don't render anything if no badges
   if (googleBadges.length === 0 && communityBadges.length === 0) {
@@ -87,13 +85,24 @@ const PlaceAttributeBadges = ({ place }: PlaceAttributeBadgesProps) => {
           </p>
           <div className="flex flex-wrap gap-1.5">
             {communityBadges.map(badge => (
-              <Badge
-                key={badge.id}
-                variant="outline"
-                className="text-xs"
-              >
-                {badge.label}
-              </Badge>
+              badge.hasPage ? (
+                <Link key={badge.id} to={`/tags/${badge.slug}`}>
+                  <Badge
+                    variant="outline"
+                    className="text-xs cursor-pointer hover:bg-accent transition-colors"
+                  >
+                    {badge.label}
+                  </Badge>
+                </Link>
+              ) : (
+                <Badge
+                  key={badge.id}
+                  variant="outline"
+                  className="text-xs"
+                >
+                  {badge.label}
+                </Badge>
+              )
             ))}
           </div>
         </div>
