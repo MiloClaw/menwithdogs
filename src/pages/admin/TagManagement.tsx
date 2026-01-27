@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Tag, Plus, RefreshCw, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Plus, RefreshCw, MessageSquare, AlertTriangle } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { GoogleTypesCheckboxList } from '@/components/admin/tags/GoogleTypesCheckboxList';
 import {
   useCanonicalTags,
   useTagSuggestions,
@@ -51,7 +52,7 @@ export default function TagManagement() {
     category: 'social' as typeof CATEGORIES[number],
     description: '',
     is_sensitive: false,
-    applicable_google_types: '',
+    applicable_google_types: [] as string[],
     is_active: true,
   });
 
@@ -62,7 +63,7 @@ export default function TagManagement() {
       category: 'social',
       description: '',
       is_sensitive: false,
-      applicable_google_types: '',
+      applicable_google_types: [],
       is_active: true,
     });
   };
@@ -74,9 +75,7 @@ export default function TagManagement() {
       category: formData.category,
       description: formData.description || null,
       is_sensitive: formData.is_sensitive,
-      applicable_google_types: formData.applicable_google_types
-        ? formData.applicable_google_types.split(',').map(t => t.trim())
-        : [],
+      applicable_google_types: formData.applicable_google_types,
       is_active: formData.is_active,
     }, {
       onSuccess: () => {
@@ -94,9 +93,7 @@ export default function TagManagement() {
       category: formData.category,
       description: formData.description || null,
       is_sensitive: formData.is_sensitive,
-      applicable_google_types: formData.applicable_google_types
-        ? formData.applicable_google_types.split(',').map(t => t.trim())
-        : [],
+      applicable_google_types: formData.applicable_google_types,
       is_active: formData.is_active,
     }, {
       onSuccess: () => {
@@ -113,7 +110,7 @@ export default function TagManagement() {
       category: tag.category,
       description: tag.description || '',
       is_sensitive: tag.is_sensitive,
-      applicable_google_types: tag.applicable_google_types.join(', '),
+      applicable_google_types: tag.applicable_google_types || [],
       is_active: tag.is_active,
     });
     setEditingTag(tag);
@@ -435,14 +432,11 @@ function TagForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="google_types">Applicable Google Place Types (comma-separated)</Label>
-        <Input
-          id="google_types"
-          value={formData.applicable_google_types}
-          onChange={(e) => setFormData({ ...formData, applicable_google_types: e.target.value })}
-          placeholder="bar, restaurant, cafe"
+        <Label>Applicable Google Place Types</Label>
+        <GoogleTypesCheckboxList
+          selectedTypes={formData.applicable_google_types}
+          onChange={(types) => setFormData({ ...formData, applicable_google_types: types })}
         />
-        <p className="text-xs text-muted-foreground">Leave empty to apply to all place types</p>
       </div>
 
       <div className="flex items-center justify-between">
