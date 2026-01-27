@@ -1,194 +1,294 @@
 
-# Plan: Improve UX for User-Suggested Tags
+# Plan: Dedicated Tag Pages with Linked Content
 
 ## Summary
 
-This plan addresses the user experience for community tag submissions and ensures the complete workflow from user suggestion through admin approval to tag display is functioning correctly.
+Create a system for certain community tags (especially sensitive ones like "Clothing Optional") to link to dedicated informational pages. These pages will explain the tag's meaning, set community expectations, and optionally link to external spaces for more sensitive discussions.
 
-## Current State
+---
 
-| Component | Status | Issue |
-|-----------|--------|-------|
-| Tag suggestion dialog | Working | Only available if user saved the place |
-| Admin review UI | Working | Shows place context correctly |
-| Tag application on approval | Fixed | Uses `useApplyPlaceTag` hook |
-| RLS for public read | Fixed | Policy exists: "Anyone can read niche tags" |
-| Tag display in modal | Ready | Will show once `place_niche_tags` has data |
+## Architecture Decision
 
-**Critical Issue**: The previously approved "Clothing Optional" tag was approved before the fix was deployed, so it was never inserted into `place_niche_tags`. The admin needs to re-approve it to trigger the new workflow.
+**Two approaches considered:**
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Static pages** (one per sensitive tag) | Full design control, SEO-friendly | More files to maintain, rigid |
+| **Dynamic tag page** (single component, data-driven) | Scalable, admin-manageable content | Slightly more complex setup |
+
+**Recommendation**: Hybrid approach
+- Create a dynamic `/tags/:slug` route that loads content based on slug
+- Store page content in a new `tag_pages` database table for admin flexibility
+- For "Clothing Optional" specifically, create rich initial content
 
 ---
 
 ## Implementation Tasks
 
-### Task 1: Reduce Friction for Tag Suggestions
+### Task 1: Database Schema - Add tag_pages table
 
-**Problem**: Users must save a place before they can suggest a tag (high friction).
+Create a new table to store page content for tags that need dedicated pages.
 
-**Solution**: Allow any authenticated user to suggest tags, regardless of save status.
-
-**File**: `src/components/directory/PlaceDetailModal.tsx`
-
-**Current Code (lines 381-392)**:
-```tsx
-{isAuthenticated && saved && (
-  <Button
-    variant="ghost"
-    ...
-    onClick={() => setSuggestionOpen(true)}
-  >
-    <Plus className="h-4 w-4 mr-1.5" />
-    Suggest a tag to help others discover this place
-  </Button>
-)}
-```
-
-**Proposed Change**:
-```tsx
-{isAuthenticated && (
-  <Button
-    variant="ghost"
-    size="sm"
-    className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto"
-    onClick={() => setSuggestionOpen(true)}
-  >
-    <Plus className="h-4 w-4 mr-1.5" />
-    Suggest a tag to help others discover this place
-  </Button>
-)}
-```
-
----
-
-### Task 2: Add Success Feedback for Tag Submissions
-
-**Problem**: Users don't get clear feedback when their suggestion is submitted.
-
-**File**: `src/hooks/usePlaceTags.ts` (useSubmitTagSuggestion hook, around line 220)
-
-**Proposed Change**: Add success toast in the mutation's `onSuccess`:
-
-```typescript
-onSuccess: () => {
-  queryClient.invalidateQueries({ queryKey: ['tag-suggestions'] });
-  toast({
-    title: 'Tag suggested',
-    description: 'Thanks for helping! We\'ll review your suggestion.',
-  });
-},
-```
-
----
-
-### Task 3: Re-approve Existing Tag to Populate place_niche_tags
-
-**Problem**: The "Clothing Optional" tag was approved before the fix, so `place_niche_tags` remains empty.
-
-**Solution**: Manual admin action needed:
-
-1. Go to `/admin/tags` -> Suggestions tab
-2. Change the filter to show all suggestions (not just pending)
-3. Find the approved "Clothing Optional" suggestion for Blacks Beach Trailhead
-4. Either:
-   - Delete and re-submit the suggestion, then re-approve
-   - OR run a one-time data fix query to insert the missing tag
-
-**Alternative - Data Fix Query** (run in backend):
 ```sql
-INSERT INTO place_niche_tags (place_id, tag, confidence, evidence_type, evidence_ref)
-SELECT 
-  ts.place_id,
-  ct.slug,
-  1.0,
-  'admin_approved',
-  ts.id::text
-FROM tag_suggestions ts
-JOIN canonical_tags ct ON LOWER(REPLACE(ts.suggested_label, ' ', '_')) = ct.slug
-WHERE ts.status = 'approved'
-  AND ts.place_id IS NOT NULL
-  AND NOT EXISTS (
-    SELECT 1 FROM place_niche_tags pnt 
-    WHERE pnt.place_id = ts.place_id AND pnt.tag = ct.slug
-  );
+CREATE TABLE tag_pages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tag_slug TEXT NOT NULL REFERENCES canonical_tags(slug) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  subtitle TEXT,
+  body_markdown TEXT NOT NULL,
+  external_link_url TEXT,
+  external_link_label TEXT,
+  seo_title TEXT,
+  seo_description TEXT,
+  is_published BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(tag_slug)
+);
+
+-- RLS Policies
+ALTER TABLE tag_pages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read published tag pages"
+  ON tag_pages FOR SELECT
+  USING (is_published = true);
+
+CREATE POLICY "Admins can manage tag pages"
+  ON tag_pages FOR ALL
+  USING (has_role(auth.uid(), 'admin'::app_role));
 ```
 
----
+### Task 2: Add has_page flag to canonical_tags
 
-### Task 4: Add "Re-Apply" Button for Previously Approved Suggestions (Optional Enhancement)
+Update the `canonical_tags` table to indicate which tags have dedicated pages.
 
-**Problem**: Admin cannot easily re-apply tags that were approved before the fix.
+```sql
+ALTER TABLE canonical_tags
+ADD COLUMN has_page BOOLEAN DEFAULT false;
+```
 
-**File**: `src/pages/admin/TagManagement.tsx`
-
-**Proposed Change**: In the Suggestions tab, add a "Re-Apply" button for approved suggestions that don't have a corresponding `place_niche_tags` entry.
-
-This would require:
-1. Joining `tag_suggestions` with `place_niche_tags` to detect missing applications
-2. Adding a "Re-Apply" action button for these cases
+This allows the UI to conditionally render tags as links vs static badges.
 
 ---
 
-## Visual Flow After Implementation
+### Task 3: Create TagPage Component
+
+**File**: `src/pages/TagPage.tsx`
+
+A dynamic page that:
+- Fetches content from `tag_pages` based on the URL slug
+- Renders markdown body content
+- Displays optional external link (e.g., to Discord/community space)
+- Shows places tagged with this tag (discovery value)
 
 ```text
-User Flow:
+Structure:
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. User opens Place Modal (from list or map)                   │
+│ PageLayout                                                       │
 ├─────────────────────────────────────────────────────────────────┤
-│ 2. User clicks "Suggest a tag to help others discover..."      │
-│    (Now available to ALL authenticated users)                  │
+│ SEOHead (dynamic title/description from tag_pages)              │
 ├─────────────────────────────────────────────────────────────────┤
-│ 3. Tag Suggestion Dialog opens                                 │
-│    - Shows place name for context                              │
-│    - User enters tag name, category, rationale                 │
+│ Hero Section                                                     │
+│   - Title: "Clothing Optional"                                  │
+│   - Subtitle: "Understanding this community tag"                │
 ├─────────────────────────────────────────────────────────────────┤
-│ 4. User submits → Toast confirms "Tag suggested"               │
-│    - Suggestion stored with place_id                           │
-└─────────────────────────────────────────────────────────────────┘
-
-Admin Flow:
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. Admin opens /admin/tags → Suggestions tab                   │
+│ Body (Markdown rendered)                                        │
+│   - What this tag means                                         │
+│   - Community guidelines                                        │
+│   - No adult content disclaimer                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│ 2. Sees suggestion with:                                       │
-│    - Suggested label                                           │
-│    - Place name (e.g., "Blacks Beach Trailhead")              │
-│    - User's rationale                                          │
+│ External Link CTA (optional)                                    │
+│   - "Join the conversation" → Discord/community link            │
 ├─────────────────────────────────────────────────────────────────┤
-│ 3. Admin clicks "Approve"                                      │
-│    - Checks if canonical tag exists                            │
-│    - Inserts into place_niche_tags                             │
-│    - Updates suggestion status                                 │
-└─────────────────────────────────────────────────────────────────┘
-
-Display Flow:
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. User opens Place Modal                                      │
-├─────────────────────────────────────────────────────────────────┤
-│ 2. PlaceAttributeBadges component fetches place_niche_tags     │
-├─────────────────────────────────────────────────────────────────┤
-│ 3. Displays under "Community tagged" section:                  │
-│    [Clothing Optional]                                         │
+│ Places with this tag (optional section)                         │
+│   - Grid of PlaceCards filtered by tag                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Files to Modify
+### Task 4: Create useTagPage Hook
 
-| File | Change |
-|------|--------|
-| `src/components/directory/PlaceDetailModal.tsx` | Remove `saved` requirement for tag suggestion button |
-| `src/hooks/usePlaceTags.ts` | Add success toast in `useSubmitTagSuggestion` |
+**File**: `src/hooks/useTagPage.ts`
 
-## Data Migration
+```typescript
+export function useTagPage(slug: string | undefined) {
+  return useQuery({
+    queryKey: ['tag-page', slug],
+    queryFn: async () => {
+      if (!slug) return null;
+      
+      const { data, error } = await supabase
+        .from('tag_pages')
+        .select('*, canonical_tags!inner(label, category, is_sensitive)')
+        .eq('tag_slug', slug)
+        .eq('is_published', true)
+        .single();
 
-Run backfill query to apply any previously-approved suggestions that weren't inserted into `place_niche_tags`.
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!slug,
+  });
+}
+```
+
+---
+
+### Task 5: Add Route to App.tsx
+
+**File**: `src/App.tsx`
+
+```tsx
+import TagPage from "./pages/TagPage";
+
+// Add in Routes:
+<Route path="/tags/:slug" element={<TagPage />} />
+```
+
+---
+
+### Task 6: Update PlaceAttributeBadges to Link Tags
+
+**File**: `src/components/directory/PlaceAttributeBadges.tsx`
+
+Modify the community badge rendering to check if the tag has a page and render as a link:
+
+```tsx
+// Before (static badge):
+<Badge variant="outline">{badge.label}</Badge>
+
+// After (conditional link):
+{badge.hasPage ? (
+  <Link to={`/tags/${badge.slug}`}>
+    <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+      {badge.label}
+    </Badge>
+  </Link>
+) : (
+  <Badge variant="outline">{badge.label}</Badge>
+)}
+```
+
+This requires updating the query in `usePlaceNicheTags` to include the `has_page` flag from `canonical_tags`.
+
+---
+
+### Task 7: Update usePlaceNicheTags Hook
+
+**File**: `src/hooks/usePlaceNicheTags.ts`
+
+Join with `canonical_tags` to get the `has_page` flag:
+
+```typescript
+const { data, error } = await supabase
+  .from('place_niche_tags')
+  .select('*, canonical_tags!inner(label, slug, has_page)')
+  .eq('place_id', placeId)
+  .order('created_at', { ascending: false });
+```
+
+---
+
+### Task 8: Seed Initial Content for "Clothing Optional"
+
+Insert the first tag page content:
+
+```sql
+INSERT INTO tag_pages (tag_slug, title, subtitle, body_markdown, external_link_url, external_link_label, seo_title, seo_description, is_published)
+VALUES (
+  'clothing_optional',
+  'Clothing Optional',
+  'Understanding this community tag',
+  '## What This Tag Means
+
+Places tagged as "Clothing Optional" are outdoor spaces where clothing-optional practices are known or legally permitted. This includes designated nude beaches, naturist resorts, and certain hiking areas.
+
+## Our Directory Standards
+
+**ThickTimber does not host adult content.** Our directory is focused on place discovery — helping you find outdoor spaces that match your preferences and comfort level.
+
+This tag exists to help members identify places where clothing-optional practices are accepted, allowing you to make informed decisions about which places to visit.
+
+## Community Guidelines
+
+- Respect local laws and posted signage
+- Practice consent and respect others'' boundaries
+- Leave no trace — these spaces deserve protection
+
+## Looking for More?
+
+For members who want to discuss more sensitive topics or share photos from their outdoor adventures, we''ve created a dedicated community space outside our main platform.',
+  'https://discord.gg/your-community-link',
+  'Join the Community',
+  'Clothing Optional Places - ThickTimber',
+  'Discover clothing-optional outdoor spaces. Our directory helps you find nude beaches, naturist areas, and clothing-optional trails.',
+  true
+);
+
+-- Update canonical_tags to mark this tag as having a page
+UPDATE canonical_tags SET has_page = true WHERE slug = 'clothing_optional';
+```
+
+---
+
+## Files to Create/Modify
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/pages/TagPage.tsx` | Create | Dynamic tag page component |
+| `src/hooks/useTagPage.ts` | Create | Fetch tag page content |
+| `src/App.tsx` | Modify | Add `/tags/:slug` route |
+| `src/components/directory/PlaceAttributeBadges.tsx` | Modify | Make tags with pages clickable |
+| `src/hooks/usePlaceNicheTags.ts` | Modify | Include `has_page` flag in query |
+
+## Database Changes
+
+| Table | Change |
+|-------|--------|
+| `tag_pages` | Create new table |
+| `canonical_tags` | Add `has_page` boolean column |
+
+---
+
+## User Flow After Implementation
+
+```text
+User views Place Modal:
+┌────────────────────────────────────────┐
+│ Community tagged                       │
+│   [Clothing Optional] ← clickable link │
+└────────────────────────────────────────┘
+          │
+          ▼ clicks tag
+┌────────────────────────────────────────┐
+│ /tags/clothing_optional                │
+├────────────────────────────────────────┤
+│ Clothing Optional                      │
+│ Understanding this community tag       │
+├────────────────────────────────────────┤
+│ What This Tag Means                    │
+│ ...markdown content...                 │
+├────────────────────────────────────────┤
+│ [Join the Community] → Discord link    │
+└────────────────────────────────────────┘
+```
+
+---
+
+## Future Extensibility
+
+This architecture supports:
+- Admin UI for managing tag pages (in TagManagement.tsx)
+- Multiple sensitive tags with dedicated pages
+- SEO optimization for tag discovery
+- Linking places with specific tags on the tag page
 
 ---
 
 ## Technical Notes
 
-- The `PlaceTagSubmission` component (for toggling existing tags) remains disabled via `COMMUNITY_TAGS_ENABLED: false`. This is intentional per the product rules - direct tag application bypasses admin moderation.
-- The suggestion workflow requires admin review before tags become visible, maintaining quality control.
-- All changes are consistent across list view and map view since they both use `PlaceDetailModal`.
+- The `tag_pages` table uses a foreign key to `canonical_tags.slug` ensuring data integrity
+- RLS ensures only published pages are publicly visible
+- The `has_page` flag on `canonical_tags` allows efficient conditional rendering without extra queries
+- Markdown rendering uses the existing `react-markdown` dependency
