@@ -378,8 +378,8 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
           <Separator />
           <PlaceAttributeBadges place={place} />
 
-          {/* Suggest a Tag - for authenticated users who saved this place */}
-          {isAuthenticated && saved && (
+          {/* Suggest a Tag - for any authenticated user */}
+          {isAuthenticated && (
             <Button
               variant="ghost"
               size="sm"
