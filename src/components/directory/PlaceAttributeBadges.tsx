@@ -1,4 +1,4 @@
-import { Check, Users, Dog, Accessibility, UtensilsCrossed, Trees } from 'lucide-react';
+import { Check, Users, Dog, Accessibility, Bath, Trees } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { usePlaceNicheTags } from '@/hooks/usePlaceNicheTags';
 import { useCanonicalTags } from '@/hooks/usePlaceTags';
@@ -25,7 +25,7 @@ const GOOGLE_ATTRIBUTES: GoogleAttribute[] = [
   { key: 'allows_dogs', label: 'Dog Friendly', icon: <Dog className="h-3 w-3" /> },
   { key: 'wheelchair_accessible_entrance', label: 'Wheelchair Accessible', icon: <Accessibility className="h-3 w-3" /> },
   { key: 'outdoor_seating', label: 'Outdoor Seating', icon: <Trees className="h-3 w-3" /> },
-  { key: 'has_restroom', label: 'Restroom', icon: <UtensilsCrossed className="h-3 w-3" /> },
+  { key: 'has_restroom', label: 'Restroom', icon: <Bath className="h-3 w-3" /> },
 ];
 
 /**
