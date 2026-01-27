@@ -20,11 +20,9 @@ import {
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceLinkedContent from '@/components/directory/PlaceLinkedContent';
-import PlaceTagDisplay from '@/components/directory/PlaceTagDisplay';
-import PlaceTagSubmission from '@/components/directory/PlaceTagSubmission';
+import PlaceAttributeBadges from '@/components/directory/PlaceAttributeBadges';
 import { useAuth } from '@/hooks/useAuth';
 import { recordSignal } from '@/hooks/useUserSignals';
-import { FEATURE_FLAGS } from '@/lib/feature-flags';
 import { toast } from 'sonner';
 
 export interface PlaceDetail {
@@ -45,6 +43,13 @@ export interface PlaceDetail {
   opening_hours: unknown;
   google_types: string[] | null;
   distance?: number;
+  // Google-verified amenity attributes
+  allows_dogs?: boolean | null;
+  wheelchair_accessible_entrance?: boolean | null;
+  wheelchair_accessible_restroom?: boolean | null;
+  wheelchair_accessible_seating?: boolean | null;
+  outdoor_seating?: boolean | null;
+  has_restroom?: boolean | null;
 }
 
 interface PlaceDetailModalProps {
@@ -366,24 +371,9 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
           {/* Linked Content: Events & Announcements */}
           <PlaceLinkedContent placeId={place.id} placeName={place.name} placeWebsite={place.website_url} />
 
-          {/* Community Tags Display - visible to all users */}
-          {FEATURE_FLAGS.COMMUNITY_TAGS_ENABLED && (
-            <>
-              <Separator />
-              <PlaceTagDisplay placeId={place.id} />
-            </>
-          )}
-
-          {/* Community Tags Submission - only for saved places */}
-          {FEATURE_FLAGS.COMMUNITY_TAGS_ENABLED && saved && (
-            <>
-              <Separator />
-              <PlaceTagSubmission 
-                placeId={place.id} 
-                placeGoogleTypes={place.google_types} 
-              />
-            </>
-          )}
+          {/* Place Attributes: Google-verified + Community tagged */}
+          <Separator />
+          <PlaceAttributeBadges place={place} />
 
           {/* Action Buttons - Sticky on mobile, with signal capture */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">

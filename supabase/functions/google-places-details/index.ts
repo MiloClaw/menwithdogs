@@ -49,6 +49,13 @@ interface PlaceDetails {
   utc_offset_minutes: number | null;
   reviews?: Review[];
   raw_response?: Record<string, unknown>;
+  // Amenity/accessibility fields
+  allows_dogs: boolean | null;
+  wheelchair_accessible_entrance: boolean | null;
+  wheelchair_accessible_restroom: boolean | null;
+  wheelchair_accessible_seating: boolean | null;
+  outdoor_seating: boolean | null;
+  has_restroom: boolean | null;
 }
 
 // Input validation
@@ -159,6 +166,11 @@ serve(async (req) => {
       "types",
       "businessStatus",
       "utcOffsetMinutes",
+      // Amenity/accessibility fields
+      "allowsDogs",
+      "accessibilityOptions",
+      "outdoorSeating",
+      "restroom",
     ];
     
     if (includeReviews) {
@@ -267,6 +279,17 @@ serve(async (req) => {
     const business_status: string | null = data.businessStatus || null;
     const utc_offset_minutes: number | null = data.utcOffsetMinutes ?? null;
 
+    // Parse amenity/accessibility fields
+    const allows_dogs: boolean | null = data.allowsDogs ?? null;
+    const outdoor_seating: boolean | null = data.outdoorSeating ?? null;
+    const has_restroom: boolean | null = data.restroom ?? null;
+    
+    // Parse accessibility options (nested object)
+    const accessibilityOptions = data.accessibilityOptions || {};
+    const wheelchair_accessible_entrance: boolean | null = accessibilityOptions.wheelchairAccessibleEntrance ?? null;
+    const wheelchair_accessible_restroom: boolean | null = accessibilityOptions.wheelchairAccessibleRestroom ?? null;
+    const wheelchair_accessible_seating: boolean | null = accessibilityOptions.wheelchairAccessibleSeating ?? null;
+
     const details: PlaceDetails = {
       place_id: data.id || place_id,
       name: data.displayName?.text || "",
@@ -292,6 +315,13 @@ serve(async (req) => {
       utc_offset_minutes,
       reviews,
       raw_response: data,
+      // Amenity/accessibility fields
+      allows_dogs,
+      wheelchair_accessible_entrance,
+      wheelchair_accessible_restroom,
+      wheelchair_accessible_seating,
+      outdoor_seating,
+      has_restroom,
     };
 
     console.log(`Returning details for: ${details.name}`);

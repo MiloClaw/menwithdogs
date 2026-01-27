@@ -1367,6 +1367,7 @@ export type Database = {
       }
       places: {
         Row: {
+          allows_dogs: boolean | null
           approved_at: string | null
           approved_by: string | null
           business_status: string | null
@@ -1380,6 +1381,7 @@ export type Database = {
           google_primary_type: string | null
           google_primary_type_display: string | null
           google_types: string[] | null
+          has_restroom: boolean | null
           id: string
           is_active: boolean | null
           last_fetched_at: string | null
@@ -1387,6 +1389,7 @@ export type Database = {
           lng: number | null
           name: string
           opening_hours: Json | null
+          outdoor_seating: boolean | null
           phone_number: string | null
           photos: Json | null
           photos_stored_at: string | null
@@ -1408,8 +1411,12 @@ export type Database = {
           vibe_evening: boolean | null
           vibe_formality: number | null
           website_url: string | null
+          wheelchair_accessible_entrance: boolean | null
+          wheelchair_accessible_restroom: boolean | null
+          wheelchair_accessible_seating: boolean | null
         }
         Insert: {
+          allows_dogs?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
           business_status?: string | null
@@ -1423,6 +1430,7 @@ export type Database = {
           google_primary_type?: string | null
           google_primary_type_display?: string | null
           google_types?: string[] | null
+          has_restroom?: boolean | null
           id?: string
           is_active?: boolean | null
           last_fetched_at?: string | null
@@ -1430,6 +1438,7 @@ export type Database = {
           lng?: number | null
           name: string
           opening_hours?: Json | null
+          outdoor_seating?: boolean | null
           phone_number?: string | null
           photos?: Json | null
           photos_stored_at?: string | null
@@ -1451,8 +1460,12 @@ export type Database = {
           vibe_evening?: boolean | null
           vibe_formality?: number | null
           website_url?: string | null
+          wheelchair_accessible_entrance?: boolean | null
+          wheelchair_accessible_restroom?: boolean | null
+          wheelchair_accessible_seating?: boolean | null
         }
         Update: {
+          allows_dogs?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
           business_status?: string | null
@@ -1466,6 +1479,7 @@ export type Database = {
           google_primary_type?: string | null
           google_primary_type_display?: string | null
           google_types?: string[] | null
+          has_restroom?: boolean | null
           id?: string
           is_active?: boolean | null
           last_fetched_at?: string | null
@@ -1473,6 +1487,7 @@ export type Database = {
           lng?: number | null
           name?: string
           opening_hours?: Json | null
+          outdoor_seating?: boolean | null
           phone_number?: string | null
           photos?: Json | null
           photos_stored_at?: string | null
@@ -1494,6 +1509,9 @@ export type Database = {
           vibe_evening?: boolean | null
           vibe_formality?: number | null
           website_url?: string | null
+          wheelchair_accessible_entrance?: boolean | null
+          wheelchair_accessible_restroom?: boolean | null
+          wheelchair_accessible_seating?: boolean | null
         }
         Relationships: []
       }
@@ -1913,6 +1931,7 @@ export type Database = {
           created_at: string | null
           id: string
           merged_into_slug: string | null
+          place_id: string | null
           rationale: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -1925,6 +1944,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           merged_into_slug?: string | null
+          place_id?: string | null
           rationale?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -1937,6 +1957,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           merged_into_slug?: string | null
+          place_id?: string | null
           rationale?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -1952,6 +1973,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "canonical_tags"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "tag_suggestions_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
           },
         ]
       }
