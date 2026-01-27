@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
-  ChevronLeft, ChevronRight, Heart, ChevronDown, Share2
+  ChevronLeft, ChevronRight, Heart, ChevronDown, Share2, Plus
 } from 'lucide-react';
 import {
   Dialog,
@@ -21,6 +21,7 @@ import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceLinkedContent from '@/components/directory/PlaceLinkedContent';
 import PlaceAttributeBadges from '@/components/directory/PlaceAttributeBadges';
+import TagSuggestionDialog from '@/components/directory/TagSuggestionDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { recordSignal } from '@/hooks/useUserSignals';
 import { toast } from 'sonner';
@@ -82,6 +83,7 @@ const getOpeningHours = (hours: unknown): OpeningHoursParsed => {
 const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [hoursExpanded, setHoursExpanded] = useState(false);
+  const [suggestionOpen, setSuggestionOpen] = useState(false);
   const { isFavorited, toggleFavorite, isUpdating } = usePlaceFavorites();
   const { isAuthenticated } = useAuth();
 
@@ -167,6 +169,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
         {/* Photo Gallery */}
@@ -375,6 +378,19 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
           <Separator />
           <PlaceAttributeBadges place={place} />
 
+          {/* Suggest a Tag - for authenticated users who saved this place */}
+          {isAuthenticated && saved && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto"
+              onClick={() => setSuggestionOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
+              Suggest a tag to help others discover this place
+            </Button>
+          )}
+
           {/* Action Buttons - Sticky on mobile, with signal capture */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2 sticky bottom-0 bg-background pb-1">
             {place.website_url && (
@@ -400,6 +416,15 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Tag Suggestion Dialog */}
+    <TagSuggestionDialog
+      open={suggestionOpen}
+      onOpenChange={setSuggestionOpen}
+      placeId={place?.id}
+      placeName={place?.name}
+    />
+  </>
   );
 };
 
