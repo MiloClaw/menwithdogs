@@ -74,21 +74,20 @@ export const FEATURE_FLAGS = {
   CHAT_ENABLED: false,
   
   /**
-   * DISABLED BY DEFAULT — Admin-only scaffolding
+   * ENABLED — Admin-only tag application via place_niche_tags
    * 
-   * Controls visibility of place niche tags (e.g. clothing_optional).
-   * When enabled, allows admin curation of niche place attributes.
-   * User-facing features require explicit opt-in even when enabled.
+   * Controls admin ability to apply curated tags to places.
+   * Tags are displayed in the directory as "Community tagged".
+   * User suggestions are reviewed by admins before application.
    */
-  NICHE_TAGS_ENABLED: false,
+  NICHE_TAGS_ENABLED: true,
   
   /**
-   * DISABLED BY DEFAULT — Requires k-threshold aggregation
+   * DEPRECATED — Replaced by admin-moderated flow
    * 
-   * Controls visibility of community tags in directory.
-   * When enabled:
-   * - Users can submit tags on saved places
-   * - Aggregated tags appear on places meeting k-threshold
+   * The k-anonymity aggregation model is deprecated in favor of
+   * direct admin approval of community tag suggestions.
+   * This flag controls legacy tag_signals aggregation.
    */
   COMMUNITY_TAGS_ENABLED: false,
 } as const;

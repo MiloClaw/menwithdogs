@@ -16,6 +16,7 @@ import { Place } from '@/hooks/usePlaces';
 import { useMetroAreas } from '@/hooks/useMetroAreas';
 import { usePlaceGeoAreas } from '@/hooks/usePlaceGeoAreas';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
+import PlaceTagEditor from './PlaceTagEditor';
 import { VIBE_ENERGY_LABELS, VIBE_FORMALITY_LABELS } from '@/lib/place-taxonomy';
 
 interface PlaceDetailEditProps {
@@ -408,6 +409,11 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
                 />
               </div>
             </div>
+          </div>
+
+          {/* Community Tags Editor */}
+          <div className="pt-4 border-t">
+            <PlaceTagEditor placeId={place.id} />
           </div>
 
           <div className="space-y-2">

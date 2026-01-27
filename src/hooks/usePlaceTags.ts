@@ -195,11 +195,13 @@ export function useSubmitTagSuggestion() {
     mutationFn: async ({ 
       suggestedLabel, 
       suggestedCategory, 
-      rationale 
+      rationale,
+      placeId,
     }: { 
       suggestedLabel: string; 
       suggestedCategory?: 'culture' | 'accessibility' | 'social' | 'outdoor'; 
       rationale?: string;
+      placeId?: string;
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
@@ -210,6 +212,7 @@ export function useSubmitTagSuggestion() {
           suggested_label: suggestedLabel,
           suggested_category: suggestedCategory,
           rationale,
+          place_id: placeId,
         });
 
       if (error) throw error;

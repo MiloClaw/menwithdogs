@@ -22,6 +22,8 @@ import { useSubmitTagSuggestion } from '@/hooks/usePlaceTags';
 interface TagSuggestionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  placeId?: string;
+  placeName?: string;
 }
 
 const CATEGORIES = [
@@ -35,7 +37,7 @@ const CATEGORIES = [
  * Simple dialog for users to suggest new canonical tags.
  * Language guardrail: "Suggest a tag that's missing"
  */
-const TagSuggestionDialog = ({ open, onOpenChange }: TagSuggestionDialogProps) => {
+const TagSuggestionDialog = ({ open, onOpenChange, placeId, placeName }: TagSuggestionDialogProps) => {
   const [label, setLabel] = useState('');
   const [category, setCategory] = useState<'culture' | 'accessibility' | 'social' | 'outdoor' | ''>('');
   const [rationale, setRationale] = useState('');
@@ -51,6 +53,7 @@ const TagSuggestionDialog = ({ open, onOpenChange }: TagSuggestionDialogProps) =
       suggestedLabel: label.trim(),
       suggestedCategory: category || undefined,
       rationale: rationale.trim() || undefined,
+      placeId,
     }, {
       onSuccess: () => {
         setLabel('');
@@ -67,7 +70,9 @@ const TagSuggestionDialog = ({ open, onOpenChange }: TagSuggestionDialogProps) =
         <DialogHeader>
           <DialogTitle>Suggest a tag that's missing</DialogTitle>
           <DialogDescription>
-            Help improve community insights by suggesting a new tag.
+            {placeName 
+              ? `Suggest a tag for "${placeName}" to help others discover it.`
+              : 'Help improve community insights by suggesting a new tag.'}
           </DialogDescription>
         </DialogHeader>
         
