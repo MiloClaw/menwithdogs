@@ -157,7 +157,8 @@ serve(async (req) => {
           "location", "rating", "userRatingCount", "priceLevel",
           "websiteUri", "internationalPhoneNumber", "googleMapsUri",
           "regularOpeningHours", "photos", "primaryType", "primaryTypeDisplayName",
-          "types", "businessStatus", "utcOffsetMinutes"
+          "types", "businessStatus", "utcOffsetMinutes",
+          "allowsDogs", "accessibilityOptions", "outdoorSeating", "restroom"
         ].join(",");
 
         const detailsUrl = `https://places.googleapis.com/v1/places/${place.google_place_id}?languageCode=en`;
@@ -222,6 +223,9 @@ serve(async (req) => {
           price_level = priceLevelMap[data.priceLevel] ?? null;
         }
 
+        // Parse accessibility options
+        const accessibilityOptions = data.accessibilityOptions || {};
+
         const { error: updateError } = await supabaseAdmin
           .from("places")
           .update({
@@ -245,6 +249,13 @@ serve(async (req) => {
             google_types: data.types || [],
             business_status: data.businessStatus,
             utc_offset_minutes: data.utcOffsetMinutes,
+            // New amenity/accessibility fields
+            allows_dogs: data.allowsDogs ?? null,
+            outdoor_seating: data.outdoorSeating ?? null,
+            has_restroom: data.restroom ?? null,
+            wheelchair_accessible_entrance: accessibilityOptions.wheelchairAccessibleEntrance ?? null,
+            wheelchair_accessible_restroom: accessibilityOptions.wheelchairAccessibleRestroom ?? null,
+            wheelchair_accessible_seating: accessibilityOptions.wheelchairAccessibleSeating ?? null,
             last_fetched_at: new Date().toISOString(),
             fetch_version: 2,
           })
