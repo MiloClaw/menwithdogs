@@ -2,9 +2,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Clock, Building, Mail, User, Calendar, Link2, CheckCircle, XCircle, UserX } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { MapPin, Clock, Building, Mail, User, Calendar, Link2, CheckCircle, XCircle, UserX, ExternalLink, FileText, Camera, Video, BookOpen, Pen, Mountain, Tent, Waves, Bike, Car, Trees, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import type { AmbassadorApplication } from '@/hooks/useAmbassadorApplications';
+import { ROLE_TYPES, EXPERTISE_AREAS, CONTENT_TYPES } from '@/lib/trail-blazer-options';
 
 const tenureLabels: Record<string, string> = {
   'less_than_1_year': 'Less than 1 year',
@@ -12,7 +14,42 @@ const tenureLabels: Record<string, string> = {
   '3_5_years': '3–5 years',
   '5_10_years': '5–10 years',
   '10_plus_years': '10+ years',
+  'not_applicable': 'Not specified',
 };
+
+// Map content types to icons
+const contentTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  article_essay: FileText,
+  guide_resource: BookOpen,
+  photography: Camera,
+  video_multimedia: Video,
+  field_notes: Pen,
+  other: FileText,
+};
+
+// Map expertise areas to icons
+const expertiseIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  hiking_trails: Mountain,
+  camping_backcountry: Tent,
+  beaches_water: Waves,
+  trail_running: Mountain,
+  cycling: Bike,
+  overland_remote: Car,
+  urban_outdoor: Trees,
+  other: MapPin,
+};
+
+function getRoleLabel(value: string): string {
+  return ROLE_TYPES.find(r => r.value === value)?.label || value;
+}
+
+function getExpertiseLabel(value: string): string {
+  return EXPERTISE_AREAS.find(e => e.value === value)?.label || value;
+}
+
+function getContentTypeLabel(value: string): string {
+  return CONTENT_TYPES.find(c => c.value === value)?.label || value;
+}
 
 interface ApplicationDetailModalProps {
   application: AmbassadorApplication;
@@ -33,6 +70,14 @@ export function ApplicationDetailModal({
 }: ApplicationDetailModalProps) {
   const isPending = application.status === 'pending';
   const isApproved = application.status === 'approved';
+
+  const hasStructuredData = !!(
+    application.identity_signals ||
+    application.expertise_signals ||
+    (application.portfolio_links && application.portfolio_links.length > 0) ||
+    (application.place_references && application.place_references.length > 0) ||
+    application.acknowledgements
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,23 +135,182 @@ export function ApplicationDetailModal({
             </div>
           </div>
 
-          <Separator />
+          {/* Trail Blazer Structured Fields (when present) */}
+          {hasStructuredData && (
+            <>
+              <Separator />
 
-          {/* Specific Places - Highlighted */}
-          <div className="space-y-2 bg-muted/30 rounded-lg p-4">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Local Places They'd Recommend (Trust Signal)
-            </label>
-            <p className="text-foreground whitespace-pre-wrap">{application.specific_places || '—'}</p>
-          </div>
+              {/* Identity & Role */}
+              {application.identity_signals && application.identity_signals.role_types?.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Identity & Role
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {application.identity_signals.role_types.map(role => (
+                      <Badge key={role} variant="secondary">
+                        {getRoleLabel(role)}
+                      </Badge>
+                    ))}
+                  </div>
+                  {application.identity_signals.other_role_description && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Other: "{application.identity_signals.other_role_description}"
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Expertise Areas */}
+              {application.expertise_signals && application.expertise_signals.expertise_areas?.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Expertise Areas
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {application.expertise_signals.expertise_areas.map(area => {
+                      const IconComponent = expertiseIcons[area] || MapPin;
+                      return (
+                        <Badge key={area} variant="outline" className="gap-1">
+                          <IconComponent className="h-3 w-3" />
+                          {getExpertiseLabel(area)}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                  {application.expertise_signals.other_expertise_description && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Other: "{application.expertise_signals.other_expertise_description}"
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Portfolio Links */}
+              {application.portfolio_links && application.portfolio_links.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                    <Link2 className="w-4 h-4" />
+                    Portfolio Links (Trust Signal)
+                  </label>
+                  <Card className="bg-muted/30">
+                    <CardContent className="p-3 space-y-3">
+                      {application.portfolio_links.map((link, index) => {
+                        const IconComponent = contentTypeIcons[link.content_type] || FileText;
+                        return (
+                          <div key={link.id} className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground w-4">{index + 1}.</span>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center gap-1 text-sm truncate max-w-[300px]"
+                              >
+                                {link.url}
+                                <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                              </a>
+                              <Badge variant="outline" className="gap-1 text-xs">
+                                <IconComponent className="h-3 w-3" />
+                                {getContentTypeLabel(link.content_type)}
+                              </Badge>
+                            </div>
+                            {link.notes && (
+                              <p className="text-xs text-muted-foreground ml-6">"{link.notes}"</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Place References */}
+              {application.place_references && application.place_references.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Place References
+                  </label>
+                  <div className="space-y-2">
+                    {application.place_references.map(place => (
+                      <Card key={place.id} className="bg-muted/20">
+                        <CardContent className="p-3 flex items-start gap-3">
+                          <MapPin className="h-4 w-4 text-primary mt-0.5" />
+                          <div>
+                            <div className="font-medium text-sm">{place.place_name}</div>
+                            {place.formatted_address && (
+                              <div className="text-xs text-muted-foreground">{place.formatted_address}</div>
+                            )}
+                            <Badge variant="outline" className="mt-1 text-xs">
+                              {place.place_status === 'in_directory' ? 'In directory' : 'Pending'}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Acknowledgements */}
+              {application.acknowledgements && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Acknowledgements
+                  </label>
+                  <div className="flex flex-wrap gap-3 text-sm">
+                    {application.acknowledgements.place_focus && (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <Check className="h-4 w-4" />
+                        Place-first focus
+                      </span>
+                    )}
+                    {application.acknowledgements.link_review && (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <Check className="h-4 w-4" />
+                        Link review
+                      </span>
+                    )}
+                    {application.acknowledgements.no_public_profile && (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <Check className="h-4 w-4" />
+                        No public profile
+                      </span>
+                    )}
+                    {application.acknowledgements.no_promotion_required && (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <Check className="h-4 w-4" />
+                        No promotion required
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <Separator />
+            </>
+          )}
+
+          {/* Specific Places - Highlighted (Legacy field) */}
+          {application.specific_places && (
+            <div className="space-y-2 bg-muted/30 rounded-lg p-4">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Local Places They'd Recommend (Trust Signal)
+              </label>
+              <p className="text-foreground whitespace-pre-wrap">{application.specific_places}</p>
+            </div>
+          )}
 
           {/* Motivation */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Why They Want to Help
-            </label>
-            <p className="text-foreground whitespace-pre-wrap">{application.motivation || '—'}</p>
-          </div>
+          {application.motivation && (
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Why They Want to Help
+              </label>
+              <p className="text-foreground whitespace-pre-wrap">{application.motivation}</p>
+            </div>
+          )}
 
           {/* Business Affiliation */}
           <div className="space-y-2">
@@ -134,12 +338,12 @@ export function ApplicationDetailModal({
             <p className="text-foreground whitespace-pre-wrap">{application.local_knowledge}</p>
           </div>
 
-          {/* Social Links */}
+          {/* Social Links (Legacy) */}
           {application.social_links && (
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                 <Link2 className="w-4 h-4" />
-                Social Links
+                Social Links (Legacy)
               </label>
               <p className="text-foreground whitespace-pre-wrap">{application.social_links}</p>
             </div>
@@ -169,7 +373,7 @@ export function ApplicationDetailModal({
               </Button>
               <Button onClick={onApprove} className="bg-green-600 hover:bg-green-700">
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Approve as Ambassador
+                Approve as Trail Blazer
               </Button>
             </>
           )}
@@ -177,7 +381,7 @@ export function ApplicationDetailModal({
           {isApproved && (
             <Button variant="destructive" onClick={onRevoke}>
               <UserX className="w-4 h-4 mr-2" />
-              Revoke Ambassador Access
+              Revoke Trail Blazer Access
             </Button>
           )}
         </DialogFooter>
