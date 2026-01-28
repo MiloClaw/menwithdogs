@@ -1,212 +1,45 @@
 
 
-# Trail Blazer Content Submission System — Implementation Plan
+# Phase 2: Admin Review UI — Implementation Plan
 
-## Executive Summary
+## Overview
 
-This plan implements the **Trail Blazer Submission UX** as a first-class content object layer, separate from the existing `posts` system. The implementation follows the expert guidance to:
+This phase builds the admin infrastructure for reviewing Trail Blazer applications (with new structured fields) and content submissions. Following the approved plan's recommendation to **build admin first**, this ensures:
 
-1. Create a dedicated `trail_blazer_submissions` table (not reuse posts)
-2. Use a definitions table for contribution types (not enum)
-3. Implement explicit link permissions (not inferred)
-4. Build admin review before the submission UI
-
----
-
-## Validated Decisions (Confirmed via Codebase Analysis)
-
-| Decision | Validation |
-|----------|------------|
-| **DO NOT reuse posts table** | Posts are city-centric announcements with `city_id` (required), `type`, `slug`, `cover_image_url`. Trail Blazer submissions are place-centric contextual annotations. Different mental models. |
-| **ambassador role detection works** | `useUserRole()` → `isAmbassador`, `useSubscription()` → `isAmbassador`. Both flow from `user_roles` table. |
-| **Settings card pattern exists** | "Discover Together" and "Admin Dashboard" cards at lines 58-104 in `Settings.tsx`. Trail Blazer card follows same pattern. |
-| **Admin review pattern exists** | `ApplicationDetailModal.tsx` + `useAmbassadorApplications.ts` already handle approve/decline/revoke. Extend this pattern. |
-| **Trail Blazer supplementary tables exist** | `trail_blazer_identity_signals`, `trail_blazer_expertise_signals`, `trail_blazer_portfolio_links`, `trail_blazer_place_references`, `trail_blazer_acknowledgements` all created and linked to `ambassador_applications`. |
+1. Admins can review before content flows in
+2. Edge cases are discovered through admin use
+3. UX decisions are informed by real data visibility
 
 ---
 
-## Implementation Phases
+## Part A: Enhance ApplicationDetailModal (Trail Blazer Application Review)
 
-### Phase 1: Database Schema (Step 1 — Lock the Content Object)
+### Current State
 
-#### 1.1 Create Contribution Types Definitions Table
+The existing `ApplicationDetailModal.tsx` displays legacy fields only:
+- Name, email, city, tenure
+- Specific places (free text)
+- Motivation, business affiliation, local knowledge
+- Social links (free text)
 
-```sql
-CREATE TABLE trail_blazer_context_types (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  key text UNIQUE NOT NULL,
-  label text NOT NULL,
-  description text,
-  sort_order int DEFAULT 0,
-  is_active boolean DEFAULT true,
-  created_at timestamptz DEFAULT now()
-);
+### Required Enhancement
 
--- Seed initial types
-INSERT INTO trail_blazer_context_types (key, label, description, sort_order) VALUES
-  ('seasonal', 'Seasonal considerations', 'Best times of year, weather patterns, crowd levels', 1),
-  ('access_logistics', 'Access or logistics notes', 'Parking, permits, approach routes, facilities', 2),
-  ('activity_insight', 'Activity-specific insight', 'Difficulty, gear requirements, technique tips', 3),
-  ('planning', 'Planning considerations', 'Day trips vs overnight, group size, time estimates', 4),
-  ('safety_conditions', 'Safety or conditions awareness', 'Hazards, current conditions, preparedness', 5);
-```
+Display the new structured Trail Blazer application data from supplementary tables:
 
-#### 1.2 Create Trail Blazer Permissions Table
+| Table | Fields to Display |
+|-------|-------------------|
+| `trail_blazer_identity_signals` | `role_types[]`, `other_role_description` |
+| `trail_blazer_expertise_signals` | `expertise_areas[]`, `other_expertise_description` |
+| `trail_blazer_portfolio_links` | `url`, `content_type`, `notes` (up to 5 links) |
+| `trail_blazer_place_references` | `place_name`, `formatted_address`, `place_status` |
+| `trail_blazer_acknowledgements` | All 4 boolean acknowledgement fields |
 
-```sql
-CREATE TABLE trail_blazer_permissions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  can_attach_external_links boolean DEFAULT false,
-  granted_at timestamptz,
-  granted_by uuid REFERENCES auth.users(id),
-  notes text,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-  UNIQUE(user_id)
-);
-```
+### Files to Modify
 
-**Why separate table?**
-- Follows Signals → Interpretation → Outcomes architecture
-- Permissions can be granted/revoked without touching application data
-- Easy to audit and extend (e.g., future: `can_suggest_new_places`, `trusted_auto_approve`)
-
-#### 1.3 Create Trail Blazer Submissions Table
-
-```sql
-CREATE TYPE trail_blazer_submission_status AS ENUM (
-  'pending',
-  'approved',
-  'needs_revision',
-  'declined'
-);
-
-CREATE TABLE trail_blazer_submissions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  
-  -- Who submitted
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  
-  -- What place (required - place-first thinking)
-  place_id uuid REFERENCES places(id) ON DELETE SET NULL,
-  google_place_id text NOT NULL,  -- Always captured (in case place not yet in directory)
-  place_name text NOT NULL,
-  place_address text,
-  place_status text DEFAULT 'existing' CHECK (place_status IN ('existing', 'pending')),
-  
-  -- Contribution scope (multi-select, stored as array)
-  context_types text[] NOT NULL,
-  
-  -- Primary content
-  context_text text NOT NULL,
-  
-  -- Optional external reference (only if permitted)
-  has_external_link boolean DEFAULT false,
-  external_url text,
-  external_content_type text,  -- article, guide, photography, video, field_notes, other
-  external_summary text,
-  
-  -- Lifecycle
-  status trail_blazer_submission_status DEFAULT 'pending',
-  submitted_at timestamptz DEFAULT now(),
-  reviewed_at timestamptz,
-  reviewed_by uuid REFERENCES auth.users(id),
-  admin_notes text,
-  revision_feedback text,
-  
-  -- Audit
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
--- Indexes
-CREATE INDEX idx_tb_submissions_user ON trail_blazer_submissions(user_id);
-CREATE INDEX idx_tb_submissions_place ON trail_blazer_submissions(place_id);
-CREATE INDEX idx_tb_submissions_status ON trail_blazer_submissions(status);
-CREATE INDEX idx_tb_submissions_submitted ON trail_blazer_submissions(submitted_at DESC);
-```
-
-#### 1.4 RLS Policies
-
-```sql
-ALTER TABLE trail_blazer_submissions ENABLE ROW LEVEL SECURITY;
-
--- Trail Blazers can insert their own submissions
-CREATE POLICY "Ambassadors can insert own submissions"
-  ON trail_blazer_submissions FOR INSERT
-  WITH CHECK (
-    auth.uid() = user_id
-    AND has_role(auth.uid(), 'ambassador')
-  );
-
--- Trail Blazers can view their own submissions
-CREATE POLICY "Users can view own submissions"
-  ON trail_blazer_submissions FOR SELECT
-  USING (auth.uid() = user_id);
-
--- Admins can manage all submissions
-CREATE POLICY "Admins can manage all submissions"
-  ON trail_blazer_submissions FOR ALL
-  USING (has_role(auth.uid(), 'admin'));
-
--- Similar policies for permissions table
-ALTER TABLE trail_blazer_permissions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own permissions"
-  ON trail_blazer_permissions FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Admins can manage permissions"
-  ON trail_blazer_permissions FOR ALL
-  USING (has_role(auth.uid(), 'admin'));
-
--- Context types are public read
-ALTER TABLE trail_blazer_context_types ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Anyone can read context types"
-  ON trail_blazer_context_types FOR SELECT
-  TO authenticated
-  USING (is_active = true);
-
-CREATE POLICY "Admins can manage context types"
-  ON trail_blazer_context_types FOR ALL
-  USING (has_role(auth.uid(), 'admin'));
-```
-
----
-
-### Phase 2: Admin Review UI (Step 2 — Build Admin First)
-
-#### 2.1 New Admin Route: `/admin/trail-blazer`
-
-**Files to create:**
-- `src/pages/admin/TrailBlazerManagement.tsx` — Main admin page
-- `src/components/admin/trail-blazer/SubmissionListPane.tsx` — List with filters
-- `src/components/admin/trail-blazer/SubmissionDetailPane.tsx` — Review detail view
-- `src/hooks/useTrailBlazerSubmissions.ts` — Data fetching and mutations
-
-**Admin capabilities:**
-- View all submissions with status filter tabs (Pending, Approved, Needs Revision, Declined)
-- Click to review with full context
-- Approve context (optionally approve without link)
-- Request revision with feedback
-- Decline submission
-- Grant/revoke link permissions per user
-
-#### 2.2 Enhance ApplicationDetailModal (Upgrade)
-
-Update `src/components/admin/users/ApplicationDetailModal.tsx` to show:
-- New structured fields from `trail_blazer_identity_signals`
-- Expertise areas from `trail_blazer_expertise_signals`
-- Portfolio links from `trail_blazer_portfolio_links`
-- Place references from `trail_blazer_place_references`
-- Acknowledgements from `trail_blazer_acknowledgements`
-
-**Query pattern:**
-```typescript
-const { data } = await supabase
-  .from('ambassador_applications')
+**`src/hooks/useAmbassadorApplications.ts`**
+- Extend `AmbassadorApplication` interface with nested types for supplementary data
+- Update `fetchApplications` query to use Supabase join syntax:
+  ```typescript
   .select(`
     *,
     identity_signals:trail_blazer_identity_signals(*),
@@ -215,136 +48,187 @@ const { data } = await supabase
     place_references:trail_blazer_place_references(*),
     acknowledgements:trail_blazer_acknowledgements(*)
   `)
-  .eq('id', applicationId)
-  .single();
-```
+  ```
 
-#### 2.3 Add Sidebar Navigation
+**`src/components/admin/users/ApplicationDetailModal.tsx`**
+- Add new sections to display structured data:
+  - **Identity & Role** section with role type badges
+  - **Expertise Areas** section with area badges
+  - **Portfolio Links** section with clickable links and content type badges
+  - **Place References** section with place cards showing Google Places data
+  - **Acknowledgements** section with checkmark indicators
+- Use the label mappings from `src/lib/trail-blazer-options.ts`
 
-Update `src/components/admin/AdminSidebar.tsx`:
-```tsx
-{ icon: Compass, label: 'Trail Blazers', href: '/admin/trail-blazer' }
+### UI Design for Enhanced Modal
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ [Name]                                    [Status Badge]    │
+│ email@example.com · Applied Jan 28, 2026                    │
+├─────────────────────────────────────────────────────────────┤
+│ CITY & TENURE                                               │
+│ ┌──────────────────┐  ┌──────────────────┐                  │
+│ │ 📍 Denver, CO    │  │ ⏱️ 5-10 years    │                  │
+│ └──────────────────┘  └──────────────────┘                  │
+├─────────────────────────────────────────────────────────────┤
+│ IDENTITY & ROLE                                             │
+│ [Writer/Blogger] [Photographer]                             │
+│ Other: "Trail running content creator"                      │
+├─────────────────────────────────────────────────────────────┤
+│ EXPERTISE AREAS                                             │
+│ [Hiking & trails] [Camping & backcountry] [Trail running]   │
+├─────────────────────────────────────────────────────────────┤
+│ PORTFOLIO LINKS (Trust Signal)                    [bg card] │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ 1. example.com/trail-guide  [Article]                   │ │
+│ │    "My comprehensive guide to Colorado 14ers"           │ │
+│ │ 2. instagram.com/...        [Photography]               │ │
+│ └─────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│ PLACE REFERENCES                                            │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ 📍 Maroon Bells Scenic Area                             │ │
+│ │    Aspen, CO · [in_directory] / [pending]               │ │
+│ └─────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│ ACKNOWLEDGEMENTS                                            │
+│ ✓ Place-first focus  ✓ Link review  ✓ No public profile    │
+│ ✓ No promotion required                                     │
+├─────────────────────────────────────────────────────────────┤
+│ [Legacy fields: motivation, business affiliation, etc.]     │
+├─────────────────────────────────────────────────────────────┤
+│                        [Close] [Decline] [Approve]          │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### Phase 3: Trail Blazer Submission UI (Step 3 — Build After Admin)
+## Part B: New Admin Route — Trail Blazer Content Submissions
 
-#### 3.1 Settings Entry Point
+### Route: `/admin/trail-blazer`
 
-Update `src/pages/Settings.tsx` to add conditional Trail Blazer card:
+A dedicated admin page for reviewing Trail Blazer content submissions (the `trail_blazer_submissions` table created in Phase 1).
 
-```tsx
-// After Admin Dashboard card, before tabs
-{!roleLoading && isAmbassador && (
-  <Link to="/contribute" className="block mb-10 group">
-    <div className="bg-muted/30 border border-border rounded-xl p-5 flex items-center gap-4 transition-all hover:bg-muted/50 hover:border-primary/20">
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-        <Compass className="h-5 w-5 text-primary" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-base mb-0.5">Add Context to a Place</h3>
-        <p className="text-sm text-muted-foreground">
-          Share insight about places you know well
-        </p>
-      </div>
-      <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-    </div>
-  </Link>
-)}
-```
+### Files to Create
 
-#### 3.2 Submission Flow Page
+**`src/pages/admin/TrailBlazerManagement.tsx`**
+- Main admin page using `AdminLayout`
+- Two tabs: "Content Submissions" and "Permissions"
+- Stats row showing pending/approved/needs_revision/declined counts
+- Status filter tabs (reuse `StatusFilterTabs` pattern)
+- List/detail layout using master-detail pattern
 
-Create `src/pages/Contribute.tsx` with 5-step flow:
+**`src/components/admin/trail-blazer/SubmissionListPane.tsx`**
+- Table view of submissions with columns:
+  - Place name
+  - Context types (badges)
+  - Submitted by (user indicator)
+  - Status
+  - Submitted date
+  - Actions (view/quick approve/decline)
+- Search by place name
+- Status filter
 
-| Step | Component | Fields |
-|------|-----------|--------|
-| 1 | PlaceSelector | Google Places autocomplete, show existing/pending status |
-| 2 | ContextTypeSelector | Multi-select (max 3) from `trail_blazer_context_types` |
-| 3 | ContextEditor | Plain text textarea with guidance |
-| 4 | ExternalLinkEditor | Toggle + fields (only if permitted) |
-| 5 | ReviewSubmit | Summary + submit CTA |
+**`src/components/admin/trail-blazer/SubmissionDetailPane.tsx`**
+- Full view of submission for review:
+  - Place card (name, address, existing/pending status)
+  - Context type badges
+  - Full context text (the main content)
+  - External link section (if present, with permission indicator)
+  - Admin actions:
+    - **Approve** — Mark as approved
+    - **Approve without link** — Approve content but strip external link
+    - **Request revision** — Set status + add feedback text
+    - **Decline** — Set status declined
 
-**Route:** `/contribute` (not `/create-post`, not `/publish`)
+**`src/components/admin/trail-blazer/PermissionsPane.tsx`**
+- List of approved Trail Blazers with permission controls
+- Toggle for `can_attach_external_links`
+- Notes field for admin context
 
-#### 3.3 Your Contributions View
+**`src/hooks/useTrailBlazerSubmissions.ts`**
+- Fetch submissions with status filter
+- Approve/decline/request revision mutations
+- Stats calculation (pending, approved, etc.)
 
-Create `src/pages/Contributions.tsx`:
-- Minimal list: Place name, submission date, status badge
-- No counts, no metrics, no "published" language
-- Link from Settings as secondary entry
+**`src/hooks/useTrailBlazerPermissions.ts`**
+- Fetch permissions for all ambassadors
+- Toggle permission mutations
+- Create permission record if missing
+
+### Sidebar Navigation Update
+
+**`src/components/admin/AdminSidebar.tsx`**
+- Add new nav item after "Community Tags":
+  ```typescript
+  { title: 'Trail Blazers', href: '/admin/trail-blazer', icon: Compass }
+  ```
+
+### Route Registration
+
+**`src/App.tsx`**
+- Add new admin route:
+  ```typescript
+  <Route path="/admin/trail-blazer" element={<RequireRole role="admin"><TrailBlazerManagement /></RequireRole>} />
+  ```
 
 ---
 
-## File Change Summary
+## Part C: Type Definitions
 
-### New Files
+**`src/lib/context-type-options.ts`** (New file)
+- TypeScript types matching `trail_blazer_context_types` table
+- Helper functions for displaying context type labels
+
+---
+
+## Implementation Order
+
+1. **Update `useAmbassadorApplications.ts`** — Add supplementary table joins and extended types
+2. **Enhance `ApplicationDetailModal.tsx`** — Display new structured fields
+3. **Create `useTrailBlazerSubmissions.ts`** — Data layer for submissions
+4. **Create `useTrailBlazerPermissions.ts`** — Data layer for permissions
+5. **Create `SubmissionListPane.tsx`** — List component
+6. **Create `SubmissionDetailPane.tsx`** — Detail/review component
+7. **Create `PermissionsPane.tsx`** — Permission management
+8. **Create `TrailBlazerManagement.tsx`** — Main admin page
+9. **Update `AdminSidebar.tsx`** — Add navigation link
+10. **Update `App.tsx`** — Register route
+
+---
+
+## File Summary
+
+### New Files (8)
 
 | Path | Purpose |
 |------|---------|
-| `src/pages/admin/TrailBlazerManagement.tsx` | Admin submission review |
-| `src/components/admin/trail-blazer/SubmissionListPane.tsx` | Submission list |
-| `src/components/admin/trail-blazer/SubmissionDetailPane.tsx` | Detail review |
-| `src/hooks/useTrailBlazerSubmissions.ts` | Submission data layer |
-| `src/pages/Contribute.tsx` | 5-step submission flow |
-| `src/pages/Contributions.tsx` | User's submissions list |
-| `src/components/contribute/PlaceSelector.tsx` | Step 1 component |
-| `src/components/contribute/ContextTypeSelector.tsx` | Step 2 component |
-| `src/components/contribute/ContextEditor.tsx` | Step 3 component |
-| `src/components/contribute/ExternalLinkEditor.tsx` | Step 4 component |
-| `src/components/contribute/ReviewSubmit.tsx` | Step 5 component |
-| `src/hooks/useTrailBlazerPermissions.ts` | Permission checks |
-| `src/lib/context-type-options.ts` | Type definitions |
+| `src/pages/admin/TrailBlazerManagement.tsx` | Main admin page for Trail Blazer management |
+| `src/components/admin/trail-blazer/SubmissionListPane.tsx` | Submission list with filters |
+| `src/components/admin/trail-blazer/SubmissionDetailPane.tsx` | Submission detail/review view |
+| `src/components/admin/trail-blazer/PermissionsPane.tsx` | Permission management for ambassadors |
+| `src/hooks/useTrailBlazerSubmissions.ts` | Submissions data layer |
+| `src/hooks/useTrailBlazerPermissions.ts` | Permissions data layer |
+| `src/lib/context-type-options.ts` | Context type definitions and helpers |
+| `src/components/admin/trail-blazer/index.ts` | Barrel export (optional) |
 
-### Modified Files
+### Modified Files (4)
 
 | Path | Change |
 |------|--------|
-| `src/pages/Settings.tsx` | Add Trail Blazer entry card (conditional on `isAmbassador`) |
+| `src/hooks/useAmbassadorApplications.ts` | Add supplementary table joins and extended interface |
+| `src/components/admin/users/ApplicationDetailModal.tsx` | Display new structured Trail Blazer fields |
 | `src/components/admin/AdminSidebar.tsx` | Add Trail Blazers nav item |
-| `src/components/admin/users/ApplicationDetailModal.tsx` | Display new structured fields |
-| `src/hooks/useAmbassadorApplications.ts` | Fetch supplementary tables |
-| `src/App.tsx` | Add `/contribute`, `/contributions`, `/admin/trail-blazer` routes |
+| `src/App.tsx` | Register `/admin/trail-blazer` route |
 
 ---
 
-## UX Language Guardrails (Locked)
+## UX Language (Locked)
 
-| Term to Use | Term to Avoid |
-|-------------|---------------|
-| "Add context to a place" | "Create post" |
-| "Submit for review" | "Publish" |
-| "Your contributions" | "Your posts" |
-| "Context" | "Content" |
-| "Submission" | "Article" |
-| "Place" | "Your place" |
-
----
-
-## What This System Intentionally Avoids
-
-- Creator dashboard / content feed
-- Draft counts or performance metrics
-- Visibility stats or view counts
-- "Published" language
-- Ownership language ("your place")
-- Gamification or badges
-- Public visibility of contributor identity
-
----
-
-## Recommended Implementation Order
-
-1. **Database migration** — Create tables, types, RLS policies
-2. **Upgrade ApplicationDetailModal** — Show new structured application fields
-3. **Admin submission review UI** — `/admin/trail-blazer`
-4. **Settings entry card** — Conditional Trail Blazer link
-5. **Submission flow** — `/contribute` with 5-step form
-6. **Contributions list** — `/contributions` minimal view
-
-This order ensures:
-- Schema is stable before UI
-- Admins can review before content flows in
-- UX edge cases are discovered through admin use
+| Admin UI Term | Rationale |
+|---------------|-----------|
+| "Content Submissions" | Not "posts" or "articles" |
+| "Context" | Place-first annotation framing |
+| "Request Revision" | Collaborative, not punitive |
+| "Approve without link" | Granular control without rejection |
 
