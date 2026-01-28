@@ -8,7 +8,7 @@ const Footer = () => {
     <footer className="py-20 md:py-28 bg-primary">
       <div className="container max-w-6xl">
         {/* Main Grid: Brand + Links */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-12 lg:gap-16">
           
           {/* Zone A: Brand Anchor */}
           <div className="space-y-6">
@@ -41,17 +41,17 @@ const Footer = () => {
             </nav>
           </div>
           
-          {/* Community */}
+          {/* Use Cases */}
           <div>
             <h4 className="text-sm font-medium text-primary-foreground/70 mb-4">
-              Community
+              Use Cases
             </h4>
             <nav className="flex flex-col gap-2.5">
               <Link to="/community" className={linkClasses}>
-                Gay Community
+                Outdoor Community
               </Link>
               <Link to="/find-friends" className={linkClasses}>
-                Find Friends
+                Friends & Groups
               </Link>
               <Link to="/couples" className={linkClasses}>
                 Couples
@@ -59,14 +59,17 @@ const Footer = () => {
             </nav>
           </div>
           
-          {/* Company */}
+          {/* About */}
           <div>
             <h4 className="text-sm font-medium text-primary-foreground/70 mb-4">
-              Company
+              About
             </h4>
             <nav className="flex flex-col gap-2.5">
               <Link to="/about" className={linkClasses}>
-                About
+                Why ThickTimber
+              </Link>
+              <Link to="/ambassadors" className={linkClasses}>
+                Trail Blazers
               </Link>
               <Link to="/faq" className={linkClasses}>
                 FAQ
@@ -74,11 +77,20 @@ const Footer = () => {
               <Link to="/pricing" className={linkClasses}>
                 Pricing
               </Link>
+            </nav>
+          </div>
+          
+          {/* Legal */}
+          <div>
+            <h4 className="text-sm font-medium text-primary-foreground/70 mb-4">
+              Legal
+            </h4>
+            <nav className="flex flex-col gap-2.5">
               <Link to="/terms" className={linkClasses}>
-                Terms
+                Terms of Service
               </Link>
               <Link to="/privacy" className={linkClasses}>
-                Privacy
+                Privacy Policy
               </Link>
             </nav>
           </div>
