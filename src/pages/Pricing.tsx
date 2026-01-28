@@ -309,11 +309,11 @@ const Pricing = () => {
               duration: 0.6,
               delay: 0.1
             }} className="space-y-6">
-                <p className="text-lg text-muted-foreground leading-relaxed text-pretty text-justify">
+                <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
                   The free directory surfaces places based on shared patterns of use across all members. 
                   Every favorite, every visit contributes to collective intelligence that benefits everyone.
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed text-pretty text-justify">
+                <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
                   Pro lets you privately add more context — like interests, relationship dynamics, and hobbies — 
                   so the system can find where your specific patterns overlap with others seeking similar things.
                 </p>
@@ -383,7 +383,7 @@ const Pricing = () => {
               Create Free Account
             </Button>
             <Button size="lg" variant="outline" className="min-w-[200px] border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/places")}>
-              Explore Places
+              Explore Outdoors
             </Button>
           </motion.div>
         </div>
