@@ -1,10 +1,10 @@
 
 
-# Plan: Update "Who This Is For" Section
+# Plan: Update Privacy & Trust Section Copy
 
 ## Summary
 
-Transform the current contrarian "WhoThisIsNotFor" section into a positive, welcoming "Who This Works Well For" section with structured copy about the ideal user profile.
+Update the "Privacy & Trust" section with refined messaging that better explains the default-private architecture and the distinction between free directory patterns and PRO personalization.
 
 ---
 
@@ -12,128 +12,97 @@ Transform the current contrarian "WhoThisIsNotFor" section into a positive, welc
 
 | Element | Current | New |
 |---------|---------|-----|
-| **Headline** | "Real community doesn't happen in an app." | "Who This Works Well For" |
-| **Body Structure** | 4-item exclusion list | Intro paragraph + 5-item checklist + closing statements + boundary statement |
-| **Tone** | Contrarian/negative framing | Positive/inclusive framing |
-| **Content Focus** | What we don't have | Who benefits from this tool |
+| **Section Label** | "Your Data" | "Your Data" (unchanged) |
+| **Headline** | "Your preferences are private." | "Designed to be private by default." |
+| **Body Copy** | Single long paragraph | 4 structured paragraphs |
+| **Closing Line** | "This is how personalization should work." | "Private by default. Intentional by design." |
 
 ---
 
 ## New Content Structure
 
 ```text
-Headline: Who This Works Well For
+Headline: Designed to be private by default.
 
-Intro: ThickTimber is designed for men who enjoy outdoor and active 
-lifestyles and are curious about connecting more organically through 
-shared interests and places.
+Paragraph 1: The places you save and how you use the directory are never public.
+There's no public profile, no visible activity, and no expectation to share 
+more than you choose.
 
-Label: It works especially well if you:
+Paragraph 2: The free directory reflects community-level patterns—surfacing 
+places men tend to enjoy and return to—without exposing individual behavior. 
+Your saved places remain yours.
 
-Checklist:
-✓ Spend time hiking, camping, running, cycling, or being active outdoors
-✓ Enjoy discovering new places and revisiting the ones that feel right
-✓ Prefer low-pressure ways to meet people in the real world
-✓ Value privacy and don't want your interests or routines on public display
-✓ Like the idea of a tool that supports real-world experiences without demanding constant attention
+Paragraph 3: For those who choose to subscribe to PRO, additional preferences 
+can be added privately to help the directory better understand your interests, 
+routines, and outdoor habits. This information is used only to refine your 
+recommendations and is never shared or displayed.
 
-Closing Statements:
-You don't need to be especially social.
-You don't need to be new to an area.
-You just need to enjoy showing up.
+Paragraph 4: Privacy isn't an add-on. It's built into how the directory works.
 
-Boundary Statement:
-ThickTimber isn't built around browsing people or chasing attention.
-It's built around places—and what happens when people keep returning to them.
+Closing: Private by default. Intentional by design.
 ```
 
 ---
 
 ## Implementation
 
-**File**: `src/components/WhoThisIsNotFor.tsx`
+**File**: `src/components/PrivacyTrust.tsx`
 
-### 1. Update Component Data
-
-Replace the `exclusions` array with a `traits` array for the checklist items:
+### 1. Update Headline (Line 49-51)
 
 ```tsx
-const traits = [
-  "Spend time hiking, camping, running, cycling, or being active outdoors",
-  "Enjoy discovering new places and revisiting the ones that feel right",
-  "Prefer low-pressure ways to meet people in the real world",
-  "Value privacy and don't want your interests or routines on public display",
-  "Like the idea of a tool that supports real-world experiences without demanding constant attention"
-];
+// Before
+Your preferences are private.
+
+// After
+Designed to be private by default.
 ```
 
-### 2. Restructure JSX Layout
+### 2. Replace Body Copy (Lines 62-67)
 
-Replace the current grid layout with a new structure:
-
-```tsx
-{/* Headline */}
-<h2>Who This Works Well For</h2>
-
-{/* Intro paragraph */}
-<p>ThickTimber is designed for men who enjoy outdoor and active lifestyles...</p>
-
-{/* Checklist label */}
-<p>It works especially well if you:</p>
-
-{/* Traits checklist with Check icons */}
-<ul>
-  {traits.map((trait, i) => (
-    <li><Check /> {trait}</li>
-  ))}
-</ul>
-
-{/* Closing statements */}
-<div>
-  <p>You don't need to be especially social.</p>
-  <p>You don't need to be new to an area.</p>
-  <p>You just need to enjoy showing up.</p>
-</div>
-
-{/* Boundary statement */}
-<p>ThickTimber isn't built around browsing people or chasing attention.
-   It's built around places—and what happens when people keep returning to them.</p>
-```
-
-### 3. Add Check Icon Import
+Replace the current prose with structured paragraphs:
 
 ```tsx
-import { Check } from "lucide-react";
+<p className="text-foreground text-base md:text-lg leading-relaxed mb-5">
+  The places you save and how you use the directory are never public.
+  There's no public profile, no visible activity, and no expectation to share more than you choose.
+</p>
+
+<p className="text-foreground text-base md:text-lg leading-relaxed mb-5">
+  The free directory reflects community-level patterns—surfacing places men tend to enjoy and return to—without exposing individual behavior. Your saved places remain yours.
+</p>
+
+<p className="text-foreground text-base md:text-lg leading-relaxed mb-5">
+  For those who choose to subscribe to PRO, additional preferences can be added privately to help the directory better understand your interests, routines, and outdoor habits. This information is used only to refine your recommendations and is never shared or displayed.
+</p>
+
+<p className="text-foreground text-base md:text-lg leading-relaxed mb-6">
+  Privacy isn't an add-on. It's built into how the directory works.
+</p>
+
+<p className="text-muted-foreground text-base md:text-lg leading-relaxed font-medium">
+  Private by default. Intentional by design.
+</p>
 ```
 
 ---
 
-## Visual Design
+## Typography Hierarchy
 
-| Element | Styling |
-|---------|---------|
-| Background | Keep `bg-primary text-primary-foreground` (dark section) |
-| Headline | `font-serif text-3xl md:text-4xl lg:text-5xl font-semibold` |
-| Intro paragraph | `text-lg md:text-xl text-primary-foreground/80` |
-| Checklist label | `text-primary-foreground/70 font-medium` |
-| Checklist items | `text-primary-foreground/80` with Check icon in accent color |
-| Closing statements | `text-primary-foreground/90 font-medium` (stacked, centered) |
-| Boundary statement | `text-primary-foreground/60 text-base` (subtle, smaller) |
-
----
-
-## Animation Preservation
-
-- Keep existing Framer Motion scroll-triggered animations
-- Keep parallax ghost symbol effect (update symbol if desired)
-- Stagger checklist item animations similar to current exclusions
+| Element | Style |
+|---------|-------|
+| Main paragraphs | `text-foreground text-base md:text-lg leading-relaxed mb-5` |
+| Final explanatory paragraph | `text-foreground text-base md:text-lg leading-relaxed mb-6` |
+| Closing line | `text-muted-foreground text-base md:text-lg font-medium` - subtle emphasis |
 
 ---
 
 ## Technical Notes
 
-- Component filename remains `WhoThisIsNotFor.tsx` (can be renamed later if desired)
-- Keep the dark `bg-primary` section styling for visual contrast
-- Use `Check` icon from lucide-react for checklist items
-- Maintain mobile-first responsive design with centered text on small screens
+- Section label "Your Data" remains unchanged
+- Two-column layout remains unchanged (headline left, body right with accent border)
+- All Framer Motion animations remain unchanged
+- Ghost typography parallax effect remains unchanged
+- Removes `text-justify` from paragraphs for cleaner left-aligned reading
+- Uses consistent `mb-5` spacing between paragraphs for visual rhythm
 
