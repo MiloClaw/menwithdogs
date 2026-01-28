@@ -82,10 +82,10 @@ const TagPage = () => {
         className="relative h-[400px] md:h-[500px] overflow-hidden"
       >
         {heroImage ? (
-        <motion.img 
+          <motion.img 
             src={heroImage}
             alt={`${tagPage.title} - outdoor setting`}
-            className="absolute inset-0 w-full h-full object-cover object-center md:object-[center_35%]"
+            className="absolute inset-0 w-full h-full object-cover object-center"
             style={{ y: imageY }}
           />
         ) : (
