@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,23 +14,31 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
-import { useAmbassadorApplication } from '@/hooks/useAmbassadorApplication';
+import { useTrailBlazerApplication } from '@/hooks/useTrailBlazerApplication';
 import { useAuth } from '@/hooks/useAuth';
 
-// Form schema - updated for Trail Blazers
+// New components
+import RoleTypeSelector from '@/components/ambassadors/RoleTypeSelector';
+import ExpertiseAreaSelector from '@/components/ambassadors/ExpertiseAreaSelector';
+import PortfolioLinksEditor from '@/components/ambassadors/PortfolioLinksEditor';
+import PlaceReferenceSearch from '@/components/ambassadors/PlaceReferenceSearch';
+import AcknowledgementsChecklist from '@/components/ambassadors/AcknowledgementsChecklist';
+
+import type { RoleType, ExpertiseArea, PortfolioLink, PlaceReference, Acknowledgements } from '@/lib/trail-blazer-options';
+
+// Form schema - updated for Trail Blazers with structured signals
 const applicationSchema = z.object({
   name: z.string().min(2, 'Please enter your name'),
-  region: z.string().optional(), // Made optional - was city
+  email: z.string().email('Please enter a valid email'),
+  region: z.string().optional(),
   regionGooglePlaceId: z.string().optional(),
   regionState: z.string().optional(),
   regionCountry: z.string().default('US'),
-  specificPlaces: z.string().min(20, 'Please share at least 2-3 places').max(500, 'Please keep it under 500 characters'),
-  expertiseArea: z.string().min(20, 'Please share a bit more about your expertise').max(500, 'Please keep it under 500 characters'),
+  contributionIntent: z.string().min(20, 'Please share a bit more about how you would add value').max(500, 'Please keep it under 500 characters'),
+  specificPlaces: z.string().optional(),
+  existingContent: z.string().optional(),
   hasBusinessAffiliation: z.boolean().default(false),
   businessAffiliationDetails: z.string().optional(),
-  existingContent: z.string().optional(), // Was localKnowledge
-  contentLinks: z.string().optional(), // Was socialLinks
-  email: z.string().email('Please enter a valid email'),
 });
 
 type ApplicationFormData = z.infer<typeof applicationSchema>;
@@ -48,7 +56,21 @@ const staggerContainer: Variants = {
 
 const Ambassadors = () => {
   const { user } = useAuth();
-  const { submitApplication, isSubmitting, isSubmitted } = useAmbassadorApplication();
+  const { submitApplication, isSubmitting, isSubmitted } = useTrailBlazerApplication();
+  
+  // Structured signal state
+  const [roleTypes, setRoleTypes] = useState<RoleType[]>([]);
+  const [otherRoleDescription, setOtherRoleDescription] = useState('');
+  const [expertiseAreas, setExpertiseAreas] = useState<ExpertiseArea[]>([]);
+  const [otherExpertiseDescription, setOtherExpertiseDescription] = useState('');
+  const [portfolioLinks, setPortfolioLinks] = useState<PortfolioLink[]>([]);
+  const [placeReference, setPlaceReference] = useState<PlaceReference | undefined>();
+  const [acknowledgements, setAcknowledgements] = useState<Acknowledgements>({
+    placeFocus: false,
+    linkReview: false,
+    noPublicProfile: false,
+    noPromotionRequired: false,
+  });
   
   // Parallax refs
   const heroRef = useRef<HTMLDivElement>(null);
@@ -68,37 +90,57 @@ const Ambassadors = () => {
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       name: '',
+      email: user?.email || '',
       region: '',
       regionGooglePlaceId: '',
       regionState: '',
       regionCountry: 'US',
+      contributionIntent: '',
       specificPlaces: '',
-      expertiseArea: '',
+      existingContent: '',
       hasBusinessAffiliation: false,
       businessAffiliationDetails: '',
-      existingContent: '',
-      contentLinks: '',
-      email: user?.email || '',
     },
   });
 
   const watchBusinessAffiliation = form.watch('hasBusinessAffiliation');
 
+  // Validation for structured signals
+  const allAcknowledged = Object.values(acknowledgements).every(Boolean);
+  const hasRoleTypes = roleTypes.length > 0;
+  const hasExpertiseAreas = expertiseAreas.length > 0;
+
   const onSubmit = async (data: ApplicationFormData) => {
+    // Validate structured signals
+    if (!hasRoleTypes) {
+      return;
+    }
+    if (!hasExpertiseAreas) {
+      return;
+    }
+    if (!allAcknowledged) {
+      return;
+    }
+
     await submitApplication({
       name: data.name,
-      cityName: data.region || 'Not specified', // Map to existing DB field
-      cityGooglePlaceId: data.regionGooglePlaceId,
-      cityState: data.regionState,
-      cityCountry: data.regionCountry,
-      tenure: 'not_applicable', // Default value for DB compatibility
+      email: data.email,
+      region: data.region,
+      regionGooglePlaceId: data.regionGooglePlaceId,
+      regionState: data.regionState,
+      regionCountry: data.regionCountry || 'US',
+      contributionIntent: data.contributionIntent,
       specificPlaces: data.specificPlaces,
-      motivation: data.expertiseArea, // Map to existing DB field
+      existingContent: data.existingContent,
       hasBusinessAffiliation: data.hasBusinessAffiliation,
       businessAffiliationDetails: data.businessAffiliationDetails,
-      localKnowledge: data.existingContent || 'Not provided', // Map to existing DB field
-      socialLinks: data.contentLinks,
-      email: data.email,
+      roleTypes,
+      otherRoleDescription,
+      expertiseAreas,
+      otherExpertiseDescription,
+      portfolioLinks,
+      placeReference,
+      acknowledgements,
     });
   };
 
@@ -417,147 +459,24 @@ const Ambassadors = () => {
             ) : (
               <motion.div variants={fadeInUp}>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    {/* Name */}
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="First name or preferred name"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+                    {/* Section 1: Identity */}
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">About You</h3>
+                        <p className="text-sm text-muted-foreground">Basic information to identify your application.</p>
+                      </div>
 
-                    {/* Region (Optional) */}
-                    <FormField
-                      control={form.control}
-                      name="region"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Primary region
-                            <span className="text-muted-foreground font-normal ml-2">(optional)</span>
-                          </FormLabel>
-                          <FormControl>
-                            <GooglePlacesAutocomplete
-                              value={field.value || ''}
-                              onChange={field.onChange}
-                              onPlaceSelect={(place) => {
-                                field.onChange(place?.name || '');
-                                form.setValue('regionGooglePlaceId', place?.place_id || '');
-                                const addressParts = place?.formatted_address?.split(', ') || [];
-                                const state = addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '';
-                                const country = addressParts.length >= 1 ? addressParts[addressParts.length - 1] : 'US';
-                                form.setValue('regionState', state || '');
-                                form.setValue('regionCountry', country || 'US');
-                              }}
-                              placeholder="Search for a region, state, or country..."
-                              types="(regions)"
-                            />
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Not required. Trail Blazers can contribute from anywhere.
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Specific Places */}
-                    <FormField
-                      control={form.control}
-                      name="specificPlaces"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>2-3 outdoor places you'd recommend adding to the directory</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Trails, campsites, beaches, swimming holes — places worth knowing about"
-                              className="min-h-[120px] resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Be specific about location and what makes each place notable. {field.value?.length || 0}/500 characters
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Expertise Area */}
-                    <FormField
-                      control={form.control}
-                      name="expertiseArea"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>What areas of outdoor or active-lifestyle expertise do you focus on?</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Hiking, camping, trail running, cycling, swimming — tell us about your focus areas"
-                              className="min-h-[100px] resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {field.value?.length || 0}/500 characters
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Business Affiliation */}
-                    <FormField
-                      control={form.control}
-                      name="hasBusinessAffiliation"
-                      render={({ field }) => (
-                        <FormItem className="space-y-4">
-                          <FormLabel>Do you own or work at any outdoor-related businesses?</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={(value) => field.onChange(value === 'yes')}
-                              value={field.value ? 'yes' : 'no'}
-                              className="flex gap-6"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="no" id="no" className="h-5 w-5" />
-                                <label htmlFor="no" className="text-sm cursor-pointer">No</label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="yes" id="yes" className="h-5 w-5" />
-                                <label htmlFor="yes" className="text-sm cursor-pointer">Yes</label>
-                              </div>
-                            </RadioGroup>
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground">
-                            This helps us understand potential affiliations — it won't disqualify you.
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Business Affiliation Details - Conditional */}
-                    {watchBusinessAffiliation && (
+                      {/* Name */}
                       <FormField
                         control={form.control}
-                        name="businessAffiliationDetails"
+                        name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Please describe your affiliation</FormLabel>
+                            <FormLabel>Your name</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="What business(es) and your role..."
-                                className="min-h-[80px] resize-none"
+                              <Input
+                                placeholder="First name or preferred name"
                                 {...field}
                               />
                             </FormControl>
@@ -565,79 +484,225 @@ const Ambassadors = () => {
                           </FormItem>
                         )}
                       />
-                    )}
 
-                    {/* Existing Content */}
-                    <FormField
-                      control={form.control}
-                      name="existingContent"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Do you have existing writing, guides, or published content?
-                            <span className="text-muted-foreground font-normal ml-2">(optional)</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Tell us about any blogs, publications, or guides you've created..."
-                              className="min-h-[100px] resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      {/* Email */}
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="your@email.com"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                    {/* Content Links (Optional) */}
-                    <FormField
-                      control={form.control}
-                      name="contentLinks"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Links to relevant writing or guides
-                            <span className="text-muted-foreground font-normal ml-2">(optional)</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Blog, publication, guide platform, etc."
-                              className="min-h-[80px] resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Links are reviewed for relevance and quality.
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      {/* Region (Optional) */}
+                      <FormField
+                        control={form.control}
+                        name="region"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Primary region
+                              <span className="text-muted-foreground font-normal ml-2">(optional)</span>
+                            </FormLabel>
+                            <FormControl>
+                              <GooglePlacesAutocomplete
+                                value={field.value || ''}
+                                onChange={field.onChange}
+                                onPlaceSelect={(place) => {
+                                  field.onChange(place?.name || '');
+                                  form.setValue('regionGooglePlaceId', place?.place_id || '');
+                                  const addressParts = place?.formatted_address?.split(', ') || [];
+                                  const state = addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '';
+                                  const country = addressParts.length >= 1 ? addressParts[addressParts.length - 1] : 'US';
+                                  form.setValue('regionState', state || '');
+                                  form.setValue('regionCountry', country || 'US');
+                                }}
+                                placeholder="Search for a region, state, or country..."
+                                types="(regions)"
+                              />
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Not required. Trail Blazers can contribute from anywhere.
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                    {/* Email */}
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              placeholder="your@email.com"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                    {/* Section 2: Role Types */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">What best describes you?</h3>
+                        <p className="text-sm text-muted-foreground">Select all that apply.</p>
+                      </div>
+                      <RoleTypeSelector
+                        selectedRoles={roleTypes}
+                        onRolesChange={setRoleTypes}
+                        otherDescription={otherRoleDescription}
+                        onOtherDescriptionChange={setOtherRoleDescription}
+                      />
+                      {!hasRoleTypes && (
+                        <p className="text-sm text-destructive">Please select at least one role type.</p>
                       )}
-                    />
+                    </div>
+
+                    {/* Section 3: Expertise Areas */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">Areas of Expertise</h3>
+                        <p className="text-sm text-muted-foreground">What outdoor or active-lifestyle domains do you focus on?</p>
+                      </div>
+                      <ExpertiseAreaSelector
+                        selectedAreas={expertiseAreas}
+                        onAreasChange={setExpertiseAreas}
+                        otherDescription={otherExpertiseDescription}
+                        onOtherDescriptionChange={setOtherExpertiseDescription}
+                      />
+                      {!hasExpertiseAreas && (
+                        <p className="text-sm text-destructive">Please select at least one expertise area.</p>
+                      )}
+                    </div>
+
+                    {/* Section 4: Portfolio Links */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">
+                          Portfolio Links
+                          <span className="text-muted-foreground font-normal text-base ml-2">(optional)</span>
+                        </h3>
+                        <p className="text-sm text-muted-foreground">Add up to 5 links to your existing writing, guides, or photography.</p>
+                      </div>
+                      <PortfolioLinksEditor
+                        links={portfolioLinks}
+                        onLinksChange={setPortfolioLinks}
+                        maxLinks={5}
+                      />
+                    </div>
+
+                    {/* Section 5: Contribution Intent */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">Contribution Intent</h3>
+                        <p className="text-sm text-muted-foreground">Help us understand how your perspective would add value.</p>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="contributionIntent"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>How would your perspective add value to a place?</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="What unique knowledge or experience would you bring? How do you think about places differently?"
+                                className="min-h-[120px] resize-none"
+                                {...field}
+                              />
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              3-5 sentences is plenty. {field.value?.length || 0}/500 characters
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Section 6: Optional Place Reference */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">
+                          Specific Place
+                          <span className="text-muted-foreground font-normal text-base ml-2">(optional)</span>
+                        </h3>
+                        <p className="text-sm text-muted-foreground">Is there a specific place you'd like to contribute knowledge about?</p>
+                      </div>
+                      <PlaceReferenceSearch
+                        placeReference={placeReference}
+                        onPlaceReferenceChange={setPlaceReference}
+                      />
+                    </div>
+
+                    {/* Section 7: Business Affiliation */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <FormField
+                        control={form.control}
+                        name="hasBusinessAffiliation"
+                        render={({ field }) => (
+                          <FormItem className="space-y-4">
+                            <FormLabel>Do you own or work at any outdoor-related businesses?</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={(value) => field.onChange(value === 'yes')}
+                                value={field.value ? 'yes' : 'no'}
+                                className="flex gap-6"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="no" id="no" className="h-5 w-5" />
+                                  <label htmlFor="no" className="text-sm cursor-pointer">No</label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="yes" id="yes" className="h-5 w-5" />
+                                  <label htmlFor="yes" className="text-sm cursor-pointer">Yes</label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground">
+                              This helps us understand potential affiliations — it won't disqualify you.
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {watchBusinessAffiliation && (
+                        <FormField
+                          control={form.control}
+                          name="businessAffiliationDetails"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Please describe your affiliation</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="What business(es) and your role..."
+                                  className="min-h-[80px] resize-none"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+
+                    {/* Section 8: Acknowledgements */}
+                    <div className="space-y-4 pt-6 border-t border-border/40">
+                      <div>
+                        <h3 className="font-serif text-xl font-semibold mb-2">Acknowledgements</h3>
+                        <p className="text-sm text-muted-foreground">Please confirm you understand the following.</p>
+                      </div>
+                      <AcknowledgementsChecklist
+                        acknowledgements={acknowledgements}
+                        onAcknowledgementsChange={setAcknowledgements}
+                      />
+                    </div>
 
                     <Button
                       type="submit"
                       size="lg"
                       className="w-full"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !hasRoleTypes || !hasExpertiseAreas || !allAcknowledged}
                     >
                       {isSubmitting ? 'Submitting...' : 'Apply to Be a Trail Blazer'}
                     </Button>
