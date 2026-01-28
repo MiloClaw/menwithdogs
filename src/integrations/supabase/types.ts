@@ -57,6 +57,7 @@ export type Database = {
       }
       ambassador_applications: {
         Row: {
+          admin_notes: string | null
           business_affiliation_details: string | null
           city_country: string
           city_google_place_id: string | null
@@ -78,10 +79,11 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_notes?: string | null
           business_affiliation_details?: string | null
           city_country?: string
           city_google_place_id?: string | null
-          city_name: string
+          city_name?: string
           city_state?: string | null
           created_at?: string
           email: string
@@ -95,10 +97,11 @@ export type Database = {
           social_links?: string | null
           specific_places?: string | null
           status?: string
-          tenure: string
+          tenure?: string
           user_id?: string | null
         }
         Update: {
+          admin_notes?: string | null
           business_affiliation_details?: string | null
           city_country?: string
           city_google_place_id?: string | null
@@ -2082,6 +2085,200 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "taxonomy_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trail_blazer_acknowledgements: {
+        Row: {
+          ack_link_review: boolean
+          ack_no_promotion_required: boolean
+          ack_no_public_profile: boolean
+          ack_place_focus: boolean
+          acknowledged_at: string | null
+          application_id: string
+          id: string
+        }
+        Insert: {
+          ack_link_review?: boolean
+          ack_no_promotion_required?: boolean
+          ack_no_public_profile?: boolean
+          ack_place_focus?: boolean
+          acknowledged_at?: string | null
+          application_id: string
+          id?: string
+        }
+        Update: {
+          ack_link_review?: boolean
+          ack_no_promotion_required?: boolean
+          ack_no_public_profile?: boolean
+          ack_place_focus?: boolean
+          acknowledged_at?: string | null
+          application_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_blazer_acknowledgements_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "ambassador_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trail_blazer_expertise_signals: {
+        Row: {
+          application_id: string
+          created_at: string | null
+          expertise_areas: string[]
+          id: string
+          other_expertise_description: string | null
+        }
+        Insert: {
+          application_id: string
+          created_at?: string | null
+          expertise_areas?: string[]
+          id?: string
+          other_expertise_description?: string | null
+        }
+        Update: {
+          application_id?: string
+          created_at?: string | null
+          expertise_areas?: string[]
+          id?: string
+          other_expertise_description?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_blazer_expertise_signals_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "ambassador_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trail_blazer_identity_signals: {
+        Row: {
+          application_id: string
+          created_at: string | null
+          id: string
+          other_role_description: string | null
+          role_types: string[]
+        }
+        Insert: {
+          application_id: string
+          created_at?: string | null
+          id?: string
+          other_role_description?: string | null
+          role_types?: string[]
+        }
+        Update: {
+          application_id?: string
+          created_at?: string | null
+          id?: string
+          other_role_description?: string | null
+          role_types?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_blazer_identity_signals_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "ambassador_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trail_blazer_place_references: {
+        Row: {
+          admin_place_notes: string | null
+          application_id: string
+          created_at: string | null
+          directory_place_id: string | null
+          formatted_address: string | null
+          google_place_id: string
+          id: string
+          place_name: string
+          place_status: string
+          place_types: string[] | null
+        }
+        Insert: {
+          admin_place_notes?: string | null
+          application_id: string
+          created_at?: string | null
+          directory_place_id?: string | null
+          formatted_address?: string | null
+          google_place_id: string
+          id?: string
+          place_name: string
+          place_status?: string
+          place_types?: string[] | null
+        }
+        Update: {
+          admin_place_notes?: string | null
+          application_id?: string
+          created_at?: string | null
+          directory_place_id?: string | null
+          formatted_address?: string | null
+          google_place_id?: string
+          id?: string
+          place_name?: string
+          place_status?: string
+          place_types?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_blazer_place_references_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "ambassador_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trail_blazer_place_references_directory_place_id_fkey"
+            columns: ["directory_place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trail_blazer_portfolio_links: {
+        Row: {
+          application_id: string
+          content_type: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          submitted_order: number
+          url: string
+        }
+        Insert: {
+          application_id: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          submitted_order?: number
+          url: string
+        }
+        Update: {
+          application_id?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          submitted_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_blazer_portfolio_links_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "ambassador_applications"
             referencedColumns: ["id"]
           },
         ]
