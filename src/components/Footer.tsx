@@ -53,7 +53,7 @@ const Footer = () => {
               <Link to="/find-friends" className={linkClasses}>
                 Friends & Groups
               </Link>
-              <Link to="/couples" className={linkClasses}>
+              <Link to="/together" className={linkClasses}>
                 Couples
               </Link>
             </nav>
