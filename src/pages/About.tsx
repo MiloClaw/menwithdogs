@@ -10,22 +10,22 @@ const values = [
   {
     icon: Shield,
     title: "Privacy by Default",
-    description: "No public profiles. No searchable users. Your presence is yours to control—always."
+    description: "Your activity and preferences aren't public. Participation is quiet and intentional."
   },
   {
     icon: Heart,
     title: "Real-World Connection",
-    description: "Built for showing up in real life, not endless scrolling. Meet people on trails and at campsites."
+    description: "Built to support showing up in real life—not to replace it."
   },
   {
     icon: MapPin,
     title: "Place-First Discovery",
-    description: "The places come first. Community forms around them naturally, not the other way around."
+    description: "Community forms around shared spaces, not profiles."
   },
   {
     icon: Users,
     title: "Quiet Community",
-    description: "No likes, followers, or popularity mechanics. Just shared spaces and genuine moments."
+    description: "No performance metrics. No pressure. Just shared context."
   }
 ];
 
@@ -116,7 +116,7 @@ const About = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl"
           >
-            The story behind ThickTimber
+            The thinking behind ThickTimber
           </motion.p>
         </div>
       </section>
@@ -156,20 +156,17 @@ const About = () => {
               className="space-y-6"
             >
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                Gay men who love the outdoors — hiking, camping, beaches, swimming holes — 
-                often struggle to find each other. Dating apps promise connection but deliver 
-                endless scrolling and performative profiles. Meanwhile, the best outdoor 
-                spots feel harder to discover, and finding others who share your love of 
-                nature feels almost impossible.
+                Gay men who enjoy the outdoors—hiking, camping, beaches, swimming holes—often 
+                struggle to find each other in everyday life.
               </p>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                We watched as community moved online. We felt the fatigue of apps designed 
-                to keep us scrolling, not help us explore. We noticed how hard it had become 
-                to just... find your people. Not to date. Just to share a trail.
+                As more interaction shifted online, it became easier to stay connected digitally, 
+                but harder to understand where community actually gathers in the real world. 
+                Whether single or partnered, new to an area or deeply rooted, the question kept 
+                coming up:
               </p>
               <p className="text-base md:text-lg text-foreground font-medium leading-relaxed">
-                Single or partnered, introvert or social, new to an area or deeply rooted — 
-                the problem was the same: where do gay men who love the outdoors actually go?
+                Where do men who love being outdoors actually go?
               </p>
             </motion.div>
           </div>
@@ -201,25 +198,24 @@ const About = () => {
             </h2>
             <div className="space-y-6 text-base md:text-lg text-primary-foreground/90 leading-relaxed">
               <p>
-                ThickTimber is a private directory of outdoor spaces where gay men who love 
-                nature already gather — curated by people who understand, not algorithms 
-                chasing engagement.
+                ThickTimber is a private directory of outdoor spaces where men who love being 
+                active tend to gather—shaped by shared place knowledge and community behavior, 
+                not engagement-driven algorithms.
               </p>
               <p>
-                We help you discover hiking trails, campsites, beaches, swimming holes, 
-                and outdoor events. Places where real life actually happens. And over time, 
-                we help you find places where showing up feels natural.
+                It helps surface hiking trails, campsites, beaches, swimming holes, and outdoor 
+                events—places where real life happens and familiarity builds over time.
               </p>
               <p className="text-primary-foreground font-medium">
-                No messaging pressure. No awkward intros. Just a clear signal that connection 
-                is welcome — on the trail, around the campfire, wherever you choose.
+                There's no pressure to interact. No expectation to perform. Just clearer context 
+                for showing up in the real world, on your own terms.
               </p>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* What This Is Not Section */}
+      {/* What This Isn't Built Around Section */}
       <section className="py-20 md:py-28 bg-surface/50">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
@@ -230,12 +226,10 @@ const About = () => {
               transition={{ duration: 0.7 }}
             >
               <span className="text-xs font-mono tracking-[0.2em] uppercase text-muted-foreground mb-4 block">
-                What This Is Not
+                What This Isn't Built Around
               </span>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-                Not a dating app.
-                <br />
-                <span className="text-muted-foreground">Not a social network.</span>
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground text-balance">
+                The focus stays on places.
               </h2>
             </motion.div>
 
@@ -247,13 +241,12 @@ const About = () => {
               className="space-y-6"
             >
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                There are no likes, swipes, or popularity mechanics. No public profiles or 
-                searchable users. No DMs from strangers or pressure to perform.
+                ThickTimber isn't centered on browsing people or competing for attention. 
+                It doesn't rely on popularity mechanics or constant interaction.
               </p>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                If you're looking to browse people or chase attention, this isn't the place. 
-                We're building something different: a tool for people who want to show up 
-                in real life, on their own terms — preferably outdoors.
+                The focus stays on places—and what naturally happens when people keep 
+                returning to them.
               </p>
             </motion.div>
           </div>
@@ -380,7 +373,7 @@ const About = () => {
                 at the campsites, in the places that matter.
               </p>
               <p className="text-foreground font-medium text-lg md:text-xl">
-                A nod on the trail. A hello at the campsite. A conversation that starts 
+                A nod on the trail. A familiar face at the campsite. A conversation that starts 
                 where you already are.
               </p>
             </div>
@@ -409,10 +402,10 @@ const About = () => {
               Ready?
             </span>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-8 text-balance">
-              Ready to find your trail?
+              Ready to explore?
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-10">
-              Discover the outdoor spaces where gay men who love nature already gather.
+              Discover the outdoor places where shared interests bring people together.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -422,7 +415,7 @@ const About = () => {
                 onClick={() => navigate('/auth?mode=signup')}
                 className="w-full sm:w-auto"
               >
-                Create Free Account
+                Join Free
               </Button>
               <Button
                 size="lg"
@@ -431,7 +424,7 @@ const About = () => {
                 className="w-full sm:w-auto text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
               >
                 <Mountain className="w-4 h-4 mr-2" />
-                Explore Outdoors
+                Explore Places
               </Button>
             </div>
           </motion.div>
