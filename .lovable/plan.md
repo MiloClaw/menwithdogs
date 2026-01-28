@@ -1,294 +1,240 @@
 
-# Plan: Dedicated Tag Pages with Linked Content
+# Plan: Restyle TagPage to Match Landing Page Design
 
 ## Summary
 
-Create a system for certain community tags (especially sensitive ones like "Clothing Optional") to link to dedicated informational pages. These pages will explain the tag's meaning, set community expectations, and optionally link to external spaces for more sensitive discussions.
+Transform the existing TagPage from a basic article layout into a branded editorial experience matching the site's landing pages (like /outdoors, /about, /couples). The uploaded image of a man swimming in a mountain lake will be incorporated as a hero image.
 
 ---
 
-## Architecture Decision
+## Design Analysis
 
-**Two approaches considered:**
+The current TagPage uses:
+- Simple container with `max-w-3xl` constraint
+- Basic typography without serif headings
+- No motion/animation
+- No branded sections or visual hierarchy
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Static pages** (one per sensitive tag) | Full design control, SEO-friendly | More files to maintain, rigid |
-| **Dynamic tag page** (single component, data-driven) | Scalable, admin-manageable content | Slightly more complex setup |
-
-**Recommendation**: Hybrid approach
-- Create a dynamic `/tags/:slug` route that loads content based on slug
-- Store page content in a new `tag_pages` database table for admin flexibility
-- For "Clothing Optional" specifically, create rich initial content
+Landing pages use:
+- Framer Motion animations with scroll-triggered reveals
+- Serif typography (`font-serif`) for all headings
+- Numbered section markers (`01 — Section Name`)
+- Ghost/parallax background elements
+- Alternating section backgrounds (light → primary → light)
+- Card grids for feature lists
+- Strong CTA sections with `bg-primary`
 
 ---
 
 ## Implementation Tasks
 
-### Task 1: Database Schema - Add tag_pages table
+### Task 1: Add Hero Image to Assets
 
-Create a new table to store page content for tags that need dedicated pages.
+Copy the uploaded image to the project assets folder for use in the hero section.
 
-```sql
-CREATE TABLE tag_pages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tag_slug TEXT NOT NULL REFERENCES canonical_tags(slug) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  subtitle TEXT,
-  body_markdown TEXT NOT NULL,
-  external_link_url TEXT,
-  external_link_label TEXT,
-  seo_title TEXT,
-  seo_description TEXT,
-  is_published BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(tag_slug)
-);
-
--- RLS Policies
-ALTER TABLE tag_pages ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Anyone can read published tag pages"
-  ON tag_pages FOR SELECT
-  USING (is_published = true);
-
-CREATE POLICY "Admins can manage tag pages"
-  ON tag_pages FOR ALL
-  USING (has_role(auth.uid(), 'admin'::app_role));
-```
-
-### Task 2: Add has_page flag to canonical_tags
-
-Update the `canonical_tags` table to indicate which tags have dedicated pages.
-
-```sql
-ALTER TABLE canonical_tags
-ADD COLUMN has_page BOOLEAN DEFAULT false;
-```
-
-This allows the UI to conditionally render tags as links vs static badges.
+**Action**: Copy `user-uploads://Gemini_Generated_Image_we85zswe85zswe85.png` to `src/assets/tag-clothing-optional-hero.png`
 
 ---
 
-### Task 3: Create TagPage Component
+### Task 2: Restructure TagPage Component
 
-**File**: `src/pages/TagPage.tsx`
-
-A dynamic page that:
-- Fetches content from `tag_pages` based on the URL slug
-- Renders markdown body content
-- Displays optional external link (e.g., to Discord/community space)
-- Shows places tagged with this tag (discovery value)
+Transform the layout to match landing page patterns:
 
 ```text
-Structure:
+NEW STRUCTURE:
 ┌─────────────────────────────────────────────────────────────────┐
-│ PageLayout                                                       │
+│ Hero Section (with image, parallax effect)                      │
+│   - Full-width image with gradient overlay                      │
+│   - Title + subtitle centered over image                        │
+│   - Framer Motion fade-in animations                           │
 ├─────────────────────────────────────────────────────────────────┤
-│ SEOHead (dynamic title/description from tag_pages)              │
+│ Section 01 — Understanding (markdown body)                      │
+│   - Ghost parallax number in background                         │
+│   - Prose styling with serif headings                          │
 ├─────────────────────────────────────────────────────────────────┤
-│ Hero Section                                                     │
-│   - Title: "Clothing Optional"                                  │
-│   - Subtitle: "Understanding this community tag"                │
+│ Section 02 — Community Guidelines (if applicable)               │
+│   - bg-primary text-primary-foreground                          │
+│   - Bullet list with styled markers                            │
 ├─────────────────────────────────────────────────────────────────┤
-│ Body (Markdown rendered)                                        │
-│   - What this tag means                                         │
-│   - Community guidelines                                        │
-│   - No adult content disclaimer                                 │
+│ Section 03 — Places with this Tag                               │
+│   - Card grid (existing, enhanced styling)                      │
 ├─────────────────────────────────────────────────────────────────┤
-│ External Link CTA (optional)                                    │
-│   - "Join the conversation" → Discord/community link            │
-├─────────────────────────────────────────────────────────────────┤
-│ Places with this tag (optional section)                         │
-│   - Grid of PlaceCards filtered by tag                          │
+│ CTA Section (external link)                                     │
+│   - bg-primary with accent buttons                              │
+│   - "Join the Community" call to action                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### Task 4: Create useTagPage Hook
+### Task 3: Component Code Changes
 
-**File**: `src/hooks/useTagPage.ts`
+**File**: `src/pages/TagPage.tsx`
 
-```typescript
-export function useTagPage(slug: string | undefined) {
-  return useQuery({
-    queryKey: ['tag-page', slug],
-    queryFn: async () => {
-      if (!slug) return null;
-      
-      const { data, error } = await supabase
-        .from('tag_pages')
-        .select('*, canonical_tags!inner(label, category, is_sensitive)')
-        .eq('tag_slug', slug)
-        .eq('is_published', true)
-        .single();
+Key modifications:
 
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!slug,
-  });
-}
+**A. Add imports for Framer Motion and hero image**
+```tsx
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import heroImage from "@/assets/tag-clothing-optional-hero.png";
+```
+
+**B. Create hero section with image overlay**
+```tsx
+<section ref={heroRef} className="relative h-[400px] md:h-[500px] overflow-hidden">
+  <motion.img 
+    src={heroImage}
+    alt="Outdoor swimming in nature"
+    className="absolute inset-0 w-full h-full object-cover"
+    style={{ y: imageY }} // parallax effect
+  />
+  <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/50 to-primary/80" />
+  
+  <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 px-4">
+    <motion.span className="font-mono text-xs tracking-[0.2em] uppercase text-white/80 mb-4">
+      Community Tag
+    </motion.span>
+    <motion.h1 className="font-serif text-4xl md:text-5xl text-white text-center">
+      {tagPage.title}
+    </motion.h1>
+  </div>
+</section>
+```
+
+**C. Add numbered section structure**
+```tsx
+<section className="py-16 md:py-24 relative overflow-hidden">
+  <motion.div className="absolute text-[25vw] font-serif text-primary/[0.03]">01</motion.div>
+  <div className="container max-w-3xl relative z-10">
+    <span className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground">
+      01 — Understanding
+    </span>
+    <article className="prose prose-lg font-serif">
+      <ReactMarkdown>{tagPage.body_markdown}</ReactMarkdown>
+    </article>
+  </div>
+</section>
+```
+
+**D. Style CTA section with primary background**
+```tsx
+<section className="py-16 md:py-24 bg-primary text-primary-foreground">
+  <div className="container max-w-2xl text-center">
+    <span className="font-mono text-xs tracking-[0.2em] uppercase text-primary-foreground/70">
+      Connect
+    </span>
+    <h2 className="font-serif text-2xl md:text-3xl mb-6">
+      Looking for more?
+    </h2>
+    <p className="text-primary-foreground/80 mb-8">
+      For members who want to discuss more sensitive topics...
+    </p>
+    <Button size="lg" variant="secondary">Join the Community</Button>
+  </div>
+</section>
 ```
 
 ---
 
-### Task 5: Add Route to App.tsx
+### Task 4: Enhanced Place Cards Section
 
-**File**: `src/App.tsx`
+Add motion animations to the places grid:
 
 ```tsx
-import TagPage from "./pages/TagPage";
-
-// Add in Routes:
-<Route path="/tags/:slug" element={<TagPage />} />
+<section className="py-16 md:py-24 bg-surface/50">
+  <div className="container max-w-4xl">
+    <span className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4">
+      Discover
+    </span>
+    <h2 className="font-serif text-2xl md:text-3xl mb-8">
+      Places tagged "{tagPage.canonical_tags.label}"
+    </h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {places.map((place, index) => (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+        >
+          {/* Card content */}
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
 ```
 
 ---
 
-### Task 6: Update PlaceAttributeBadges to Link Tags
-
-**File**: `src/components/directory/PlaceAttributeBadges.tsx`
-
-Modify the community badge rendering to check if the tag has a page and render as a link:
-
-```tsx
-// Before (static badge):
-<Badge variant="outline">{badge.label}</Badge>
-
-// After (conditional link):
-{badge.hasPage ? (
-  <Link to={`/tags/${badge.slug}`}>
-    <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-      {badge.label}
-    </Badge>
-  </Link>
-) : (
-  <Badge variant="outline">{badge.label}</Badge>
-)}
-```
-
-This requires updating the query in `usePlaceNicheTags` to include the `has_page` flag from `canonical_tags`.
-
----
-
-### Task 7: Update usePlaceNicheTags Hook
-
-**File**: `src/hooks/usePlaceNicheTags.ts`
-
-Join with `canonical_tags` to get the `has_page` flag:
-
-```typescript
-const { data, error } = await supabase
-  .from('place_niche_tags')
-  .select('*, canonical_tags!inner(label, slug, has_page)')
-  .eq('place_id', placeId)
-  .order('created_at', { ascending: false });
-```
-
----
-
-### Task 8: Seed Initial Content for "Clothing Optional"
-
-Insert the first tag page content:
-
-```sql
-INSERT INTO tag_pages (tag_slug, title, subtitle, body_markdown, external_link_url, external_link_label, seo_title, seo_description, is_published)
-VALUES (
-  'clothing_optional',
-  'Clothing Optional',
-  'Understanding this community tag',
-  '## What This Tag Means
-
-Places tagged as "Clothing Optional" are outdoor spaces where clothing-optional practices are known or legally permitted. This includes designated nude beaches, naturist resorts, and certain hiking areas.
-
-## Our Directory Standards
-
-**ThickTimber does not host adult content.** Our directory is focused on place discovery — helping you find outdoor spaces that match your preferences and comfort level.
-
-This tag exists to help members identify places where clothing-optional practices are accepted, allowing you to make informed decisions about which places to visit.
-
-## Community Guidelines
-
-- Respect local laws and posted signage
-- Practice consent and respect others'' boundaries
-- Leave no trace — these spaces deserve protection
-
-## Looking for More?
-
-For members who want to discuss more sensitive topics or share photos from their outdoor adventures, we''ve created a dedicated community space outside our main platform.',
-  'https://discord.gg/your-community-link',
-  'Join the Community',
-  'Clothing Optional Places - ThickTimber',
-  'Discover clothing-optional outdoor spaces. Our directory helps you find nude beaches, naturist areas, and clothing-optional trails.',
-  true
-);
-
--- Update canonical_tags to mark this tag as having a page
-UPDATE canonical_tags SET has_page = true WHERE slug = 'clothing_optional';
-```
-
----
-
-## Files to Create/Modify
+## Files to Modify
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/pages/TagPage.tsx` | Create | Dynamic tag page component |
-| `src/hooks/useTagPage.ts` | Create | Fetch tag page content |
-| `src/App.tsx` | Modify | Add `/tags/:slug` route |
-| `src/components/directory/PlaceAttributeBadges.tsx` | Modify | Make tags with pages clickable |
-| `src/hooks/usePlaceNicheTags.ts` | Modify | Include `has_page` flag in query |
-
-## Database Changes
-
-| Table | Change |
-|-------|--------|
-| `tag_pages` | Create new table |
-| `canonical_tags` | Add `has_page` boolean column |
+| `src/assets/tag-clothing-optional-hero.png` | Create (copy) | Hero image for clothing optional page |
+| `src/pages/TagPage.tsx` | Modify | Complete redesign with motion, sections, hero image |
 
 ---
 
-## User Flow After Implementation
+## Visual Comparison
 
+**Before (Current)**
 ```text
-User views Place Modal:
-┌────────────────────────────────────────┐
-│ Community tagged                       │
-│   [Clothing Optional] ← clickable link │
-└────────────────────────────────────────┘
-          │
-          ▼ clicks tag
-┌────────────────────────────────────────┐
-│ /tags/clothing_optional                │
-├────────────────────────────────────────┤
-│ Clothing Optional                      │
-│ Understanding this community tag       │
-├────────────────────────────────────────┤
-│ What This Tag Means                    │
-│ ...markdown content...                 │
-├────────────────────────────────────────┤
-│ [Join the Community] → Discord link    │
-└────────────────────────────────────────┘
+┌────────────────────────────────┐
+│ ← Back to Places               │
+│ Clothing Optional              │
+│ Understanding this community   │
+│                                │
+│ [Plain markdown body]          │
+│                                │
+│ [Simple external link card]    │
+│                                │
+│ Places tagged...               │
+│ [Basic card grid]              │
+└────────────────────────────────┘
+```
+
+**After (Redesigned)**
+```text
+┌────────────────────────────────┐
+│ [HERO IMAGE - Mountain Lake]  │
+│     ░░░░░ gradient ░░░░░      │
+│                                │
+│     COMMUNITY TAG              │
+│     Clothing Optional          │
+│     (centered serif heading)   │
+├────────────────────────────────┤
+│ 01 — Understanding             │
+│ ┌──────────────────────────┐  │
+│ │ Ghost "01" in background │  │
+│ └──────────────────────────┘  │
+│ [Prose content with motion]    │
+├────────────────────────────────┤
+│ [PRIMARY BACKGROUND SECTION]  │
+│                                │
+│ 02 — Community Guidelines      │
+│ • Respect local laws           │
+│ • Practice consent             │
+│ • Leave no trace               │
+├────────────────────────────────┤
+│ [LIGHT BACKGROUND]             │
+│                                │
+│ 03 — Discover                  │
+│ [Animated place cards grid]    │
+├────────────────────────────────┤
+│ [PRIMARY BACKGROUND CTA]       │
+│                                │
+│ Looking for more?              │
+│ [Join the Community] button    │
+└────────────────────────────────┘
 ```
 
 ---
 
-## Future Extensibility
+## Technical Considerations
 
-This architecture supports:
-- Admin UI for managing tag pages (in TagManagement.tsx)
-- Multiple sensitive tags with dedicated pages
-- SEO optimization for tag discovery
-- Linking places with specific tags on the tag page
-
----
-
-## Technical Notes
-
-- The `tag_pages` table uses a foreign key to `canonical_tags.slug` ensuring data integrity
-- RLS ensures only published pages are publicly visible
-- The `has_page` flag on `canonical_tags` allows efficient conditional rendering without extra queries
-- Markdown rendering uses the existing `react-markdown` dependency
+- **Conditional hero image**: The hero image is specifically for the "clothing_optional" tag. Other tag pages will fall back to a text-only hero with a subtle background pattern
+- **Framer Motion**: Already installed in the project (used by /outdoors, /about, /couples)
+- **Responsive design**: Hero height adjusts for mobile (`h-[400px] md:h-[500px]`)
+- **Mobile-first**: All touch targets remain accessible, parallax respects reduced-motion preferences
+- **SEO preserved**: Schema and meta tags remain intact
