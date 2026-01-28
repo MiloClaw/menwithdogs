@@ -6,7 +6,7 @@ const Terms = () => {
     <PageLayout>
       <PageHeader 
         title="Terms of Service" 
-        subtitle="Last Updated: December 2024" 
+        subtitle="Last Updated: January 2025" 
       />
       
       <div className="container py-8 md:py-12 lg:py-16">
@@ -21,7 +21,6 @@ const Terms = () => {
               or use the Service.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              These Terms apply to all visitors, users, and others who access or use the Service. 
               We reserve the right to update or modify these Terms at any time. Your continued use 
               of the Service following any changes constitutes acceptance of the revised Terms.
             </p>
@@ -29,128 +28,160 @@ const Terms = () => {
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              2. Intended Use & Eligibility
+              2. Nature of the Platform
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber is an intentionally designed social platform for gay men, including 
-              both single men and men in committed relationships, who are seeking platonic 
-              friendships with other gay men.
+              ThickTimber is a place-based discovery platform that provides information and 
+              tools to help users explore real-world locations and experiences. The platform 
+              is designed specifically for gay men who enjoy outdoor and active lifestyles.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              The Service is not intended for dating, romantic relationships, or sexual connections, 
-              and use of the Service for such purposes falls outside its intended scope.
+              ThickTimber does not:
             </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
+              <li>Arrange, organize, or facilitate meetings between users</li>
+              <li>Verify the identity, intent, background, or conduct of users</li>
+              <li>Supervise, monitor, or participate in offline interactions</li>
+              <li>Guarantee any outcomes, connections, or experiences</li>
+            </ul>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              Any interaction between users—online or offline—is entirely voluntary and 
+              occurs at the users' sole discretion. ThickTimber is not responsible for 
+              the conduct of any user, whether on or off the platform.
+            </p>
+          </section>
+
+          <section className="mb-8 md:mb-12">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
+              3. Eligibility
+            </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              By creating an account or using the Service, you represent and warrant that:
+              By using ThickTimber, you represent and warrant that:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4">
               <li>You are at least 18 years of age</li>
-              <li>Your use of the Service aligns with its intended purpose, community scope, and 
-                boundaries as described in these Terms, the website, onboarding materials, FAQs, 
-                and any applicable community guidelines</li>
+              <li>You have the legal capacity to enter into these Terms</li>
+              <li>Your use complies with all applicable laws and regulations</li>
             </ul>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              3. Community Scope & Platform Focus
+              4. User Responsibility & Assumption of Risk
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              The Service is intentionally designed around a specific community and use case in 
-              order to provide a clear, respectful, and consistent experience.
+              You are solely responsible for your interactions with other users and for 
+              any activities you choose to undertake based on information provided through 
+              the platform.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              While ThickTimber respects and affirms people of all gender identities and 
-              expressions, participation in the Service is limited to users whose use aligns 
-              with the platform's defined community scope and intended purpose.
+              You acknowledge that:
             </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
+              <li>Engaging in outdoor activities, travel, or meeting others in real-world 
+                settings involves inherent risks, including personal injury, property 
+                damage, or other harm</li>
+              <li>You are responsible for evaluating the safety and suitability of any 
+                location, activity, or interaction</li>
+              <li>ThickTimber does not screen, verify, or guarantee the safety of any 
+                place, event, or user</li>
+            </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              The Service is not a general-purpose social network and does not guarantee 
-              suitability or access for all individuals or communities.
+              By using ThickTimber, you voluntarily assume all such risks.
             </p>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              4. Incorporation by Reference
-            </h2>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Descriptions of the Service's purpose, intended users, boundaries, and community 
-              guidelines provided on the website, during onboarding, or in FAQs are incorporated 
-              by reference into these Terms and form part of the agreement between you and 
-              ThickTimber.
-            </p>
-          </section>
-
-          <section className="mb-8 md:mb-12">
-            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              5. Use of the Service
-            </h2>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber is designed to help users discover local experiences and foster 
-              real-world, friendship-based community connections. The Service is intended for 
-              personal, non-commercial use only.
-            </p>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              You agree to use the Service in a manner consistent with these Terms and all 
-              applicable laws and regulations.
-            </p>
-          </section>
-
-          <section className="mb-8 md:mb-12">
-            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              6. User Conduct
+              5. User Conduct
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
               You agree not to use the Service to:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
-              <li>Harass, abuse, intimidate, or harm another person</li>
+              <li>Harass, threaten, stalk, or intimidate others</li>
+              <li>Post illegal, non-consensual, or exploitative content</li>
               <li>Impersonate any person or entity</li>
-              <li>Misrepresent your intent for using the Service</li>
-              <li>Seek dating, romantic, or sexual relationships</li>
+              <li>Engage in fraud, spam, or deceptive practices</li>
               <li>Transmit malicious code, malware, or harmful content</li>
+              <li>Scrape, harvest, or collect user data without authorization</li>
+              <li>Attempt to identify, expose, or compromise other users' private activity</li>
               <li>Interfere with or disrupt the Service or its infrastructure</li>
-              <li>Collect or harvest user data without consent</li>
             </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Failure to comply with these standards may result in restricted access or 
-              account termination.
+              Failure to comply may result in restricted access or account termination.
             </p>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              7. Scope Enforcement & Access Control
+              6. 18+ Content and Community Areas
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              To maintain the integrity, safety, and purpose of the Service, ThickTimber 
-              reserves the right, at its sole discretion, to limit, suspend, or terminate 
-              access to the Service if an account or usage is determined to fall outside 
-              the platform's intended use or community scope.
+              Certain areas of the platform may be designated for users aged 18 and older 
+              and may include mature discussions or user-generated content.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              ThickTimber does not create, endorse, moderate in real-time, or verify 
+              user-submitted content and is not responsible for interactions that occur 
+              within or outside these areas.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Decisions regarding access are made solely to preserve the platform's purpose 
-              and do not constitute a judgment of any individual's identity, expression, or 
-              personal characteristics.
+              We reserve the right to remove content that violates these Terms or 
+              applicable law.
             </p>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              8. No Guaranteed Access
+              7. No Professional Advice
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              Information provided on ThickTimber—including place descriptions, trail 
+              conditions, event details, and user contributions—is for general 
+              informational purposes only.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              This information should not be relied upon as professional, safety, medical, 
+              legal, or travel advice. Users are responsible for independently evaluating 
+              conditions, risks, accessibility, and suitability of any location or activity.
+            </p>
+          </section>
+
+          <section className="mb-8 md:mb-12">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
+              8. Privacy
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Access to the Service is provided at ThickTimber's discretion and is not 
-              guaranteed. We may modify, restrict, suspend, or discontinue access to the 
-              Service at any time to support platform integrity, safety, or alignment with 
-              its intended purpose.
+              Your use of the Service is subject to our Privacy Policy, which describes 
+              how we collect, use, and protect your information. By using ThickTimber, 
+              you consent to the practices described in the Privacy Policy.
             </p>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              9. Intellectual Property
+              9. User-Generated Content
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              You retain ownership of content you submit to ThickTimber. By submitting 
+              content, you grant ThickTimber a non-exclusive, royalty-free, worldwide 
+              license to use, display, and distribute that content in connection with 
+              the Service.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              You represent that you have the right to submit any content you provide 
+              and that such content does not violate any third-party rights.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              ThickTimber does not guarantee the accuracy of user-generated content and 
+              is not liable for content submitted by users.
+            </p>
+          </section>
+
+          <section className="mb-8 md:mb-12">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
+              10. Intellectual Property
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
               The Service and its original content, features, and functionality are owned by 
@@ -165,45 +196,92 @@ const Terms = () => {
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              10. Disclaimers
+              11. Disclaimers
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 uppercase font-medium">
+              The Service is provided on an "as is" and "as available" basis without 
+              warranties of any kind, whether express, implied, or statutory.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              ThickTimber expressly disclaims all warranties, including but not limited to:
+            </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
+              <li>Merchantability and fitness for a particular purpose</li>
+              <li>Accuracy, reliability, or completeness of any information</li>
+              <li>Uninterrupted, secure, or error-free operation</li>
+              <li>Suitability, safety, or legality of any place, event, or activity</li>
+            </ul>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              We do not warrant that the Service will meet your requirements or that 
+              any information provided will be accurate or current.
+            </p>
+          </section>
+
+          <section className="mb-8 md:mb-12">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
+              12. Limitation of Liability
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 uppercase font-medium">
+              To the fullest extent permitted by law, ThickTimber, its directors, 
+              employees, partners, and affiliates shall not be liable for:
+            </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
+              <li>Any indirect, incidental, special, consequential, or punitive damages</li>
+              <li>Loss of profits, data, use, goodwill, or other intangible losses</li>
+              <li>Any damages arising from your use of or inability to use the Service</li>
+              <li>Any conduct or content of any third party on the Service</li>
+              <li>Any unauthorized access to or use of our servers or your information</li>
+              <li>Any personal injury or property damage resulting from your use of the 
+                Service or any offline interactions</li>
+            </ul>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              In no event shall ThickTimber's total liability exceed the amount you have 
+              paid to ThickTimber in the twelve (12) months preceding the claim.
+            </p>
+          </section>
+
+          <section className="mb-8 md:mb-12">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
+              13. Indemnification
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              The Service is provided on an "as is" and "as available" basis. ThickTimber 
-              makes no warranties, express or implied, regarding reliability, availability, 
-              or suitability for any particular purpose.
+              You agree to indemnify, defend, and hold harmless ThickTimber and its 
+              officers, directors, employees, and agents from any claims, damages, 
+              losses, liabilities, costs, or expenses (including reasonable attorneys' 
+              fees) arising from:
             </p>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              We do not guarantee the accuracy, completeness, or usefulness of information 
-              provided through the Service, including venue details, reviews, or recommendations.
-            </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4">
+              <li>Your use of the Service</li>
+              <li>Your violation of these Terms</li>
+              <li>Your violation of any third-party rights</li>
+              <li>Any content you submit to the Service</li>
+              <li>Any offline interactions or activities undertaken in connection with 
+                your use of the Service</li>
+            </ul>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              11. Limitation of Liability
+              14. Platform Rights
             </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              ThickTimber reserves the right, at its sole discretion, to:
+            </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
+              <li>Modify, suspend, or discontinue the Service at any time</li>
+              <li>Limit, suspend, or terminate any user's access</li>
+              <li>Remove any content that violates these Terms</li>
+              <li>Refuse service to anyone for any reason</li>
+            </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              To the fullest extent permitted by law, ThickTimber, its directors, employees, 
-              partners, and affiliates shall not be liable for any indirect, incidental, special, 
-              consequential, or punitive damages, including loss of profits, data, use, goodwill, 
-              or other intangible losses, resulting from access to or use of the Service.
+              These actions do not require prior notice and do not constitute a judgment 
+              of any individual's identity or personal characteristics.
             </p>
           </section>
 
           <section className="mb-8 md:mb-12">
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              12. Future Development
-            </h2>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              References to potential future features, communities, or expansions are aspirational 
-              only and do not create any obligation to provide access, functionality, or inclusion 
-              beyond the Service's current scope.
-            </p>
-          </section>
-
-          <section className="mb-8 md:mb-12">
-            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              13. Changes to Terms
+              15. Changes to Terms
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               We reserve the right to modify or replace these Terms at any time. If a revision 
@@ -212,13 +290,30 @@ const Terms = () => {
             </p>
           </section>
 
+          <section className="mb-8 md:mb-12">
+            <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
+              16. Governing Law
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              These Terms shall be governed by and construed in accordance with the laws 
+              of the State of Texas, without regard to its conflict of law provisions.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              Any disputes arising under these Terms shall be resolved in the state or 
+              federal courts located in Texas, and you consent to the personal 
+              jurisdiction of such courts.
+            </p>
+          </section>
+
           <section>
             <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-4">
-              14. Contact Us
+              17. Contact Us
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              If you have any questions about these Terms of Service, please contact us at 
-              support@thicktimber.com.
+              If you have any questions about these Terms of Service, please contact us at{" "}
+              <a href="mailto:support@thicktimber.com" className="text-primary hover:underline">
+                support@thicktimber.com
+              </a>.
             </p>
           </section>
         </div>
