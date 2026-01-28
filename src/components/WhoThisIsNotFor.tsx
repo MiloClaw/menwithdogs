@@ -1,11 +1,13 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { Check } from "lucide-react";
 
-const exclusions = [
-  "No public profiles to maintain.",
-  "No followers to count.",
-  "No feed to scroll.",
-  "No likes to chase.",
+const traits = [
+  "Spend time hiking, camping, running, cycling, or being active outdoors",
+  "Enjoy discovering new places and revisiting the ones that feel right",
+  "Prefer low-pressure ways to meet people in the real world",
+  "Value privacy and don't want your interests or routines on public display",
+  "Like the idea of a tool that supports real-world experiences without demanding constant attention"
 ];
 
 const WhoThisIsNotFor = () => {
@@ -27,47 +29,90 @@ const WhoThisIsNotFor = () => {
         style={{ y: ghostY }}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[16rem] md:text-[24rem] font-serif font-bold text-primary-foreground/[0.03] leading-none select-none pointer-events-none"
       >
-        ×
+        ✓
       </motion.span>
 
       <div className="container relative">
-        <div className="max-w-4xl mx-auto">
-          {/* Bold contrarian statement */}
+        <div className="max-w-3xl mx-auto">
+          {/* Headline */}
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-center mb-16 md:mb-20 text-balance"
+            className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-center mb-8 text-balance"
           >
-            Real community doesn't happen in an app.
+            Who This Works Well For
           </motion.h2>
 
-          {/* Numbered exclusions */}
-          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-6 md:gap-y-8 max-w-2xl mx-auto">
-            {exclusions.map((text, i) => (
-              <motion.p
-                key={i}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="text-primary-foreground/70 text-lg md:text-xl font-medium text-center sm:text-left"
-              >
-                {text}
-              </motion.p>
-            ))}
-          </div>
-
-          {/* Closing statement */}
+          {/* Intro paragraph */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-primary-foreground/90 text-lg md:text-xl text-center mt-12 md:mt-16 max-w-xl mx-auto text-balance"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-lg md:text-xl text-primary-foreground/80 text-center mb-10 max-w-2xl mx-auto text-balance"
           >
-            Just a smarter way to find where to go — so you can actually be there.
+            ThickTimber is designed for men who enjoy outdoor and active lifestyles and are curious about connecting more organically through shared interests and places.
+          </motion.p>
+
+          {/* Checklist label */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-primary-foreground/70 font-medium text-center mb-6"
+          >
+            It works especially well if you:
+          </motion.p>
+
+          {/* Traits checklist */}
+          <ul className="space-y-4 mb-12 max-w-2xl mx-auto">
+            {traits.map((trait, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
+                className="flex items-start gap-3 text-primary-foreground/80"
+              >
+                <Check className="w-5 h-5 text-accent mt-1 flex-shrink-0" />
+                <span className="text-base md:text-lg">{trait}</span>
+              </motion.li>
+            ))}
+          </ul>
+
+          {/* Closing statements */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="text-center space-y-2 mb-10"
+          >
+            <p className="text-primary-foreground/90 font-medium text-lg">
+              You don't need to be especially social.
+            </p>
+            <p className="text-primary-foreground/90 font-medium text-lg">
+              You don't need to be new to an area.
+            </p>
+            <p className="text-primary-foreground/90 font-medium text-lg">
+              You just need to enjoy showing up.
+            </p>
+          </motion.div>
+
+          {/* Boundary statement */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="text-primary-foreground/60 text-base text-center max-w-xl mx-auto text-balance"
+          >
+            ThickTimber isn't built around browsing people or chasing attention.
+            It's built around places—and what happens when people keep returning to them.
           </motion.p>
         </div>
       </div>
