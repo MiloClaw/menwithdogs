@@ -1,156 +1,278 @@
 
 
-# Plan: Couples Page — Quick Polish (Aligned & Future-Safe)
+# Plan: Trail Blazers — Expert-First Reframe
 
 ## Summary
 
-Light polish pass to align the Couples page with the harmonized messaging strategy. This updates copy to be more privacy-forward, emphasizes place-based discovery, and standardizes CTAs—while keeping the page's quiet, useful tone intact.
+Complete reframe of the Ambassadors page to "Trail Blazers" — shifting from geography-based local ambassadors to expertise-based contributors (writers, guides, photographers, and community voices). This positions participation as professional alignment rather than volunteer work.
+
+---
+
+## Key Conceptual Shifts
+
+| Before (Ambassador) | After (Trail Blazer) |
+|---------------------|----------------------|
+| "Help shape the places that define your city" | "Share your knowledge of outdoor spaces and active lifestyles" |
+| Geography-focused ("your city") | Expertise-focused ("outdoor spaces") |
+| "Stewardship, not promotion" | "Expertise, not influence" |
+| Local helpers | Subject-matter experts |
+| "What you know about your city" | "What you know about outdoor activities" |
+| City-based form fields | Activity/expertise-based form fields |
 
 ---
 
 ## Section-by-Section Changes
 
-### 1. Hero Section (Lines 45-55)
+### 1. SEO & Meta (Lines 118-122)
 
 | Element | Current | New |
 |---------|---------|-----|
-| Section Label | "Discover Together" | Keep |
-| Headline | "Find Outdoor Places That Work for Both of You" | Keep |
-| Subhead | "Without sharing your preferences. Without linking accounts. Just better outdoor recommendations — privately." | "Without sharing preferences. Without linking accounts. Just clearer outdoor recommendations—privately." |
-
-**Changes**: Remove "your" for tighter copy, change "better" → "clearer" (more precise), remove space before em-dash.
+| Title | "Ambassador Program \| ThickTimber" | "Trail Blazers \| ThickTimber" |
+| Description | "Help shape the outdoor places that define your region..." | "Share your expertise on outdoor spaces and active lifestyles. Trail Blazers are trusted voices who add depth to the directory." |
 
 ---
 
-### 2. How It Works Section (Lines 77-97)
-
-| # | Current Step | Polished Step |
-|---|--------------|---------------|
-| 1 | "One of you generates a session code" | "**Start a private session** — One of you generates a temporary session code." |
-| 2 | "Your partner scans or enters the code" | "**Join securely** — The other person enters the code—no account linking required." |
-| 3 | "The system finds outdoor places that resonate with both — privately" | "**Explore shared fit** — The directory highlights outdoor places that align with both of your interests—without revealing individual preferences." |
-| 4 | "Sessions expire in 24 hours. No permanent data." | "**Session expires automatically** — Sessions close after 24 hours. Nothing is stored or merged." |
-
-**Implementation**: Change the steps array to include titles and descriptions, then render with bold titles.
-
----
-
-### 3. What Makes This Different Section (Lines 113-154)
+### 2. Hero Section (Lines 124-156)
 
 | Element | Current | New |
 |---------|---------|-----|
-| Section Label | "02" | "Designed for privacy" |
-| Headline | "What Makes This Different" | Keep |
-
-**Updated Bullets:**
-
-| # | Current Title | Current Description | New Title | New Description |
-|---|---------------|---------------------|-----------|-----------------|
-| 1 | "Your preferences stay yours" | "No profile sharing between users. Your saved trails, your outdoor interests — completely private." | "Your individual preferences stay private" | "No shared lists or exposed activity between users." |
-| 2 | "Works for any duo" | "Couples, hiking buddies, camping companions, travel partners. Anyone exploring the outdoors together." | "Works for any pair" | "Partners, friends, or travel companions—anyone exploring together." |
-| 3 | "Place-level intelligence" | "The system doesn't match people. It surfaces outdoor spots that work for both." | Remove | (Consolidated into "Temporary by design") |
-| 4 | "Temporary by design" | "Sessions expire. No social graph. No permanent connection between accounts." | "Temporary by design" | "Sessions expire. No permanent connection between accounts." |
-
-**Final 4 items:**
-1. Your individual preferences stay private — No shared lists or exposed activity between users.
-2. Works for any pair — Partners, friends, or travel companions—anyone exploring together.
-3. Place-first, not people-first — The directory surfaces outdoor spots that work for both.
-4. Temporary by design — Sessions expire. No permanent connection.
+| Section Label | "Ambassador Program" | "Trail Blazers" |
+| Headline | "Help Shape the Places That Define Your City" | "Share your knowledge of outdoor spaces and active lifestyles" |
+| Subhead | "We're looking for gay men who know the outdoors well — the hidden trails..." | "Trail Blazers are trusted voices who add depth and perspective to outdoor places—helping others explore more intentionally." |
 
 ---
 
-### 4. Privacy Promise Section (Lines 168-211)
+### 3. "What Ambassadors Do" → "What Are Trail Blazers?" (Lines 158-210)
 
 | Element | Current | New |
 |---------|---------|-----|
-| Section Label | "03" | "Privacy, by default" |
-| Headline | "Privacy Promise" | Keep |
+| Section Label | "What This Is" | Keep |
+| Headline | "Quietly shape how your city is represented" | Remove — use intro paragraphs instead |
 
-**Updated Cards (minor tune):**
+**New Content Structure:**
 
-| # | Current Title | New Title | Current Description | New Description |
-|---|---------------|-----------|---------------------|-----------------|
-| 1 | "Your partner never sees your saved places" | Keep | "What you've favorited stays between you and the directory." | Keep |
-| 2 | "Your individual preferences remain private" | "Individual preferences remain separate" | "The system uses both inputs without revealing either." | Keep |
-| 3 | "We surface places that work for both" | "Only shared place recommendations are shown" | "Common ground — without exposing individual taste." | "Common ground—without exposing individual taste." |
-| 4 | "No account linking. No permanent connection." | "No account linking. No lasting connection." | "Each session is temporary and independent." | "Designed for planning, not performance." |
+Replace the 3-column grid with explanatory paragraphs:
+
+```text
+Trail Blazers are writers, photographers, guides, and community voices who 
+share meaningful knowledge about outdoor spaces and active lifestyles.
+
+Some Trail Blazers publish long-form writing or guides. Others document 
+personal experiences, seasonal insights, or activity-specific perspectives. 
+What they share adds context to places—not promotion.
+
+This program exists to highlight expertise, not influence.
+```
 
 ---
 
-### 5. Perfect For Section (Lines 225-268)
+### 4. NEW: "How Trail Blazers Contribute" Section
 
-| Element | Current | New |
-|---------|---------|-----|
-| Section Label | "04" | "Works well for" |
-| Headline | "Perfect For" | Keep |
+**Insert after "What Are Trail Blazers?"**
 
-**Updated Cards (slight polish):**
+| Element | Value |
+|---------|-------|
+| Section Label | "How It Works" |
+| Content | Bullet list of contributions |
 
-| # | Current Title | New Title |
-|---|---------------|-----------|
-| 1 | "Couples planning a hiking trip" | "Couples planning a hiking or camping trip" |
-| 2 | "Outdoor buddies exploring new areas" | "Outdoor buddies exploring a new area" |
-| 3 | "Friends planning a camping weekend" | "Friends coordinating a weekend adventure" |
-| 4 | "Travel companions on a road trip" | "Travel companions mapping stops along the way" |
+**Content:**
 
-**Updated Descriptions:**
+```text
+Trail Blazers may:
 
-| # | Current | New |
-|---|---------|-----|
-| 1 | "Find trails and campsites you'll both love — no more compromise debates." | "Find trails and campsites you'll both enjoy." |
-| 2 | "Quickly find spots that match both your outdoor styles in unfamiliar terrain." | "Quickly find spots that work for both of you." |
-| 3 | "Discover campgrounds that resonate with both of you." | "Discover places that work for the whole group." |
-| 4 | "Build a shared list of outdoor stops along your route." | "Build a shared list of outdoor stops along the way." |
+• Submit outdoor places relevant to hiking, camping, beaches, running, 
+  cycling, or other active pursuits
+• Add short context about how a place is used, when it's best experienced, 
+  or what makes it unique
+• Optionally include a link to an existing article, guide, or post 
+  they've published
+• Share activity-specific or seasonal considerations
+
+All submissions are reviewed to ensure they add value and align with 
+the platform's purpose.
+```
 
 ---
 
-### 6. CTA Section (Lines 281-304)
+### 5. NEW: "For Writers & Subject-Matter Experts" Section
+
+| Element | Value |
+|---------|-------|
+| Section Label | "For Writers, Guides & Experts" |
+
+**Content:**
+
+```text
+If you publish content related to outdoor spaces or active lifestyles:
+
+• You may include links to existing articles or guides when contributing places
+• Approved links appear as contextual references, not advertisements
+• This helps readers discover deeper expertise while keeping the directory 
+  focused on places
+
+Trail Blazer links are selected based on relevance and quality—not reach 
+or follower count.
+```
+
+---
+
+### 6. "What This Is Not" Section (Lines 212-259)
 
 | Element | Current | New |
 |---------|---------|-----|
-| Section Label | "Get Started" | Keep |
-| Headline | "Ready to discover together?" | "Ready to explore together?" |
-| Subhead | "Start a session with your partner, hiking buddy, or travel companion. Find outdoor places that work for both of you — without sharing preferences." | "Start a session with a partner, friend, or travel companion. Find outdoor places that work for both of you—privately." |
-| Primary CTA | "Start a Session" | Keep |
-| Secondary CTA | "Explore Outdoors" | "Explore Places" |
+| Section Label | (none) | "Clear Boundaries" |
+| Headline | "This is stewardship, not promotion." | Remove |
+
+**New Bullet List:**
+
+```text
+This is not:
+
+• An influencer or ambassador program
+• A sponsorship or promotional channel
+• A ranking system or leaderboard
+• A public profile or follower mechanism
+• A requirement to promote ThickTimber
+
+Trail Blazers participate as contributors, not representatives.
+```
+
+---
+
+### 7. "Who This Is For" Section → REMOVE
+
+Remove the entire "Ideal Ambassador / You know your city" section (Lines 261-293). This section reinforces geography and doesn't fit the expert model.
+
+---
+
+### 8. "What You Get" Section (Lines 295-330)
+
+| Element | Current | New |
+|---------|---------|-----|
+| Section Label | "What You Get" | Keep |
+| Headline | "Access and contribution — not rewards." | Remove headline, just list |
+
+**New Content:**
+
+```text
+Trail Blazers may receive:
+
+• Complimentary PRO access (limited and reviewed periodically)
+• Optional attribution for approved contextual links
+• Early access to new features related to places or activities
+• A platform that surfaces your expertise where it's most useful
+
+Participation is optional and can be paused or ended at any time.
+```
+
+---
+
+### 9. Application Form Updates (Lines 332-619)
+
+**Section Header Changes:**
+
+| Element | Current | New |
+|---------|---------|-----|
+| Section Label | "Apply" | "Get Involved" |
+| Headline | "A short, respectful application" | Remove |
+| Subhead | "No essays. No personality tests..." | "Submissions are reviewed for relevance and quality. There is no requirement to focus on a specific location or audience." |
+
+**Form Field Changes:**
+
+| Field | Current | New |
+|-------|---------|-----|
+| City field | Required, prominent | Make optional or change to "Primary region (optional)" |
+| Tenure field | "How long have you lived there?" | Remove entirely |
+| Specific Places | "2-3 local places you'd recommend" | "2-3 outdoor places you'd recommend adding to the directory" |
+| Motivation | "Why do you want to help shape your city's directory?" | "What areas of outdoor or active-lifestyle expertise do you focus on?" |
+| Local Knowledge | "What kind of local places or events do you know well?" | "Do you have existing writing, guides, or published content? (optional)" |
+| Social Links label | "Links to social or online presence" | "Links to relevant writing or guides (optional)" |
+| Social Links placeholder | "Instagram, Twitter, blog, etc." | "Blog, publication, guide platform, etc." |
+
+---
+
+### 10. CTA Footer (Lines 621-667)
+
+| Element | Current | New |
+|---------|---------|-----|
+| Section Label | "Not Ready Yet?" | Keep or remove |
+| Headline | "Explore the directory first" | Keep |
+| Primary CTA | "Explore Places" | Keep |
+| Secondary CTA | "Learn More" (→ /about) | Keep |
+
+**Add "Apply to Be a Trail Blazer" as primary action in hero or as sticky CTA.**
+
+---
+
+## Form Schema Updates
+
+The Zod schema needs updates to reflect the new fields:
+
+| Field | Change |
+|-------|--------|
+| `city` | Make optional |
+| `tenure` | Remove from schema |
+| `specificPlaces` label | Update placeholder |
+| `motivation` | Rename conceptually to `expertiseArea` |
+| `localKnowledge` | Rename to `existingContent` |
+| `socialLinks` | Keep but update label/placeholder |
+
+---
+
+## Language Rules Applied
+
+**Always use:**
+- "subject-matter experts"
+- "writers, guides, and community voices"
+- "outdoor spaces and active lifestyles"
+- "contextual references"
+- "expertise"
+
+**Never use:**
+- "early adopters"
+- "seeding the directory"
+- "local ambassadors"
+- "promotion"
+- "influencer"
+- "partner content"
 
 ---
 
 ## Technical Implementation Summary
 
-| Section | Line Range | Change Type |
-|---------|------------|-------------|
-| Hero subhead | 53-54 | Text polish |
-| How It Works steps | 78-83 | Structure change (add titles) + render update |
-| What Makes This Different label | 114-115 | Change to "Designed for privacy" |
-| What Makes This Different items | 123-140 | Content updates (4 items) |
-| Privacy Promise label | 169 | Change to "Privacy, by default" |
-| Privacy Promise items | 176-196 | Minor text updates |
-| Perfect For label | 226 | Change to "Works well for" |
-| Perfect For items | 233-253 | Title and description updates |
-| CTA headline | 285-286 | "discover" → "explore" |
-| CTA subhead | 288-290 | Tightened copy |
-| Secondary CTA | 302 | "Explore Outdoors" → "Explore Places" |
+| Section | Line Range | Action |
+|---------|------------|--------|
+| SEO meta | 118-122 | Update title and description |
+| Hero | 143-153 | Replace label, headline, subhead |
+| What This Is | 158-210 | Replace 3-column grid with paragraphs |
+| NEW: How It Works | — | Insert new section |
+| NEW: For Writers | — | Insert new section |
+| What This Isn't | 212-259 | Update bullets, add section label |
+| Who This Is For | 261-293 | REMOVE entire section |
+| What You Get | 295-330 | Update content and remove headline |
+| Form section | 332-619 | Update labels, make city optional, remove tenure |
+| CTA footer | 621-667 | Minor polish, keep structure |
 
 ---
 
-## Messaging Guardrails Applied
+## Database/Schema Consideration
 
-- No "not a dating app" language added
-- No relationship definitions
-- No public or social framing
-- No permanence implied
-- Kept place-first orientation
-- Standardized secondary CTA to "Explore Places"
+The `ambassador_applications` table currently has:
+- `city_name` (required)
+- `tenure` (required)
+
+**Recommendation:** Keep database schema as-is for now but make frontend fields optional/renamed. The data still captures useful info even with new framing.
 
 ---
 
 ## Net Result
 
-The Couples page now:
-- Uses cleaner, more consistent copy
-- Emphasizes privacy without being defensive
-- Aligns CTA language with the rest of the site
-- Remains legally safe (no intent policing)
-- Functions as one of the best examples of quiet social utility
+The Trail Blazers page now:
+- Positions contributors as experts, not helpers
+- Removes geography and timing constraints
+- Attracts higher-quality contributors
+- Makes participation feel prestigious but low-pressure
+- Reinforces ThickTimber as an editorial-grade directory
+- Uses "designed for" language consistently
+- Avoids influencer/promotion framing entirely
 
