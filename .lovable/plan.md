@@ -1,194 +1,177 @@
 
 
-# Plan: Update Pricing Page — Refined & Aligned
+# Plan: Update Auth / Signup Page — Refined & Aligned
 
 ## Summary
 
-Comprehensive update to the Pricing page with refined copy across all sections: hero, pricing cards, privacy callout, how-it-works explainer, and final CTA. Updates include new price point ($1.99), standardized CTAs, and aligned messaging that removes "unlock" language and "overlap" abstractions.
+Update the Auth page with refined copy for both sign-in and sign-up modes, including updated headlines, subheadlines, privacy reassurance text, CTA buttons, toggle links, and success toast message.
 
 ---
 
-## Section-by-Section Changes
+## Current vs New Content
 
-### 1. Page Hero
+### SIGN IN MODE
 
 | Element | Current | New |
 |---------|---------|-----|
-| Section Label | "Membership" | "Membership" (unchanged) |
-| Headline | "One directory. Two ways to use it." | "One directory. Two ways to use it." (unchanged) |
-| Subhead | "The same places. The same community. Pro just helps you find where your patterns overlap." | "The same places. The same community. PRO simply helps the directory understand you more precisely." |
-
-**Line Changes**: Update line 124
+| Section Label | "Welcome Back" | "Welcome Back" (unchanged) |
+| Headline | "Sign in to continue" | "Sign in to continue" (unchanged) |
+| Subheadline | "Continue discovering your community" | "Pick up where you left off and keep exploring places shaped by your interests." |
+| CTA Button | "Sign in" | "Sign In" |
+| Toggle | "New here? Create an account" | "New here? Join free" |
 
 ---
 
-### 2. Free Tier Card
+### SIGN UP MODE
 
 | Element | Current | New |
 |---------|---------|-----|
-| Title | "Free Membership" | "Free Directory" |
-| Price | "$0" | "$0" (unchanged) |
-| Description | "The full directory, shaped by the community." | "Community-powered discovery, designed for real-world use." |
-| CTA (logged out) | "Get started" | "Join Free" |
-| CTA (logged in) | "Explore places" | "Explore Places" |
-
-**Features Update** (line 9):
-```tsx
-const freeFeatures = [
-  "Full access to outdoor places in the directory",
-  "Recommendations shaped by community patterns",
-  "Save favorites and build your personal list",
-  "Location-aware suggestions as you explore",
-  "Your activity and preferences remain private"
-];
-```
+| Section Label | "Get Started" | "Get Started" (unchanged) |
+| Headline | "Join The Community" | "Join the directory" |
+| Subheadline | "Start discovering places where your community gathers" | "Start discovering outdoor places shaped by shared interests and community patterns." |
+| Privacy Reassurance | "Your information stays private by default. No public profiles unless you choose it..." | See refined copy below |
+| CTA Button | "Get started" | "Join Free" |
+| Toggle | "Already a member? Sign in" | "Already a member? Sign in" (unchanged) |
 
 ---
 
-### 3. PRO Tier Card
+### SIGN UP Privacy Reassurance (Critical Update)
 
-| Element | Current | New |
-|---------|---------|-----|
-| Title | "Pro Personalization" | "PRO Personalization" |
-| Price | "$4.99 / month" | "$1.99 / month" |
-| Description | "Unlock where your interests and patterns overlap with others." | "Private tuning for more precise recommendations." |
-| CTA | "Add personalization" | "Add Personalization" |
-
-**Features Update** (line 10):
-```tsx
-const proFeatures = [
-  "Everything in the Free Directory",
-  "Add outdoor interests, activity level, and preferences privately",
-  "Refine recommendations based on routines and hobbies",
-  "Surface places aligned with how you like to spend time",
-  "Intelligence that improves as you use the directory"
-];
+**Current (Problematic)**:
 ```
+Your information stays private by default. No public profiles unless you choose it. 
+Your profile and settings only tune the directory to provide better recommendations for you.
+```
+
+**New (Refined)**:
+```
+Your information is private by default.
+Your account and preferences are used only to personalize the directory and improve 
+recommendations for you. Nothing you save or set is publicly visible.
+```
+
+This change:
+- Removes "No public profiles unless you choose it" (conflicts with locked privacy-first framing)
+- Focuses on what the data IS used for, not what it isn't
+- Maintains trust without implying future public profiles
 
 ---
 
-### 4. Privacy Callout Section
+### SUCCESS TOAST (Post-Signup)
 
 | Element | Current | New |
 |---------|---------|-----|
-| Section Label | "Privacy First" | "Privacy First" (unchanged) |
-| Headline | "Your preferences are private. Always." | "Your preferences are private. Always." (unchanged) |
-| Body | Current paragraph with "smarter results" | Refined copy with line breaks |
-
-**New Body Copy**:
-```
-Any preferences added through PRO are never visible to others.
-They're used only to help the directory better understand what's relevant to you.
-
-No public profiles.
-No exposure.
-Just clearer, more useful results.
-```
-
----
-
-### 5. How It Works Explainer
-
-| Element | Current | New |
-|---------|---------|-----|
-| Section Label | "How It Works" | "How Personalization Works" |
-| Headline Left | "Free shows you where the community goes." | "Free shows you where the community gathers." |
-| Headline Right | "Pro shows you where *your* community goes." | "PRO helps you see where it fits you best." |
-| Body Paragraphs | Current 3 paragraphs | Refined 2 paragraphs + closing |
-
-**New Body Copy**:
-```
-Paragraph 1: The free directory highlights places based on shared patterns 
-across the entire community—reflecting where men tend to go and return to over time.
-
-Paragraph 2: PRO allows you to add more context privately, such as interests, 
-activity preferences, and routines. This helps the directory surface places 
-that align more closely with how you like to spend your time.
-
-Closing: Both make the directory better.
-PRO simply makes it more precise for you.
-```
-
----
-
-### 6. Final CTA Section
-
-| Element | Current | New |
-|---------|---------|-----|
-| Section Label | "Ready?" | "Ready?" (unchanged) |
-| Headline | "Ready to explore?" | "Ready to explore?" (unchanged) |
-| Primary CTA | "Create Free Account" | "Join Free" |
-| Secondary CTA | "Explore Outdoors" | "Explore Places" |
+| Title | "Welcome to the community" | "Welcome" |
+| Description | "Start exploring places where real connection happens." | "Start exploring places where shared interests take shape." |
 
 ---
 
 ## Technical Implementation
 
-**File**: `src/pages/Pricing.tsx`
+**File**: `src/pages/Auth.tsx`
 
-### Data Arrays (Lines 9-10)
+### 1. Update Sign-In Subheadline (Line 269)
+
 ```tsx
-const freeFeatures = [
-  "Full access to outdoor places in the directory",
-  "Recommendations shaped by community patterns",
-  "Save favorites and build your personal list",
-  "Location-aware suggestions as you explore",
-  "Your activity and preferences remain private"
-];
+// Before
+{mode === 'signin' ? 'Continue discovering your community' : ...}
 
-const proFeatures = [
-  "Everything in the Free Directory",
-  "Add outdoor interests, activity level, and preferences privately",
-  "Refine recommendations based on routines and hobbies",
-  "Surface places aligned with how you like to spend time",
-  "Intelligence that improves as you use the directory"
-];
+// After
+{mode === 'signin' ? 'Pick up where you left off and keep exploring places shaped by your interests.' : ...}
 ```
 
-### Hero Subhead (Line 124)
+### 2. Update Sign-Up Headline (Line 255)
+
 ```tsx
-The same places. The same community.
-PRO simply helps the directory understand you more precisely.
+// Before
+{... : 'Join The Community'}
+
+// After
+{... : 'Join the directory'}
 ```
 
-### Free Card Updates (Lines 156-178)
-- Title: "Free Directory"
-- Description: "Community-powered discovery, designed for real-world use."
-- CTA: `{user ? "Explore Places" : "Join Free"}`
+### 3. Update Sign-Up Subheadline (Line 269)
 
-### PRO Card Updates (Lines 195-220)
-- Price: "$1.99 / month"
-- Description: "Private tuning for more precise recommendations."
+```tsx
+// Before
+{... : 'Start discovering places where your community gathers'}
 
-### Privacy Body (Lines 259-262)
-Multi-line structure with cleaner copy
+// After
+{... : 'Start discovering outdoor places shaped by shared interests and community patterns.'}
+```
 
-### How It Works (Lines 286-321)
-- Section label: "How Personalization Works"
-- Headline updates for Free and PRO
-- Refined body paragraphs
+### 4. Update Privacy Reassurance Text (Lines 285-287)
 
-### Final CTA (Lines 382-386)
-- Primary: "Join Free"
-- Secondary: "Explore Places"
+```tsx
+// Before
+<p className="text-muted-foreground leading-relaxed text-xs text-left">
+  Your information stays private by default. No public profiles unless you choose it. 
+  Your profile and settings only tune the directory to provide better recommendations for you.
+  <br />​
+</p>
+
+// After
+<p className="text-muted-foreground leading-relaxed text-xs text-left">
+  Your information is private by default. Your account and preferences are used only to 
+  personalize the directory and improve recommendations for you. Nothing you save or set 
+  is publicly visible.
+</p>
+```
+
+### 5. Update Sign-Up CTA Button (Line 320)
+
+```tsx
+// Before
+{isSubmitting ? 'Please wait...' : mode === 'signin' ? 'Sign in' : 'Get started'}
+
+// After
+{isSubmitting ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Join Free'}
+```
+
+### 6. Update Toggle Link (Line 337)
+
+```tsx
+// Before
+{mode === 'signin' ? "New here? Create an account" : 'Already a member? Sign in'}
+
+// After
+{mode === 'signin' ? "New here? Join free" : 'Already a member? Sign in'}
+```
+
+### 7. Update Success Toast (Lines 171-174)
+
+```tsx
+// Before
+toast({
+  title: 'Welcome to the community',
+  description: 'Start exploring places where real connection happens.'
+});
+
+// After
+toast({
+  title: 'Welcome',
+  description: 'Start exploring places where shared interests take shape.'
+});
+```
 
 ---
 
-## Typography Notes
+## Visual Consistency
 
-| Element | Approach |
-|---------|----------|
-| PRO capitalization | Use "PRO" consistently (not "Pro") |
-| Multi-line privacy body | Use `<br />` for line breaks within paragraph |
-| Closing statement styling | Keep `font-medium text-foreground` for emphasis |
+| Element | Styling Notes |
+|---------|---------------|
+| Headline capitalization | "Join the directory" (sentence case, not title case) |
+| CTA capitalization | "Sign In" and "Join Free" (title case for buttons) |
+| Privacy text | Keep `text-xs` size, remove trailing `<br />​` |
+| Toggle link | Lowercase "free" in "Join free" for casual tone |
 
 ---
 
 ## Messaging Guardrails Applied
 
-- Removed "unlock" language from PRO description
-- Removed "overlap" abstraction from hero
-- Removed "relationship dynamics" mention (too dating-adjacent)
-- Changed "smarter" to "more precise" (less algorithmic feeling)
-- Used "gathers" instead of "goes" (more organic)
+- Removed "No public profiles unless you choose it" (implies future public profiles)
+- Removed "real connection happens" from toast (too outcome-heavy)
+- Changed "community" to "directory" in headline (aligns with place-centric positioning)
+- Added "outdoor" to sign-up subheadline (brand alignment)
+- Kept toggle casual with lowercase "free"
 
