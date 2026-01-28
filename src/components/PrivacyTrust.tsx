@@ -47,7 +47,7 @@ const PrivacyTrust = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-[1.15] text-balance">
-                Your preferences are private.
+                Designed to be private by default.
               </h2>
             </motion.div>
 
@@ -59,11 +59,25 @@ const PrivacyTrust = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="border-l-4 border-accent pl-8 md:pl-10"
             >
-              <p className="text-foreground text-base md:text-lg leading-relaxed mb-6 text-justify">
-                What you save and how you browse shapes only your view — never a public profile. No one sees your list. No one knows which trails you've hiked or campsites you've visited. The free directory surfaces real outdoor places gay men in your region frequent, based on shared patterns — not popularity or noise. If you want deeper personalization, PRO lets you privately add context like outdoor interests, activity level, and preferences, helping the system surface spots most relevant to men whose routines and interests overlap with yours.
+              <p className="text-foreground text-base md:text-lg leading-relaxed mb-5">
+                The places you save and how you use the directory are never public.
+                There's no public profile, no visible activity, and no expectation to share more than you choose.
               </p>
-              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                This is how personalization should work.
+
+              <p className="text-foreground text-base md:text-lg leading-relaxed mb-5">
+                The free directory reflects community-level patterns—surfacing places men tend to enjoy and return to—without exposing individual behavior. Your saved places remain yours.
+              </p>
+
+              <p className="text-foreground text-base md:text-lg leading-relaxed mb-5">
+                For those who choose to subscribe to PRO, additional preferences can be added privately to help the directory better understand your interests, routines, and outdoor habits. This information is used only to refine your recommendations and is never shared or displayed.
+              </p>
+
+              <p className="text-foreground text-base md:text-lg leading-relaxed mb-6">
+                Privacy isn't an add-on. It's built into how the directory works.
+              </p>
+
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-medium">
+                Private by default. Intentional by design.
               </p>
             </motion.div>
           </div>
