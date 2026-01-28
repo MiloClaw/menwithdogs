@@ -1,6 +1,8 @@
-import { MapPin, Bookmark, RotateCcw } from "lucide-react";
+import { MapPin, Bookmark, RotateCcw, ChevronRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 const steps = [{
   number: "01",
   icon: MapPin,
@@ -14,10 +16,11 @@ const steps = [{
 }, {
   number: "03",
   icon: RotateCcw,
-  title: "Share",
-  description: "As more outdoor gay men use the directory, recommendations get smarter — surfacing patterns across regions, often in unexpected places."
+  title: "Smarter Over Time",
+  description: "As more men use the directory, recommendations improve — quietly surfacing patterns across regions, often in unexpected places."
 }];
 const HowItWorks = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef<HTMLElement>(null);
   const {
     scrollYProgress
@@ -85,7 +88,7 @@ const HowItWorks = () => {
                       {step.title}
                     </h3>
 
-                    <p className="text-muted-foreground text-base lg:text-lg leading-relaxed text-justify">
+                    <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -138,6 +141,27 @@ const HowItWorks = () => {
                 </motion.div>;
           })}
           </div>
+
+          {/* Reassurance + CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-center mt-16 md:mt-20"
+          >
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              This is not a dating app. There's no swiping, feeds, or public profiles.
+            </p>
+            <Button 
+              variant="accent" 
+              size="lg" 
+              onClick={() => navigate('/auth?mode=signup')}
+            >
+              Start Free
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </motion.div>
         </div>
       </div>
     </section>;

@@ -20,7 +20,7 @@ const WhyThisExists = () => {
         <div className="w-12 h-px bg-border mx-auto my-8" />
 
         <p className="text-muted-foreground text-center mb-6">
-          This app exists to:
+          ThickTimber exists to:
         </p>
 
         <ul className="space-y-3 max-w-sm mx-auto">

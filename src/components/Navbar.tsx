@@ -81,17 +81,18 @@ const Navbar = () => {
               <Link to="/places" className={navLinkClasses}>
                 Places
               </Link>
-              {/* Blog link hidden - uncomment when ready to launch
-              <Link to="/blog" className={navLinkClasses}>
-                Blog
+              <Link to="/pricing" className={navLinkClasses}>
+                Pricing
               </Link>
-              */}
               <Link to="/#how-it-works" className={navLinkClasses}>
                 How It Works
               </Link>
               <Link to="/auth" className={navLinkClasses}>
                 Sign In
               </Link>
+              <Button variant="accent" size="sm" onClick={() => navigate('/auth?mode=signup')}>
+                Join Free
+              </Button>
             </>
           )}
         </div>
@@ -179,15 +180,13 @@ const Navbar = () => {
                 >
                   Places
                 </Link>
-                {/* Blog link hidden - uncomment when ready to launch
                 <Link 
-                  to="/blog" 
+                  to="/pricing" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Blog
+                  Pricing
                 </Link>
-                */}
                 <Link 
                   to="/#how-it-works" 
                   className="block py-2 text-sm font-medium text-primary hover:text-accent transition-colors tracking-wide"
@@ -202,6 +201,17 @@ const Navbar = () => {
                 >
                   Sign In
                 </Link>
+                <Button
+                  variant="accent" 
+                  size="sm" 
+                  className="w-full mt-2"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/auth?mode=signup');
+                  }}
+                >
+                  Join Free
+                </Button>
               </>
             )}
           </div>

@@ -480,7 +480,7 @@ const Places = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty"
             >
-              Browse spots worth knowing in your area.
+              Trails, campsites, and outdoor spots where men who love nature actually go.
             </motion.p>
             
             {/* Subtle personalization context - observational, not algorithmic */}
