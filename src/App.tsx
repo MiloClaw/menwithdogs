@@ -22,7 +22,7 @@ import FAQ from "./pages/FAQ";
 import Community from "./pages/Community";
 import Outdoors from "./pages/Outdoors";
 import FindFriends from "./pages/FindFriends";
-import Couples from "./pages/Couples";
+
 import Ambassadors from "./pages/Ambassadors";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPostPage";
@@ -85,7 +85,7 @@ const App = () => (
               <Route path="/community" element={<Community />} />
               <Route path="/outdoors" element={<Outdoors />} />
               <Route path="/find-friends" element={<FindFriends />} />
-              <Route path="/couples" element={<Couples />} />
+              <Route path="/couples" element={<Navigate to="/together" replace />} />
               <Route path="/ambassadors" element={<Ambassadors />} />
               
               {/* Auth & User Routes */}
