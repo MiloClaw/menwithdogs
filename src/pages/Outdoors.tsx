@@ -40,9 +40,9 @@ const Outdoors = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Gay Outdoors - Community, Outside the Usual Places"
-        description="A directory for gay men who love hiking, camping, and staying active outdoors. Find trails, campsites, and swimming holes where outdoor gay men connect."
-        keywords="gay hiking, gay camping, LGBTQ outdoors, gay backpacking, gay nature, gay trail community, outdoor gay men, gay active lifestyle, gay running groups"
+        title="Gay Outdoor Spaces & Active Lifestyles"
+        description="Discover hiking trails, campsites, beaches, and outdoor activities through a place-based directory designed for real-world connection and exploration."
+        keywords="gay outdoors, hiking trails, camping, beaches, outdoor activities, active lifestyle directory"
         canonicalPath="/outdoors"
       />
 

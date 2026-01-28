@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Check, Shield, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -74,6 +75,12 @@ const Pricing = () => {
     }
   };
   return <PageLayout>
+      <SEOHead
+        title="Directory Access & Personalization Options"
+        description="Access the full outdoor places directory for free, with optional personalization to refine recommendations privately based on interests and routines."
+        keywords="directory access, personalization, outdoor recommendations, free directory, PRO features"
+        canonicalPath="/pricing"
+      />
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-[60vh] flex items-center justify-center overflow-hidden py-20 md:py-28 lg:py-36">
         {/* Ghost Background Element */}

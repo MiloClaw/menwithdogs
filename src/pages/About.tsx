@@ -59,22 +59,22 @@ const About = () => {
   const aboutSchema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    "name": "About ThickTimber",
-    "description": "The story behind ThickTimber — rebuilding gay community through outdoor spaces and real-world connection.",
+    "name": "Why ThickTimber Exists",
+    "description": "Learn why ThickTimber was built as a place-based outdoor directory.",
     "url": "https://thicktimber.lovable.app/about",
     "mainEntity": {
       "@type": "Organization",
       "name": "ThickTimber",
-      "description": "A place-centric directory helping gay men find community through hiking trails, campsites, beaches, and outdoor spaces."
+      "description": "A place-based outdoor directory for gay men. Discover trails, campsites, beaches, and active spaces."
     }
   };
 
   return (
     <PageLayout>
       <SEOHead
-        title="Why ThickTimber Exists – Outdoor Community for Gay Men"
-        description="The story behind ThickTimber — rebuilding gay community through trails, campsites, and outdoor spaces. A place-first approach for men who prefer nature over nightlife."
-        keywords="about ThickTimber, gay outdoor community, LGBTQ hiking, gay camping, gay men outdoors"
+        title="Why ThickTimber Exists | A Place-Based Directory"
+        description="Learn why ThickTimber was built and how place-based discovery supports real-world community, shared interests, and outdoor exploration."
+        keywords="about ThickTimber, place-based directory, outdoor discovery, community through places"
         canonicalPath="/about"
         schema={aboutSchema}
       />

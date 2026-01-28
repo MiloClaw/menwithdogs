@@ -18,9 +18,9 @@ const Couples = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Discover Together — Find Outdoor Places for Both of You"
-        description="Temporarily link with a partner or friend to find hiking trails, campsites, and outdoor spots that work for both of you. Private, session-based discovery."
-        keywords="discover together, couples hiking, outdoor friends, shared discovery, private outdoor suggestions"
+        title="Discover Outdoor Places Together"
+        description="Find outdoor places that work for two people—privately. A place-first tool for planning hikes, trips, and shared experiences without sharing preferences."
+        keywords="couples hiking, outdoor planning, shared discovery, private recommendations, trip planning"
         canonicalPath="/couples"
       />
 

@@ -147,8 +147,9 @@ const Ambassadors = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Trail Blazers | ThickTimber"
-        description="Share your expertise on outdoor spaces and active lifestyles. Trail Blazers are trusted voices who add depth to the directory."
+        title="Trail Blazers | Expert Context for Outdoor Places"
+        description="Trail Blazers are writers, guides, and subject-matter experts who add contextual knowledge to outdoor places in the ThickTimber directory."
+        keywords="trail blazers, outdoor experts, guides, contributors, place expertise"
         canonicalPath="/ambassadors"
       />
 

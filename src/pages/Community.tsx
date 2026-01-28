@@ -18,9 +18,9 @@ const Community = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Gay Outdoor Community – Find Your People on the Trail"
-        description="Discover outdoor community for gay men who stay active outside. A place-centric directory for hiking trails, campsites, beaches, and nature spots — not dating apps or social networks."
-        keywords="gay outdoor community, LGBTQ hiking, gay camping, gay men outdoors, gay nature lovers, gay hiking groups, gay active lifestyle, gay running community"
+        title="Outdoor Community Through Shared Places"
+        description="Learn how shared interests and outdoor places help shape real-world community. A calm, place-first approach to discovering where people gather."
+        keywords="outdoor community, gay hiking community, shared interests, real-world community, place-based discovery"
         canonicalPath="/community"
       />
 

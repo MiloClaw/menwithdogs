@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { z } from 'zod';
 import BrandLockup from '@/components/BrandLockup';
 import BrandStripe from '@/components/BrandStripe';
+import SEOHead from '@/components/SEOHead';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -203,7 +204,14 @@ toast({
         <div className="text-muted-foreground">Loading...</div>
       </div>;
   }
-  return <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+  return <>
+    <SEOHead
+      title="Join the ThickTimber Directory"
+      description="Create a private account to explore outdoor places, save favorites, and personalize your directory experience over time."
+      keywords="sign up, join directory, create account, outdoor places"
+      canonicalPath="/auth"
+    />
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       {/* Ghost Typography Background */}
       <motion.div initial={{
       opacity: 0
@@ -354,6 +362,7 @@ toast({
           </motion.p>
         </div>
       </main>
-    </div>;
+    </div>
+  </>;
 };
 export default Auth;

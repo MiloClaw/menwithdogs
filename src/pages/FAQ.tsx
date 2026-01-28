@@ -170,9 +170,9 @@ const FAQ = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="FAQ – Outdoor Community Directory for Gay Men"
-        description="Answers about how gay men use ThickTimber to find hiking trails, campsites, and outdoor community. Learn about personalization, privacy, and what makes this different."
-        keywords="gay outdoor FAQ, LGBTQ hiking directory questions, gay camping community"
+        title="Frequently Asked Questions | ThickTimber Directory"
+        description="Answers about how the directory works, personalization, privacy, and what makes ThickTimber different from social or profile-based platforms."
+        keywords="FAQ, questions, directory help, personalization, privacy"
         canonicalPath="/faq"
         schema={faqSchema}
       />
