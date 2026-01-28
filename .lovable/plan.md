@@ -1,359 +1,239 @@
 
 
-# Plan: Modern SEO Metadata Strategy — 2026-Ready Implementation
+# Plan: Combine Couples + Discover Together into Single Page
 
 ## Summary
 
-Comprehensive update to SEO metadata across all pages to optimize for both traditional search engines (Google/Bing) and AI-mediated search (ChatGPT, agent search, summaries). This follows the agency-grade strategy: describe the tool not outcomes, lead with places, use "directory" framing, and apply calm factual language.
+Merge the marketing content from `/couples` with the functional tool from `/together` into a single, unified page at `/together`. The `/couples` route will redirect to `/together`. This eliminates the awkward two-step flow while maintaining SEO value and improving user experience.
 
 ---
 
-## What Is Being Updated
+## Current Problem
 
-| File | Change Type |
-|------|-------------|
-| `index.html` | Global metadata, structured data, application-name |
-| `src/components/SEOHead.tsx` | Add application-name support, OG image prop |
-| `src/pages/Outdoors.tsx` | Update title + description |
-| `src/pages/Community.tsx` | Update title + description |
-| `src/pages/FindFriends.tsx` | Update title + description |
-| `src/pages/Couples.tsx` | Update title + description |
-| `src/pages/Pricing.tsx` | Add SEOHead component with new metadata |
-| `src/pages/About.tsx` | Update title + description, update schema |
-| `src/pages/FAQ.tsx` | Update title + description |
-| `src/pages/Ambassadors.tsx` | Update title + description |
-| `src/pages/Auth.tsx` | Add SEOHead component with new metadata |
-| `src/pages/Places.tsx` | Add SEOHead component with new metadata |
+| Route | Type | Issue |
+|-------|------|-------|
+| `/couples` | Marketing page | No functionality — just links to `/together` |
+| `/together` | Functional tool | Minimal context for first-time visitors |
+
+**Result:** Users must navigate through two pages to use one feature.
 
 ---
 
-## 1. Global SEO (`index.html`)
+## Proposed Solution
 
-### Current Issues
-- Title leads with brand ("ThickTimber – Real Community...")
-- Description mentions "without dating apps" (oppositional)
-- Keywords include social/dating terms ("gay meetup", "gay social")
-- Missing `application-name` meta tag
+Create a **single unified page** that adapts based on user state:
 
-### Updated Content
+1. **Unauthenticated visitors** → See marketing content + sign-in CTA
+2. **Authenticated without session** → See brief intro + session creation UI
+3. **Authenticated with active session** → See results view
 
-**Title:**
-```
-Outdoor Places Directory for Gay Men | ThickTimber
-```
+---
 
-**Meta Description:**
-```
-A place-based directory highlighting outdoor spaces, active lifestyles, and shared interests. Designed to support real-world discovery and community through places.
-```
+## Page Structure (Combined)
 
-**Keywords:**
-```
-outdoor directory, gay hiking, gay camping, LGBTQ outdoors, gay men trails, active lifestyle, outdoor community, place-based discovery
-```
-
-**New Meta Tag (AI-friendly):**
-```html
-<meta name="application-name" content="ThickTimber – Place-Based Outdoor Directory" />
-```
-
-**Updated Open Graph:**
-```html
-<meta property="og:title" content="Outdoor Places Directory for Gay Men | ThickTimber" />
-<meta property="og:description" content="A place-based directory for trails, campsites, and outdoor spaces. Real-world discovery for gay men." />
-```
-
-**Updated Structured Data:**
-```json
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "ThickTimber",
-  "applicationCategory": "LifestyleApplication",
-  "description": "A place-based outdoor directory for gay men. Discover trails, campsites, beaches, and active spaces.",
-  "url": "https://thicktimber.lovable.app"
-}
+```text
+┌──────────────────────────────────────────────────────────┐
+│                    HERO SECTION                          │
+│  "Find Outdoor Places That Work for Both of You"         │
+│  Brief tagline + privacy promise                         │
+└──────────────────────────────────────────────────────────┘
+                            │
+            ┌───────────────┴───────────────┐
+            │                               │
+     Not Authenticated             Authenticated
+            │                               │
+            ▼                               ▼
+┌─────────────────────┐       ┌─────────────────────────┐
+│  MARKETING CONTENT  │       │    SESSION UI           │
+│  - How It Works     │       │  ┌─────────────────┐    │
+│  - Privacy Promise  │       │  │ Create Session  │    │
+│  - Use Cases        │       │  │ or Enter Code   │    │
+│  - Sign In CTA      │       │  └─────────────────┘    │
+└─────────────────────┘       └─────────────────────────┘
 ```
 
 ---
 
-## 2. SEOHead Component Enhancement
+## File Changes
 
-### Add Props
-- `applicationName?: string` - For AI classification
-- `ogImage?: string` - For custom OG images per page
+### 1. Update `src/pages/DiscoverTogether.tsx`
 
-### Updated Component Behavior
-- Always output `application-name` meta tag (default: "ThickTimber – Place-Based Outdoor Directory")
-- Support page-specific OG images
+**Add from Couples.tsx:**
+- SEOHead with proper metadata (keywords, canonicalPath)
+- Condensed "How It Works" for unauthenticated view
+- Privacy highlights for unauthenticated view
+- Improved hero section styling
+
+**Keep existing:**
+- All session management logic (hooks, state machine)
+- SessionGenerator, SessionJoin, OverlapResults components
+- Authentication flow handling
+
+**Structure:**
+- Lines 56-91 (unauthenticated view): Replace basic card with enhanced marketing layout
+- Lines 142-173 (default view): Add brief context above SessionJoin for logged-in users
+
+### 2. Update `src/App.tsx`
+
+**Line ~64:** Change `/couples` route from `Couples` component to redirect:
+```tsx
+<Route path="/couples" element={<Navigate to="/together" replace />} />
+```
+
+### 3. Update `src/components/Footer.tsx`
+
+**Line 56-58:** Remove the `/couples` link or redirect label:
+- Option A: Remove "Couples" link entirely from footer
+- Option B: Change "Couples" to link to `/together`
+
+**Recommendation:** Keep "Couples" label but point it to `/together` — this preserves the marketing-friendly name while avoiding duplicate destinations.
+
+### 4. Delete `src/pages/Couples.tsx`
+
+Remove the file entirely after redirect is in place.
 
 ---
 
-## 3. Page-by-Page Metadata Updates
+## SEO Considerations
 
-### Homepage (`/`) — via `index.html`
-Already covered in Section 1.
+### Canonical URL
+- `/together` becomes the canonical
+- `/couples` redirects (301) — search engines will transfer link equity
 
----
-
-### Places (`/places`)
-
-**Add SEOHead (currently missing):**
+### Metadata for `/together`
+Keep the improved SEO from `/couples`:
 ```typescript
 <SEOHead
-  title="Explore Outdoor Places & Active Spaces"
-  description="Browse trails, campsites, beaches, and outdoor places shaped by shared interests and community patterns. A place-first directory for real-world exploration."
-  keywords="outdoor directory, hiking trails, campsites, beaches, gay outdoors, active spaces"
-  canonicalPath="/places"
+  title="Discover Outdoor Places Together"
+  description="Find outdoor places that work for two people—privately. A place-first tool for planning hikes, trips, and shared experiences without sharing preferences."
+  keywords="couples hiking, outdoor planning, shared discovery, private recommendations, trip planning"
+  canonicalPath="/together"
 />
 ```
 
 ---
 
-### Outdoors (`/outdoors`)
+## Updated Footer Structure
 
-**Current:**
-```
-title: "Gay Outdoors - Community, Outside the Usual Places"
-description: "A directory for gay men who love hiking, camping, and staying active outdoors. Find trails, campsites, and swimming holes where outdoor gay men connect."
-```
-
-**Updated:**
-```
-title: "Gay Outdoor Spaces & Active Lifestyles"
-description: "Discover hiking trails, campsites, beaches, and outdoor activities through a place-based directory designed for real-world connection and exploration."
-keywords: "gay outdoors, hiking trails, camping, beaches, outdoor activities, active lifestyle directory"
+```text
+Use Cases
+├── Outdoor Community → /community
+├── Friends & Groups → /find-friends
+└── Couples → /together  (changed from /couples)
 ```
 
 ---
 
-### Community (`/community`)
+## Implementation Sequence
 
-**Current:**
-```
-title: "Gay Outdoor Community – Find Your People on the Trail"
-description: "Discover outdoor community for gay men who stay active outside. A place-centric directory for hiking trails, campsites, beaches, and nature spots — not dating apps or social networks."
-```
-
-**Updated:**
-```
-title: "Outdoor Community Through Shared Places"
-description: "Learn how shared interests and outdoor places help shape real-world community. A calm, place-first approach to discovering where people gather."
-keywords: "outdoor community, gay hiking community, shared interests, real-world community, place-based discovery"
-```
-
-**Why:** Removes oppositional language ("not dating apps"), focuses on explaining the concept.
+1. Update `DiscoverTogether.tsx` with enhanced unauthenticated view
+2. Update `App.tsx` to redirect `/couples` → `/together`
+3. Update `Footer.tsx` to point "Couples" link to `/together`
+4. Delete `Couples.tsx`
+5. Verify no broken internal links
 
 ---
 
-### Find Friends (`/find-friends`)
+## Before/After Comparison
 
-**Current:**
-```
-title: "Find Gay Outdoor Friends – Make Real Connections on the Trail"
-description: "Looking for gay friends who love the outdoors and staying active? Discover trails, campsites, and outdoor spots where you can find community — not on dating apps."
-```
-
-**Updated:**
-```
-title: "Finding Friends Through Shared Outdoor Places"
-description: "A place-based approach to friendship built around shared routines, outdoor activities, and familiar spaces. Designed for real-world connection over time."
-keywords: "outdoor friends, hiking buddies, camping friends, shared activities, real-world friendship"
+### Before (Two Pages)
+```text
+/couples        → Marketing page (no functionality)
+                  └── CTA: "Start a Session" → /together
+/together       → Functional tool (minimal context)
 ```
 
-**Why:** Removes "not on dating apps", reframes as tool-first.
-
----
-
-### Couples (`/couples`)
-
-**Current:**
-```
-title: "Discover Together — Find Outdoor Places for Both of You"
-description: "Temporarily link with a partner or friend to find hiking trails, campsites, and outdoor spots that work for both of you. Private, session-based discovery."
-```
-
-**Updated:**
-```
-title: "Discover Outdoor Places Together"
-description: "Find outdoor places that work for two people—privately. A place-first tool for planning hikes, trips, and shared experiences without sharing preferences."
-keywords: "couples hiking, outdoor planning, shared discovery, private recommendations, trip planning"
-```
-
-**Why:** More concise, emphasizes privacy and tool function.
-
----
-
-### Pricing (`/pricing`)
-
-**Add SEOHead (currently missing):**
-```typescript
-<SEOHead
-  title="Directory Access & Personalization Options"
-  description="Access the full outdoor places directory for free, with optional personalization to refine recommendations privately based on interests and routines."
-  keywords="directory access, personalization, outdoor recommendations, free directory, PRO features"
-  canonicalPath="/pricing"
-/>
-```
-
-**Why:** Avoids "Upgrade", "Unlock", "Premium" terminology.
-
----
-
-### About (`/about`)
-
-**Current:**
-```
-title: "Why ThickTimber Exists – Outdoor Community for Gay Men"
-description: "The story behind ThickTimber — rebuilding gay community through trails, campsites, and outdoor spaces. A place-first approach for men who prefer nature over nightlife."
-```
-
-**Updated:**
-```
-title: "Why ThickTimber Exists | A Place-Based Directory"
-description: "Learn why ThickTimber was built and how place-based discovery supports real-world community, shared interests, and outdoor exploration."
-keywords: "about ThickTimber, place-based directory, outdoor discovery, community through places"
-```
-
-**Schema Update:**
-```json
-{
-  "@type": "AboutPage",
-  "name": "Why ThickTimber Exists",
-  "description": "Learn why ThickTimber was built as a place-based outdoor directory."
-}
+### After (Single Page)
+```text
+/couples        → 301 Redirect → /together
+/together       → Marketing + Functional tool (adaptive)
 ```
 
 ---
 
-### FAQ (`/faq`)
+## Benefits
 
-**Current:**
-```
-title: "FAQ – Outdoor Community Directory for Gay Men"
-description: "Answers about how gay men use ThickTimber to find hiking trails, campsites, and outdoor community. Learn about personalization, privacy, and what makes this different."
-```
-
-**Updated:**
-```
-title: "Frequently Asked Questions | ThickTimber Directory"
-description: "Answers about how the directory works, personalization, privacy, and what makes ThickTimber different from social or profile-based platforms."
-keywords: "FAQ, questions, directory help, personalization, privacy"
-```
-
-**Why:** More neutral, AI-friendly framing.
+| Benefit | Explanation |
+|---------|-------------|
+| **Reduced friction** | Users go directly to the tool |
+| **Better SEO** | Single canonical URL, no duplicate content |
+| **Cleaner codebase** | One file instead of two |
+| **Adaptive UX** | Marketing shown only when relevant |
+| **Maintained context** | Logged-in users still see brief "how it works" |
 
 ---
 
-### Trail Blazers (`/ambassadors`)
+## Technical Details
 
-**Current:**
-```
-title: "Trail Blazers | ThickTimber"
-description: "Share your expertise on outdoor spaces and active lifestyles. Trail Blazers are trusted voices who add depth to the directory."
+### Enhanced Unauthenticated View
+
+Replace the current minimal card (lines 56-91 in DiscoverTogether.tsx) with:
+
+```tsx
+// Condensed marketing content for unauthenticated users
+<section className="max-w-2xl mx-auto px-4 py-12 space-y-12">
+  {/* Hero */}
+  <div className="text-center">
+    <h1 className="font-serif text-3xl md:text-4xl mb-4">
+      Find Outdoor Places That Work for Both of You
+    </h1>
+    <p className="text-muted-foreground">
+      Without sharing preferences. Without linking accounts. 
+      Just clearer outdoor recommendations—privately.
+    </p>
+  </div>
+
+  {/* How It Works (condensed) */}
+  <div className="space-y-4">
+    <h2 className="font-semibold">How It Works</h2>
+    <ol className="space-y-3 text-muted-foreground">
+      <li>1. Start a private session</li>
+      <li>2. Share the code with your partner</li>
+      <li>3. See places that work for both of you</li>
+      <li>4. Session expires in 24 hours</li>
+    </ol>
+  </div>
+
+  {/* Privacy highlights */}
+  <div className="grid grid-cols-2 gap-4">
+    <PrivacyCard icon={Eye} title="Preferences stay private" />
+    <PrivacyCard icon={Clock} title="Sessions expire automatically" />
+  </div>
+
+  {/* Auth CTA */}
+  <Card>
+    <CardHeader className="text-center">
+      <CardTitle>Ready to explore together?</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <Button asChild className="w-full">
+        <Link to="/auth?redirect=/together">Sign In to Start</Link>
+      </Button>
+    </CardContent>
+  </Card>
+</section>
 ```
 
-**Updated:**
-```
-title: "Trail Blazers | Expert Context for Outdoor Places"
-description: "Trail Blazers are writers, guides, and subject-matter experts who add contextual knowledge to outdoor places in the ThickTimber directory."
-keywords: "trail blazers, outdoor experts, guides, contributors, place expertise"
-```
+### Authenticated Default View Enhancement
 
-**Why:** Clearer for AI attribution and trust signals.
+Add brief context above SessionJoin:
+```tsx
+<div className="text-center mb-6">
+  <h1 className="text-2xl font-bold mb-2">Discover Together</h1>
+  <p className="text-muted-foreground text-sm">
+    Find outdoor places that work for both of you—privately.
+  </p>
+</div>
+```
 
 ---
 
-### Auth (`/auth`)
+## Files to Modify
 
-**Add SEOHead (currently missing):**
-```typescript
-<SEOHead
-  title="Join the ThickTimber Directory"
-  description="Create a private account to explore outdoor places, save favorites, and personalize your directory experience over time."
-  keywords="sign up, join directory, create account, outdoor places"
-  canonicalPath="/auth"
-/>
-```
-
----
-
-## 4. Technical Implementation
-
-### File Changes Summary
-
-| File | Lines Affected | Change Type |
-|------|----------------|-------------|
-| `index.html` | 6-46 | Update title, description, keywords, OG, schema |
-| `src/components/SEOHead.tsx` | All | Add applicationName prop, output meta tag |
-| `src/pages/Outdoors.tsx` | 42-47 | Update SEOHead props |
-| `src/pages/Community.tsx` | 20-25 | Update SEOHead props |
-| `src/pages/FindFriends.tsx` | 20-25 | Update SEOHead props |
-| `src/pages/Couples.tsx` | 20-25 | Update SEOHead props |
-| `src/pages/Pricing.tsx` | After line 76 | Add SEOHead import + component |
-| `src/pages/About.tsx` | 74-80 | Update SEOHead props + schema |
-| `src/pages/FAQ.tsx` | 172-178 | Update SEOHead props |
-| `src/pages/Ambassadors.tsx` | 149-153 | Update SEOHead props |
-| `src/pages/Auth.tsx` | After line 16 | Add SEOHead import + component |
-| `src/pages/Places.tsx` | After imports | Add SEOHead import + component |
-
----
-
-## 5. Structured Data Enhancements
-
-### WebApplication Schema (index.html)
-```json
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "ThickTimber",
-  "applicationCategory": "LifestyleApplication",
-  "operatingSystem": "Web",
-  "description": "A place-based outdoor directory for gay men. Discover trails, campsites, beaches, and active spaces.",
-  "url": "https://thicktimber.lovable.app",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  }
-}
-```
-
-### FAQPage Schema (already exists, no change needed)
-The existing FAQ schema generation is correct and AI-friendly.
-
----
-
-## 6. Verification Checklist
-
-After implementation, verify:
-
-| Requirement | Status |
-|-------------|--------|
-| No "dating", "hookup", "match" in metadata | Verify |
-| No "anti-app" phrasing | Verify |
-| "directory" appears where appropriate | Verify |
-| Place-first nouns lead titles | Verify |
-| Descriptions explain how it works, not promises | Verify |
-| `application-name` meta tag present | Verify |
-| Canonical URLs distinct per page | Verify |
-| OG images specified | Verify |
-
----
-
-## 7. Implementation Sequence
-
-1. Update `src/components/SEOHead.tsx` to add `applicationName` support
-2. Update `index.html` with new global metadata
-3. Update existing SEOHead props on all pages
-4. Add SEOHead to pages currently missing it (`Places.tsx`, `Pricing.tsx`, `Auth.tsx`)
-
----
-
-## Why This Strategy Works
-
-- **Traditional Search:** Function-first titles, clear descriptions, proper canonical URLs
-- **AI Search:** `application-name` tag, WebApplication schema, calm factual language
-- **Brand Consistency:** ThickTimber always at end of titles, not leading
-- **No Cannibalization:** Each page has distinct conceptual role and unique metadata
+| File | Action |
+|------|--------|
+| `src/pages/DiscoverTogether.tsx` | Enhance with marketing content |
+| `src/App.tsx` | Add redirect from `/couples` |
+| `src/components/Footer.tsx` | Update link target |
+| `src/pages/Couples.tsx` | Delete |
 
