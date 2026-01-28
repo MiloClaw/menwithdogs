@@ -35,7 +35,7 @@ const ValueProposition = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight leading-[1.1] text-balance"
             >
-              An alternative to the dating apps, built around trails, campsites, and the outdoors.
+              A place-based directory built around shared interests and the outdoors.
             </motion.h2>
 
             {/* Right: Supporting text */}
@@ -46,12 +46,24 @@ const ValueProposition = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-6 md:pt-2 max-w-prose"
             >
-              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed my-[3px] text-justify">
-                A personalized directory of hiking trails, campsites, beaches, and places to be active outdoors — where gay men who love nature actually spend time. No profiles. No feeds. No swiping. It's for men who find community on trails, around campfires, and at swimming holes — not in crowded bars or on endless dating apps. No one is browsing you. You are not being ranked or compared. You simply save your favorite spots, share hidden gems, and let the directory help you find where others like you already go.
+              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
+                ThickTimber is a personalized directory of hiking trails, campsites, beaches, and outdoor places where men with similar interests tend to spend time.
               </p>
 
-              <p className="text-muted-foreground/70 text-base md:text-lg">
-                When you're done with the apps and ready to find your trail.
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                Instead of focusing on profiles or constant interaction, the directory is shaped by the places people genuinely enjoy and return to. Members privately save their favorite spots, share hidden gems, and contribute to a growing picture of where community naturally forms in the real world.
+              </p>
+
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                Over time, patterns emerge. The directory quietly highlights places where men who value similar activities, routines, and outdoor experiences tend to gather—making it easier to plan a day out, discover new areas, and increase the chances of organic connection.
+              </p>
+
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                ThickTimber is designed as a tool, not a pastime. It works in the background, helping you understand where to go—so you can focus on actually being there.
+              </p>
+
+              <p className="text-muted-foreground/70 text-base md:text-lg font-medium">
+                Connection starts with showing up.
               </p>
             </motion.div>
           </div>
