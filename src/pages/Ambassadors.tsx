@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MapPin, Calendar, MessageSquare, Gift, Sparkles, ArrowRight, Check, Building } from 'lucide-react';
+import { MapPin, PenLine, Link as LinkIcon, Sparkles, ArrowRight, Check, Building, Mountain, BookOpen, Camera, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import PageLayout from '@/components/PageLayout';
@@ -11,39 +11,29 @@ import SEOHead from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import GooglePlacesAutocomplete from '@/components/ui/google-places-autocomplete';
 import { useAmbassadorApplication } from '@/hooks/useAmbassadorApplication';
 import { useAuth } from '@/hooks/useAuth';
 
-// Form schema
+// Form schema - updated for Trail Blazers
 const applicationSchema = z.object({
   name: z.string().min(2, 'Please enter your name'),
-  city: z.string().min(1, 'Please select your city'),
-  cityGooglePlaceId: z.string().optional(),
-  cityState: z.string().optional(),
-  cityCountry: z.string().default('US'),
-  tenure: z.string().min(1, 'Please select how long you\'ve lived there'),
+  region: z.string().optional(), // Made optional - was city
+  regionGooglePlaceId: z.string().optional(),
+  regionState: z.string().optional(),
+  regionCountry: z.string().default('US'),
   specificPlaces: z.string().min(20, 'Please share at least 2-3 places').max(500, 'Please keep it under 500 characters'),
-  motivation: z.string().min(20, 'Please share a bit more about your motivation').max(300, 'Please keep it under 300 characters'),
+  expertiseArea: z.string().min(20, 'Please share a bit more about your expertise').max(500, 'Please keep it under 500 characters'),
   hasBusinessAffiliation: z.boolean().default(false),
   businessAffiliationDetails: z.string().optional(),
-  localKnowledge: z.string().min(20, 'Please share a bit more about what you know').max(500, 'Please keep it under 500 characters'),
-  socialLinks: z.string().optional(),
+  existingContent: z.string().optional(), // Was localKnowledge
+  contentLinks: z.string().optional(), // Was socialLinks
   email: z.string().email('Please enter a valid email'),
 });
 
 type ApplicationFormData = z.infer<typeof applicationSchema>;
-
-const tenureOptions = [
-  { value: 'less_than_1_year', label: 'Less than 1 year' },
-  { value: '1_3_years', label: '1–3 years' },
-  { value: '3_5_years', label: '3–5 years' },
-  { value: '5_10_years', label: '5–10 years' },
-  { value: '10_plus_years', label: '10+ years' },
-];
 
 // Animation variants with proper typing
 const fadeInUp: Variants = {
@@ -62,15 +52,15 @@ const Ambassadors = () => {
   
   // Parallax refs
   const heroRef = useRef<HTMLDivElement>(null);
-  const notSectionRef = useRef<HTMLDivElement>(null);
+  const boundariesRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start end', 'end start'] });
-  const { scrollYProgress: notProgress } = useScroll({ target: notSectionRef, offset: ['start end', 'end start'] });
+  const { scrollYProgress: boundariesProgress } = useScroll({ target: boundariesRef, offset: ['start end', 'end start'] });
   const { scrollYProgress: ctaProgress } = useScroll({ target: ctaRef, offset: ['start end', 'end start'] });
   
   const heroY = useTransform(heroProgress, [0, 1], ['-10%', '10%']);
-  const notY = useTransform(notProgress, [0, 1], ['-15%', '15%']);
+  const boundariesY = useTransform(boundariesProgress, [0, 1], ['-15%', '15%']);
   const ctaY = useTransform(ctaProgress, [0, 1], ['-10%', '10%']);
 
   // Form
@@ -78,17 +68,16 @@ const Ambassadors = () => {
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       name: '',
-      city: '',
-      cityGooglePlaceId: '',
-      cityState: '',
-      cityCountry: 'US',
-      tenure: '',
+      region: '',
+      regionGooglePlaceId: '',
+      regionState: '',
+      regionCountry: 'US',
       specificPlaces: '',
-      motivation: '',
+      expertiseArea: '',
       hasBusinessAffiliation: false,
       businessAffiliationDetails: '',
-      localKnowledge: '',
-      socialLinks: '',
+      existingContent: '',
+      contentLinks: '',
       email: user?.email || '',
     },
   });
@@ -98,17 +87,17 @@ const Ambassadors = () => {
   const onSubmit = async (data: ApplicationFormData) => {
     await submitApplication({
       name: data.name,
-      cityName: data.city,
-      cityGooglePlaceId: data.cityGooglePlaceId,
-      cityState: data.cityState,
-      cityCountry: data.cityCountry,
-      tenure: data.tenure,
+      cityName: data.region || 'Not specified', // Map to existing DB field
+      cityGooglePlaceId: data.regionGooglePlaceId,
+      cityState: data.regionState,
+      cityCountry: data.regionCountry,
+      tenure: 'not_applicable', // Default value for DB compatibility
       specificPlaces: data.specificPlaces,
-      motivation: data.motivation,
+      motivation: data.expertiseArea, // Map to existing DB field
       hasBusinessAffiliation: data.hasBusinessAffiliation,
       businessAffiliationDetails: data.businessAffiliationDetails,
-      localKnowledge: data.localKnowledge,
-      socialLinks: data.socialLinks,
+      localKnowledge: data.existingContent || 'Not provided', // Map to existing DB field
+      socialLinks: data.contentLinks,
       email: data.email,
     });
   };
@@ -116,8 +105,8 @@ const Ambassadors = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Ambassador Program | ThickTimber"
-        description="Help shape the outdoor places that define your region. Join our Ambassador Program and contribute to a directory that reflects where outdoor gay men actually go."
+        title="Trail Blazers | ThickTimber"
+        description="Share your expertise on outdoor spaces and active lifestyles. Trail Blazers are trusted voices who add depth to the directory."
         canonicalPath="/ambassadors"
       />
 
@@ -128,9 +117,7 @@ const Ambassadors = () => {
           style={{ y: heroY }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
         >
-          <span className="text-[14rem] md:text-[22rem] font-serif font-bold text-foreground/[0.03] leading-none">
-            &
-          </span>
+          <Mountain className="w-[14rem] h-[14rem] md:w-[22rem] md:h-[22rem] text-foreground/[0.03]" strokeWidth={0.5} />
         </motion.div>
 
         <div className="container relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -141,79 +128,162 @@ const Ambassadors = () => {
             className="space-y-8"
           >
             <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground">
-              Ambassador Program
+              Trail Blazers
             </motion.p>
             
             <motion.h1 variants={fadeInUp} className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-balance">
-              Help Shape the Places That Define Your City
+              Share your knowledge of outdoor spaces and active lifestyles
             </motion.h1>
             
             <motion.p variants={fadeInUp} className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto text-pretty">
-              We're looking for gay men who know the outdoors well — the hidden trails, the best campsites, the swimming holes that don't show up on maps. Help us build a directory that reflects where outdoor gay men actually go.
+              Trail Blazers are trusted voices who add depth and perspective to outdoor places—helping others explore more intentionally.
             </motion.p>
+
+            <motion.div variants={fadeInUp} className="pt-4">
+              <Button asChild size="lg" className="text-base">
+                <a href="#apply">Apply to Be a Trail Blazer</a>
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* What Ambassadors Do */}
+      {/* What Are Trail Blazers */}
       <section className="py-28 md:py-40 border-t border-border/40">
-        <div className="container max-w-6xl mx-auto px-6">
+        <div className="container max-w-4xl mx-auto px-6">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             variants={staggerContainer}
-            className="space-y-16"
+            className="space-y-12"
           >
             <div className="max-w-2xl">
               <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
                 What This Is
               </motion.p>
-              <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
-                Quietly shape how your city is represented
-              </motion.h2>
             </div>
 
-            <motion.div variants={fadeInUp} className="grid md:grid-cols-3 gap-8 md:gap-12">
+            <motion.div variants={fadeInUp} className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+              <p className="text-pretty">
+                Trail Blazers are writers, photographers, guides, and community voices who share meaningful knowledge about outdoor spaces and active lifestyles.
+              </p>
+              <p className="text-pretty">
+                Some Trail Blazers publish long-form writing or guides. Others document personal experiences, seasonal insights, or activity-specific perspectives. What they share adds context to places—not promotion.
+              </p>
+              <p className="text-foreground font-medium text-pretty">
+                This program exists to highlight expertise, not influence.
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="grid md:grid-cols-4 gap-6 pt-8">
               {[
-                {
-                  icon: MapPin,
-                  title: 'Submit outdoor spots',
-                  description: 'Add hiking trails, campsites, beaches, and swimming holes that matter to your community.',
-                },
-                {
-                  icon: Calendar,
-                  title: 'Flag group events',
-                  description: 'Highlight hiking groups, camping weekends, outdoor meetups worth knowing about.',
-                },
-                {
-                  icon: MessageSquare,
-                  title: 'Share local context',
-                  description: 'Add tips and insights only a local would know — trail conditions, best times to visit, hidden gems.',
-                },
+                { icon: PenLine, label: 'Writers' },
+                { icon: Camera, label: 'Photographers' },
+                { icon: Mountain, label: 'Guides' },
+                { icon: Users, label: 'Community Voices' },
               ].map((item, index) => (
-                <div key={index} className="space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                    <item.icon className="w-5 h-5 text-accent" />
+                <div key={index} className="flex items-center gap-3 text-muted-foreground">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 text-accent" />
                   </div>
-                  <h3 className="font-serif text-xl font-semibold">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-pretty">{item.description}</p>
+                  <span className="text-sm font-medium">{item.label}</span>
                 </div>
               ))}
             </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* How Trail Blazers Contribute */}
+      <section className="py-28 md:py-40 bg-muted/30 border-t border-border/40">
+        <div className="container max-w-4xl mx-auto px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={staggerContainer}
+            className="space-y-12"
+          >
+            <div className="max-w-2xl">
+              <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
+                How It Works
+              </motion.p>
+              <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
+                How Trail Blazers Contribute
+              </motion.h2>
+            </div>
+
+            <motion.div variants={fadeInUp} className="space-y-4">
+              <p className="text-lg text-muted-foreground">Trail Blazers may:</p>
+              <ul className="space-y-4 text-lg text-muted-foreground">
+                {[
+                  'Submit outdoor places relevant to hiking, camping, beaches, running, cycling, or other active pursuits',
+                  'Add short context about how a place is used, when it\'s best experienced, or what makes it unique',
+                  'Optionally include a link to an existing article, guide, or post they\'ve published',
+                  'Share activity-specific or seasonal considerations',
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start gap-4">
+                    <span className="text-accent mt-1.5">•</span>
+                    <span className="text-pretty">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
 
             <motion.p variants={fadeInUp} className="text-muted-foreground text-lg border-l-4 border-accent pl-6">
-              Contributions are about places, not people. No posting quotas. No performance metrics.
+              All submissions are reviewed to ensure they add value and align with the platform's purpose.
             </motion.p>
           </motion.div>
         </div>
       </section>
 
-      {/* What This Is Not - Dark Section */}
-      <section ref={notSectionRef} className="relative py-28 md:py-40 bg-primary text-primary-foreground overflow-hidden">
+      {/* For Writers & Subject-Matter Experts */}
+      <section className="py-28 md:py-40 border-t border-border/40">
+        <div className="container max-w-4xl mx-auto px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={staggerContainer}
+            className="space-y-12"
+          >
+            <div className="max-w-2xl">
+              <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
+                For Writers, Guides & Experts
+              </motion.p>
+              <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
+                If you publish content related to outdoor spaces or active lifestyles
+              </motion.h2>
+            </div>
+
+            <motion.div variants={fadeInUp} className="space-y-4">
+              <ul className="space-y-4 text-lg text-muted-foreground">
+                {[
+                  'You may include links to existing articles or guides when contributing places',
+                  'Approved links appear as contextual references, not advertisements',
+                  'This helps readers discover deeper expertise while keeping the directory focused on places',
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start gap-4">
+                    <span className="text-accent mt-1.5">•</span>
+                    <span className="text-pretty">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            <motion.p variants={fadeInUp} className="text-foreground text-lg font-medium">
+              Trail Blazer links are selected based on relevance and quality—not reach or follower count.
+            </motion.p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Clear Boundaries - Dark Section */}
+      <section ref={boundariesRef} className="relative py-28 md:py-40 bg-primary text-primary-foreground overflow-hidden">
         {/* Ghost Element */}
         <motion.div
-          style={{ y: notY }}
+          style={{ y: boundariesY }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
         >
           <span className="text-[16rem] md:text-[24rem] font-serif font-bold text-primary-foreground/[0.03] leading-none">
@@ -229,16 +299,21 @@ const Ambassadors = () => {
             variants={staggerContainer}
             className="space-y-12"
           >
+            <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-primary-foreground/60">
+              Clear Boundaries
+            </motion.p>
+
             <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
-              This is stewardship, not promotion.
+              This is not:
             </motion.h2>
 
             <motion.ul variants={fadeInUp} className="space-y-6 text-lg md:text-xl">
               {[
-                'Not a dating app',
-                'Not a social network',
-                'Not an influencer or brand partnership program',
-                'No public profiles, rankings, or visibility tied to participation',
+                'An influencer or ambassador program',
+                'A sponsorship or promotional channel',
+                'A ranking system or leaderboard',
+                'A public profile or follower mechanism',
+                'A requirement to promote ThickTimber',
               ].map((item, index) => (
                 <motion.li
                   key={index}
@@ -252,47 +327,13 @@ const Ambassadors = () => {
             </motion.ul>
 
             <motion.p variants={fadeInUp} className="text-primary-foreground/60 text-lg">
-              We built this to filter for the right people — thoughtful locals, not promoters.
+              Trail Blazers participate as contributors, not representatives.
             </motion.p>
           </motion.div>
         </div>
       </section>
 
-      {/* Who This Is For */}
-      <section className="py-28 md:py-40 border-t border-border/40">
-        <div className="container max-w-6xl mx-auto px-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-2 gap-12 md:gap-20"
-          >
-            <div>
-              <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
-                Ideal Ambassador
-              </motion.p>
-              <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
-                You know your city. Not just the nightlife.
-              </motion.h2>
-            </div>
-
-            <motion.div variants={fadeInUp} className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-              <p className="text-pretty">
-                Gay men who have spent time exploring the outdoors in their region — its trails, its campgrounds, its hidden spots.
-              </p>
-              <p className="text-pretty">
-                People who know the "in-between" places — the unmarked swimming holes, the quiet trails, the campsites that aren't on anyone's radar yet.
-              </p>
-              <p className="text-pretty">
-                Those who value community, nature, and real-world connection. Comfortable contributing quietly, without being on display.
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* What Ambassadors Receive */}
+      {/* What You Get */}
       <section className="py-28 md:py-40 bg-muted/30 border-t border-border/40">
         <div className="container max-w-4xl mx-auto px-6">
           <motion.div
@@ -306,25 +347,28 @@ const Ambassadors = () => {
               <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
                 What You Get
               </motion.p>
-              <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-balance">
-                Access and contribution — not rewards.
-              </motion.h2>
             </div>
 
-            <motion.div variants={fadeInUp} className="space-y-6">
-              {[
-                { icon: Gift, text: 'Complimentary Pro membership (limited slots per city)' },
-                { icon: Sparkles, text: 'Early access to new city tools and features' },
-                { icon: MapPin, text: 'A direct way to help shape how your city is represented' },
-              ].map((item, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                    <item.icon className="w-4 h-4 text-accent" />
-                  </div>
-                  <p className="text-lg text-foreground pt-2">{item.text}</p>
-                </div>
-              ))}
+            <motion.div variants={fadeInUp} className="space-y-4">
+              <p className="text-lg text-muted-foreground">Trail Blazers may receive:</p>
+              <ul className="space-y-4 text-lg text-muted-foreground">
+                {[
+                  'Complimentary PRO access (limited and reviewed periodically)',
+                  'Optional attribution for approved contextual links',
+                  'Early access to new features related to places or activities',
+                  'A platform that surfaces your expertise where it\'s most useful',
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start gap-4">
+                    <span className="text-accent mt-1.5">•</span>
+                    <span className="text-pretty">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
+
+            <motion.p variants={fadeInUp} className="text-muted-foreground text-lg border-l-4 border-accent pl-6">
+              Participation is optional and can be paused or ended at any time.
+            </motion.p>
           </motion.div>
         </div>
       </section>
@@ -341,13 +385,10 @@ const Ambassadors = () => {
           >
             <div>
               <motion.p variants={fadeInUp} className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
-                Apply
+                Get Involved
               </motion.p>
-              <motion.h2 variants={fadeInUp} className="font-serif text-3xl md:text-4xl font-semibold tracking-tight text-balance mb-4">
-                A short, respectful application
-              </motion.h2>
               <motion.p variants={fadeInUp} className="text-muted-foreground text-lg">
-                No essays. No personality tests. Used only to understand fit and local context. Your information is private.
+                Submissions are reviewed for relevance and quality. There is no requirement to focus on a specific location or audience.
               </motion.p>
             </div>
 
@@ -361,7 +402,7 @@ const Ambassadors = () => {
                   <Check className="w-8 h-8 text-accent" />
                 </div>
                 <h3 className="font-serif text-2xl font-semibold">Thanks for applying</h3>
-                <p className="text-muted-foreground">We'll be in touch if there's a fit.</p>
+                <p className="text-muted-foreground">We'll review your submission and be in touch if there's a fit.</p>
               </motion.div>
             ) : (
               <motion.div variants={fadeInUp}>
@@ -385,112 +426,92 @@ const Ambassadors = () => {
                       )}
                     />
 
-                    {/* City */}
+                    {/* Region (Optional) */}
                     <FormField
                       control={form.control}
-                      name="city"
+                      name="region"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City</FormLabel>
+                          <FormLabel>
+                            Primary region
+                            <span className="text-muted-foreground font-normal ml-2">(optional)</span>
+                          </FormLabel>
                           <FormControl>
                             <GooglePlacesAutocomplete
-                              value={field.value}
+                              value={field.value || ''}
                               onChange={field.onChange}
                               onPlaceSelect={(place) => {
                                 field.onChange(place?.name || '');
-                                form.setValue('cityGooglePlaceId', place?.place_id || '');
+                                form.setValue('regionGooglePlaceId', place?.place_id || '');
                                 const addressParts = place?.formatted_address?.split(', ') || [];
                                 const state = addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '';
                                 const country = addressParts.length >= 1 ? addressParts[addressParts.length - 1] : 'US';
-                                form.setValue('cityState', state || '');
-                                form.setValue('cityCountry', country || 'US');
+                                form.setValue('regionState', state || '');
+                                form.setValue('regionCountry', country || 'US');
                               }}
-                              placeholder="Search for your city..."
-                              types="(cities)"
+                              placeholder="Search for a region, state, or country..."
+                              types="(regions)"
                             />
                           </FormControl>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Not required. Trail Blazers can contribute from anywhere.
+                          </p>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Tenure */}
-                    <FormField
-                      control={form.control}
-                      name="tenure"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>How long have you lived there?</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select duration" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {tenureOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Specific Places - NEW */}
+                    {/* Specific Places */}
                     <FormField
                       control={form.control}
                       name="specificPlaces"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name 2-3 local places you'd recommend that most visitors wouldn't know about</FormLabel>
+                          <FormLabel>2-3 outdoor places you'd recommend adding to the directory</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="A coffee shop, a bookstore, a park, a gym — the spots only locals know"
+                              placeholder="Trails, campsites, beaches, swimming holes — places worth knowing about"
                               className="min-h-[120px] resize-none"
                               {...field}
                             />
                           </FormControl>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Be specific. This helps us understand your local knowledge. {field.value?.length || 0}/500 characters
+                            Be specific about location and what makes each place notable. {field.value?.length || 0}/500 characters
                           </p>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Motivation - NEW */}
+                    {/* Expertise Area */}
                     <FormField
                       control={form.control}
-                      name="motivation"
+                      name="expertiseArea"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Why do you want to help shape your city's directory?</FormLabel>
+                          <FormLabel>What areas of outdoor or active-lifestyle expertise do you focus on?</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="What draws you to this?"
+                              placeholder="Hiking, camping, trail running, cycling, swimming — tell us about your focus areas"
                               className="min-h-[100px] resize-none"
                               {...field}
                             />
                           </FormControl>
                           <p className="text-xs text-muted-foreground mt-1">
-                            A sentence or two is fine. {field.value?.length || 0}/300 characters
+                            {field.value?.length || 0}/500 characters
                           </p>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Business Affiliation - NEW */}
+                    {/* Business Affiliation */}
                     <FormField
                       control={form.control}
                       name="hasBusinessAffiliation"
                       render={({ field }) => (
                         <FormItem className="space-y-4">
-                          <FormLabel>Do you own or work at any local businesses?</FormLabel>
+                          <FormLabel>Do you own or work at any outdoor-related businesses?</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={(value) => field.onChange(value === 'yes')}
@@ -536,47 +557,47 @@ const Ambassadors = () => {
                       />
                     )}
 
-                    {/* Local Knowledge */}
+                    {/* Existing Content */}
                     <FormField
                       control={form.control}
-                      name="localKnowledge"
+                      name="existingContent"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>What kind of local places or events do you know well?</FormLabel>
+                          <FormLabel>
+                            Do you have existing writing, guides, or published content?
+                            <span className="text-muted-foreground font-normal ml-2">(optional)</span>
+                          </FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Tell us about the spots you'd recommend — coffee shops, gyms, bookstores, events..."
-                              className="min-h-[120px] resize-none"
+                              placeholder="Tell us about any blogs, publications, or guides you've created..."
+                              className="min-h-[100px] resize-none"
                               {...field}
                             />
                           </FormControl>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {field.value?.length || 0}/500 characters
-                          </p>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Social Links (Optional) */}
+                    {/* Content Links (Optional) */}
                     <FormField
                       control={form.control}
-                      name="socialLinks"
+                      name="contentLinks"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Links to social or online presence
+                            Links to relevant writing or guides
                             <span className="text-muted-foreground font-normal ml-2">(optional)</span>
                           </FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Instagram, Twitter, blog, etc."
+                              placeholder="Blog, publication, guide platform, etc."
                               className="min-h-[80px] resize-none"
                               {...field}
                             />
                           </FormControl>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Optional. Used only for context, not promotion.
+                            Links are reviewed for relevance and quality.
                           </p>
                           <FormMessage />
                         </FormItem>
@@ -608,7 +629,7 @@ const Ambassadors = () => {
                       className="w-full"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                      {isSubmitting ? 'Submitting...' : 'Apply to Be a Trail Blazer'}
                     </Button>
                   </form>
                 </Form>
