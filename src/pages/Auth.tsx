@@ -168,10 +168,10 @@ const Auth = () => {
           }
           return;
         }
-        toast({
-          title: 'Welcome to the community',
-          description: 'Start exploring places where real connection happens.'
-        });
+toast({
+              title: 'Welcome',
+              description: 'Start exploring places where shared interests take shape.'
+            });
         // Check for pending favorite (QR code flow)
         const pendingPlaceId = sessionStorage.getItem('pending_favorite_place_id');
         if (pendingPlaceId) {
@@ -252,7 +252,7 @@ const Auth = () => {
             duration: 0.6,
             delay: 0.1
           }} className="text-3xl md:text-4xl font-serif font-semibold text-foreground text-balance">
-              {mode === 'signin' ? 'Sign in to continue' : 'Join The Community'}
+              {mode === 'signin' ? 'Sign in to continue' : 'Join the directory'}
             </motion.h1>
 
             {/* Subtitle */}
@@ -266,7 +266,7 @@ const Auth = () => {
             duration: 0.5,
             delay: 0.15
           }} className="text-muted-foreground text-sm md:text-base leading-relaxed text-pretty">
-              {mode === 'signin' ? 'Continue discovering your community' : 'Start discovering places where your community gathers'}
+              {mode === 'signin' ? 'Pick up where you left off and keep exploring places shaped by your interests.' : 'Start discovering outdoor places shaped by shared interests and community patterns.'}
             </motion.p>
           </div>
 
@@ -282,8 +282,8 @@ const Auth = () => {
           delay: 0.2
         }} className="relative pl-5 py-3">
               <BrandStripe orientation="vertical" size="sm" className="absolute left-0 top-2 bottom-2" />
-              <p className="text-muted-foreground leading-relaxed text-xs text-left">Your information stays private by default.  No public profiles unless you choose it. Your profile and settings only tune the directory to provide better recommendations for you.                                                                           <br />
-                ​
+              <p className="text-muted-foreground leading-relaxed text-xs text-left">
+                Your information is private by default. Your account and preferences are used only to personalize the directory and improve recommendations for you. Nothing you save or set is publicly visible.
               </p>
             </motion.div>}
 
@@ -317,7 +317,7 @@ const Auth = () => {
               </div>}
 
             <Button type="submit" variant="accent" className="w-full h-12 text-base" disabled={isSubmitting}>
-              {isSubmitting ? 'Please wait...' : mode === 'signin' ? 'Sign in' : 'Get started'}
+              {isSubmitting ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Join Free'}
             </Button>
           </motion.form>
 
@@ -334,7 +334,7 @@ const Auth = () => {
             setMode(mode === 'signin' ? 'signup' : 'signin');
             setErrors({});
           }} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {mode === 'signin' ? "New here? Create an account" : 'Already a member? Sign in'}
+              {mode === 'signin' ? "New here? Join free" : 'Already a member? Sign in'}
             </button>
           </motion.div>
 
