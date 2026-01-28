@@ -59,7 +59,6 @@ const AcknowledgementsChecklist = ({
             <Checkbox
               id={`ack-${item.key}`}
               checked={acknowledgements[item.key]}
-              onCheckedChange={() => handleToggle(item.key)}
               className="pointer-events-none mt-0.5"
             />
             <Label

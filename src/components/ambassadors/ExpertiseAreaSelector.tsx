@@ -46,7 +46,6 @@ const ExpertiseAreaSelector = ({
             <Checkbox
               id={`expertise-${area.value}`}
               checked={selectedAreas.includes(area.value)}
-              onCheckedChange={() => handleToggle(area.value)}
               className="pointer-events-none"
             />
             <Label

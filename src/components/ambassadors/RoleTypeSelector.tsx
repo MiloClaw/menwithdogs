@@ -46,7 +46,6 @@ const RoleTypeSelector = ({
             <Checkbox
               id={`role-${role.value}`}
               checked={selectedRoles.includes(role.value)}
-              onCheckedChange={() => handleToggle(role.value)}
               className="pointer-events-none"
             />
             <Label
