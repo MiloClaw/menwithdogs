@@ -24,24 +24,24 @@ const faqSections: FAQSection[] = [
     title: "The Directory",
     items: [
       {
-        question: "What is this platform, exactly?",
+        question: "What is ThickTimber, exactly?",
         answer: [
-          "This is a place-centric directory — a curated collection of hiking trails, campsites, beaches, swimming holes, and outdoor spots that resonate with gay men who love nature.",
-          "It's not a social network. There are no public profiles, no feeds, no messaging. Just real-world outdoor places worth visiting."
+          "ThickTimber is a place-based directory designed to help men connect more organically through shared interests, outdoor activities, and the real places where their community gathers.",
+          "Instead of centering interaction around profiles or feeds, the directory highlights trails, campsites, beaches, and outdoor spaces based on where people actually go and return to over time."
         ]
       },
       {
-        question: "How do I use it?",
+        question: "How do I use the directory?",
         answer: [
-          "Browse outdoor places in your region, save your favorites, and discover events.",
-          "The more you use it, the more relevant it becomes. Your activity shapes what you see — privately."
+          "You browse outdoor places in your area, save the ones you enjoy, and optionally contribute new places you think others would appreciate.",
+          "As you use the directory, recommendations quietly refine—based on shared patterns across the community and, if you choose PRO, your private preferences."
         ]
       },
       {
-        question: "Is this a social network?",
+        question: "Is this a social network or dating app?",
         answer: [
-          "No. This platform is intentionally designed without social features.",
-          "No profiles to maintain. No feeds to scroll. No DMs to manage. The focus is entirely on outdoor places and events — not people."
+          "No. ThickTimber is designed as a real-world discovery tool.",
+          "While it can support connection by helping you understand where your community gathers, it doesn't revolve around browsing people, feeds, or public profiles. Interaction is optional and centered around places, not performance."
         ]
       }
     ]
@@ -52,23 +52,23 @@ const faqSections: FAQSection[] = [
       {
         question: "How does personalization work?",
         answer: [
-          "As more outdoor gay men use the directory — saving favorites, visiting places — the system learns shared patterns.",
-          "These patterns power recommendations that get smarter over time, benefiting everyone."
+          "The free directory reflects community-level patterns—highlighting places people tend to enjoy and return to.",
+          "If you subscribe to PRO, you can add more context privately, such as outdoor interests, activity preferences, or routines. This helps the directory surface places that align more closely with how you like to spend your time."
         ]
       },
       {
-        question: "What data do you use?",
+        question: "What data does the system use?",
         answer: [
-          "Your location (to show nearby outdoor spots), your favorites, and your viewing patterns.",
-          "All of this stays private and is never shared."
+          "The system uses: places saved or contributed, general usage patterns at the community level, and optional preferences you choose to add privately (PRO).",
+          "It does not use public profiles, social graphs, or advertising data."
         ]
       },
       {
-        question: "What's the difference between Free and Pro?",
+        question: "What's the difference between Free and PRO?",
         answer: [
-          "Free members get the full directory with recommendations powered by collective patterns.",
-          "Pro members can privately add context — outdoor interests, activity level, preferences — to surface places where their specific patterns overlap with others seeking similar outdoor experiences.",
-          "Both paths make the directory smarter. Pro just makes it smarter for you."
+          "Free gives you full access to the directory, powered by shared community behavior.",
+          "PRO adds private tuning—helping the directory understand your specific interests more precisely so recommendations align more closely with you.",
+          "Both contribute to making the directory better. PRO simply makes it more precise for the individual."
         ]
       }
     ]
@@ -77,24 +77,24 @@ const faqSections: FAQSection[] = [
     title: "Privacy & Trust",
     items: [
       {
-        question: "Are my preferences visible to others?",
+        question: "Are my preferences visible to other users?",
         answer: [
-          "No. Pro preferences are never visible to other users.",
-          "They only power the system's intelligence — helping surface better recommendations for you. No profiles. No exposure. Just smarter results."
+          "No. Your saved places and preferences are never visible to others.",
+          "Even when using PRO, your information is used only to refine recommendations for you. There are no public profiles or exposed activity."
         ]
       },
       {
-        question: "Do you share my data?",
+        question: "Do you sell or share my data?",
         answer: [
-          "No. Your data is never sold, never shared with third parties.",
-          "It exists only to improve your experience."
+          "No. ThickTimber does not sell user data, share it with ad networks, or use it for targeted advertising.",
+          "The platform is designed to operate without social metrics or surveillance-based incentives."
         ]
       },
       {
-        question: "Can other users see what I save or visit?",
+        question: "Can other users see where I go or what I save?",
         answer: [
-          "No. Your activity is completely private.",
-          "Other users cannot see your favorites, your viewing history, or any of your preferences."
+          "No. The directory reflects shared patterns at a high level, not individual behavior.",
+          "Your activity remains private."
         ]
       }
     ]
@@ -103,45 +103,39 @@ const faqSections: FAQSection[] = [
     title: "Community & Inclusion",
     items: [
       {
-        question: "Who is this platform for?",
+        question: "Who is ThickTimber designed for?",
         answer: [
-          "This platform is designed for gay men who love the outdoors — hiking, camping, beaches, nature — both single men and men in relationships who want to discover great outdoor spots and form platonic friendships with other outdoor gay men.",
-          "The experience is built around clear boundaries, shared experience, and friendship-only connections. This is not a dating app."
+          "ThickTimber is currently designed specifically for gay men who enjoy outdoor and active lifestyles.",
+          "This focus allows the directory, language, and intelligence to reflect the needs, experiences, and cultural context of that community."
         ]
       },
       {
-        question: "Is this a dating or hookup app?",
+        question: "Is this platform open to single men, couples, or friends?",
         answer: [
-          "No. Dating, romantic matching, and sexual connections are not part of this platform — by design.",
-          "Everyone here joins with the same intention: outdoor community and friendship only."
+          "Yes. Single men, couples, and friends all use the directory in different ways—whether exploring individually or planning experiences together.",
+          "The platform is designed around places, not relationship status."
         ]
       },
       {
-        question: "Why is the platform focused specifically on gay men?",
+        question: "Is this a hookup or dating platform?",
         answer: [
-          "We believe meaningful community is built through intentional design.",
-          "This platform focuses on gay men who love the outdoors because the intake questions, personalization model, and community norms are designed around that shared experience. A focused scope allows us to create a calmer, clearer, and more respectful experience for everyone involved."
+          "No. ThickTimber doesn't facilitate dating or sexual interaction.",
+          "It's built to support real-world discovery and organic connection through shared interests and places. What happens offline is always up to the individuals involved."
         ]
       },
       {
-        question: "Is this platform open to the broader LGBTQ+ community?",
+        question: "Why focus specifically on gay men?",
         answer: [
-          "We respect and affirm people of all gender identities and expressions.",
-          "At this stage, this platform is intentionally focused on gay men so we can develop the experience with care, clarity, and consistency. Supporting communities well means not trying to serve everyone at once."
+          "Community forms differently across cultures and identities.",
+          "By focusing on gay men, ThickTimber can be intentional about language, privacy expectations, safety, and the types of places highlighted—rather than trying to be everything to everyone.",
+          "This focus allows the platform to work better for the people it's designed for."
         ]
       },
       {
         question: "Will you expand to other communities in the future?",
         answer: [
-          "Yes. Once we have successfully developed and refined this platform, we plan to expand to other communities — each with the same level of care, intention, and purpose-built design.",
-          "Rather than creating a one-size-fits-all experience, future expansions will be thoughtfully designed to support real-world connection and community for each group we serve."
-        ]
-      },
-      {
-        question: "Can single men and couples both join?",
-        answer: [
-          "Yes. Both single gay men and gay men in committed relationships are welcome.",
-          "Couples can share a profile and discover outdoor places together. Regardless of relationship status, the goal is the same: platonic friendship, clear boundaries, and real-world outdoor connection."
+          "Possibly.",
+          "If ThickTimber expands, it will do so intentionally—designing each version around the specific needs, values, and contexts of that community, rather than applying a one-size-fits-all approach."
         ]
       }
     ]
@@ -282,7 +276,7 @@ const FAQ = () => {
               Still have questions?
             </h2>
             <p className="text-muted-foreground mb-8">
-              We're here to help. Reach out and we'll get back to you.
+              We're happy to help. Reach out anytime.
             </p>
             <a 
               href="mailto:hello@thicktimber.com" 
