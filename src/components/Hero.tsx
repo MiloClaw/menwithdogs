@@ -47,7 +47,8 @@ const Hero = () => {
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center pb-12 md:pb-16 px-[20px]">
           <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 [text-shadow:_0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
-            Real places. Shared interests.<br />
+            Real places.<br />
+            Shared interests.<br />
             Real-world connection.
           </h1>
           
