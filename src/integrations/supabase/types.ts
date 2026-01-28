@@ -2127,6 +2127,36 @@ export type Database = {
           },
         ]
       }
+      trail_blazer_context_types: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          key: string
+          label: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          key: string
+          label: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          key?: string
+          label?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
       trail_blazer_expertise_signals: {
         Row: {
           application_id: string
@@ -2190,6 +2220,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trail_blazer_permissions: {
+        Row: {
+          can_attach_external_links: boolean | null
+          created_at: string | null
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          can_attach_external_links?: boolean | null
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          can_attach_external_links?: boolean | null
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       trail_blazer_place_references: {
         Row: {
@@ -2279,6 +2342,92 @@ export type Database = {
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "ambassador_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trail_blazer_submissions: {
+        Row: {
+          admin_notes: string | null
+          context_text: string
+          context_types: string[]
+          created_at: string | null
+          external_content_type: string | null
+          external_summary: string | null
+          external_url: string | null
+          google_place_id: string
+          has_external_link: boolean | null
+          id: string
+          place_address: string | null
+          place_id: string | null
+          place_name: string
+          place_status: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          revision_feedback: string | null
+          status:
+            | Database["public"]["Enums"]["trail_blazer_submission_status"]
+            | null
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          context_text: string
+          context_types: string[]
+          created_at?: string | null
+          external_content_type?: string | null
+          external_summary?: string | null
+          external_url?: string | null
+          google_place_id: string
+          has_external_link?: boolean | null
+          id?: string
+          place_address?: string | null
+          place_id?: string | null
+          place_name: string
+          place_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          revision_feedback?: string | null
+          status?:
+            | Database["public"]["Enums"]["trail_blazer_submission_status"]
+            | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          context_text?: string
+          context_types?: string[]
+          created_at?: string | null
+          external_content_type?: string | null
+          external_summary?: string | null
+          external_url?: string | null
+          google_place_id?: string
+          has_external_link?: boolean | null
+          id?: string
+          place_address?: string | null
+          place_id?: string | null
+          place_name?: string
+          place_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          revision_feedback?: string | null
+          status?:
+            | Database["public"]["Enums"]["trail_blazer_submission_status"]
+            | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trail_blazer_submissions_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
             referencedColumns: ["id"]
           },
         ]
@@ -2824,6 +2973,11 @@ export type Database = {
       place_cadence: "weekly" | "monthly" | "rare"
       place_source: "google_places" | "admin" | "user_submitted"
       place_status: "approved" | "pending" | "rejected"
+      trail_blazer_submission_status:
+        | "pending"
+        | "approved"
+        | "needs_revision"
+        | "declined"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2960,6 +3114,12 @@ export const Constants = {
       place_cadence: ["weekly", "monthly", "rare"],
       place_source: ["google_places", "admin", "user_submitted"],
       place_status: ["approved", "pending", "rejected"],
+      trail_blazer_submission_status: [
+        "pending",
+        "approved",
+        "needs_revision",
+        "declined",
+      ],
     },
   },
 } as const
