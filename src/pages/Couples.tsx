@@ -51,7 +51,7 @@ const Couples = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Without sharing your preferences. Without linking accounts. Just better outdoor recommendations — privately.
+              Without sharing preferences. Without linking accounts. Just clearer outdoor recommendations—privately.
             </p>
           </motion.div>
         </div>
@@ -76,10 +76,10 @@ const Couples = () => {
 
             <div className="space-y-6">
               {[
-                "One of you generates a session code",
-                "Your partner scans or enters the code",
-                "The system finds outdoor places that resonate with both — privately",
-                "Sessions expire in 24 hours. No permanent data.",
+                { title: "Start a private session", description: "One of you generates a temporary session code." },
+                { title: "Join securely", description: "The other person enters the code—no account linking required." },
+                { title: "Explore shared fit", description: "The directory highlights outdoor places that align with both of your interests—without revealing individual preferences." },
+                { title: "Session expires automatically", description: "Sessions close after 24 hours. Nothing is stored or merged." },
               ].map((step, index) => (
                 <motion.div
                   key={index}
@@ -92,7 +92,9 @@ const Couples = () => {
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-sm font-medium text-primary">{index + 1}</span>
                   </div>
-                  <p className="text-lg text-muted-foreground pt-1">{step}</p>
+                  <p className="text-lg text-muted-foreground pt-1">
+                    <span className="font-medium text-foreground">{step.title}</span> — {step.description}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -112,7 +114,7 @@ const Couples = () => {
           >
             <div className="mb-8">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-primary-foreground/70 mb-3">
-                02
+                Designed for privacy
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
                 What Makes This Different
@@ -122,21 +124,20 @@ const Couples = () => {
             <div className="grid gap-6">
               {[
                 {
-                  title: "Your preferences stay yours",
-                  description:
-                    "No profile sharing between users. Your saved trails, your outdoor interests — completely private.",
+                  title: "Your individual preferences stay private",
+                  description: "No shared lists or exposed activity between users.",
                 },
                 {
-                  title: "Works for any duo",
-                  description: "Couples, hiking buddies, camping companions, travel partners. Anyone exploring the outdoors together.",
+                  title: "Works for any pair",
+                  description: "Partners, friends, or travel companions—anyone exploring together.",
                 },
                 {
-                  title: "Place-level intelligence",
-                  description: "The system doesn't match people. It surfaces outdoor spots that work for both.",
+                  title: "Place-first, not people-first",
+                  description: "The directory surfaces outdoor spots that work for both.",
                 },
                 {
                   title: "Temporary by design",
-                  description: "Sessions expire. No social graph. No permanent connection between accounts.",
+                  description: "Sessions expire. No permanent connection.",
                 },
               ].map((item, index) => (
                 <motion.div
@@ -167,7 +168,7 @@ const Couples = () => {
           >
             <div className="mb-12 text-center">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
-                03
+                Privacy, by default
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">Privacy Promise</h2>
             </div>
@@ -181,18 +182,18 @@ const Couples = () => {
                 },
                 {
                   icon: Shield,
-                  title: "Your individual preferences remain private",
+                  title: "Individual preferences remain separate",
                   description: "The system uses both inputs without revealing either.",
                 },
                 {
                   icon: Users,
-                  title: "We surface places that work for both",
-                  description: "Common ground — without exposing individual taste.",
+                  title: "Only shared place recommendations are shown",
+                  description: "Common ground—without exposing individual taste.",
                 },
                 {
                   icon: Clock,
-                  title: "No account linking. No permanent connection.",
-                  description: "Each session is temporary and independent.",
+                  title: "No account linking. No lasting connection.",
+                  description: "Designed for planning, not performance.",
                 },
               ].map((item, index) => (
                 <motion.div
@@ -224,7 +225,7 @@ const Couples = () => {
           >
             <div className="mb-12 text-center">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
-                04
+                Works well for
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">Perfect For</h2>
             </div>
@@ -233,23 +234,23 @@ const Couples = () => {
               {[
                 {
                   icon: Heart,
-                  title: "Couples planning a hiking trip",
-                  description: "Find trails and campsites you'll both love — no more compromise debates.",
+                  title: "Couples planning a hiking or camping trip",
+                  description: "Find trails and campsites you'll both enjoy.",
                 },
                 {
                   icon: Mountain,
-                  title: "Outdoor buddies exploring new areas",
-                  description: "Quickly find spots that match both your outdoor styles in unfamiliar terrain.",
+                  title: "Outdoor buddies exploring a new area",
+                  description: "Quickly find spots that work for both of you.",
                 },
                 {
                   icon: Users,
-                  title: "Friends planning a camping weekend",
-                  description: "Discover campgrounds that resonate with both of you.",
+                  title: "Friends coordinating a weekend adventure",
+                  description: "Discover places that work for the whole group.",
                 },
                 {
                   icon: Tent,
-                  title: "Travel companions on a road trip",
-                  description: "Build a shared list of outdoor stops along your route.",
+                  title: "Travel companions mapping stops along the way",
+                  description: "Build a shared list of outdoor stops along the way.",
                 },
               ].map((item, index) => (
                 <motion.div
@@ -283,11 +284,10 @@ const Couples = () => {
               Get Started
             </span>
             <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-4 text-balance">
-              Ready to discover together?
+              Ready to explore together?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Start a session with your partner, hiking buddy, or travel companion. Find outdoor places that work for both of you —
-              without sharing preferences.
+              Start a session with a partner, friend, or travel companion. Find outdoor places that work for both of you—privately.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" asChild className="text-base px-8">
@@ -299,7 +299,7 @@ const Couples = () => {
                 asChild
                 className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <Link to="/places">Explore Outdoors</Link>
+                <Link to="/places">Explore Places</Link>
               </Button>
             </div>
           </motion.div>
