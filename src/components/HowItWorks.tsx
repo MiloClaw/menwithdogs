@@ -6,18 +6,18 @@ import { Button } from "@/components/ui/button";
 const steps = [{
   number: "01",
   icon: MapPin,
-  title: "Browse and Add",
-  description: "Browse trails, campsites, beaches, and outdoor spots in the directory. Missing a great place? Add it and help others discover it."
+  title: "Explore and Contribute",
+  description: "Browse trails, campsites, beaches, and outdoor places in the directory.\nKnow a spot that belongs here? Add it and help others discover places worth returning to."
 }, {
   number: "02",
   icon: Bookmark,
-  title: "Favorite and Return",
-  description: "Save spots you genuinely enjoy and plan to revisit. Your favorites shape what you see — the more you save, the more relevant it gets."
+  title: "Save What You Enjoy",
+  description: "Save places you genuinely like and would visit again.\nYour saved spots shape what you see—quietly refining recommendations around your interests and routines."
 }, {
   number: "03",
   icon: RotateCcw,
-  title: "Smarter Over Time",
-  description: "As more men use the directory, recommendations improve — quietly surfacing patterns across regions, often in unexpected places."
+  title: "Better Over Time",
+  description: "As more men use the directory and share places they enjoy, patterns begin to form.\nThe directory highlights places where men with similar interests tend to gather—often revealing opportunities you wouldn't notice otherwise."
 }];
 const HowItWorks = () => {
   const navigate = useNavigate();
@@ -88,7 +88,7 @@ const HowItWorks = () => {
                       {step.title}
                     </h3>
 
-                    <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
+                    <p className="text-muted-foreground text-base lg:text-lg leading-relaxed whitespace-pre-line">
                       {step.description}
                     </p>
                   </div>
@@ -134,7 +134,7 @@ const HowItWorks = () => {
                       {step.title}
                     </h3>
 
-                    <p className="text-muted-foreground text-base leading-relaxed">
+                    <p className="text-muted-foreground text-base leading-relaxed whitespace-pre-line">
                       {step.description}
                     </p>
                   </div>
@@ -150,15 +150,16 @@ const HowItWorks = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-center mt-16 md:mt-20"
           >
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              This is not a dating app. There's no swiping, feeds, or public profiles.
+            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+              This is a place-based tool designed for real-world use.
+              Your activity is private, and there's no pressure to interact unless you choose to.
             </p>
             <Button 
               variant="accent" 
               size="lg" 
               onClick={() => navigate('/auth?mode=signup')}
             >
-              Start Free
+              Join Free
               <ChevronRight className="w-4 h-4" />
             </Button>
           </motion.div>
