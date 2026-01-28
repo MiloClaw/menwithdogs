@@ -1,10 +1,10 @@
 
 
-# Plan: Update How It Works Section Copy
+# Plan: Update "Who This Is For" Section
 
 ## Summary
 
-Update the "How It Works" section with refined step titles, two-line descriptions, and updated reassurance copy with a new CTA button.
+Transform the current contrarian "WhoThisIsNotFor" section into a positive, welcoming "Who This Works Well For" section with structured copy about the ideal user profile.
 
 ---
 
@@ -12,98 +12,128 @@ Update the "How It Works" section with refined step titles, two-line description
 
 | Element | Current | New |
 |---------|---------|-----|
-| **Step 01 Title** | "Browse and Add" | "Explore and Contribute" |
-| **Step 01 Description** | Single line | Two sentences with line break |
-| **Step 02 Title** | "Favorite and Return" | "Save What You Enjoy" |
-| **Step 02 Description** | Single line | Two sentences with line break |
-| **Step 03 Title** | "Smarter Over Time" | "Better Over Time" |
-| **Step 03 Description** | Single line | Two sentences with line break |
-| **Reassurance Copy** | "This is not a dating app. There's no swiping, feeds, or public profiles." | "This is a place-based tool designed for real-world use. Your activity is private, and there's no pressure to interact unless you choose to." |
-| **CTA Button** | "Start Free" | "Join Free" |
+| **Headline** | "Real community doesn't happen in an app." | "Who This Works Well For" |
+| **Body Structure** | 4-item exclusion list | Intro paragraph + 5-item checklist + closing statements + boundary statement |
+| **Tone** | Contrarian/negative framing | Positive/inclusive framing |
+| **Content Focus** | What we don't have | Who benefits from this tool |
+
+---
+
+## New Content Structure
+
+```text
+Headline: Who This Works Well For
+
+Intro: ThickTimber is designed for men who enjoy outdoor and active 
+lifestyles and are curious about connecting more organically through 
+shared interests and places.
+
+Label: It works especially well if you:
+
+Checklist:
+✓ Spend time hiking, camping, running, cycling, or being active outdoors
+✓ Enjoy discovering new places and revisiting the ones that feel right
+✓ Prefer low-pressure ways to meet people in the real world
+✓ Value privacy and don't want your interests or routines on public display
+✓ Like the idea of a tool that supports real-world experiences without demanding constant attention
+
+Closing Statements:
+You don't need to be especially social.
+You don't need to be new to an area.
+You just need to enjoy showing up.
+
+Boundary Statement:
+ThickTimber isn't built around browsing people or chasing attention.
+It's built around places—and what happens when people keep returning to them.
+```
 
 ---
 
 ## Implementation
 
-**File**: `src/components/HowItWorks.tsx`
+**File**: `src/components/WhoThisIsNotFor.tsx`
 
-### 1. Update Steps Array (Lines 6-21)
+### 1. Update Component Data
+
+Replace the `exclusions` array with a `traits` array for the checklist items:
 
 ```tsx
-const steps = [{
-  number: "01",
-  icon: MapPin,
-  title: "Explore and Contribute",
-  description: "Browse trails, campsites, beaches, and outdoor places in the directory.\nKnow a spot that belongs here? Add it and help others discover places worth returning to."
-}, {
-  number: "02",
-  icon: Bookmark,
-  title: "Save What You Enjoy",
-  description: "Save places you genuinely like and would visit again.\nYour saved spots shape what you see—quietly refining recommendations around your interests and routines."
-}, {
-  number: "03",
-  icon: RotateCcw,
-  title: "Better Over Time",
-  description: "As more men use the directory and share places they enjoy, patterns begin to form.\nThe directory highlights places where men with similar interests tend to gather—often revealing opportunities you wouldn't notice otherwise."
-}];
+const traits = [
+  "Spend time hiking, camping, running, cycling, or being active outdoors",
+  "Enjoy discovering new places and revisiting the ones that feel right",
+  "Prefer low-pressure ways to meet people in the real world",
+  "Value privacy and don't want your interests or routines on public display",
+  "Like the idea of a tool that supports real-world experiences without demanding constant attention"
+];
 ```
 
-### 2. Update Description Rendering
+### 2. Restructure JSX Layout
 
-Modify the description `<p>` elements to support multi-line text using `whitespace-pre-line`:
+Replace the current grid layout with a new structure:
 
-**Desktop (Line 91-92):**
 ```tsx
-<p className="text-muted-foreground text-base lg:text-lg leading-relaxed whitespace-pre-line">
-  {step.description}
-</p>
+{/* Headline */}
+<h2>Who This Works Well For</h2>
+
+{/* Intro paragraph */}
+<p>ThickTimber is designed for men who enjoy outdoor and active lifestyles...</p>
+
+{/* Checklist label */}
+<p>It works especially well if you:</p>
+
+{/* Traits checklist with Check icons */}
+<ul>
+  {traits.map((trait, i) => (
+    <li><Check /> {trait}</li>
+  ))}
+</ul>
+
+{/* Closing statements */}
+<div>
+  <p>You don't need to be especially social.</p>
+  <p>You don't need to be new to an area.</p>
+  <p>You just need to enjoy showing up.</p>
+</div>
+
+{/* Boundary statement */}
+<p>ThickTimber isn't built around browsing people or chasing attention.
+   It's built around places—and what happens when people keep returning to them.</p>
 ```
 
-**Mobile (Line 137-138):**
-```tsx
-<p className="text-muted-foreground text-base leading-relaxed whitespace-pre-line">
-  {step.description}
-</p>
-```
-
-### 3. Update Reassurance Copy (Lines 153-154)
+### 3. Add Check Icon Import
 
 ```tsx
-<p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-  This is a place-based tool designed for real-world use.
-  Your activity is private, and there's no pressure to interact unless you choose to.
-</p>
-```
-
-### 4. Update CTA Button Text (Lines 156-163)
-
-```tsx
-<Button 
-  variant="accent" 
-  size="lg" 
-  onClick={() => navigate('/auth?mode=signup')}
->
-  Join Free
-  <ChevronRight className="w-4 h-4" />
-</Button>
+import { Check } from "lucide-react";
 ```
 
 ---
 
-## Typography & Formatting
+## Visual Design
 
-| Element | Approach |
-|---------|----------|
-| Multi-line descriptions | Use `\n` in strings + `whitespace-pre-line` CSS class |
-| Reassurance max-width | Increase from `max-w-md` to `max-w-lg` for two-sentence copy |
+| Element | Styling |
+|---------|---------|
+| Background | Keep `bg-primary text-primary-foreground` (dark section) |
+| Headline | `font-serif text-3xl md:text-4xl lg:text-5xl font-semibold` |
+| Intro paragraph | `text-lg md:text-xl text-primary-foreground/80` |
+| Checklist label | `text-primary-foreground/70 font-medium` |
+| Checklist items | `text-primary-foreground/80` with Check icon in accent color |
+| Closing statements | `text-primary-foreground/90 font-medium` (stacked, centered) |
+| Boundary statement | `text-primary-foreground/60 text-base` (subtle, smaller) |
+
+---
+
+## Animation Preservation
+
+- Keep existing Framer Motion scroll-triggered animations
+- Keep parallax ghost symbol effect (update symbol if desired)
+- Stagger checklist item animations similar to current exclusions
 
 ---
 
 ## Technical Notes
 
-- Icon assignments remain unchanged (MapPin, Bookmark, RotateCcw)
-- All Framer Motion animations remain unchanged
-- Desktop/mobile layouts remain unchanged
-- Section header "How It Works" unchanged
-- Uses `whitespace-pre-line` to render newline characters in descriptions
+- Component filename remains `WhoThisIsNotFor.tsx` (can be renamed later if desired)
+- Keep the dark `bg-primary` section styling for visual contrast
+- Use `Check` icon from lucide-react for checklist items
+- Maintain mobile-first responsive design with centered text on small screens
 
