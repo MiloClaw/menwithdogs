@@ -85,7 +85,7 @@ const TagPage = () => {
           <motion.img 
             src={heroImage}
             alt={`${tagPage.title} - outdoor setting`}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
             style={{ y: imageY }}
           />
         ) : (
