@@ -172,7 +172,7 @@ const Ambassadors = () => {
                 Some Trail Blazers publish long-form writing or guides. Others document personal experiences, seasonal insights, or activity-specific perspectives. What they share adds context to places—not promotion.
               </p>
               <p className="text-foreground font-medium text-pretty">
-                This program exists to highlight expertise, not influence.
+                This program exists to highlight expertise, not influence. All contributions are reviewed for quality over quantity.
               </p>
             </motion.div>
 
@@ -231,9 +231,14 @@ const Ambassadors = () => {
               </ul>
             </motion.div>
 
-            <motion.p variants={fadeInUp} className="text-muted-foreground text-lg border-l-4 border-accent pl-6">
-              All submissions are reviewed to ensure they add value and align with the platform's purpose.
-            </motion.p>
+            <motion.div variants={fadeInUp} className="space-y-4">
+              <p className="text-muted-foreground text-lg border-l-4 border-accent pl-6">
+                All submissions are reviewed to ensure they add value and align with the platform's purpose.
+              </p>
+              <p className="text-muted-foreground text-lg">
+                Participation does not require promotion, backlinks, or ongoing contribution.
+              </p>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -272,9 +277,14 @@ const Ambassadors = () => {
               </ul>
             </motion.div>
 
-            <motion.p variants={fadeInUp} className="text-foreground text-lg font-medium">
-              Trail Blazer links are selected based on relevance and quality—not reach or follower count.
-            </motion.p>
+            <motion.div variants={fadeInUp} className="space-y-4">
+              <p className="text-foreground text-lg font-medium">
+                Trail Blazer links are selected based on relevance and quality—not reach or follower count.
+              </p>
+              <p className="text-muted-foreground text-lg">
+                Trail Blazer contributions are selected for relevance and experience with this type of place.
+              </p>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -388,7 +398,7 @@ const Ambassadors = () => {
                 Get Involved
               </motion.p>
               <motion.p variants={fadeInUp} className="text-muted-foreground text-lg">
-                Submissions are reviewed for relevance and quality. There is no requirement to focus on a specific location or audience.
+                Applications are reviewed for quality, relevance, and intent. There is no requirement to focus on a specific location or audience.
               </motion.p>
             </div>
 
