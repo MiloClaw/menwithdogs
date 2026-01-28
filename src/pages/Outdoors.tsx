@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Mountain, Tent, Waves, Compass, ArrowRight } from "lucide-react";
+import { Mountain, Tent, Waves, Compass } from "lucide-react";
 
 const Outdoors = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -18,22 +18,22 @@ const Outdoors = () => {
     {
       icon: Mountain,
       title: "Hiking Trails",
-      description: "The places where conversation happens without forcing it.",
+      description: "Where movement makes conversation easier.",
     },
     {
       icon: Tent,
       title: "Campsites",
-      description: "Where familiarity builds over time — sometimes just by showing up again.",
+      description: "Places that reward returning.",
     },
     {
       icon: Waves,
-      title: "Swimming Holes",
-      description: "The spots you usually hear about from someone else, not the internet.",
+      title: "Swimming Holes & Beaches",
+      description: "Shared local knowledge.",
     },
     {
       icon: Compass,
       title: "Outdoor Events",
-      description: "Group hikes, camping weekends, trail days. Low pressure. Optional. Real.",
+      description: "Optional, low-pressure ways to be around others.",
     },
   ];
 
@@ -78,7 +78,7 @@ const Outdoors = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground max-w-4xl mx-auto leading-tight"
           >
-            Community, Outside the Usual Places
+            Community, outside the usual places
           </motion.h1>
 
           <motion.p
@@ -88,12 +88,12 @@ const Outdoors = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
           >
-            Not everyone finds connection in bars or cafés. Some of us find it on trails, around campfires, or just being active outside long enough to feel like ourselves again.
+            For some of us, connection happens on trails, around campfires, or just by spending time outdoors.
           </motion.p>
         </div>
       </section>
 
-      {/* Section 01 - The Reality */}
+      {/* Section 01 - Core Description */}
       <section className="py-16 md:py-24">
         <div className="container px-4">
           <div className="max-w-3xl mx-auto">
@@ -104,7 +104,7 @@ const Outdoors = () => {
               transition={{ duration: 0.5 }}
               className="inline-block text-sm font-medium tracking-widest uppercase text-primary mb-4"
             >
-              01 — The Reality
+              01 — The Places
             </motion.span>
 
             <motion.div
@@ -115,75 +115,21 @@ const Outdoors = () => {
               className="prose prose-lg text-foreground/80"
             >
               <p>
-                There are a lot of gay men who love being outdoors. We just don't always know where to find each other.
+                ThickTimber highlights outdoor places that matter—hiking trails, campsites, 
+                beaches, swimming holes, and group activities—based on where people actually 
+                go and return to.
               </p>
               <p>
-                The apps don't really help with that. And a lot of traditional gay spaces aren't built around hiking, camping, or spending a long afternoon outside.
-              </p>
-              <p>
-                So most of the time, it's left to chance. You show up at a trailhead. You wonder who else might be like you. You go home without really knowing.
-              </p>
-              <p>
-                That doesn't mean the community isn't there. It just hasn't had a place to gather.
+                These are the places where familiarity builds over time. Where conversations 
+                happen naturally. Where showing up again is enough.
               </p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Section 02 - A Different Way In */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="inline-block text-sm font-medium tracking-widest uppercase text-primary-foreground/70 mb-4"
-            >
-              02 — A Different Way In
-            </motion.span>
-
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-3xl md:text-4xl mb-8"
-            >
-              A Different Way In
-            </motion.h2>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="prose prose-lg prose-invert text-primary-foreground/80"
-            >
-              <p>
-                This is an attempt to change that — quietly.
-              </p>
-              <p>
-                Instead of profiles or feeds, this is built around places. Trails. Campsites. Swimming holes. Outdoor spots where people already go.
-              </p>
-              <p>
-                You can add places you know. Save the ones you return to. Over time, patterns start to form — not publicly, not performatively — just enough to make the next step feel easier.
-              </p>
-              <p>
-                Right now, it's about discovery. Down the line, for those who want it, PRO will add simple ways to connect and talk — without turning it into another app you have to manage.
-              </p>
-              <p>
-                The goal isn't to rush anything. It's to make it easier for real connections to happen naturally.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 03 - The Places That Matter */}
-      <section className="py-16 md:py-24">
+      {/* Section 02 - The Places That Matter */}
+      <section className="py-16 md:py-24 bg-surface/50">
         <div className="container px-4">
           <div className="max-w-4xl mx-auto">
             <motion.span
@@ -193,7 +139,7 @@ const Outdoors = () => {
               transition={{ duration: 0.5 }}
               className="inline-block text-sm font-medium tracking-widest uppercase text-primary mb-4"
             >
-              03 — The Places That Matter
+              02 — The Places That Matter
             </motion.span>
 
             <motion.h2
@@ -230,58 +176,6 @@ const Outdoors = () => {
         </div>
       </section>
 
-      {/* Section 04 - Who This Is For */}
-      <section className="py-16 md:py-24">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="inline-block text-sm font-medium tracking-widest uppercase text-primary mb-4"
-            >
-              04 — Who This Is For
-            </motion.span>
-
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-3xl md:text-4xl text-foreground mb-8"
-            >
-              Who This Is For
-            </motion.h2>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="prose prose-lg text-foreground/80"
-            >
-              <p>
-                This is for gay men who feel more at ease outside than in crowded rooms.
-              </p>
-              <p>
-                Whether you're a hiker, a runner, a cyclist, or just someone who feels better after time outside — this is for you.
-              </p>
-              <p>
-                For guys who hike alone but wouldn't mind company. For{" "}
-                <Link to="/couples" className="text-primary hover:underline">
-                  couples
-                </Link>{" "}
-                looking for outdoor friends. For people who've moved somewhere new and don't know where to start.
-              </p>
-              <p>
-                You don't need to be an expert. You don't need to be especially social. If staying active outdoors helps you feel more like yourself, you'll probably feel at home here.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container px-4">
@@ -301,26 +195,16 @@ const Outdoors = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-3xl md:text-4xl lg:text-5xl mb-6"
+              className="font-serif text-3xl md:text-4xl lg:text-5xl mb-10"
             >
-              Ready to start exploring?
+              Ready to explore?
             </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-xl mx-auto"
-            >
-              Discover the outdoor places where connection already exists — quietly, over time.
-            </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Button
@@ -329,10 +213,7 @@ const Outdoors = () => {
                 variant="secondary"
                 className="text-base"
               >
-                <Link to="/auth?mode=signup">
-                  Create Free Account
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                <Link to="/auth?mode=signup">Join Free</Link>
               </Button>
               <Button
                 asChild
@@ -340,7 +221,7 @@ const Outdoors = () => {
                 variant="outline"
                 className="text-base border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <Link to="/places">Explore Outdoors</Link>
+                <Link to="/places">Explore Places</Link>
               </Button>
             </motion.div>
           </div>

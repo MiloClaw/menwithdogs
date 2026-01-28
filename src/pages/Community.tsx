@@ -50,60 +50,17 @@ const Community = () => {
             </span>
             
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 text-balance">
-              What Is Gay Outdoor Community?
+              Community, in the real world
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Community isn't an app. It's the trails you keep returning to — 
-              and the people you meet when you show up.
+              Community isn't something you scroll through. It forms in the places you keep returning to—and the people you meet along the way.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* The Reality Section */}
-      <section className="py-16 md:py-24">
-        <div className="container max-w-3xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6 }}
-            className="space-y-8"
-          >
-            <div className="mb-8">
-              <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
-                01
-              </span>
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                The Reality
-              </h2>
-            </div>
-
-            <div className="prose prose-lg max-w-none text-muted-foreground">
-              <p>
-                Gay men who love the outdoors — hiking, camping, beaches, swimming holes — 
-                often feel disconnected from the broader gay community. The bar scene doesn't 
-                fit. Dating apps feel exhausting. And finding other gay men who share your 
-                love of nature feels almost accidental.
-              </p>
-              <p>
-                But somewhere along the way, we moved everything online. Apps promised 
-                connection but delivered endless scrolling, performative profiles, and 
-                a strange kind of loneliness that comes from being surrounded by options 
-                but never quite connecting.
-              </p>
-              <p>
-                Meanwhile, the trails, campsites, and outdoor spaces where community could 
-                form feel harder to discover. Especially if you're new to an area, newly out, 
-                or simply looking for something beyond dating.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* What We're Building Section */}
+      {/* How It Works Section */}
       <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container max-w-3xl mx-auto px-4">
           <motion.div
@@ -115,30 +72,23 @@ const Community = () => {
           >
             <div className="mb-8">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-primary-foreground/70 mb-3">
-                02
+                01
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
-                A Different Approach
+                How It Works
               </h2>
             </div>
 
             <div className="prose prose-lg prose-invert max-w-none text-primary-foreground/90">
               <p>
-                ThickTimber is a place-centric directory — a curated collection of 
-                outdoor spaces where gay men who love nature already gather. Hiking trails 
-                with welcoming energy. Campsites where you might find others. Beaches and 
-                swimming holes worth knowing about.
+                Instead of centering connection around profiles or constant interaction, 
+                ThickTimber focuses on places. Trails, campsites, beaches, and outdoor spaces 
+                where shared interests quietly bring people together.
               </p>
               <p>
-                We help you discover these places in your region and, over time, learn 
-                which ones resonate with people like you. Not through algorithms chasing 
-                engagement, but through quiet patterns that emerge when outdoor gay men 
-                share what matters to them.
-              </p>
-              <p>
-                This isn't a social network. There are no profiles to browse, no feeds 
-                to scroll, no DMs to manage. Just places — and the possibility of 
-                connection that comes from showing up in real life.
+                By understanding where people actually go—and why—the directory helps make 
+                community more visible without forcing interaction. You decide how and when 
+                to engage, simply by showing up.
               </p>
             </div>
           </motion.div>
@@ -156,7 +106,7 @@ const Community = () => {
           >
             <div className="mb-12 text-center">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
-                03
+                02
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
                 The Places That Matter
@@ -216,33 +166,33 @@ const Community = () => {
           >
             <div className="mb-8">
               <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
-                04
+                03
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">
                 Who This Is For
               </h2>
             </div>
 
-            <div className="prose prose-lg max-w-none text-muted-foreground">
-              <p>
-                This is for gay men who feel more at ease on a trail than in a crowded bar. 
-                Men who love hiking, camping, beaches, and staying active outside — and wonder where others 
-                like them actually go.
-              </p>
-              <p>
-                Whether you're a hiker, a runner, a cyclist, or someone who just feels better after time outdoors — 
-                you're welcome here.
-              </p>
-              <p>
-                It's for single men looking for <Link to="/find-friends" className="text-primary hover:underline">friends</Link> who share their love of staying active outdoors, 
-                not just dates. For <Link to="/couples" className="text-primary hover:underline">couples</Link> who 
-                want to find others to explore with. For introverts who prefer a quiet 
-                trail over crowded spaces.
-              </p>
-              <p>
-                It's for anyone tired of the performance of dating apps and ready 
-                to invest in real places and real presence — outdoors.
-              </p>
+            <div className="text-lg text-muted-foreground">
+              <p className="mb-6">This approach works well for men who:</p>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <span className="text-primary mt-1">•</span>
+                  <span>Feel most at ease outside or being active</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-primary mt-1">•</span>
+                  <span>Prefer low-pressure, real-world connection</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-primary mt-1">•</span>
+                  <span>Value privacy and autonomy</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-primary mt-1">•</span>
+                  <span>Want community to grow naturally over time</span>
+                </li>
+              </ul>
             </div>
           </motion.div>
         </div>
@@ -260,12 +210,9 @@ const Community = () => {
             <span className="inline-block font-mono text-xs tracking-[0.2em] uppercase text-primary-foreground/70 mb-4">
               Start Here
             </span>
-            <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-4 text-balance">
-              Ready to find your trail?
+            <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-8 text-balance">
+              Ready to explore?
             </h2>
-            <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Discover the outdoor spaces where gay men who love nature already gather.
-            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
@@ -273,7 +220,7 @@ const Community = () => {
                 asChild
                 className="text-base px-8"
               >
-                <Link to="/auth?mode=signup">Create Free Account</Link>
+                <Link to="/auth?mode=signup">Join Free</Link>
               </Button>
               <Button
                 size="lg"
@@ -281,7 +228,7 @@ const Community = () => {
                 asChild
                 className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <Link to="/places">Explore Outdoors</Link>
+                <Link to="/places">Explore Places</Link>
               </Button>
             </div>
           </motion.div>
