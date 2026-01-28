@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Check, Shield, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-const freeFeatures = ["Full access to trails, campsites, beaches, and outdoor events", "Personalized ordering based on where outdoor gay men in your region actually go", "Save favorites and build your own list", "Location-aware suggestions", "Your data stays private"];
-const proFeatures = ["Everything in Free", "Privately add outdoor interests, activity level, and preferences", "Surface places where your patterns overlap with others seeking similar outdoor experiences", "Activity preferences (day hikes, overnight camping, beach days)", "Environment preferences (remote trails, accessible paths, group-friendly spots)", "Intelligence that deepens over time"];
+const freeFeatures = ["Full access to outdoor places in the directory", "Recommendations shaped by community patterns", "Save favorites and build your personal list", "Location-aware suggestions as you explore", "Your activity and preferences remain private"];
+const proFeatures = ["Everything in the Free Directory", "Add outdoor interests, activity level, and preferences privately", "Refine recommendations based on routines and hobbies", "Surface places aligned with how you like to spend time", "Intelligence that improves as you use the directory"];
 const Pricing = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -121,7 +121,7 @@ const Pricing = () => {
           duration: 0.7,
           delay: 0.2
         }} className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance">
-            The same places. The same community. Pro just helps you find where your patterns overlap.
+            The same places. The same community. PRO simply helps the directory understand you more precisely.
           </motion.p>
         </div>
       </section>
@@ -154,13 +154,13 @@ const Pricing = () => {
           }} className="rounded-card p-8 md:p-10 bg-card border border-border hover:border-secondary/50 transition-colors">
               <div className="mb-8">
                 <h3 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-3">
-                  Free Membership
+                  Free Directory
                 </h3>
                 <div className="text-4xl md:text-5xl font-semibold text-foreground mb-3">
                   $0
                 </div>
                 <p className="text-muted-foreground leading-relaxed text-pretty">
-                  The full directory, shaped by the community.
+                  Community-powered discovery, designed for real-world use.
                 </p>
               </div>
 
@@ -174,7 +174,7 @@ const Pricing = () => {
               </ul>
 
               <Button variant="outline" className="w-full" onClick={handleFreeCTA}>
-                {user ? "Explore places" : "Get started"}
+                {user ? "Explore Places" : "Join Free"}
               </Button>
             </motion.div>
 
@@ -193,16 +193,16 @@ const Pricing = () => {
           }} className="rounded-card p-8 md:p-10 bg-card border border-secondary/30 hover:border-secondary transition-colors">
               <div className="mb-8">
                 <h3 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-3">
-                  Pro Personalization
+                  PRO Personalization
                 </h3>
                 <div className="text-4xl md:text-5xl font-semibold text-foreground mb-3">
-                  $4.99
+                  $1.99
                   <span className="text-lg font-normal text-muted-foreground">
                     {" "}/ month
                   </span>
                 </div>
                 <p className="text-muted-foreground leading-relaxed text-pretty">
-                  Unlock where your interests and patterns overlap with others.
+                  Private tuning for more precise recommendations.
                 </p>
               </div>
 
@@ -216,7 +216,7 @@ const Pricing = () => {
               </ul>
 
               <Button variant="default" className="w-full" onClick={handleProCTA} disabled={isCreatingCheckout || isPro}>
-                {isPro ? "Current plan" : isCreatingCheckout ? "Loading..." : "Add personalization"}
+                {isPro ? "Current plan" : isCreatingCheckout ? "Loading..." : "Add Personalization"}
               </Button>
             </motion.div>
           </div>
@@ -257,9 +257,13 @@ const Pricing = () => {
                   Your preferences are private. Always.
                 </h2>
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty">
-                  Pro preferences are never visible to others. They only power the system's intelligence — 
-                  helping surface better recommendations for you and connecting you to the community you're 
-                  looking for. No profiles. No exposure. Just smarter results.
+                  Any preferences added through PRO are never visible to others.<br />
+                  They're used only to help the directory better understand what's relevant to you.
+                </p>
+                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed text-pretty mt-4">
+                  No public profiles.<br />
+                  No exposure.<br />
+                  Just clearer, more useful results.
                 </p>
               </div>
             </motion.div>
@@ -283,18 +287,18 @@ const Pricing = () => {
             }} transition={{
               duration: 0.6
             }}>
-                <span className="block text-xs tracking-[0.2em] uppercase text-muted-foreground font-mono mb-6">
-                  How It Works
-                </span>
-                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-tight text-balance">
-                  Free shows you where the community goes.
-                </h2>
-                <div className="flex items-center gap-3 mt-6">
-                  <ArrowRight className="w-6 h-6 text-secondary" />
-                  <p className="font-serif text-2xl md:text-3xl text-secondary text-balance">
-                    Pro shows you where <em>your</em> community goes.
-                  </p>
-                </div>
+            <span className="block text-xs tracking-[0.2em] uppercase text-muted-foreground font-mono mb-6">
+              How Personalization Works
+            </span>
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight leading-tight text-balance">
+              Free shows you where the community gathers.
+            </h2>
+            <div className="flex items-center gap-3 mt-6">
+              <ArrowRight className="w-6 h-6 text-secondary" />
+              <p className="font-serif text-2xl md:text-3xl text-secondary text-balance">
+                PRO helps you see where it fits you best.
+              </p>
+            </div>
               </motion.div>
 
               <motion.div initial={{
@@ -310,15 +314,14 @@ const Pricing = () => {
               delay: 0.1
             }} className="space-y-6">
                 <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
-                  The free directory surfaces places based on shared patterns of use across all members. 
-                  Every favorite, every visit contributes to collective intelligence that benefits everyone.
+                  The free directory highlights places based on shared patterns across the entire community—reflecting where men tend to go and return to over time.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
-                  Pro lets you privately add more context — like interests, relationship dynamics, and hobbies — 
-                  so the system can find where your specific patterns overlap with others seeking similar things.
+                  PRO allows you to add more context privately, such as interests, activity preferences, and routines. This helps the directory surface places that align more closely with how you like to spend your time.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed font-medium text-foreground text-pretty text-center">
-                  Both paths make the directory smarter. Pro just makes it smarter for you.
+                  Both make the directory better.<br />
+                  PRO simply makes it more precise for you.
                 </p>
               </motion.div>
             </div>
@@ -380,10 +383,10 @@ const Pricing = () => {
           delay: 0.2
         }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" variant="secondary" className="min-w-[200px]" onClick={() => navigate("/auth")}>
-              Create Free Account
+              Join Free
             </Button>
             <Button size="lg" variant="outline" className="min-w-[200px] border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/places")}>
-              Explore Outdoors
+              Explore Places
             </Button>
           </motion.div>
         </div>
