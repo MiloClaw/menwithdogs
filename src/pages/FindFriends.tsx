@@ -18,9 +18,9 @@ const FindFriends = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Find Gay Outdoor Friends – Make Real Connections on the Trail"
-        description="Looking for gay friends who love the outdoors and staying active? Discover trails, campsites, and outdoor spots where you can find community — not on dating apps."
-        keywords="find gay hiking friends, gay outdoor friends, gay camping buddies, gay men hiking, LGBTQ outdoor community, gay active lifestyle, gay running buddies, gay cycling friends"
+        title="Finding Friends Through Shared Outdoor Places"
+        description="A place-based approach to friendship built around shared routines, outdoor activities, and familiar spaces. Designed for real-world connection over time."
+        keywords="outdoor friends, hiking buddies, camping friends, shared activities, real-world friendship"
         canonicalPath="/find-friends"
       />
 

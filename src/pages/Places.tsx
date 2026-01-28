@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import PageLayout from '@/components/PageLayout';
+import SEOHead from '@/components/SEOHead';
 import DirectoryPlaceCard, { DirectoryPlace } from '@/components/directory/DirectoryPlaceCard';
 import PlaceDetailModal from '@/components/directory/PlaceDetailModal';
 import CityPickerModal, { CityPickerMode } from '@/components/directory/CityPickerModal';
@@ -439,6 +440,12 @@ const Places = () => {
 
   return (
     <PageLayout>
+      <SEOHead
+        title="Explore Outdoor Places & Active Spaces"
+        description="Browse trails, campsites, beaches, and outdoor places shaped by shared interests and community patterns. A place-first directory for real-world exploration."
+        keywords="outdoor directory, hiking trails, campsites, beaches, gay outdoors, active spaces"
+        canonicalPath="/places"
+      />
       <div className="container space-y-8">
         {/* Editorial Hero Section with Ghost Typography */}
         <section 
