@@ -47,9 +47,8 @@ const Hero = () => {
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center pb-12 md:pb-16 px-[20px]">
           <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 [text-shadow:_0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
-            Real Community.<br />
-            Real Places.<br />
-            Real Connection.
+            Real places. Shared interests.<br />
+            Real-world connection.
           </h1>
           
         </div>
@@ -58,10 +57,12 @@ const Hero = () => {
       {/* CTA Section */}
       <div className="py-8 bg-background">
         <BrandStripe size="md" className="mb-8" />
+        <p className="text-muted-foreground text-center max-w-xl mx-auto mb-6 px-4 text-pretty">
+          A place-based directory that helps men connect more organically through outdoor activities, shared hobbies, and the places their community already gathers.
+        </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-6">
           <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
-            Get Started — Free
-            <ChevronRight className="w-4 h-4" />
+            Join Free
           </Button>
           <Button variant="outline" size="lg" onClick={() => navigate('/places')}>
             <MapPin className="w-4 h-4 mr-2" />
