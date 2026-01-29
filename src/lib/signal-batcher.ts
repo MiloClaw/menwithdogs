@@ -161,15 +161,29 @@ class SignalBatcher {
   private flushWithBeacon(): void {
     if (this.queue.length === 0) return;
 
+    // Note: navigator.sendBeacon cannot include auth headers
+    // Instead, use the Supabase client for async flush (may not complete before unload)
+    // This is acceptable - we prioritize security over 100% signal capture on page exit
     try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/record_signals_batch`;
-      const body = JSON.stringify({ _signals: this.queue });
-
-      const sent = navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
-
-      if (sent) {
-        this.queue = [];
-      }
+      const signalsToFlush = [...this.queue];
+      this.queue = [];
+      
+      // Fire and forget - may not complete on page unload but is authenticated
+      const signalsJson = JSON.parse(JSON.stringify(signalsToFlush));
+      supabase.rpc('record_signals_batch', {
+        _signals: signalsJson
+      }).then(({ error }) => {
+        if (error) {
+          // Re-queue on failure if still mounted
+          if (typeof window !== 'undefined' && document.visibilityState !== 'hidden') {
+            const spaceAvailable = this.MAX_QUEUE_SIZE - this.queue.length;
+            if (spaceAvailable > 0) {
+              this.queue = [...signalsToFlush.slice(0, spaceAvailable), ...this.queue];
+            }
+          }
+          console.warn('Signal flush on unload failed:', error);
+        }
+      });
     } catch (error) {
       console.warn('Signal beacon flush failed:', error);
     }
