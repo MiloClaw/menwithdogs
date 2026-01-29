@@ -55,7 +55,7 @@ const Sitemap = () => {
     <PageLayout>
       <PageHeader
         title="Sitemap"
-        subtitle="All pages on MainStreetIRL"
+        subtitle="All pages on ThickTimber"
       />
 
       <div className="container py-8 md:py-12 lg:py-16">
