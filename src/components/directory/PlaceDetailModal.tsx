@@ -21,6 +21,7 @@ import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceLinkedContent from '@/components/directory/PlaceLinkedContent';
 import PlaceAttributeBadges from '@/components/directory/PlaceAttributeBadges';
+import PlaceTrailBlazerContext from '@/components/directory/PlaceTrailBlazerContext';
 import TagSuggestionDialog from '@/components/directory/TagSuggestionDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { recordSignal } from '@/hooks/useUserSignals';
@@ -373,6 +374,9 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
 
           {/* Linked Content: Events & Announcements */}
           <PlaceLinkedContent placeId={place.id} placeName={place.name} placeWebsite={place.website_url} />
+
+          {/* Trail Blazer Context: Local Insight */}
+          <PlaceTrailBlazerContext placeId={place.id} />
 
           {/* Place Attributes: Google-verified + Community tagged */}
           <Separator />
