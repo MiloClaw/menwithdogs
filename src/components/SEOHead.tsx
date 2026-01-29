@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 interface SEOHeadProps {
   title: string;
@@ -17,10 +18,11 @@ const SEOHead = ({
   canonicalPath,
   type = "website",
   schema,
-  ogImage = "https://thicktimber.lovable.app/og-hero.jpg"
+  ogImage
 }: SEOHeadProps) => {
-  const fullTitle = title.includes("ThickTimber") ? title : `${title} | ThickTimber`;
-  const canonicalUrl = `https://thicktimber.lovable.app${canonicalPath}`;
+  const fullTitle = title.includes(SITE_CONFIG.siteName) ? title : `${title} | ${SITE_CONFIG.siteName}`;
+  const canonicalUrl = SITE_CONFIG.getCanonicalUrl(canonicalPath);
+  const ogImageUrl = SITE_CONFIG.getOgImageUrl(ogImage);
 
   return (
     <Helmet>
@@ -35,12 +37,12 @@ const SEOHead = ({
       <meta property="og:description" content={description} />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:image" content={ogImage} />
+      <meta property="og:image" content={ogImageUrl} />
       
       {/* Twitter */}
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image" content={ogImageUrl} />
       
       {/* JSON-LD Schema */}
       {schema && (

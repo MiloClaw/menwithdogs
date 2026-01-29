@@ -6,7 +6,7 @@ const Terms = () => {
     <PageLayout>
       <PageHeader 
         title="Terms of Service" 
-        subtitle="Last Updated: January 2025" 
+        subtitle="Last Updated: January 2026" 
       />
       
       <div className="container py-8 md:py-12 lg:py-16">

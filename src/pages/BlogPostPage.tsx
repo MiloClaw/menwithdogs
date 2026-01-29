@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { SITE_CONFIG } from "@/lib/site-config";
 import { ArrowLeft, MapPin, ExternalLink, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import PageLayout from "@/components/PageLayout";
@@ -102,15 +103,16 @@ const BlogPostPage = () => {
     : 1;
 
   const metaDescription = post.meta_description || post.excerpt || (post.body?.slice(0, 160) + '...');
-  const canonicalUrl = `https://mainstreet-landing-glow.lovable.app/blog/${post.slug}`;
+  const canonicalUrl = SITE_CONFIG.getCanonicalUrl(`/blog/${post.slug}`);
 
   return (
     <PageLayout>
       <Helmet>
-        <title>{post.title} | MainStreetIRL</title>
+        <title>{post.title} | ThickTimber</title>
         <meta name="description" content={metaDescription} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt || metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
         {post.cover_image_url && <meta property="og:image" content={post.cover_image_url} />}
         <meta property="og:type" content="article" />
         <link rel="canonical" href={canonicalUrl} />

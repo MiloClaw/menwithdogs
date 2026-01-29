@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Heart, Users, Shield, MapPin, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 const values = [
   {
@@ -61,7 +62,7 @@ const About = () => {
     "@type": "AboutPage",
     "name": "Why ThickTimber Exists",
     "description": "Learn why ThickTimber was built as a place-based outdoor directory.",
-    "url": "https://thicktimber.lovable.app/about",
+    "url": SITE_CONFIG.getCanonicalUrl('/about'),
     "mainEntity": {
       "@type": "Organization",
       "name": "ThickTimber",
