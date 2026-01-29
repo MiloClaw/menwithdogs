@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Users, ArrowRight, Shield } from 'lucide-react';
+import { ArrowLeft, Users, ArrowRight, Shield, Compass } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,7 +18,7 @@ const Settings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const { activeSession, hasActiveSession, isLoading: isSessionLoading } = useOverlapSession();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, isAmbassador, loading: roleLoading } = useUserRole();
   
   // Initialize tab from URL param or default to 'preferences' (product value first)
   const tabParam = searchParams.get('tab');
@@ -86,7 +86,7 @@ const Settings = () => {
         {!roleLoading && isAdmin && (
           <Link 
             to="/admin"
-            className="block mb-10 group"
+            className="block mb-6 group"
           >
             <div className="bg-muted/30 border border-border rounded-xl p-5 flex items-center gap-4 transition-all hover:bg-muted/50 hover:border-primary/20">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -96,6 +96,27 @@ const Settings = () => {
                 <h3 className="font-medium text-base mb-0.5">Admin Dashboard</h3>
                 <p className="text-sm text-muted-foreground">
                   Manage places, events, and users
+                </p>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+            </div>
+          </Link>
+        )}
+
+        {/* Trail Blazer Entry - only visible to ambassadors */}
+        {!roleLoading && isAmbassador && (
+          <Link 
+            to="/contribute"
+            className="block mb-10 group"
+          >
+            <div className="bg-muted/30 border border-border rounded-xl p-5 flex items-center gap-4 transition-all hover:bg-muted/50 hover:border-primary/20">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Compass className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-base mb-0.5">Add Context to a Place</h3>
+                <p className="text-sm text-muted-foreground">
+                  Share insight about places you know well
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />

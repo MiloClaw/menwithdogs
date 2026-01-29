@@ -31,6 +31,8 @@ import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
 import Settings from "./pages/Settings";
 import DiscoverTogether from "./pages/DiscoverTogether";
+import Contribute from "./pages/Contribute";
+import Contributions from "./pages/Contributions";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import PostManagement from "./pages/admin/PostManagement";
@@ -96,6 +98,10 @@ const App = () => (
               {/* Settings & Preferences */}
               <Route path="/settings" element={<Settings />} />
               <Route path="/preferences" element={<Preferences />} />
+              
+              {/* Trail Blazer Contribution Routes */}
+              <Route path="/contribute" element={<Contribute />} />
+              <Route path="/contributions" element={<Contributions />} />
               
               {/* Legacy redirects - consolidated */}
               <Route path="/directory" element={<Navigate to="/places" replace />} />
