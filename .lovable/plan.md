@@ -1,299 +1,385 @@
 
+# Domain-Aligned Discovery Plan for thicktimber.com
 
-# Trail Blazer Context Display — Launch Completion Plan
+## Executive Summary
 
-## Objective
-
-Close the contributor loop by rendering approved Trail Blazer context on `PlaceDetailModal`. This is the **sole launch-blocking item**.
+This plan addresses the mechanical alignment needed to ensure all discovery signals resolve to `https://thicktimber.com` as the canonical domain. The strategy, architecture, and product positioning remain unchanged—this is purely a domain migration task.
 
 ---
 
-## Part 1: Database RLS Policy Addition
+## Current State Assessment
+
+### Files Requiring Domain Updates
+
+| File | Current Domain | Issue |
+|------|----------------|-------|
+| `src/components/SEOHead.tsx` | `thicktimber.lovable.app` | Canonical URL base, default OG image |
+| `index.html` | `thicktimber.lovable.app` | Canonical, OG URLs, Twitter image, JSON-LD schema |
+| `public/sitemap.xml` | `thicktimber.lovable.app` | All 16 URL entries |
+| `public/robots.txt` | `thicktimber.lovable.app` | Sitemap reference |
+| `src/pages/BlogPostPage.tsx` | `mainstreet-landing-glow.lovable.app` | Critical bug: wrong domain entirely |
+| `src/pages/About.tsx` | `thicktimber.lovable.app` | Schema URL in JSON-LD |
+| `src/pages/LovePlace.tsx` | (none) | Missing SEOHead entirely |
+| `supabase/functions/create-founders-checkout/index.ts` | `mainstreet-landing-glow.lovable.app` | Stripe redirect fallback |
+| `src/pages/Terms.tsx` | n/a | Date mismatch: shows "January 2025" |
+
+### Severity Classification
+
+**Critical (blocks launch):**
+- BlogPostPage.tsx points to wrong domain entirely
+- SEOHead.tsx hardcodes Lovable subdomain in all canonicals
+
+**High (harms SEO/AI classification):**
+- index.html global metadata uses Lovable subdomain
+- sitemap.xml all entries use Lovable subdomain
+- robots.txt sitemap reference uses Lovable subdomain
+
+**Medium (completeness):**
+- LovePlace.tsx missing SEOHead (shareable place URLs have no metadata)
+- About.tsx schema URL uses Lovable subdomain
+
+**Low (functional but inconsistent):**
+- Edge function fallback URL incorrect (only used when origin header missing)
+- Terms.tsx date mismatch with Privacy.tsx
+
+---
+
+## Part 1: Create Centralized Domain Configuration
 
 ### Problem
-
-Current RLS policies on `trail_blazer_submissions`:
-- Users can view only their own submissions
-- Admins can manage all
-- **No public SELECT for approved content**
-
-Without this, the frontend cannot fetch approved context for a place.
+Domain is hardcoded in 8+ files. Future domain changes would require editing all files.
 
 ### Solution
+Create a single source of truth for the canonical domain.
 
-Add a new RLS policy:
+### New File: `src/lib/site-config.ts`
 
-```sql
-CREATE POLICY "Anyone can view approved submissions"
-ON trail_blazer_submissions
-FOR SELECT
-USING (status = 'approved');
+```typescript
+// Site-wide configuration for canonical URLs and metadata
+export const SITE_CONFIG = {
+  // Canonical domain - used for all SEO, OG, and sitemap URLs
+  canonicalDomain: 'https://thicktimber.com',
+  
+  // Site name for titles
+  siteName: 'ThickTimber',
+  
+  // Default OG image path (relative to canonical domain)
+  defaultOgImage: '/og-hero.jpg',
+  
+  // Build full canonical URL from path
+  getCanonicalUrl: (path: string) => {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `https://thicktimber.com${cleanPath}`;
+  },
+  
+  // Build full OG image URL
+  getOgImageUrl: (imagePath?: string) => {
+    const path = imagePath || '/og-hero.jpg';
+    const cleanPath = path.startsWith('http') ? path : `https://thicktimber.com${path}`;
+    return cleanPath;
+  }
+} as const;
 ```
 
-This allows:
-- All users (including anonymous) to read approved submissions
-- No exposure of pending, declined, or revision-needed content
-- No exposure of user identity beyond what's displayed
+**Why centralized:**
+- Single change point for future domain updates
+- Type-safe access across codebase
+- Eliminates copy/paste errors
 
 ---
 
-## Part 2: New Hook — `usePlaceTrailBlazerContext`
+## Part 2: Update SEOHead Component
 
-### Purpose
-
-Fetch approved Trail Blazer context for a specific place.
-
-### File: `src/hooks/usePlaceTrailBlazerContext.ts`
-
-```typescript
-interface PlaceContext {
-  id: string;
-  context_types: string[];
-  context_text: string;
-  has_external_link: boolean;
-  external_url: string | null;
-  external_content_type: string | null;
-  external_summary: string | null;
-  submitted_at: string;
-}
-```
-
-### Behavior
-
-1. Query `trail_blazer_submissions` where:
-   - `place_id` equals the given place ID
-   - `status = 'approved'`
-2. Order by `submitted_at` descending (most recent first)
-3. Return array of approved context entries
-4. Handle loading/error states
-
-### Query Pattern
-
-```typescript
-const { data, isLoading } = await supabase
-  .from('trail_blazer_submissions')
-  .select('id, context_types, context_text, has_external_link, external_url, external_content_type, external_summary, submitted_at')
-  .eq('place_id', placeId)
-  .eq('status', 'approved')
-  .order('submitted_at', { ascending: false });
-```
-
----
-
-## Part 3: New Component — `PlaceTrailBlazerContext`
-
-### Purpose
-
-Render approved Trail Blazer context within `PlaceDetailModal`.
-
-### File: `src/components/directory/PlaceTrailBlazerContext.tsx`
-
-### Design Principles
-
-Following the established pattern in `PlaceLinkedContent.tsx`:
-
-1. **Conditional render** — Only show section if approved context exists
-2. **Place-first framing** — Header: "Local Insight" (not "Contributor content")
-3. **No contributor identity** — No names, avatars, or attribution
-4. **Context type badges** — Show what kind of insight this is
-5. **Optional external link** — Clean, non-promotional link display
-6. **Separator before section** — Visual consistency
-
-### UI Structure
-
-```text
-───────────────────────────────────────────
-Local Insight
-───────────────────────────────────────────
-[Seasonal] [Activity Insight]
-
-"The Maroon Bells area is best visited in 
-late September when the aspen leaves turn 
-gold. Arrive before 8am to avoid the crowd 
-shuttle requirement. The hike to Crater Lake 
-is moderate but can be icy in early fall..."
-
-🔗 Read more: example.com/trail-guide
-   "Comprehensive guide to Maroon Bells"
-───────────────────────────────────────────
-```
-
-### Props
-
-```typescript
-interface PlaceTrailBlazerContextProps {
-  placeId: string;
-}
-```
-
-### Component Logic
-
-1. Fetch context using `usePlaceTrailBlazerContext(placeId)`
-2. If loading or no approved context, return `null`
-3. Render section with:
-   - Separator
-   - Header with subtle icon (e.g., `MessageSquare` or `Info`)
-   - Context type badges using `getContextTypeLabel()`
-   - Context text (full display, no truncation)
-   - External link (if present and approved)
-
----
-
-## Part 4: Integration into PlaceDetailModal
-
-### File: `src/components/directory/PlaceDetailModal.tsx`
+### File: `src/components/SEOHead.tsx`
 
 ### Changes
+1. Import `SITE_CONFIG` from new config file
+2. Replace hardcoded domain with config values
+3. Ensure all URLs resolve to `thicktimber.com`
 
-1. Import new component:
-   ```typescript
-   import PlaceTrailBlazerContext from '@/components/directory/PlaceTrailBlazerContext';
-   ```
+### Updated Logic
 
-2. Add component after `PlaceLinkedContent` (around line 375):
-   ```typescript
-   {/* Linked Content: Events & Announcements */}
-   <PlaceLinkedContent placeId={place.id} placeName={place.name} placeWebsite={place.website_url} />
+```typescript
+import { SITE_CONFIG } from "@/lib/site-config";
 
-   {/* Trail Blazer Context: Local Insight */}
-   <PlaceTrailBlazerContext placeId={place.id} />
+// Line 20: Replace default OG image
+ogImage = SITE_CONFIG.getOgImageUrl()
 
-   {/* Place Attributes: Google-verified + Community tagged */}
-   <Separator />
-   <PlaceAttributeBadges place={place} />
-   ```
+// Line 23: Replace canonical URL construction
+const canonicalUrl = SITE_CONFIG.getCanonicalUrl(canonicalPath);
+```
 
-### Rationale for Placement
-
-- **After events/announcements** — Timely content first
-- **Before attribute badges** — Context is richer than tags
-- **Self-contained section** — Handles its own separator
+### Result
+All pages using SEOHead will automatically use `thicktimber.com`.
 
 ---
 
-## Part 5: Settings → Contributions Link (Strongly Recommended)
+## Part 3: Update index.html Global Metadata
 
-### File: `src/pages/Settings.tsx`
+### File: `index.html`
 
-### Current State (lines 106-125)
+### Changes Required
 
-Trail Blazer card links only to `/contribute`.
+| Line | Current | Updated |
+|------|---------|---------|
+| 12 | `https://thicktimber.lovable.app` | `https://thicktimber.com` |
+| 19 | `https://thicktimber.lovable.app` | `https://thicktimber.com` |
+| 20 | `https://thicktimber.lovable.app/og-hero.jpg` | `https://thicktimber.com/og-hero.jpg` |
+| 25 | `https://thicktimber.lovable.app/og-hero.jpg` | `https://thicktimber.com/og-hero.jpg` |
+| 37 | `https://thicktimber.lovable.app` | `https://thicktimber.com` |
+| 38 | `https://thicktimber.lovable.app/favicon.png` | `https://thicktimber.com/favicon.png` |
 
-### Enhancement
-
-Add secondary link or update copy to include access to `/contributions`:
-
-**Option A: Two-line description with link**
-```tsx
-<div className="flex-1 min-w-0">
-  <h3 className="font-medium text-base mb-0.5">Trail Blazer</h3>
-  <p className="text-sm text-muted-foreground">
-    <Link to="/contribute" className="text-primary hover:underline">Add context</Link>
-    {' · '}
-    <Link to="/contributions" className="hover:underline">View your contributions</Link>
-  </p>
-</div>
-```
-
-**Option B: Card with expandable actions (simpler)**
-
-Update the single card to link to `/contributions` with a CTA to add new context there.
-
-### Recommendation
-
-Option A provides clearest access to both actions without changing navigation patterns.
+### Note
+index.html is static and cannot use the TypeScript config. These values must be hardcoded.
 
 ---
 
-## Part 6: Privacy Policy Update
+## Part 4: Fix BlogPostPage.tsx Critical Bug
 
-### File: `src/pages/Privacy.tsx`
+### File: `src/pages/BlogPostPage.tsx`
 
-### Section to Add
-
-Insert as new Section 3.5 (after "Information You Provide"):
-
-```tsx
-<p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-  <strong className="text-foreground">Trail Blazer Contributions:</strong>
-</p>
-<p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-  If you participate in our Trail Blazer contributor program, we collect:
-</p>
-<ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
-  <li>Application information (expertise areas, portfolio links, place references)</li>
-  <li>Contextual annotations you submit about places</li>
-  <li>Optional external links to your existing published work</li>
-</ul>
-<p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-  Trail Blazer contributions are reviewed before publication and appear anonymously—your 
-  identity is not displayed alongside your contributions. You may view and manage your 
-  submissions through your Settings.
-</p>
+### Current State (Line 105)
+```typescript
+const canonicalUrl = `https://mainstreet-landing-glow.lovable.app/blog/${post.slug}`;
 ```
 
-### Update "Last Updated" Date
+This is:
+1. Wrong domain entirely (old project domain)
+2. Hardcoded (not using SEOHead pattern)
+3. Missing OG URL consistency
 
-Change line 9 from "December 2024" to "January 2026".
+### Solution
+Use SEOHead component instead of raw Helmet, or at minimum fix the domain.
+
+### Recommended Fix
+
+```typescript
+import { SITE_CONFIG } from "@/lib/site-config";
+
+// Line 105
+const canonicalUrl = SITE_CONFIG.getCanonicalUrl(`/blog/${post.slug}`);
+```
+
+### Also Update
+- Line 110: Add `<meta property="og:url" content={canonicalUrl} />` (currently missing)
+
+---
+
+## Part 5: Add SEOHead to LovePlace.tsx
+
+### Problem
+`/love/:placeId` is the shareable landing page for places—the canonical crawlable URL for individual places. It currently has NO SEO metadata.
+
+### File: `src/pages/LovePlace.tsx`
+
+### Add After Line 9
+```typescript
+import SEOHead from '@/components/SEOHead';
+```
+
+### Add SEOHead Component (inside PageLayout, after loading check)
+
+```typescript
+// After line 147, inside the return for valid place
+<SEOHead
+  title={place.name}
+  description={`Discover ${place.name} in ${location} - ${place.primary_category} on ThickTimber.`}
+  canonicalPath={`/love/${place.id}`}
+  ogImage={photoUrl || undefined}
+/>
+```
+
+### Result
+Shareable place links will have proper metadata for social sharing and search indexing.
+
+---
+
+## Part 6: Update About.tsx Schema URL
+
+### File: `src/pages/About.tsx`
+
+### Current State (Line 64)
+```typescript
+"url": "https://thicktimber.lovable.app/about",
+```
+
+### Solution
+Import config and use dynamic URL:
+
+```typescript
+import { SITE_CONFIG } from "@/lib/site-config";
+
+// Line 64
+"url": SITE_CONFIG.getCanonicalUrl('/about'),
+```
+
+---
+
+## Part 7: Update Sitemap
+
+### File: `public/sitemap.xml`
+
+### Changes
+Replace all 16 instances of:
+```
+https://thicktimber.lovable.app
+```
+With:
+```
+https://thicktimber.com
+```
+
+### Note on Dynamic Sitemap
+The current sitemap is static and does not include:
+- Individual place pages (`/love/:placeId`)
+- National park detail pages (`/places/national-parks/:parkId`)
+- Blog post pages (`/blog/:slug`)
+
+This is a known limitation but not blocking for domain alignment. Dynamic sitemap generation is a post-launch enhancement.
+
+---
+
+## Part 8: Update robots.txt
+
+### File: `public/robots.txt`
+
+### Current State (Line 16)
+```
+Sitemap: https://thicktimber.lovable.app/sitemap.xml
+```
+
+### Updated
+```
+Sitemap: https://thicktimber.com/sitemap.xml
+```
+
+### Also Add (Missing Rule)
+```
+Disallow: /admin/
+```
+
+This prevents admin routes from being indexed.
+
+---
+
+## Part 9: Fix Edge Function Fallback
+
+### File: `supabase/functions/create-founders-checkout/index.ts`
+
+### Current State (Line 108)
+```typescript
+const origin = req.headers.get("origin") || "https://mainstreet-landing-glow.lovable.app";
+```
+
+### Updated
+```typescript
+const origin = req.headers.get("origin") || "https://thicktimber.com";
+```
+
+### Impact
+This only affects Stripe redirects when origin header is missing (rare). Low priority but should be fixed for consistency.
+
+---
+
+## Part 10: Fix Terms.tsx Date
+
+### File: `src/pages/Terms.tsx`
+
+### Current State (Line 9)
+```typescript
+subtitle="Last Updated: January 2025"
+```
+
+### Updated
+```typescript
+subtitle="Last Updated: January 2026"
+```
+
+This aligns with Privacy.tsx which already shows January 2026.
 
 ---
 
 ## Implementation Order
 
-| Step | Task | Blocking? |
-|------|------|-----------|
-| 1 | Add RLS policy for public SELECT on approved submissions | Yes |
-| 2 | Create `usePlaceTrailBlazerContext.ts` hook | Yes |
-| 3 | Create `PlaceTrailBlazerContext.tsx` component | Yes |
-| 4 | Integrate into `PlaceDetailModal.tsx` | Yes |
-| 5 | Update `Settings.tsx` with contributions link | No (recommended) |
-| 6 | Update `Privacy.tsx` with Trail Blazer disclosure | No (recommended) |
+| Step | File | Priority | Blocking? |
+|------|------|----------|-----------|
+| 1 | Create `src/lib/site-config.ts` | High | Yes (enables others) |
+| 2 | Update `src/components/SEOHead.tsx` | High | Yes |
+| 3 | Update `index.html` | High | Yes |
+| 4 | Fix `src/pages/BlogPostPage.tsx` | Critical | Yes |
+| 5 | Add SEOHead to `src/pages/LovePlace.tsx` | High | Yes |
+| 6 | Update `src/pages/About.tsx` | Medium | No |
+| 7 | Update `public/sitemap.xml` | High | Yes |
+| 8 | Update `public/robots.txt` | High | Yes |
+| 9 | Fix `supabase/functions/create-founders-checkout/index.ts` | Low | No |
+| 10 | Fix `src/pages/Terms.tsx` | Low | No |
 
 ---
 
 ## Files Summary
 
-### New Files (2)
+### New Files (1)
 
 | Path | Purpose |
 |------|---------|
-| `src/hooks/usePlaceTrailBlazerContext.ts` | Fetch approved context for a place |
-| `src/components/directory/PlaceTrailBlazerContext.tsx` | Render context section in modal |
+| `src/lib/site-config.ts` | Centralized domain configuration |
 
-### Modified Files (3)
+### Modified Files (9)
 
 | Path | Change |
 |------|--------|
-| `src/components/directory/PlaceDetailModal.tsx` | Add `PlaceTrailBlazerContext` component |
-| `src/pages/Settings.tsx` | Add link to `/contributions` |
-| `src/pages/Privacy.tsx` | Add Trail Blazer disclosure section |
-
-### Database Changes (1)
-
-| Change | Purpose |
-|--------|---------|
-| Add RLS policy on `trail_blazer_submissions` | Enable public read of approved content |
-
----
-
-## Post-Implementation Validation
-
-After implementation, verify:
-
-1. **Approve a test Trail Blazer application** (admin action)
-2. **Submit context as that Trail Blazer** (contributor action)
-3. **Approve the submission** (admin action)
-4. **View the place in directory** (public action)
-5. **Confirm context appears** in PlaceDetailModal
-
-This completes the contributor loop and achieves launch readiness.
+| `src/components/SEOHead.tsx` | Use SITE_CONFIG for canonical URLs |
+| `index.html` | Replace all lovable.app references with thicktimber.com |
+| `src/pages/BlogPostPage.tsx` | Fix critical domain bug |
+| `src/pages/LovePlace.tsx` | Add SEOHead for place metadata |
+| `src/pages/About.tsx` | Fix schema URL |
+| `public/sitemap.xml` | Replace all URLs with thicktimber.com |
+| `public/robots.txt` | Update sitemap URL, add admin disallow |
+| `supabase/functions/create-founders-checkout/index.ts` | Fix fallback origin |
+| `src/pages/Terms.tsx` | Update date to January 2026 |
 
 ---
 
-## What This Intentionally Excludes
+## Post-Implementation Verification
 
-- Contributor attribution (names, avatars)
-- Performance metrics (views, engagement)
-- Edit/revise flow for contributors (post-launch)
-- Multiple context entries display logic (first approved is sufficient for launch)
+### Checklist After Deployment
 
+1. **Canonical Tags**: View page source on homepage, /places, /love/:placeId, /blog/:slug — confirm all canonical URLs show `thicktimber.com`
+
+2. **OG Tags**: Use Facebook Sharing Debugger or Twitter Card Validator to verify OG URLs
+
+3. **Sitemap**: Access `https://thicktimber.com/sitemap.xml` and verify all URLs use correct domain
+
+4. **robots.txt**: Access `https://thicktimber.com/robots.txt` and verify sitemap reference
+
+5. **Redirect Verification**: Access old URLs (e.g., `thicktimber.lovable.app/places`) and confirm 301 redirect to `thicktimber.com/places`
+
+### Search Console Handoff
+
+After custom domain is live:
+1. Add `thicktimber.com` property to Google Search Console
+2. Submit sitemap via Search Console
+3. Do NOT submit sitemap for lovable.app domain
+4. Monitor for indexing issues during transition
+
+---
+
+## What This Plan Does NOT Include
+
+- Dynamic sitemap generation (post-launch)
+- Individual place/park/blog URL sitemap entries (post-launch)
+- Schema.org Place markup for directory pages (post-launch)
+- Redirect configuration (handled by Lovable custom domain setup)
+
+These are enhancements, not domain alignment requirements.
+
+---
+
+## Redirect Strategy Note
+
+When connecting `thicktimber.com` as a custom domain in Lovable:
+- Lovable should automatically redirect `thicktimber.lovable.app` → `thicktimber.com`
+- Verify these are 301 (permanent) redirects, not 302 (temporary)
+- If redirects are not automatic, contact Lovable support
+
+This is infrastructure-level, not code-level.
