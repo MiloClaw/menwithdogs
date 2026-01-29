@@ -105,7 +105,7 @@ serve(async (req) => {
     }
 
     // Get the origin for redirect URLs
-    const origin = req.headers.get("origin") || "https://mainstreet-landing-glow.lovable.app";
+    const origin = req.headers.get("origin") || "https://thicktimber.com";
 
     // Create Stripe checkout session with founders pricing and promo code
     const session = await stripe.checkout.sessions.create({

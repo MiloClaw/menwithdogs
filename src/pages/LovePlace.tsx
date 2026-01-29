@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import SEOHead from '@/components/SEOHead';
 
 interface PlacePreview {
   id: string;
@@ -157,6 +158,12 @@ const LovePlace = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title={place.name}
+        description={`Discover ${place.name}${location ? ` in ${location}` : ''} - ${place.primary_category} on ThickTimber.`}
+        canonicalPath={`/love/${place.id}`}
+        ogImage={photoUrl || undefined}
+      />
       {/* Hero Section with Photo */}
       <div className="relative h-[45vh] min-h-[280px] bg-muted">
         {photoUrl ? (
