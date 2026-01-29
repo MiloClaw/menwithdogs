@@ -150,8 +150,20 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
+    
+    // Map specific user-facing errors, sanitize others  
+    const userFacingErrors = [
+      "city_id is required",
+      "City not found",
+      "Founders offer not available",
+      "already claimed"
+    ];
+    
+    const isUserFacingError = userFacingErrors.some(msg => errorMessage.includes(msg));
+    const clientError = isUserFacingError ? errorMessage : "Unable to create checkout session. Please try again.";
+    
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: clientError }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

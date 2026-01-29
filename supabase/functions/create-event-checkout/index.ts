@@ -169,7 +169,19 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    
+    // Map specific user-facing errors, sanitize others
+    const userFacingErrors = [
+      "event_id is required",
+      "PRO subscription required",
+      "Event not found",
+      "You can only pay for events you created"
+    ];
+    
+    const isUserFacingError = userFacingErrors.some(msg => errorMessage.includes(msg));
+    const clientError = isUserFacingError ? errorMessage : "Unable to create checkout session. Please try again.";
+    
+    return new Response(JSON.stringify({ error: clientError }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
