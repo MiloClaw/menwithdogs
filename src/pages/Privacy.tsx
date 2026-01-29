@@ -6,7 +6,7 @@ const Privacy = () => {
     <PageLayout>
       <PageHeader 
         title="Privacy Policy" 
-        subtitle="Last Updated: December 2024" 
+        subtitle="Last Updated: January 2026" 
       />
       
       <div className="container py-8 md:py-12 lg:py-16">
@@ -55,6 +55,23 @@ const Privacy = () => {
               <li>Interests and preferences you select</li>
               <li>Communications you send to us</li>
             </ul>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              <strong className="text-foreground">Trail Blazer Contributions:</strong>
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
+              If you participate in our Trail Blazer contributor program, we collect:
+            </p>
+            <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
+              <li>Application information (expertise areas, portfolio links, place references)</li>
+              <li>Contextual annotations you submit about places</li>
+              <li>Optional external links to your existing published work</li>
+            </ul>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
+              Trail Blazer contributions are reviewed before publication and appear anonymously—your 
+              identity is not displayed alongside your contributions. You may view and manage your 
+              submissions through your Settings.
+            </p>
+
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
               <strong className="text-foreground">Information Collected Automatically:</strong>
             </p>

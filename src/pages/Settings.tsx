@@ -105,23 +105,23 @@ const Settings = () => {
 
         {/* Trail Blazer Entry - only visible to ambassadors */}
         {!roleLoading && isAmbassador && (
-          <Link 
-            to="/contribute"
-            className="block mb-10 group"
-          >
-            <div className="bg-muted/30 border border-border rounded-xl p-5 flex items-center gap-4 transition-all hover:bg-muted/50 hover:border-primary/20">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Compass className="h-5 w-5 text-primary" />
+          <div className="mb-10">
+            <div className="bg-muted/30 border border-border rounded-xl p-5">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Compass className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-base">Trail Blazer</h3>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-base mb-0.5">Add Context to a Place</h3>
-                <p className="text-sm text-muted-foreground">
-                  Share insight about places you know well
-                </p>
-              </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+              <p className="text-sm text-muted-foreground pl-14">
+                <Link to="/contribute" className="text-primary hover:underline">Add context</Link>
+                {' · '}
+                <Link to="/contributions" className="hover:underline">View your contributions</Link>
+              </p>
             </div>
-          </Link>
+          </div>
         )}
 
         {/* Premium underline-style tabs */}
