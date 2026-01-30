@@ -10,8 +10,7 @@ import { TrailDetailSheet } from './TrailDetailSheet';
 import TrailLegend from './TrailLegend';
 import { AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useNPSTrails, getTrailClassColor } from '@/hooks/useNPSTrails';
-import { getNPSUnitCode } from '@/lib/nps-codes';
+import { useOSMTrails, getTrailClassColor } from '@/hooks/useOSMTrails';
 
 export interface NationalParkMapRef {
   flyToTrail: (trail: Trail) => void;
@@ -35,9 +34,9 @@ const MAP_STYLES: Record<MapStyle, string> = {
 // Trail layers available in Mapbox Outdoors style
 const TRAIL_LAYERS = ['road-path', 'road-steps', 'road-pedestrian'];
 
-// NPS trail lines layer ID
-const NPS_TRAILS_SOURCE = 'nps-trails-data';
-const NPS_TRAILS_LAYER = 'nps-trails-lines';
+// OSM trail lines layer ID
+const OSM_TRAILS_SOURCE = 'osm-trails-data';
+const OSM_TRAILS_LAYER = 'osm-trails-lines';
 
 const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({ 
   lat, 
@@ -65,17 +64,16 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
   // Get featured trails for this park
   const featuredTrails = parkId ? getTrailsForPark(parkId) : [];
   
-  // Get NPS unit code and compute bounds for NPS API
-  const npsCode = parkId ? getNPSUnitCode(parkId) : undefined;
+  // Compute bounds for OSM API
   const bounds: [number, number, number, number] = [
     lng - 0.5, lat - 0.5, lng + 0.5, lat + 0.5
   ];
   
-  // Fetch NPS trail GeoJSON
-  const { data: npsTrailsData } = useNPSTrails({
-    parkCode: npsCode || '',
+  // Fetch OSM trail GeoJSON
+  const { data: osmTrailsData } = useOSMTrails({
     bounds,
-    enabled: !!npsCode && isMapReady,
+    parkId,
+    enabled: isMapReady,
   });
 
   // Expose flyToTrail method via ref
@@ -106,31 +104,31 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
     },
   }), [isMobile]);
 
-  // Add NPS trail polylines to the map
-  const addNPSTrailsLayer = useCallback((map: mapboxgl.Map) => {
-    if (!npsTrailsData || !npsTrailsData.features || npsTrailsData.features.length === 0) return;
+  // Add OSM trail polylines to the map
+  const addOSMTrailsLayer = useCallback((map: mapboxgl.Map) => {
+    if (!osmTrailsData || !osmTrailsData.features || osmTrailsData.features.length === 0) return;
     
     // Remove existing source/layer if present
-    if (map.getLayer(NPS_TRAILS_LAYER)) {
-      map.removeLayer(NPS_TRAILS_LAYER);
+    if (map.getLayer(OSM_TRAILS_LAYER)) {
+      map.removeLayer(OSM_TRAILS_LAYER);
     }
-    if (map.getSource(NPS_TRAILS_SOURCE)) {
-      map.removeSource(NPS_TRAILS_SOURCE);
+    if (map.getSource(OSM_TRAILS_SOURCE)) {
+      map.removeSource(OSM_TRAILS_SOURCE);
     }
     
     if (!showTrails) return;
     
     // Add GeoJSON source
-    map.addSource(NPS_TRAILS_SOURCE, {
+    map.addSource(OSM_TRAILS_SOURCE, {
       type: 'geojson',
-      data: npsTrailsData as GeoJSON.FeatureCollection,
+      data: osmTrailsData as GeoJSON.FeatureCollection,
     });
     
     // Add line layer with difficulty-based coloring
     map.addLayer({
-      id: NPS_TRAILS_LAYER,
+      id: OSM_TRAILS_LAYER,
       type: 'line',
-      source: NPS_TRAILS_SOURCE,
+      source: OSM_TRAILS_SOURCE,
       paint: {
         'line-color': [
           'match',
@@ -150,7 +148,7 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
         'line-join': 'round',
       },
     });
-  }, [npsTrailsData, showTrails]);
+  }, [osmTrailsData, showTrails]);
 
   // Add trail markers to the map
   const addTrailMarkers = useCallback((map: mapboxgl.Map, trails: Trail[]) => {
@@ -374,12 +372,12 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
     }
   }, [showTrails, isMapReady, featuredTrails, addTrailMarkers]);
   
-  // Add NPS trail polylines when data loads
+  // Add OSM trail polylines when data loads
   useEffect(() => {
-    if (mapRef.current && isMapReady && npsTrailsData) {
-      addNPSTrailsLayer(mapRef.current);
+    if (mapRef.current && isMapReady && osmTrailsData) {
+      addOSMTrailsLayer(mapRef.current);
     }
-  }, [npsTrailsData, isMapReady, showTrails, addNPSTrailsLayer]);
+  }, [osmTrailsData, isMapReady, showTrails, addOSMTrailsLayer]);
 
   // Handle style changes
   const toggleStyle = useCallback(() => {
@@ -433,13 +431,13 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
           addTrailMarkers(map, featuredTrails);
         }
         
-        // Re-add NPS trail polylines
-        if (npsTrailsData) {
-          addNPSTrailsLayer(map);
+        // Re-add OSM trail polylines
+        if (osmTrailsData) {
+          addOSMTrailsLayer(map);
         }
       });
     }
-  }, [mapStyle, setupTrailInteractivity, featuredTrails, showTrails, addTrailMarkers, npsTrailsData, addNPSTrailsLayer]);
+  }, [mapStyle, setupTrailInteractivity, featuredTrails, showTrails, addTrailMarkers, osmTrailsData, addOSMTrailsLayer]);
 
   // Toggle trail visibility
   const toggleTrails = useCallback(() => {

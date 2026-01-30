@@ -3,5 +3,5 @@ project_id = "dlbbxdonhodrzkwuzkbv"
 [functions.generate-logo-variant]
 verify_jwt = false
 
-[functions.nps-trails]
+[functions.osm-trails]
 verify_jwt = false
