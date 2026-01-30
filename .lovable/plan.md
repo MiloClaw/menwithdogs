@@ -1,80 +1,179 @@
 
-# Scroll Indicator Animation
+# Replace NPS API with OpenStreetMap Overpass
 
-Add a subtle, animated scroll indicator at the bottom of the Hero section to encourage users to scroll down and discover more content.
+Replace the failing NPS ArcGIS API with OpenStreetMap Overpass API for hiking trail polyline overlays on National Park maps.
 
-## Design Approach
+## Current State
 
-**Position**: Centered at the bottom of the CTA section, just above the fold where ValueProposition begins
+The existing system uses NPS ArcGIS MapServer which is returning 400 errors:
+- Edge function: `supabase/functions/nps-trails/index.ts`
+- Frontend hook: `src/hooks/useNPSTrails.ts`
+- Map component: `src/components/map/NationalParkMap.tsx`
+- Park code mapping: `src/lib/nps-codes.ts`
 
-**Style**: A minimal chevron/arrow pointing down with a gentle bouncing animation that:
-- Appears after a short delay (giving users time to read the hero content)
-- Uses a subtle bounce animation to draw attention
-- Respects `prefers-reduced-motion` for accessibility
-- Fades out as the user starts scrolling
-- Includes "Scroll to explore" or "Learn more" text label
+## OpenStreetMap Overpass Advantages
 
-**Visual Design**:
-- Uses brand colors (muted foreground for subtlety)
-- ChevronDown icon from Lucide (already in project)
-- Soft opacity that doesn't distract from main CTAs
+| Aspect | NPS ArcGIS (Current) | OpenStreetMap Overpass |
+|--------|---------------------|------------------------|
+| Reliability | Failing with 400 errors | Stable, widely used |
+| Coverage | US National Parks only | Global trail data |
+| API Key | None (but failing) | None required |
+| Rate Limits | Unknown | Reasonable (no auth) |
+| Data Format | GeoJSON (when working) | GeoJSON via out:json |
 
-## Implementation Details
+## Implementation Plan
 
-### 1. Add scroll indicator keyframe animation to Tailwind config
+### 1. Create New Edge Function
 
-```text
-// tailwind.config.ts - Add to keyframes
-"bounce-gentle": {
-  "0%, 100%": { transform: "translateY(0)" },
-  "50%": { transform: "translateY(6px)" }
-}
+**File:** `supabase/functions/osm-trails/index.ts`
 
-// Add to animations
-"bounce-gentle": "bounce-gentle 2s ease-in-out infinite"
-```
-
-### 2. Update Hero component
-
-Add scroll indicator element at the bottom of the CTA section:
+Replace the NPS API call with Overpass API query:
 
 ```text
-// Below the button group, before closing </div> of CTA Section
-<div 
-  className="mt-8 flex flex-col items-center gap-2 cursor-pointer"
-  onClick={scrollToValueProp}
-  style={{ opacity: scrollY > 50 ? 0 : 1, transition: 'opacity 0.3s' }}
->
-  <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
-    Scroll to explore
-  </span>
-  <ChevronDown 
-    className={`w-5 h-5 text-muted-foreground/50 ${
-      !prefersReducedMotion ? 'animate-bounce-gentle' : ''
-    }`} 
-  />
-</div>
+Overpass Query Structure:
+[out:json];
+(
+  way["highway"="path"](bbox);
+  way["highway"="footway"](bbox);
+  way["highway"="track"](bbox);
+  relation["route"="hiking"](bbox);
+);
+out body geom;
 ```
 
-Add scroll function:
+Key implementation details:
+- Accept bounds parameter: `[minLat, minLng, maxLat, maxLng]` (Overpass uses lat,lng order)
+- Query the public Overpass API endpoint: `https://overpass-api.de/api/interpreter`
+- Transform response to GeoJSON FeatureCollection format matching current interface
+- Extract trail properties: name, surface, sac_scale (difficulty), highway type
+- Include retry logic with exponential backoff
+- Return empty FeatureCollection on failure (graceful degradation)
+
+### 2. Create Difficulty Mapping
+
+OSM uses `sac_scale` for hiking difficulty:
+
 ```text
-const scrollToValueProp = () => {
-  document.querySelector('section[class*="py-28"]')?.scrollIntoView({
-    behavior: 'smooth'
-  });
-};
+sac_scale mapping:
+- hiking → Easy (green)
+- mountain_hiking → Easy (green)
+- demanding_mountain_hiking → Moderate (yellow)
+- alpine_hiking → Strenuous (red)
+- demanding_alpine_hiking → Strenuous (red)
+- difficult_alpine_hiking → Strenuous (red)
 ```
 
-### 3. Files to modify
+### 3. Update Frontend Hook
 
-| File | Change |
+**File:** `src/hooks/useOSMTrails.ts` (new file)
+
+Create a new hook that:
+- Accepts bounds and parkId (parkId optional, mainly for cache keys)
+- Calls the new `osm-trails` edge function
+- Returns the same GeoJSON interface as the current NPS hook
+- Includes helper functions for difficulty label and color mapping
+
+### 4. Update Map Component
+
+**File:** `src/components/map/NationalParkMap.tsx`
+
+Changes:
+- Replace `useNPSTrails` import with `useOSMTrails`
+- Update layer ID constants from `nps-trails-*` to `osm-trails-*`
+- Update difficulty color mapping to use OSM `sac_scale` values
+- Remove dependency on `nps-codes.ts` for API calls (keep for reference)
+
+### 5. Deprecate NPS-Specific Files
+
+Files to remove or deprecate:
+- `supabase/functions/nps-trails/index.ts` → Delete
+- `src/lib/nps-codes.ts` → Can keep for reference, no longer required for trails
+
+### 6. Update Config
+
+**File:** `supabase/config.toml`
+
+Add new function configuration:
+```toml
+[functions.osm-trails]
+verify_jwt = false
+```
+
+Remove old function entry for `nps-trails`.
+
+## Data Flow Diagram
+
+```text
+User Views Park Page
+        │
+        ▼
+┌──────────────────┐
+│ NationalParkMap  │
+│ (bounds from     │
+│  viewport)       │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  useOSMTrails    │
+│  (React Query)   │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐     ┌────────────────────┐
+│  osm-trails      │────▶│  Overpass API      │
+│  Edge Function   │     │  (overpass-api.de) │
+└──────────────────┘     └────────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│  GeoJSON with    │
+│  trail polylines │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Mapbox GL Layer │
+│  (color by       │
+│   difficulty)    │
+└──────────────────┘
+```
+
+## Files Summary
+
+| File | Action |
 |------|--------|
-| `tailwind.config.ts` | Add `bounce-gentle` keyframe and animation |
-| `src/components/Hero.tsx` | Add scroll indicator with animation, fade-on-scroll logic |
+| `supabase/functions/osm-trails/index.ts` | Create |
+| `src/hooks/useOSMTrails.ts` | Create |
+| `src/components/map/NationalParkMap.tsx` | Modify |
+| `supabase/config.toml` | Modify |
+| `supabase/functions/nps-trails/index.ts` | Delete |
+| `src/hooks/useNPSTrails.ts` | Delete |
+| `src/lib/nps-codes.ts` | Keep (optional reference) |
 
-## Accessibility Considerations
+## Technical Notes
 
-- Respects `prefers-reduced-motion` (already tracked in Hero)
-- Clickable for keyboard/touch users
-- Text label provides context for screen readers
-- Animation is subtle and non-distracting
+### Overpass API Response Transformation
+
+The Overpass API returns data in a specific format that needs transformation:
+
+```text
+Overpass response → Transform → GeoJSON FeatureCollection
+                           │
+                           ├─ Extract way coordinates
+                           ├─ Map tags to properties
+                           └─ Build LineString geometries
+```
+
+### Bounds Handling
+
+Current NPS API uses `[minLng, minLat, maxLng, maxLat]`
+Overpass API uses `[minLat, minLng, maxLat, maxLng]`
+
+The edge function will handle this coordinate order conversion.
+
+### Caching Strategy
+
+Keep the existing React Query caching:
+- `staleTime: 1 hour` (trails don't change frequently)
+- `gcTime: 24 hours` (keep in memory for revisits)
