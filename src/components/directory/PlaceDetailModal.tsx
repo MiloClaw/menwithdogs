@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Star, MapPin, Phone, Globe, Navigation, Clock, 
-  ChevronLeft, ChevronRight, Heart, ChevronDown, Share2, Plus
+  ChevronLeft, ChevronRight, Heart, ChevronDown, Share2, Plus, Mountain
 } from 'lucide-react';
 import {
   Dialog,
@@ -17,6 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatDistance } from '@/lib/distance';
 import { usePlaceFavorites } from '@/hooks/usePlaceFavorites';
 import PlaceLinkedContent from '@/components/directory/PlaceLinkedContent';
@@ -26,6 +28,7 @@ import TagSuggestionDialog from '@/components/directory/TagSuggestionDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { recordSignal } from '@/hooks/useUserSignals';
 import { toast } from 'sonner';
+import { nationalParks } from '@/lib/national-parks-data';
 
 export interface PlaceDetail {
   id: string;
@@ -52,6 +55,8 @@ export interface PlaceDetail {
   wheelchair_accessible_seating?: boolean | null;
   outdoor_seating?: boolean | null;
   has_restroom?: boolean | null;
+  // National Park link
+  national_park_id?: string | null;
 }
 
 interface PlaceDetailModalProps {
@@ -108,6 +113,12 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
     getOpeningHours(place?.opening_hours ?? null), 
     [place?.opening_hours]
   );
+
+  // Find linked National Park for "Explore Trails" button
+  const linkedPark = useMemo(() => {
+    if (!place?.national_park_id) return null;
+    return nationalParks.find(p => p.id === place.national_park_id) ?? null;
+  }, [place?.national_park_id]);
 
   // SIGNAL CAPTURE: Record click_external for website/directions (Rule 3.2)
   const handleExternalClick = useCallback((type: 'website' | 'directions', url: string) => {
@@ -369,6 +380,35 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
                   </div>
                 </CollapsibleContent>
               </Collapsible>
+            </>
+          )}
+
+          {/* National Park Link - Explore Trails */}
+          {linkedPark && (
+            <>
+              <Separator />
+              <Card className="border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                    <Mountain className="h-5 w-5" />
+                    <span className="font-medium">
+                      Part of {linkedPark.name}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Explore trails, viewpoints, and hiking info on our dedicated park page.
+                  </p>
+                  <Button 
+                    asChild 
+                    variant="default" 
+                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <Link to={`/places/national-parks/${linkedPark.id}`}>
+                      🥾 Explore Trails
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </>
           )}
 

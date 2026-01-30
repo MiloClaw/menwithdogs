@@ -33,6 +33,8 @@ export interface DirectoryPlace {
   wheelchair_accessible_seating?: boolean | null;
   outdoor_seating?: boolean | null;
   has_restroom?: boolean | null;
+  // National Park link
+  national_park_id?: string | null;
 }
 
 interface DirectoryPlaceCardProps {

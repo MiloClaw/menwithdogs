@@ -46,6 +46,8 @@ export interface Place {
   vibe_conversation: boolean | null;
   vibe_daytime: boolean | null;
   vibe_evening: boolean | null;
+  // National Park link
+  national_park_id: string | null;
 }
 
 export interface CreatePlaceInput {
@@ -78,6 +80,8 @@ export interface CreatePlaceInput {
   vibe_conversation?: boolean | null;
   vibe_daytime?: boolean | null;
   vibe_evening?: boolean | null;
+  // National Park link
+  national_park_id?: string | null;
 }
 
 // Helper to extract weekday_text from opening_hours JSON

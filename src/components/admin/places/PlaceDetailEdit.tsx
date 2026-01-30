@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ import { usePlaceGeoAreas } from '@/hooks/usePlaceGeoAreas';
 import ImmutableFieldBadge from './ImmutableFieldBadge';
 import PlaceTagEditor from './PlaceTagEditor';
 import { VIBE_ENERGY_LABELS, VIBE_FORMALITY_LABELS } from '@/lib/place-taxonomy';
+import { nationalParks } from '@/lib/national-parks-data';
 
 interface PlaceDetailEditProps {
   place: Place;
@@ -38,6 +39,8 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
     state: '',
     country: '',
     status: 'pending' as Place['status'],
+    // National Park link
+    national_park_id: null as string | null,
     // Vibe tags
     vibe_energy: null as number | null,
     vibe_formality: null as number | null,
@@ -59,6 +62,7 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       state: place.state || '',
       country: place.country || '',
       status: place.status,
+      national_park_id: place.national_park_id ?? null,
       vibe_energy: place.vibe_energy,
       vibe_formality: place.vibe_formality,
       vibe_conversation: place.vibe_conversation,
@@ -66,6 +70,12 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       vibe_evening: place.vibe_evening,
     });
   }, [place]);
+
+  // Sort national parks alphabetically for the dropdown
+  const sortedParks = useMemo(() => 
+    [...nationalParks].sort((a, b) => a.name.localeCompare(b.name)),
+    []
+  );
 
   // Initialize metro selection from current assignment
   useEffect(() => {
@@ -95,6 +105,7 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
       state: formData.state || null,
       country: formData.country || null,
       status: formData.status,
+      national_park_id: formData.national_park_id,
       vibe_energy: formData.vibe_energy,
       vibe_formality: formData.vibe_formality,
       vibe_conversation: formData.vibe_conversation,
@@ -288,6 +299,33 @@ const PlaceDetailEdit = ({ place, onSave, onCancel, isSaving }: PlaceDetailEditP
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
               <Info className="h-3 w-3 mt-0.5 shrink-0" />
               <span>Overrides automatic metro detection. Used for grouping in admin views and user filtering.</span>
+            </div>
+          </div>
+
+          {/* National Park Link */}
+          <div className="space-y-3 pt-4 border-t">
+            <Label>National Park Link</Label>
+            <Select
+              value={formData.national_park_id || 'none'}
+              onValueChange={(value) => 
+                setFormData({ ...formData, national_park_id: value === 'none' ? null : value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a park..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None (no park link)</SelectItem>
+                {sortedParks.map((park) => (
+                  <SelectItem key={park.id} value={park.id}>
+                    {park.name} ({park.states.join(', ')})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Info className="h-3 w-3 mt-0.5 shrink-0" />
+              <span>Link this place to a National Park to show "Explore Trails" button in the public directory.</span>
             </div>
           </div>
 
