@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, MapPin } from "lucide-react";
+import { ChevronDown, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-hiking-men.jpg";
 import BrandStripe from "@/components/BrandStripe";
 
@@ -29,12 +29,13 @@ const Hero = () => {
       mediaQuery.removeEventListener('change', handleMotionChange);
     };
   }, []);
-  const scrollToHowItWorks = () => {
-    document.getElementById('how-it-works')?.scrollIntoView({
+  const scrollToValueProp = () => {
+    document.querySelector('section[class*="py-28"]')?.scrollIntoView({
       behavior: 'smooth'
     });
   };
   const parallaxTransform = prefersReducedMotion ? 'none' : `translateY(${scrollY * 0.15}px)`;
+  const indicatorOpacity = scrollY > 50 ? 0 : 1;
   return <section className="relative pt-16 md:pt-18">
       {/* Hero Image */}
       <div className="relative h-[480px] md:h-[560px] overflow-hidden">
@@ -69,6 +70,22 @@ const Hero = () => {
             <MapPin className="w-4 h-4 mr-2" />
             Explore Places
           </Button>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div 
+          className="mt-8 flex flex-col items-center gap-2 cursor-pointer"
+          onClick={scrollToValueProp}
+          style={{ opacity: indicatorOpacity, transition: 'opacity 0.3s' }}
+        >
+          <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
+            Scroll to explore
+          </span>
+          <ChevronDown 
+            className={`w-5 h-5 text-muted-foreground/50 ${
+              !prefersReducedMotion ? 'animate-bounce-gentle' : ''
+            }`} 
+          />
         </div>
       </div>
 
