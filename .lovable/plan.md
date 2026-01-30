@@ -1,210 +1,210 @@
 
 
-# Trail Markers UX/UI Improvement Plan
+# Explicit National Park Mapping for Places
 
-## Current State Analysis
+Add a `national_park_id` column to the `places` table that allows admins to definitively link trailheads and hiking areas to specific National Parks. This eliminates false positives from geographic/type-based heuristics.
 
-After reviewing the implementation, here's what exists:
+## Why This Approach?
 
-| Component | Current State |
-|-----------|---------------|
-| **Map Markers** | White circles with footprint icon, 44px touch targets, scale on hover |
-| **Desktop Interaction** | Click opens Mapbox popup with trail info, photo, directions button |
-| **Mobile Interaction** | Click opens bottom sheet drawer with trail details |
-| **Trail List** | Collapsible panel below map with photo cards, difficulty filters |
-| **OSM Polylines** | Color-coded by difficulty (green/yellow/red) |
-| **Legend** | Shows difficulty color key |
+| Approach | Accuracy | False Positives | Maintenance |
+|----------|----------|-----------------|-------------|
+| Geographic radius | ~70% | High (overlapping parks, nearby forests) | None |
+| Google type matching | ~50% | Very high (`park` matches municipal parks) | None |
+| **Explicit mapping** | **100%** | **Zero** | Admin sets once |
 
-## Identified Problems (from session replay)
-
-1. **Generic tooltips** - Mapbox popups show "div" placeholders during rapid interactions
-2. **No visual connection** - Selected trail in list has no visible link to its marker on map
-3. **Markers lack context** - All markers look identical regardless of trail difficulty
-4. **No hover preview** - Users must click to see any trail information
-5. **Missing active state sync** - Clicking a marker doesn't highlight the trail card in the list
-
----
-
-## Recommended Improvements
-
-### 1. Difficulty-Coded Marker Colors
-
-**Problem**: All markers use the same emerald color, making it hard to identify trail difficulty at a glance.
-
-**Solution**: Color-code marker borders/fills to match difficulty:
+## Architecture
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Current          →    Improved             │
-│  ●○●○●             ●🟢 ●🟡 ●🔴              │
-│  (all emerald)     (easy) (mod) (hard)      │
-└─────────────────────────────────────────────┘
+places table
+├── id (uuid)
+├── name
+├── google_types[]
+├── lat, lng
+└── national_park_id (NEW) ──────> References static park IDs
+                                    from national-parks-data.ts
+                                    e.g., "yosemite", "yellowstone"
 ```
 
-**Implementation**:
-- Pass `trail.difficulty` to `createTrailheadMarkerElement()`
-- Apply corresponding border color from `DIFFICULTY_COLORS`
-- Add small difficulty label badge below marker on zoom
+The `national_park_id` column stores the park's string ID (not a foreign key to a database table, since parks are defined in static TypeScript data).
 
-### 2. Hover Preview Cards (Desktop Only)
+## Implementation
 
-**Problem**: Users must click every marker to see trail info.
+### 1. Database Migration
 
-**Solution**: Show a lightweight preview on hover before committing to click.
+Add a nullable `national_park_id` column to the `places` table:
+
+```sql
+ALTER TABLE public.places
+ADD COLUMN national_park_id text;
+
+COMMENT ON COLUMN public.places.national_park_id IS
+  'Optional link to a National Park ID from the static parks data. Used to show "Explore Trails" button in Place modal.';
+```
+
+### 2. Update TypeScript Types
+
+The `usePlaces` hook and `Place` interface will automatically include the new column after migration.
+
+Key changes:
+- `src/hooks/usePlaces.ts`: Add `national_park_id` to the `Place` interface and `CreatePlaceInput`
+- `src/hooks/usePublicPlaces.ts`: Add `national_park_id` to the select query
+- `src/hooks/useMapPlaces.ts`: Add `national_park_id` to the select query
+
+### 3. Admin Place Edit Form
+
+Add a National Park selector dropdown to `PlaceDetailEdit.tsx`:
+
+| Field | Description |
+|-------|-------------|
+| Label | "National Park Link" |
+| Type | Select dropdown |
+| Options | All 63 parks from `nationalParks` array + "None" |
+| Helper Text | "Link this place to a National Park to show 'Explore Trails' button" |
+| Position | After Metro Area assignment section |
+
+The dropdown will:
+- Import `nationalParks` from `src/lib/national-parks-data.ts`
+- Sort parks alphabetically by name for easy selection
+- Show park name with state abbreviation (e.g., "Yosemite (CA)")
+- Save the park's `id` string (e.g., "yosemite") to the `national_park_id` column
+
+### 4. Place Detail Modal Enhancement
+
+Update `PlaceDetailModal.tsx` to show the "Explore Trails" button when a place has a `national_park_id`:
 
 ```text
-┌───────────────────────────────┐
-│ Ryan Mountain Trail           │
-│ 3.0 mi • Strenuous            │
-│ Click for details →           │
-└───────────────────────────────┘
+┌─────────────────────────────────────────────────┐
+│  [Mountain Icon]  Part of Yosemite National Park│
+│                                                 │
+│  Explore trails, viewpoints, and hiking info   │
+│  on our dedicated park page.                   │
+│                                                 │
+│  [🥾 Explore Trails →]                          │
+└─────────────────────────────────────────────────┘
 ```
 
-**Implementation**:
-- Add `mouseenter`/`mouseleave` events to markers
-- Display a smaller, non-blocking tooltip positioned above marker
-- Full popup opens on click as before
+Logic:
+1. Check if `place.national_park_id` exists
+2. Look up park details from static `nationalParks` array using `useMemo`
+3. If found, render a highlighted card section with Link to `/places/national-parks/{parkId}`
 
-### 3. Bi-Directional List-Map Sync
+### 5. Interface Updates
 
-**Problem**: Clicking a trail card flies to the marker, but the reverse isn't true. Users lose context.
+Update the `PlaceDetail` interface in `PlaceDetailModal.tsx`:
 
-**Solution**: Implement full sync between list and map:
+```typescript
+export interface PlaceDetail {
+  // ... existing fields
+  national_park_id?: string | null;
+}
+```
 
-| Action | Result |
-|--------|--------|
-| Click trail card | Map flies to marker, marker highlights, popup opens |
-| Click map marker | Scroll list to trail card, highlight card |
-| Hover card (desktop) | Subtly pulse the marker on map |
+## User Flow
 
-**Implementation**:
-- Add `selectedTrailId` state at page level
-- Pass to both `TrailListPanel` and `NationalParkMap`
-- Fire callbacks in both directions
-
-### 4. Trail Label Clusters at High Zoom
-
-**Problem**: At zoom level 12+, markers overlap and become confusing.
-
-**Solution**: At lower zooms, cluster nearby markers. At higher zooms, show trail name labels.
+### Admin Flow
 
 ```text
-Zoom < 11:  [🥾 4]  ← clustered count
-Zoom 11-13:  ●       ← individual markers
-Zoom > 13:   ● Ryan Mountain  ← with labels
+Admin opens Place Management
+        │
+        ▼
+Selects a trailhead (e.g., "Half Dome Trailhead")
+        │
+        ▼
+Opens Edit mode
+        │
+        ▼
+Scrolls to "National Park Link" section
+        │
+        ▼
+Selects "Yosemite National Park" from dropdown
+        │
+        ▼
+Saves → national_park_id = "yosemite"
 ```
 
-**Implementation**:
-- Use Mapbox's native clustering on the featured trails source
-- Add a symbol layer for trail names at high zoom levels
-- Configure `minzoom` and `maxzoom` per layer
-
-### 5. Persistent Marker Tooltips on Selection
-
-**Problem**: Popups disappear too quickly on mobile interactions.
-
-**Solution**: Keep the popup open until explicitly dismissed or another marker is selected.
-
-**Implementation**:
-- Prevent `closeOnClick: false` when marker is programmatically selected
-- Add explicit close button
-- Ensure only one popup can be open at a time
-
-### 6. Trail Name Mini-Labels on Markers
-
-**Problem**: Users can't distinguish trails without clicking.
-
-**Solution**: Add small text labels below or beside markers showing truncated trail names.
+### User Flow
 
 ```text
-     ●
- Ryan Mtn
+User browses Places directory
+        │
+        ▼
+Clicks "Half Dome Trailhead"
+        │
+        ▼
+PlaceDetailModal opens
+        │
+        ▼
+System checks: national_park_id = "yosemite" ✓
+        │
+        ▼
+Shows: "Part of Yosemite National Park"
+       [Explore Trails] button
+        │
+        ▼
+User clicks button
+        │
+        ▼
+Navigates to /places/national-parks/yosemite
+(interactive trail map with featured hikes)
 ```
 
-**Implementation**:
-- Create Mapbox symbol layer with `text-field` property
-- Use `text-size: 10`, `text-anchor: top`
-- Apply `text-halo-color: white` for contrast
+## Files Summary
 
-### 7. Trail Polyline Highlight on Selection
+| File | Action | Description |
+|------|--------|-------------|
+| Database migration | Create | Add `national_park_id` column |
+| `src/hooks/usePlaces.ts` | Modify | Add `national_park_id` to interface |
+| `src/hooks/usePublicPlaces.ts` | Modify | Add `national_park_id` to select |
+| `src/hooks/useMapPlaces.ts` | Modify | Add `national_park_id` to select |
+| `src/components/admin/places/PlaceDetailEdit.tsx` | Modify | Add park selector dropdown |
+| `src/components/directory/PlaceDetailModal.tsx` | Modify | Add "Explore Trails" section |
+| `src/components/directory/DirectoryPlaceCard.tsx` | Modify (optional) | Add park badge indicator |
 
-**Problem**: When a featured trail is selected, the OSM polyline for that trail doesn't highlight.
+## UI Design Details
 
-**Solution**: Highlight the relevant trail segment when a featured trail is selected.
+### Admin Dropdown
 
-**Implementation**:
-- Match featured trail trailhead to nearest OSM LineString
-- Apply thicker line-width and glow effect when active
-- Dim other polylines when one is selected
-
-### 8. Accessible Loading States
-
-**Problem**: No feedback when OSM trails are loading.
-
-**Solution**: Add skeleton/shimmer on the map while trails fetch.
-
-**Implementation**:
-- Show a subtle overlay with "Loading trails..." message
-- Use Framer Motion fade transition when trails appear
-
----
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/map/TrailMarker.tsx` | Add difficulty-based coloring, hover preview, label support |
-| `src/components/map/NationalParkMap.tsx` | Implement bi-directional sync, clustering, polyline highlighting |
-| `src/components/map/TrailListPanel.tsx` | Accept `highlightedTrailId`, scroll to card on marker click |
-| `src/pages/NationalParkDetail.tsx` | Lift `selectedTrailId` state, wire up two-way callbacks |
-| `src/components/map/TrailLegend.tsx` | Update to include marker shape explanation |
-
----
-
-## Priority Recommendation
-
-For immediate impact, I recommend implementing in this order:
-
-1. **Difficulty-colored markers** - Low effort, high clarity
-2. **Bi-directional list-map sync** - Core UX improvement
-3. **Hover previews** - Desktop polish
-4. **Polyline highlighting** - Visual connection
-5. **Clustering/labels** - Advanced refinement
-
----
-
-## Technical Notes
-
-### Marker Element Updates
-
-The current `createTrailheadMarkerElement` function needs to accept a `difficulty` parameter:
-
-```javascript
-// Before
-export function createTrailheadMarkerElement(isActive = false)
-
-// After
-export function createTrailheadMarkerElement(
-  difficulty: TrailDifficulty = 'moderate',
-  isActive = false
-)
+```text
+┌─ National Park Link ──────────────────────────┐
+│  ┌──────────────────────────────────────────┐ │
+│  │ Select a park...                       ▼ │ │
+│  └──────────────────────────────────────────┘ │
+│  ℹ️ Link this place to show "Explore Trails"  │
+│     button in the public directory            │
+└───────────────────────────────────────────────┘
 ```
 
-### State Lifting for Sync
-
-The page needs to manage shared state:
-
-```javascript
-const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
-const [highlightedTrailId, setHighlightedTrailId] = useState<string | null>(null);
+Dropdown options (sorted alphabetically):
+```text
+• None (no park link)
+• Acadia National Park (ME)
+• Arches National Park (UT)
+• Badlands National Park (SD)
+• ...
+• Zion National Park (UT)
 ```
 
-### Mapbox Event Handlers
+### Public Modal Section
 
-For hover previews, attach to marker elements:
+Styled to match existing sections with a subtle outdoor theme:
 
-```javascript
-el.addEventListener('mouseenter', () => showMiniTooltip(trail));
-el.addEventListener('mouseleave', () => hideMiniTooltip());
-```
+- Background: Light emerald/forest tint (`bg-emerald-50/50`)
+- Icon: Mountain icon from Lucide (`Mountain`)
+- Park name: Bold, linked to NPS website
+- Description: Brief invitation to explore trails
+- Button: Primary variant with hiking boot emoji
+
+## Advantages
+
+1. **Zero false positives**: Only shows "Explore Trails" when admin explicitly links
+2. **Full coverage**: Works for any outdoor place type, not just `hiking_area`
+3. **Simple maintenance**: One-time admin action per place
+4. **Flexible**: Can link campgrounds, visitor centers, lodges - not just trailheads
+5. **Reversible**: Admin can remove the link at any time
+
+## Future Considerations
+
+- Could add a bulk-assign tool for places within park boundaries
+- Could auto-suggest park links based on proximity (admin confirms)
+- Could show park-linked places on the National Park detail pages
 
