@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Trail, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { Trail, DIFFICULTY_COLORS, getDifficultyLabel, TrailDifficulty } from '@/lib/trail-data';
 import { cn } from '@/lib/utils';
 import { ChevronDown, ChevronUp, Footprints, Mountain, Ruler, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,13 +7,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTrailFavorites } from '@/hooks/useTrailFavorites';
 
-type TrailDifficulty = 'easy' | 'moderate' | 'strenuous';
-
 interface TrailListPanelProps {
   trails: Trail[];
   parkId: string;
   onTrailSelect: (trail: Trail) => void;
-  selectedTrailId?: string;
+  selectedTrailId?: string | null;
+  highlightedTrailId?: string | null;
+  onTrailHover?: (trailId: string | null) => void;
 }
 
 interface DifficultyFilterChipProps {
@@ -46,11 +46,26 @@ interface TrailCardProps {
   parkId: string;
   onClick: () => void;
   isSelected: boolean;
+  isHighlighted: boolean;
   isFavorited: boolean;
   onToggleFavorite: () => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  cardRef: (el: HTMLButtonElement | null) => void;
 }
 
-const TrailCard = ({ trail, parkId, onClick, isSelected, isFavorited, onToggleFavorite }: TrailCardProps) => {
+const TrailCard = ({ 
+  trail, 
+  parkId, 
+  onClick, 
+  isSelected, 
+  isHighlighted,
+  isFavorited, 
+  onToggleFavorite,
+  onMouseEnter,
+  onMouseLeave,
+  cardRef,
+}: TrailCardProps) => {
   const difficultyColors = DIFFICULTY_COLORS[trail.difficulty];
   const [imageError, setImageError] = useState(false);
   
@@ -61,12 +76,17 @@ const TrailCard = ({ trail, parkId, onClick, isSelected, isFavorited, onToggleFa
   
   return (
     <button
+      ref={cardRef}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className={cn(
         "w-full text-left rounded-lg border transition-all overflow-hidden relative",
         "hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-brand-green/50",
         isSelected 
-          ? "border-brand-green bg-brand-green/5" 
+          ? "border-brand-green bg-brand-green/5 ring-2 ring-brand-green/30" 
+          : isHighlighted
+          ? "border-amber-400 bg-amber-50/50"
           : "border-border bg-card"
       )}
     >
@@ -153,13 +173,48 @@ const TrailCard = ({ trail, parkId, onClick, isSelected, isFavorited, onToggleFa
   );
 };
 
-export const TrailListPanel = ({ trails, parkId, onTrailSelect, selectedTrailId }: TrailListPanelProps) => {
+export const TrailListPanel = ({ 
+  trails, 
+  parkId, 
+  onTrailSelect, 
+  selectedTrailId,
+  highlightedTrailId,
+  onTrailHover,
+}: TrailListPanelProps) => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Set<TrailDifficulty>>(
     new Set(['easy', 'moderate', 'strenuous'])
   );
   const { isFavorited, toggleFavorite } = useTrailFavorites();
+  
+  // Refs for scrolling to cards
+  const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  
+  const setCardRef = useCallback((id: string, el: HTMLButtonElement | null) => {
+    if (el) {
+      cardRefs.current.set(id, el);
+    } else {
+      cardRefs.current.delete(id);
+    }
+  }, []);
+  
+  // Scroll to selected card when it changes (from map marker click)
+  useEffect(() => {
+    if (selectedTrailId && cardRefs.current.has(selectedTrailId)) {
+      const card = cardRefs.current.get(selectedTrailId);
+      if (card) {
+        // Open the panel if collapsed
+        if (!isOpen) {
+          setIsOpen(true);
+        }
+        // Scroll the card into view with some padding
+        setTimeout(() => {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+  }, [selectedTrailId, isOpen]);
   
   const toggleDifficulty = (difficulty: TrailDifficulty) => {
     setSelectedDifficulties(prev => {
@@ -243,8 +298,12 @@ export const TrailListPanel = ({ trails, parkId, onTrailSelect, selectedTrailId 
                   parkId={parkId}
                   onClick={() => onTrailSelect(trail)}
                   isSelected={selectedTrailId === trail.id}
+                  isHighlighted={highlightedTrailId === trail.id}
                   isFavorited={isFavorited(trail.id)}
                   onToggleFavorite={() => toggleFavorite(trail.id, parkId)}
+                  onMouseEnter={() => onTrailHover?.(trail.id)}
+                  onMouseLeave={() => onTrailHover?.(null)}
+                  cardRef={(el) => setCardRef(trail.id, el)}
                 />
               ))}
             </div>

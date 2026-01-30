@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Ruler, Mountain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,9 +21,24 @@ const NationalParkDetail = () => {
   // Get featured trails for this park
   const featuredTrails = parkId ? getTrailsForPark(parkId) : [];
   
+  // Bi-directional sync state
+  const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
+  const [highlightedTrailId, setHighlightedTrailId] = useState<string | null>(null);
+  
   // Handle trail selection from list panel
-  const handleTrailSelect = useCallback((trail: Trail) => {
+  const handleTrailSelectFromList = useCallback((trail: Trail) => {
+    setSelectedTrailId(trail.id);
     mapRef.current?.flyToTrail(trail);
+  }, []);
+  
+  // Handle trail selection from map (called by map component)
+  const handleTrailSelectFromMap = useCallback((trailId: string | null) => {
+    setSelectedTrailId(trailId);
+  }, []);
+  
+  // Handle trail hover from list (highlight marker on map)
+  const handleTrailHover = useCallback((trailId: string | null) => {
+    setHighlightedTrailId(trailId);
   }, []);
 
   if (isNotFound || !park) {
@@ -69,6 +84,9 @@ const NationalParkDetail = () => {
           parkName={park.name}
           parkId={park.id}
           initialZoom={10}
+          selectedTrailId={selectedTrailId}
+          highlightedTrailId={highlightedTrailId}
+          onTrailSelect={handleTrailSelectFromMap}
         />
 
         {/* Back Navigation Overlay */}
@@ -90,7 +108,10 @@ const NationalParkDetail = () => {
         <TrailListPanel
           trails={featuredTrails}
           parkId={parkId || ''}
-          onTrailSelect={handleTrailSelect}
+          onTrailSelect={handleTrailSelectFromList}
+          selectedTrailId={selectedTrailId}
+          highlightedTrailId={highlightedTrailId}
+          onTrailHover={handleTrailHover}
         />
       )}
 

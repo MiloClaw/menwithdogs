@@ -167,3 +167,14 @@
 .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
   border-left-color: hsl(var(--card));
 }
+
+/* Hover popup styling - more compact */
+.trail-hover-popup .mapboxgl-popup-content {
+  padding: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.trail-hover-popup .mapboxgl-popup-tip {
+  border-width: 6px;
+}
