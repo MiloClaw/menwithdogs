@@ -1394,6 +1394,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           name: string
+          national_park_id: string | null
           opening_hours: Json | null
           outdoor_seating: boolean | null
           phone_number: string | null
@@ -1443,6 +1444,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name: string
+          national_park_id?: string | null
           opening_hours?: Json | null
           outdoor_seating?: boolean | null
           phone_number?: string | null
@@ -1492,6 +1494,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name?: string
+          national_park_id?: string | null
           opening_hours?: Json | null
           outdoor_seating?: boolean | null
           phone_number?: string | null

@@ -54,7 +54,8 @@ export const usePublicPlaces = (options?: UsePublicPlacesOptions) => {
           wheelchair_accessible_restroom,
           wheelchair_accessible_seating,
           outdoor_seating,
-          has_restroom
+          has_restroom,
+          national_park_id
         `)
         .eq('status', 'approved');
 
