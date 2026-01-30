@@ -1,179 +1,210 @@
 
-# Replace NPS API with OpenStreetMap Overpass
 
-Replace the failing NPS ArcGIS API with OpenStreetMap Overpass API for hiking trail polyline overlays on National Park maps.
+# Trail Markers UX/UI Improvement Plan
 
-## Current State
+## Current State Analysis
 
-The existing system uses NPS ArcGIS MapServer which is returning 400 errors:
-- Edge function: `supabase/functions/nps-trails/index.ts`
-- Frontend hook: `src/hooks/useNPSTrails.ts`
-- Map component: `src/components/map/NationalParkMap.tsx`
-- Park code mapping: `src/lib/nps-codes.ts`
+After reviewing the implementation, here's what exists:
 
-## OpenStreetMap Overpass Advantages
+| Component | Current State |
+|-----------|---------------|
+| **Map Markers** | White circles with footprint icon, 44px touch targets, scale on hover |
+| **Desktop Interaction** | Click opens Mapbox popup with trail info, photo, directions button |
+| **Mobile Interaction** | Click opens bottom sheet drawer with trail details |
+| **Trail List** | Collapsible panel below map with photo cards, difficulty filters |
+| **OSM Polylines** | Color-coded by difficulty (green/yellow/red) |
+| **Legend** | Shows difficulty color key |
 
-| Aspect | NPS ArcGIS (Current) | OpenStreetMap Overpass |
-|--------|---------------------|------------------------|
-| Reliability | Failing with 400 errors | Stable, widely used |
-| Coverage | US National Parks only | Global trail data |
-| API Key | None (but failing) | None required |
-| Rate Limits | Unknown | Reasonable (no auth) |
-| Data Format | GeoJSON (when working) | GeoJSON via out:json |
+## Identified Problems (from session replay)
 
-## Implementation Plan
+1. **Generic tooltips** - Mapbox popups show "div" placeholders during rapid interactions
+2. **No visual connection** - Selected trail in list has no visible link to its marker on map
+3. **Markers lack context** - All markers look identical regardless of trail difficulty
+4. **No hover preview** - Users must click to see any trail information
+5. **Missing active state sync** - Clicking a marker doesn't highlight the trail card in the list
 
-### 1. Create New Edge Function
+---
 
-**File:** `supabase/functions/osm-trails/index.ts`
+## Recommended Improvements
 
-Replace the NPS API call with Overpass API query:
+### 1. Difficulty-Coded Marker Colors
 
-```text
-Overpass Query Structure:
-[out:json];
-(
-  way["highway"="path"](bbox);
-  way["highway"="footway"](bbox);
-  way["highway"="track"](bbox);
-  relation["route"="hiking"](bbox);
-);
-out body geom;
-```
+**Problem**: All markers use the same emerald color, making it hard to identify trail difficulty at a glance.
 
-Key implementation details:
-- Accept bounds parameter: `[minLat, minLng, maxLat, maxLng]` (Overpass uses lat,lng order)
-- Query the public Overpass API endpoint: `https://overpass-api.de/api/interpreter`
-- Transform response to GeoJSON FeatureCollection format matching current interface
-- Extract trail properties: name, surface, sac_scale (difficulty), highway type
-- Include retry logic with exponential backoff
-- Return empty FeatureCollection on failure (graceful degradation)
-
-### 2. Create Difficulty Mapping
-
-OSM uses `sac_scale` for hiking difficulty:
+**Solution**: Color-code marker borders/fills to match difficulty:
 
 ```text
-sac_scale mapping:
-- hiking → Easy (green)
-- mountain_hiking → Easy (green)
-- demanding_mountain_hiking → Moderate (yellow)
-- alpine_hiking → Strenuous (red)
-- demanding_alpine_hiking → Strenuous (red)
-- difficult_alpine_hiking → Strenuous (red)
+┌─────────────────────────────────────────────┐
+│  Current          →    Improved             │
+│  ●○●○●             ●🟢 ●🟡 ●🔴              │
+│  (all emerald)     (easy) (mod) (hard)      │
+└─────────────────────────────────────────────┘
 ```
 
-### 3. Update Frontend Hook
+**Implementation**:
+- Pass `trail.difficulty` to `createTrailheadMarkerElement()`
+- Apply corresponding border color from `DIFFICULTY_COLORS`
+- Add small difficulty label badge below marker on zoom
 
-**File:** `src/hooks/useOSMTrails.ts` (new file)
+### 2. Hover Preview Cards (Desktop Only)
 
-Create a new hook that:
-- Accepts bounds and parkId (parkId optional, mainly for cache keys)
-- Calls the new `osm-trails` edge function
-- Returns the same GeoJSON interface as the current NPS hook
-- Includes helper functions for difficulty label and color mapping
+**Problem**: Users must click every marker to see trail info.
 
-### 4. Update Map Component
-
-**File:** `src/components/map/NationalParkMap.tsx`
-
-Changes:
-- Replace `useNPSTrails` import with `useOSMTrails`
-- Update layer ID constants from `nps-trails-*` to `osm-trails-*`
-- Update difficulty color mapping to use OSM `sac_scale` values
-- Remove dependency on `nps-codes.ts` for API calls (keep for reference)
-
-### 5. Deprecate NPS-Specific Files
-
-Files to remove or deprecate:
-- `supabase/functions/nps-trails/index.ts` → Delete
-- `src/lib/nps-codes.ts` → Can keep for reference, no longer required for trails
-
-### 6. Update Config
-
-**File:** `supabase/config.toml`
-
-Add new function configuration:
-```toml
-[functions.osm-trails]
-verify_jwt = false
-```
-
-Remove old function entry for `nps-trails`.
-
-## Data Flow Diagram
+**Solution**: Show a lightweight preview on hover before committing to click.
 
 ```text
-User Views Park Page
-        │
-        ▼
-┌──────────────────┐
-│ NationalParkMap  │
-│ (bounds from     │
-│  viewport)       │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  useOSMTrails    │
-│  (React Query)   │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐     ┌────────────────────┐
-│  osm-trails      │────▶│  Overpass API      │
-│  Edge Function   │     │  (overpass-api.de) │
-└──────────────────┘     └────────────────────┘
-         │
-         ▼
-┌──────────────────┐
-│  GeoJSON with    │
-│  trail polylines │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Mapbox GL Layer │
-│  (color by       │
-│   difficulty)    │
-└──────────────────┘
+┌───────────────────────────────┐
+│ Ryan Mountain Trail           │
+│ 3.0 mi • Strenuous            │
+│ Click for details →           │
+└───────────────────────────────┘
 ```
 
-## Files Summary
+**Implementation**:
+- Add `mouseenter`/`mouseleave` events to markers
+- Display a smaller, non-blocking tooltip positioned above marker
+- Full popup opens on click as before
 
-| File | Action |
-|------|--------|
-| `supabase/functions/osm-trails/index.ts` | Create |
-| `src/hooks/useOSMTrails.ts` | Create |
-| `src/components/map/NationalParkMap.tsx` | Modify |
-| `supabase/config.toml` | Modify |
-| `supabase/functions/nps-trails/index.ts` | Delete |
-| `src/hooks/useNPSTrails.ts` | Delete |
-| `src/lib/nps-codes.ts` | Keep (optional reference) |
+### 3. Bi-Directional List-Map Sync
+
+**Problem**: Clicking a trail card flies to the marker, but the reverse isn't true. Users lose context.
+
+**Solution**: Implement full sync between list and map:
+
+| Action | Result |
+|--------|--------|
+| Click trail card | Map flies to marker, marker highlights, popup opens |
+| Click map marker | Scroll list to trail card, highlight card |
+| Hover card (desktop) | Subtly pulse the marker on map |
+
+**Implementation**:
+- Add `selectedTrailId` state at page level
+- Pass to both `TrailListPanel` and `NationalParkMap`
+- Fire callbacks in both directions
+
+### 4. Trail Label Clusters at High Zoom
+
+**Problem**: At zoom level 12+, markers overlap and become confusing.
+
+**Solution**: At lower zooms, cluster nearby markers. At higher zooms, show trail name labels.
+
+```text
+Zoom < 11:  [🥾 4]  ← clustered count
+Zoom 11-13:  ●       ← individual markers
+Zoom > 13:   ● Ryan Mountain  ← with labels
+```
+
+**Implementation**:
+- Use Mapbox's native clustering on the featured trails source
+- Add a symbol layer for trail names at high zoom levels
+- Configure `minzoom` and `maxzoom` per layer
+
+### 5. Persistent Marker Tooltips on Selection
+
+**Problem**: Popups disappear too quickly on mobile interactions.
+
+**Solution**: Keep the popup open until explicitly dismissed or another marker is selected.
+
+**Implementation**:
+- Prevent `closeOnClick: false` when marker is programmatically selected
+- Add explicit close button
+- Ensure only one popup can be open at a time
+
+### 6. Trail Name Mini-Labels on Markers
+
+**Problem**: Users can't distinguish trails without clicking.
+
+**Solution**: Add small text labels below or beside markers showing truncated trail names.
+
+```text
+     ●
+ Ryan Mtn
+```
+
+**Implementation**:
+- Create Mapbox symbol layer with `text-field` property
+- Use `text-size: 10`, `text-anchor: top`
+- Apply `text-halo-color: white` for contrast
+
+### 7. Trail Polyline Highlight on Selection
+
+**Problem**: When a featured trail is selected, the OSM polyline for that trail doesn't highlight.
+
+**Solution**: Highlight the relevant trail segment when a featured trail is selected.
+
+**Implementation**:
+- Match featured trail trailhead to nearest OSM LineString
+- Apply thicker line-width and glow effect when active
+- Dim other polylines when one is selected
+
+### 8. Accessible Loading States
+
+**Problem**: No feedback when OSM trails are loading.
+
+**Solution**: Add skeleton/shimmer on the map while trails fetch.
+
+**Implementation**:
+- Show a subtle overlay with "Loading trails..." message
+- Use Framer Motion fade transition when trails appear
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/map/TrailMarker.tsx` | Add difficulty-based coloring, hover preview, label support |
+| `src/components/map/NationalParkMap.tsx` | Implement bi-directional sync, clustering, polyline highlighting |
+| `src/components/map/TrailListPanel.tsx` | Accept `highlightedTrailId`, scroll to card on marker click |
+| `src/pages/NationalParkDetail.tsx` | Lift `selectedTrailId` state, wire up two-way callbacks |
+| `src/components/map/TrailLegend.tsx` | Update to include marker shape explanation |
+
+---
+
+## Priority Recommendation
+
+For immediate impact, I recommend implementing in this order:
+
+1. **Difficulty-colored markers** - Low effort, high clarity
+2. **Bi-directional list-map sync** - Core UX improvement
+3. **Hover previews** - Desktop polish
+4. **Polyline highlighting** - Visual connection
+5. **Clustering/labels** - Advanced refinement
+
+---
 
 ## Technical Notes
 
-### Overpass API Response Transformation
+### Marker Element Updates
 
-The Overpass API returns data in a specific format that needs transformation:
+The current `createTrailheadMarkerElement` function needs to accept a `difficulty` parameter:
 
-```text
-Overpass response → Transform → GeoJSON FeatureCollection
-                           │
-                           ├─ Extract way coordinates
-                           ├─ Map tags to properties
-                           └─ Build LineString geometries
+```javascript
+// Before
+export function createTrailheadMarkerElement(isActive = false)
+
+// After
+export function createTrailheadMarkerElement(
+  difficulty: TrailDifficulty = 'moderate',
+  isActive = false
+)
 ```
 
-### Bounds Handling
+### State Lifting for Sync
 
-Current NPS API uses `[minLng, minLat, maxLng, maxLat]`
-Overpass API uses `[minLat, minLng, maxLat, maxLng]`
+The page needs to manage shared state:
 
-The edge function will handle this coordinate order conversion.
+```javascript
+const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
+const [highlightedTrailId, setHighlightedTrailId] = useState<string | null>(null);
+```
 
-### Caching Strategy
+### Mapbox Event Handlers
 
-Keep the existing React Query caching:
-- `staleTime: 1 hour` (trails don't change frequently)
-- `gcTime: 24 hours` (keep in memory for revisits)
+For hover previews, attach to marker elements:
+
+```javascript
+el.addEventListener('mouseenter', () => showMiniTooltip(trail));
+el.addEventListener('mouseleave', () => hideMiniTooltip());
+```
+
