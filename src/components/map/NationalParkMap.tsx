@@ -5,7 +5,12 @@ import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { Button } from '@/components/ui/button';
 import { Mountain, Satellite, Loader2, Route } from 'lucide-react';
 import { Trail, getTrailsForPark } from '@/lib/trail-data';
-import { createTrailheadMarkerElement, TrailMarkerPopupContent } from './TrailMarker';
+import { 
+  createTrailheadMarkerElement, 
+  TrailMarkerPopupContent, 
+  TrailHoverTooltipContent,
+  updateMarkerActiveState,
+} from './TrailMarker';
 import { TrailDetailSheet } from './TrailDetailSheet';
 import TrailLegend from './TrailLegend';
 import { AnimatePresence } from 'framer-motion';
@@ -22,6 +27,9 @@ interface NationalParkMapProps {
   parkName: string;
   parkId?: string;
   initialZoom?: number;
+  selectedTrailId?: string | null;
+  highlightedTrailId?: string | null;
+  onTrailSelect?: (trailId: string | null) => void;
 }
 
 type MapStyle = 'outdoors' | 'satellite';
@@ -43,13 +51,18 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
   lng, 
   parkName,
   parkId,
-  initialZoom = 10 
+  initialZoom = 10,
+  selectedTrailId,
+  highlightedTrailId,
+  onTrailSelect,
 }, ref) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const hoverPopupRef = useRef<mapboxgl.Popup | null>(null);
   const trailMarkersRef = useRef<mapboxgl.Marker[]>([]);
+  const trailMarkerMapRef = useRef<Map<string, { marker: mapboxgl.Marker; element: HTMLDivElement; trail: Trail }>>(new Map());
   
   const { token, isLoading: tokenLoading, error: tokenError } = useMapboxToken();
   const [mapStyle, setMapStyle] = useState<MapStyle>('outdoors');
@@ -150,16 +163,45 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
     });
   }, [osmTrailsData, showTrails]);
 
-  // Add trail markers to the map
+  // Add trail markers to the map with difficulty-based coloring
   const addTrailMarkers = useCallback((map: mapboxgl.Map, trails: Trail[]) => {
     // Remove existing trail markers
     trailMarkersRef.current.forEach(marker => marker.remove());
     trailMarkersRef.current = [];
+    trailMarkerMapRef.current.clear();
 
     if (!showTrails) return;
 
     trails.forEach(trail => {
-      const el = createTrailheadMarkerElement();
+      const isActive = selectedTrailId === trail.id;
+      const el = createTrailheadMarkerElement(trail.difficulty, isActive);
+      
+      // Desktop: hover tooltip
+      if (!isMobile) {
+        el.addEventListener('mouseenter', () => {
+          // Remove existing hover popup
+          if (hoverPopupRef.current) {
+            hoverPopupRef.current.remove();
+          }
+          // Show lightweight hover tooltip
+          hoverPopupRef.current = new mapboxgl.Popup({
+            offset: 25,
+            closeButton: false,
+            closeOnClick: false,
+            className: 'trail-hover-popup',
+          })
+            .setLngLat(trail.trailhead)
+            .setHTML(TrailHoverTooltipContent({ trail }))
+            .addTo(map);
+        });
+        
+        el.addEventListener('mouseleave', () => {
+          if (hoverPopupRef.current) {
+            hoverPopupRef.current.remove();
+            hoverPopupRef.current = null;
+          }
+        });
+      }
       
       // On mobile, use bottom sheet instead of popup
       if (isMobile) {
@@ -167,6 +209,7 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
           e.stopPropagation();
           setSelectedTrail(trail);
           setSheetOpen(true);
+          onTrailSelect?.(trail.id);
         });
         
         const marker = new mapboxgl.Marker({ element: el })
@@ -174,6 +217,7 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
           .addTo(map);
           
         trailMarkersRef.current.push(marker);
+        trailMarkerMapRef.current.set(trail.id, { marker, element: el, trail });
       } else {
         const marker = new mapboxgl.Marker({ element: el })
           .setLngLat(trail.trailhead)
@@ -182,14 +226,21 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
               offset: 20,
               closeButton: true,
               maxWidth: '300px',
+              closeOnClick: false,
             }).setHTML(TrailMarkerPopupContent({ trail }))
           )
           .addTo(map);
+        
+        // Notify parent when marker is clicked
+        el.addEventListener('click', () => {
+          onTrailSelect?.(trail.id);
+        });
 
         trailMarkersRef.current.push(marker);
+        trailMarkerMapRef.current.set(trail.id, { marker, element: el, trail });
       }
     });
-  }, [showTrails, isMobile]);
+  }, [showTrails, isMobile, selectedTrailId, onTrailSelect]);
 
   // Setup trail interactivity (click and hover events)
   const setupTrailInteractivity = useCallback((map: mapboxgl.Map) => {
@@ -371,6 +422,15 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
       addTrailMarkers(mapRef.current, featuredTrails);
     }
   }, [showTrails, isMapReady, featuredTrails, addTrailMarkers]);
+  
+  // Update marker active/highlighted states
+  useEffect(() => {
+    trailMarkerMapRef.current.forEach(({ element, trail }) => {
+      const isActive = selectedTrailId === trail.id;
+      const isHighlighted = highlightedTrailId === trail.id;
+      updateMarkerActiveState(element, trail.difficulty, isActive || isHighlighted);
+    });
+  }, [selectedTrailId, highlightedTrailId]);
   
   // Add OSM trail polylines when data loads
   useEffect(() => {

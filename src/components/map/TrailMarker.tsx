@@ -1,4 +1,17 @@
-import { Trail, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
+import { Trail, TrailDifficulty, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
+
+// Difficulty-based border colors (hex values for HTML elements)
+const DIFFICULTY_BORDER_COLORS: Record<TrailDifficulty, string> = {
+  easy: '#10b981',      // emerald-500
+  moderate: '#f59e0b',  // amber-500
+  strenuous: '#ef4444', // red-500
+};
+
+const DIFFICULTY_BG_COLORS: Record<TrailDifficulty, string> = {
+  easy: 'rgba(16, 185, 129, 0.1)',
+  moderate: 'rgba(245, 158, 11, 0.1)',
+  strenuous: 'rgba(239, 68, 68, 0.1)',
+};
 
 interface TrailMarkerPopupContentProps {
   trail: Trail;
@@ -71,19 +84,46 @@ export const TrailMarkerPopupContent = ({ trail }: TrailMarkerPopupContentProps)
   `;
 };
 
-// Create the marker element for a trailhead
+// Lightweight hover tooltip content (desktop only)
+export const TrailHoverTooltipContent = ({ trail }: TrailMarkerPopupContentProps) => {
+  const distanceLabel = trail.isLoop 
+    ? `${trail.distance} mi loop` 
+    : `${trail.distance} mi`;
+
+  return `
+    <div class="px-3 py-2 min-w-[140px]">
+      <p class="font-semibold text-sm text-foreground leading-tight mb-1">${trail.name}</p>
+      <p class="text-xs text-muted-foreground">${distanceLabel} · ${getDifficultyLabel(trail.difficulty)}</p>
+    </div>
+  `;
+};
+
+// Create the marker element for a trailhead with difficulty-based coloring
 // Using 44px touch target for mobile accessibility (WCAG guidelines)
-export function createTrailheadMarkerElement(isActive = false): HTMLDivElement {
+export function createTrailheadMarkerElement(
+  difficulty: TrailDifficulty = 'moderate',
+  isActive = false
+): HTMLDivElement {
   const el = document.createElement('div');
   el.className = `trailhead-marker cursor-pointer transition-all duration-200 ${isActive ? 'scale-125' : 'hover:scale-110'}`;
   
-  const borderClass = isActive 
-    ? 'border-amber-500 ring-4 ring-amber-500/20' 
-    : 'border-emerald-600';
+  const borderColor = DIFFICULTY_BORDER_COLORS[difficulty];
+  const bgColor = DIFFICULTY_BG_COLORS[difficulty];
+  
+  // Active state uses amber highlight
+  const activeBorderStyle = isActive 
+    ? `border-color: #f59e0b; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);`
+    : `border-color: ${borderColor};`;
+  
+  // Icon color matches difficulty
+  const iconColor = isActive ? '#f59e0b' : borderColor;
   
   el.innerHTML = `
-    <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md border-2 ${borderClass} transition-all duration-200">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(147 43% 30%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div 
+      class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md transition-all duration-200"
+      style="border: 2.5px solid; ${activeBorderStyle}"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/>
         <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/>
         <path d="M16 17h4"/>
@@ -92,4 +132,31 @@ export function createTrailheadMarkerElement(isActive = false): HTMLDivElement {
     </div>
   `;
   return el;
+}
+
+// Update marker element to show active/highlighted state
+export function updateMarkerActiveState(
+  el: HTMLDivElement,
+  difficulty: TrailDifficulty,
+  isActive: boolean
+): void {
+  const borderColor = DIFFICULTY_BORDER_COLORS[difficulty];
+  const innerDiv = el.querySelector('div') as HTMLDivElement;
+  const svg = el.querySelector('svg') as SVGElement;
+  
+  if (!innerDiv || !svg) return;
+  
+  if (isActive) {
+    el.classList.add('scale-125');
+    el.classList.remove('hover:scale-110');
+    innerDiv.style.borderColor = '#f59e0b';
+    innerDiv.style.boxShadow = '0 0 0 4px rgba(245, 158, 11, 0.2)';
+    svg.style.stroke = '#f59e0b';
+  } else {
+    el.classList.remove('scale-125');
+    el.classList.add('hover:scale-110');
+    innerDiv.style.borderColor = borderColor;
+    innerDiv.style.boxShadow = '';
+    svg.style.stroke = borderColor;
+  }
 }
