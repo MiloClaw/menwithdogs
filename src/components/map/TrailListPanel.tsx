@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Trail, DIFFICULTY_COLORS, getDifficultyLabel, TrailDifficulty } from '@/lib/trail-data';
+import { Trail, DIFFICULTY_COLORS, getDifficultyLabel, TrailDifficulty, getTrailImage } from '@/lib/trail-data';
 import { cn } from '@/lib/utils';
 import { ChevronDown, ChevronUp, Footprints, Mountain, Ruler, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -68,6 +68,7 @@ const TrailCard = ({
 }: TrailCardProps) => {
   const difficultyColors = DIFFICULTY_COLORS[trail.difficulty];
   const [imageError, setImageError] = useState(false);
+  const trailImage = getTrailImage(trail, parkId);
   
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -112,10 +113,10 @@ const TrailCard = ({
       </button>
       
       {/* Trail Photo or Fallback */}
-      {trail.photoUrl && !imageError ? (
+      {trailImage && !imageError ? (
         <div className="relative h-32 w-full">
           <img 
-            src={trail.photoUrl} 
+            src={trailImage.url} 
             alt={trail.name}
             className="w-full h-full object-cover"
             loading="lazy"

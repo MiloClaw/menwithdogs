@@ -191,7 +191,7 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
             className: 'trail-hover-popup',
           })
             .setLngLat(trail.trailhead)
-            .setHTML(TrailHoverTooltipContent({ trail }))
+            .setHTML(TrailHoverTooltipContent({ trail, parkId }))
             .addTo(map);
         });
         
@@ -227,7 +227,7 @@ const NationalParkMap = forwardRef<NationalParkMapRef, NationalParkMapProps>(({
               closeButton: true,
               maxWidth: '300px',
               closeOnClick: false,
-            }).setHTML(TrailMarkerPopupContent({ trail }))
+            }).setHTML(TrailMarkerPopupContent({ trail, parkId }))
           )
           .addTo(map);
         

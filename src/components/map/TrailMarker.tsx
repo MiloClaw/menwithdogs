@@ -1,4 +1,4 @@
-import { Trail, TrailDifficulty, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
+import { Trail, TrailDifficulty, DIFFICULTY_COLORS, getDifficultyLabel, getTrailImage, TrailImage } from '@/lib/trail-data';
 
 // Difficulty-based border colors (hex values for HTML elements)
 const DIFFICULTY_BORDER_COLORS: Record<TrailDifficulty, string> = {
@@ -15,9 +15,10 @@ const DIFFICULTY_BG_COLORS: Record<TrailDifficulty, string> = {
 
 interface TrailMarkerPopupContentProps {
   trail: Trail;
+  parkId: string;
 }
 
-export const TrailMarkerPopupContent = ({ trail }: TrailMarkerPopupContentProps) => {
+export const TrailMarkerPopupContent = ({ trail, parkId }: TrailMarkerPopupContentProps) => {
   const difficultyStyle = DIFFICULTY_COLORS[trail.difficulty];
   const [lng, lat] = trail.trailhead;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
@@ -27,12 +28,15 @@ export const TrailMarkerPopupContent = ({ trail }: TrailMarkerPopupContentProps)
     ? `${trail.distance} mi loop` 
     : `${trail.distance} mi out & back`;
   
+  // Get trail image with park fallback
+  const trailImage = getTrailImage(trail, parkId);
+  
   // Photo HTML if available
-  const photoHtml = trail.photoUrl 
+  const photoHtml = trailImage 
     ? `<div class="relative -m-3 mb-2">
-        <img src="${trail.photoUrl}" alt="${trail.name}" class="w-full h-28 object-cover rounded-t-lg" loading="lazy" onerror="this.style.display='none'" />
+        <img src="${trailImage.url}" alt="${trail.name}" class="w-full h-28 object-cover rounded-t-lg" loading="lazy" onerror="this.style.display='none'" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-t-lg"></div>
-        ${trail.photoCredit ? `<span class="absolute bottom-1 right-1 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded">${trail.photoCredit}</span>` : ''}
+        <span class="absolute bottom-1 right-1 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded">${trailImage.credit}</span>
       </div>`
     : '';
 

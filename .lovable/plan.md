@@ -1,6 +1,12 @@
+# Plan: One Image Per Park Refactor ✅ COMPLETE
 
+## Status: Implemented
 
-# Plan: One Image Per Park Refactor
+All phases completed successfully:
+- ✅ Phase 1: Added `heroImageUrl` and `heroImageCredit` to all 63 parks
+- ✅ Phase 2: Created `getTrailImage()` helper in trail-data.ts
+- ✅ Phase 3: Updated TrailListPanel, TrailDetailSheet, and TrailMarker components
+- ✅ Added `groupParksByState` alias and `getParkStats` function
 
 ## Overview
 
