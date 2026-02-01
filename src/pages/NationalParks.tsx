@@ -114,8 +114,8 @@ const NationalParks = () => {
               className="text-lg md:text-xl text-muted-foreground text-pretty mb-8"
             >
               Explore all <span className="text-foreground font-medium">{stats.totalParks} National Parks</span> across{' '}
-              <span className="text-foreground font-medium">{stats.stateCount} states and territories</span> — 
-              over {stats.formattedAcreage} acres of protected wilderness.
+              <span className="text-foreground font-medium">{stats.statesCount} states and territories</span> — 
+              over {(stats.totalAcreage / 1000000).toFixed(0)}M acres of protected wilderness.
             </motion.p>
 
             {/* Stats Row */}

@@ -1,4 +1,4 @@
-import { Trail, DIFFICULTY_COLORS, getDifficultyLabel } from '@/lib/trail-data';
+import { Trail, DIFFICULTY_COLORS, getDifficultyLabel, getTrailImage } from '@/lib/trail-data';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Footprints, Mountain, Ruler, Navigation, Heart } from 'lucide-react';
@@ -19,6 +19,7 @@ export const TrailDetailSheet = ({ trail, parkId, open, onOpenChange }: TrailDet
   
   const difficultyColors = DIFFICULTY_COLORS[trail.difficulty];
   const isSaved = isFavorited(trail.id);
+  const trailImage = getTrailImage(trail, parkId);
   
   const handleGetDirections = () => {
     const [lng, lat] = trail.trailhead;
@@ -34,19 +35,17 @@ export const TrailDetailSheet = ({ trail, parkId, open, onOpenChange }: TrailDet
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[85vh]">
         {/* Hero Photo */}
-        {trail.photoUrl && (
+        {trailImage && (
           <div className="relative h-48 w-full">
             <img 
-              src={trail.photoUrl} 
+              src={trailImage.url} 
               alt={trail.name}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            {trail.photoCredit && (
-              <span className="absolute bottom-2 right-2 text-xs text-white/80 bg-black/40 px-2 py-0.5 rounded">
-                {trail.photoCredit}
-              </span>
-            )}
+            <span className="absolute bottom-2 right-2 text-xs text-white/80 bg-black/40 px-2 py-0.5 rounded">
+              {trailImage.credit}
+            </span>
           </div>
         )}
         

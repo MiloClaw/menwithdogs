@@ -1,6 +1,8 @@
 // Trail data types and curated trail information for National Parks
 // Separated from national-parks-data.ts to avoid bloating that file
 
+import { nationalParks } from './national-parks-data';
+
 export type TrailDifficulty = 'easy' | 'moderate' | 'strenuous';
 
 export interface Trail {
@@ -21,12 +23,34 @@ export interface ParkTrails {
   trails: Trail[];
 }
 
+// Image resolution result
+export interface TrailImage {
+  url: string;
+  credit: string;
+}
+
 // Difficulty color mapping for UI
 export const DIFFICULTY_COLORS: Record<TrailDifficulty, { bg: string; text: string; border: string }> = {
   easy: { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200' },
   moderate: { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
   strenuous: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
 };
+
+// Get trail image with fallback to park hero image
+export function getTrailImage(trail: Trail, parkId: string): TrailImage | null {
+  // Prefer trail-specific image if available
+  if (trail.photoUrl) {
+    return { url: trail.photoUrl, credit: trail.photoCredit || 'Unsplash' };
+  }
+  
+  // Fall back to park hero image
+  const park = nationalParks.find(p => p.id === parkId);
+  if (park?.heroImageUrl) {
+    return { url: park.heroImageUrl, credit: park.heroImageCredit };
+  }
+  
+  return null;
+}
 
 // Helper to look up a trail by its ID across all parks
 export function getTrailById(trailId: string): (Trail & { parkId: string }) | null {
