@@ -52,7 +52,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1SoCRr3Z5TtwrbktT3NwVLwc", // Pro Personalization $4.99/month
+          price: "price_1Sw7MD3mECGw4pQtwaQVhRF8", // Pro Personalization $1.99/month
           quantity: 1,
         },
       ],

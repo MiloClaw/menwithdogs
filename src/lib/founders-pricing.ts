@@ -8,9 +8,9 @@
 export const PRICING = {
   // Regular Pro pricing
   PRO: {
-    PRICE_ID: "price_1SoCRr3Z5TtwrbktT3NwVLwc",
-    MONTHLY_AMOUNT: 3.99,
-    DISPLAY: "$3.99/month",
+    PRICE_ID: "price_1Sw7MD3mECGw4pQtwaQVhRF8",
+    MONTHLY_AMOUNT: 1.99,
+    DISPLAY: "$1.99/month",
   },
   
   // Event Posting pricing (per-event subscription)
