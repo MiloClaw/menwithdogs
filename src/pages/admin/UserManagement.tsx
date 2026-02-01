@@ -28,7 +28,6 @@ import {
   XCircle, 
   Heart, 
   Loader2,
-  Crown,
   Star,
   Megaphone,
   Mail
@@ -108,24 +107,15 @@ const UserManagement = () => {
   };
 
   const getSubscriptionBadge = (status: string) => {
-    switch (status) {
-      case "founders":
-        return (
-          <Badge className="gap-1 bg-amber-100 text-amber-800 border-amber-200">
-            <Crown className="h-3 w-3" />
-            Founder
-          </Badge>
-        );
-      case "pro":
-        return (
-          <Badge className="gap-1 bg-blue-100 text-blue-800 border-blue-200">
-            <Star className="h-3 w-3" />
-            Pro
-          </Badge>
-        );
-      default:
-        return null;
+    if (status === "pro") {
+      return (
+        <Badge className="gap-1 bg-blue-100 text-blue-800 border-blue-200">
+          <Star className="h-3 w-3" />
+          Pro
+        </Badge>
+      );
     }
+    return null;
   };
 
   return (

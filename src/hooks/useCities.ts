@@ -27,11 +27,6 @@ export interface CityWithProgress {
   curated_place_count: number;
   completion_percentage: number;
   is_ready_to_launch: boolean;
-  // Founders promo code fields
-  founders_promo_code?: string | null;
-  founders_promo_code_id?: string | null;
-  founders_slots_total?: number | null;
-  founders_slots_used?: number | null;
 }
 
 export interface CityInsert {
@@ -64,15 +59,11 @@ export function useCities(statusFilter?: CityStatus | 'all') {
 
       if (progressError) throw progressError;
 
-      // Get founders fields and metro info from cities table with geo_areas join
+      // Get metro info from cities table with geo_areas join
       const { data: citiesData, error: citiesError } = await supabase
         .from('cities')
         .select(`
           id, 
-          founders_promo_code, 
-          founders_promo_code_id, 
-          founders_slots_total, 
-          founders_slots_used,
           metro_id,
           metro:geo_areas!metro_id (
             name
@@ -83,7 +74,7 @@ export function useCities(statusFilter?: CityStatus | 'all') {
 
       // Merge cities data into progress data
       const citiesMap = new Map(citiesData?.map(c => [c.id, {
-        ...c,
+        metro_id: c.metro_id,
         metro_name: (c.metro as { name: string } | null)?.name || null,
       }]) || []);
       
@@ -116,14 +107,10 @@ export function useCity(cityId: string | null) {
 
       if (progressError) throw progressError;
 
-      // Get founders and metro fields from cities table
+      // Get metro fields from cities table
       const { data: cityData, error: cityError } = await supabase
         .from('cities')
         .select(`
-          founders_promo_code, 
-          founders_promo_code_id, 
-          founders_slots_total, 
-          founders_slots_used,
           metro_id,
           metro:geo_areas!metro_id (
             name
@@ -136,7 +123,7 @@ export function useCity(cityId: string | null) {
 
       return {
         ...progressData,
-        ...cityData,
+        metro_id: cityData?.metro_id,
         metro_name: (cityData?.metro as { name: string } | null)?.name || null,
       } as CityWithProgress;
     },

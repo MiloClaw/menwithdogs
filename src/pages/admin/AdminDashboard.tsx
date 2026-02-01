@@ -39,15 +39,6 @@ const AdminDashboard = () => {
   // Trend data
   const trendData = stats?.trends ?? { signups: [], favorites: [], places: [] };
 
-  // Founders stats with defaults
-  const foundersStats = stats?.founders ?? {
-    totalRedemptions: 0,
-    activeCities: 0,
-    totalSlotsClaimed: 0,
-    totalSlotsAvailable: 0,
-    topCities: [],
-  };
-
   // Ambassador stats with defaults
   const ambassadorStats = stats?.ambassadors ?? {
     totalApplications: 0,
@@ -91,9 +82,8 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {/* Row 3: Growth Programs (with revenue) */}
+        {/* Row 3: Ambassador Program */}
         <GrowthProgramsCard
-          foundersStats={foundersStats}
           ambassadorStats={ambassadorStats}
           isLoading={isLoading}
         />
