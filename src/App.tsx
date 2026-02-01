@@ -27,6 +27,7 @@ import Ambassadors from "./pages/Ambassadors";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPostPage";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Saved from "./pages/Saved";
 import Preferences from "./pages/Preferences";
 import Settings from "./pages/Settings";
@@ -93,6 +94,7 @@ const App = () => (
               
               {/* Auth & User Routes */}
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/saved" element={<Saved />} />
               
               {/* Settings & Preferences */}

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { ForgotPasswordDialog } from '@/components/auth/ForgotPasswordDialog';
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters')
@@ -27,6 +28,7 @@ const Auth = () => {
     confirm?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const {
     signIn,
     signUp,
@@ -316,6 +318,15 @@ toast({
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="h-12" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} />
               {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+              {mode === 'signin' && (
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Forgot password?
+                </button>
+              )}
             </div>
 
             {mode === 'signup' && <div className="space-y-2">
@@ -362,6 +373,11 @@ toast({
           </motion.p>
         </div>
       </main>
+      
+      <ForgotPasswordDialog 
+        open={showForgotPassword} 
+        onOpenChange={setShowForgotPassword} 
+      />
     </div>
   </>;
 };
