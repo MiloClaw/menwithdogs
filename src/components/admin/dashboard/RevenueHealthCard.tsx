@@ -2,16 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DollarSign, Users, TrendingUp, Crown, Calendar } from 'lucide-react';
+import { DollarSign, Users, TrendingUp } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { PRICING } from '@/lib/founders-pricing';
 
 interface RevenueMetrics {
   mrr: number;
   totalSubscribers: number;
-  foundersCount: number;
   proCount: number;
-  eventCount: number;
   conversionRate: number;
   totalUsers: number;
 }
@@ -33,26 +31,15 @@ export default function RevenueHealthCard() {
       
       const activeSubscriptions = subscriptions || [];
       
-      // Count by plan type
-      const foundersCount = activeSubscriptions.filter(s => 
-        s.plan_id === 'founders' || s.plan_id?.includes('founders')
-      ).length;
-      
+      // Count PRO subscribers
       const proCount = activeSubscriptions.filter(s => 
-        (s.plan_id === 'pro_monthly' || s.plan_id === 'pro') && 
         s.type === 'pro'
       ).length;
       
-      const eventCount = activeSubscriptions.filter(s => 
-        s.type === 'event'
-      ).length;
-      
-      const totalSubscribers = foundersCount + proCount;
+      const totalSubscribers = proCount;
       
       // Calculate MRR using pricing config
-      const mrr = (foundersCount * PRICING.FOUNDERS.MONTHLY_AMOUNT) + 
-                  (proCount * PRICING.PRO.MONTHLY_AMOUNT) +
-                  (eventCount * PRICING.EVENT.MONTHLY_AMOUNT);
+      const mrr = proCount * PRICING.PRO.MONTHLY_AMOUNT;
       
       // Conversion rate
       const totalUsers = totalCouples || 0;
@@ -63,9 +50,7 @@ export default function RevenueHealthCard() {
       return {
         mrr,
         totalSubscribers,
-        foundersCount,
         proCount,
-        eventCount,
         conversionRate,
         totalUsers,
       };
@@ -125,26 +110,9 @@ export default function RevenueHealthCard() {
               </div>
               
               {metrics.totalSubscribers > 0 && (
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                    <Crown className="h-3 w-3" />
-                    <span>Founders: {metrics.foundersCount}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-primary/10 text-primary">
-                    <TrendingUp className="h-3 w-3" />
-                    <span>Pro: {metrics.proCount}</span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Event subscriptions */}
-              {metrics.eventCount > 0 && (
-                <div className="flex items-center justify-between text-sm pt-1">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
-                    Event Postings
-                  </span>
-                  <span className="font-medium">{metrics.eventCount}</span>
+                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-primary/10 text-primary text-xs">
+                  <TrendingUp className="h-3 w-3" />
+                  <span>Pro: {metrics.proCount}</span>
                 </div>
               )}
             </div>

@@ -45,7 +45,7 @@ import InterestManagement from "./pages/admin/InterestManagement";
 import CityManagement from "./pages/admin/CityManagement";
 import MetroManagement from "./pages/admin/MetroManagement";
 import ProContextManagement from "./pages/admin/ProContextManagement";
-import FoundersManagement from "./pages/admin/FoundersManagement";
+
 import LogoTesting from "./pages/admin/LogoTesting";
 import TagManagement from "./pages/admin/TagManagement";
 import TrailBlazerManagement from "./pages/admin/TrailBlazerManagement";
@@ -117,7 +117,7 @@ const App = () => (
                   {/* Admin Routes */}
                   <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
                   <Route path="/admin/users" element={<RequireRole role="admin"><UserManagement /></RequireRole>} />
-                  <Route path="/admin/founders" element={<RequireRole role="admin"><FoundersManagement /></RequireRole>} />
+                  
                   <Route path="/admin/interests" element={<RequireRole role="admin"><InterestManagement /></RequireRole>} />
                   <Route path="/admin/directory/cities" element={<RequireRole role="admin"><CityManagement /></RequireRole>} />
                   <Route path="/admin/directory/metros" element={<RequireRole role="admin"><MetroManagement /></RequireRole>} />
