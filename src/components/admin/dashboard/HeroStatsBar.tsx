@@ -114,8 +114,8 @@ const HeroStatsBar = ({ stats, trends, lastRefreshed, isLoading }: HeroStatsBarP
 
   if (isLoading) {
     return (
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-        {[1, 2, 3, 4, 5].map((i) => (
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
           <Card key={i} className="bg-card/50">
             <CardContent className="p-4">
               <Skeleton className="h-4 w-20 mb-2" />

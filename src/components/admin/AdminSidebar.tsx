@@ -168,7 +168,11 @@ const AdminSidebar = () => {
     return (
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="fixed top-3 left-3 z-50 md:hidden">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="fixed top-4 left-4 z-50 md:hidden bg-background/80 backdrop-blur-sm shadow-sm border rounded-lg"
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
