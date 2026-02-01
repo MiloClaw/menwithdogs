@@ -39,7 +39,7 @@ const Hero = () => {
   return <section className="relative pt-16 md:pt-18">
       {/* Hero Image */}
       <div className="relative h-[480px] md:h-[560px] overflow-hidden">
-        <img src={heroImage} alt="People enjoying a local café together" fetchPriority="high" width={1920} height={672} className="w-full h-[120%] object-cover object-top will-change-transform" style={{
+        <img src={heroImage} alt="Group of men hiking together on a scenic outdoor trail" fetchPriority="high" width={1920} height={672} className="w-full h-[120%] object-cover object-top will-change-transform" style={{
         transform: parallaxTransform,
         clipPath: 'inset(0 0 16px 0)'
       }} />
