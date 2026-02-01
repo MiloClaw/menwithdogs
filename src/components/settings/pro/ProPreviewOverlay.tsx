@@ -42,7 +42,7 @@ export function ProPreviewOverlay({ children }: ProPreviewOverlayProps) {
             disabled={isCreatingCheckout}
             className="min-h-[44px]"
           >
-            {isCreatingCheckout ? 'Loading...' : 'Unlock Pro — $4.99/mo'}
+            {isCreatingCheckout ? 'Loading...' : 'Unlock Pro — $1.99/mo'}
           </Button>
         </div>
       </div>

@@ -14,7 +14,7 @@ const logStep = (step: string, details?: unknown) => {
 
 // Price IDs for detection
 const FOUNDERS_PRICE_ID = "price_1SqamZ3Z5TtwrbktuLF44MKO";
-const PRO_PRICE_ID = "price_1SoCRr3Z5TtwrbktT3NwVLwc";
+const PRO_PRICE_ID = "price_1Sw7MD3mECGw4pQtwaQVhRF8";
 const EVENT_PRICE_ID = "price_EVENT_PLACEHOLDER"; // Update when created in Stripe
 
 interface EventSubscription {
