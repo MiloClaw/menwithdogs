@@ -37,21 +37,6 @@ export interface TrendData {
   places: number[];
 }
 
-export interface FoundersCityStats {
-  cityId: string;
-  cityName: string;
-  slotsUsed: number;
-  slotsTotal: number;
-}
-
-export interface FoundersStats {
-  totalRedemptions: number;
-  activeCities: number;
-  totalSlotsClaimed: number;
-  totalSlotsAvailable: number;
-  topCities: FoundersCityStats[];
-}
-
 export interface AmbassadorPendingItem {
   id: string;
   name: string | null;
@@ -111,7 +96,6 @@ export interface AdminStats {
   };
   trends: TrendData;
   categoryBreakdown: CategoryBreakdown[];
-  founders: FoundersStats;
   ambassadors: AmbassadorStats;
   lastRefreshed: string | null;
 }
@@ -136,8 +120,6 @@ export const useAdminStats = () => {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
-      // Phase 2 optimization: Use materialized view for core stats
-      // Reduces 16 parallel queries to 5
       const [
         // Core stats from materialized view (single query replaces 10+)
         coreStatsResult,
@@ -151,9 +133,6 @@ export const useAdminStats = () => {
         recentPlacesResult,
         // Category breakdown
         allPlacesResult,
-        // Founders program data
-        foundersRedemptionsResult,
-        foundersCitiesResult,
         // Ambassador applications
         ambassadorApplicationsResult,
       ] = await Promise.all([
@@ -170,12 +149,6 @@ export const useAdminStats = () => {
         supabase.from('places').select('created_at').gte('created_at', sevenDaysAgoISO),
         // All places with categories for breakdown
         supabase.from('places').select('primary_category').eq('status', 'approved'),
-        // Founders redemptions count
-        supabase.from('founders_redemptions').select('id, city_id'),
-        // Cities with founders promo codes
-        supabase.from('cities')
-          .select('id, name, founders_promo_code, founders_slots_total, founders_slots_used')
-          .not('founders_promo_code', 'is', null),
         // Ambassador applications
         supabase.from('ambassador_applications')
           .select('id, name, email, city_name, status')
@@ -402,27 +375,6 @@ export const useAdminStats = () => {
         }))
         .sort((a, b) => b.count - a.count);
 
-      // Calculate founders stats
-      const foundersRedemptions = foundersRedemptionsResult.data || [];
-      const foundersCities = foundersCitiesResult.data || [];
-      
-      const totalRedemptions = foundersRedemptions.length;
-      const activeCities = foundersCities.length;
-      const totalSlotsClaimed = foundersCities.reduce((sum, c) => sum + (c.founders_slots_used || 0), 0);
-      const totalSlotsAvailable = foundersCities.reduce((sum, c) => sum + (c.founders_slots_total || 0), 0);
-      
-      // Top cities by usage
-      const topCities: FoundersCityStats[] = foundersCities
-        .filter(c => c.founders_slots_used && c.founders_slots_used > 0)
-        .sort((a, b) => (b.founders_slots_used || 0) - (a.founders_slots_used || 0))
-        .slice(0, 5)
-        .map(c => ({
-          cityId: c.id,
-          cityName: c.name,
-          slotsUsed: c.founders_slots_used || 0,
-          slotsTotal: c.founders_slots_total || 100,
-        }));
-
       // Calculate ambassador stats
       const ambassadorApplications = ambassadorApplicationsResult.data || [];
       const pendingApps = ambassadorApplications.filter(a => a.status === 'pending');
@@ -473,13 +425,6 @@ export const useAdminStats = () => {
         },
         trends,
         categoryBreakdown,
-        founders: {
-          totalRedemptions,
-          activeCities,
-          totalSlotsClaimed,
-          totalSlotsAvailable,
-          topCities,
-        },
         ambassadors: ambassadorStats,
         lastRefreshed: coreStats?.computed_at || null,
       };
