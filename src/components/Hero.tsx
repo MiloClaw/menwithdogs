@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, MapPin } from "lucide-react";
-import heroImage from "@/assets/hero-hiking-men.jpg";
+import heroImage from "@/assets/hero-dogs-golden-hour.jpg";
 import BrandStripe from "@/components/BrandStripe";
 
 const Hero = () => {
