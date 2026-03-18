@@ -93,13 +93,13 @@ const WhoThisIsNotFor = () => {
             className="text-center space-y-2 mb-10"
           >
             <p className="text-primary-foreground/90 font-medium text-lg">
-              You don't need to be especially social.
+              You don't have to be social. Just let your dog break the ice.
             </p>
             <p className="text-primary-foreground/90 font-medium text-lg">
-              You don't need to be new to an area.
+              You don't have to be new somewhere. You just have to show up.
             </p>
             <p className="text-primary-foreground/90 font-medium text-lg">
-              You just need to enjoy showing up.
+              The places do the rest.
             </p>
           </motion.div>
 
@@ -111,8 +111,8 @@ const WhoThisIsNotFor = () => {
             transition={{ duration: 0.6, delay: 0.9 }}
             className="text-primary-foreground/60 text-base text-center max-w-xl mx-auto text-balance"
           >
-            Men With Dogs isn't built around browsing people or chasing attention.
-            It's built around places—and what happens when people keep returning to them.
+            Men With Dogs isn't a dating app. It's not a social network.
+            It's a directory of places worth going to — and the community that naturally forms there.
           </motion.p>
         </div>
       </div>
