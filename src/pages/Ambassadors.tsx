@@ -148,7 +148,7 @@ const Ambassadors = () => {
     <PageLayout>
       <SEOHead
         title="Trail Blazers | Expert Context for Outdoor Places"
-        description="Trail Blazers are writers, guides, and subject-matter experts who add contextual knowledge to outdoor places in the ThickTimber directory."
+        description="Trail Blazers are writers, guides, and subject-matter experts who add contextual knowledge to outdoor places in the Men With Dogs directory."
         keywords="trail blazers, outdoor experts, guides, contributors, place expertise"
         canonicalPath="/ambassadors"
       />
@@ -366,7 +366,7 @@ const Ambassadors = () => {
                 'A sponsorship or promotional channel',
                 'A ranking system or leaderboard',
                 'A public profile or follower mechanism',
-                'A requirement to promote ThickTimber',
+                'A requirement to promote Men With Dogs',
               ].map((item, index) => (
                 <motion.li
                   key={index}

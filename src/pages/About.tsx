@@ -60,12 +60,12 @@ const About = () => {
   const aboutSchema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    "name": "Why ThickTimber Exists",
-    "description": "Learn why ThickTimber was built as a place-based outdoor directory.",
+    "name": "Why Men With Dogs Exists",
+    "description": "Learn why Men With Dogs was built as a place-based outdoor directory.",
     "url": SITE_CONFIG.getCanonicalUrl('/about'),
     "mainEntity": {
       "@type": "Organization",
-      "name": "ThickTimber",
+      "name": "Men With Dogs",
       "description": "A place-based outdoor directory for gay men. Discover trails, campsites, beaches, and active spaces."
     }
   };
@@ -73,9 +73,9 @@ const About = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Why ThickTimber Exists | A Place-Based Directory"
-        description="Learn why ThickTimber was built and how place-based discovery supports real-world community, shared interests, and outdoor exploration."
-        keywords="about ThickTimber, place-based directory, outdoor discovery, community through places"
+        title="Why Men With Dogs Exists | A Place-Based Directory"
+        description="Learn why Men With Dogs was built and how place-based discovery supports real-world community, shared interests, and outdoor exploration."
+        keywords="about Men With Dogs, place-based directory, outdoor discovery, community through places"
         canonicalPath="/about"
         schema={aboutSchema}
       />
@@ -117,7 +117,7 @@ const About = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl"
           >
-            The thinking behind ThickTimber
+            The thinking behind Men With Dogs
           </motion.p>
         </div>
       </section>
@@ -199,7 +199,7 @@ const About = () => {
             </h2>
             <div className="space-y-6 text-base md:text-lg text-primary-foreground/90 leading-relaxed">
               <p>
-                ThickTimber is a private directory of outdoor spaces where men who love being 
+                Men With Dogs is a private directory of outdoor spaces where men who love being 
                 active tend to gather—shaped by shared place knowledge and community behavior, 
                 not engagement-driven algorithms.
               </p>
@@ -242,7 +242,7 @@ const About = () => {
               className="space-y-6"
             >
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                ThickTimber isn't centered on browsing people or competing for attention. 
+                Men With Dogs isn't centered on browsing people or competing for attention. 
                 It doesn't rely on popularity mechanics or constant interaction.
               </p>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
@@ -368,7 +368,7 @@ const About = () => {
                 campsites, beaches, and the quiet moments shared in nature.
               </p>
               <p>
-                We're building ThickTimber to strengthen connection among gay men who love 
+                We're building Men With Dogs to strengthen connection among gay men who love 
                 the outdoors, reduce online fatigue, and lower the friction of meeting people 
                 organically. To help community grow where it actually lives: on the trails, 
                 at the campsites, in the places that matter.

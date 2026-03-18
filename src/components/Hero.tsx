@@ -60,7 +60,7 @@ const Hero = () => {
       <div className="py-8 bg-background">
         <BrandStripe size="md" className="mb-8" />
         <p className="text-muted-foreground text-center max-w-xl mx-auto mb-6 px-4 text-pretty">
-          A place-based directory that helps men connect more organically through outdoor activities, shared hobbies, and the places their community already gathers.
+          The dog-friendly places directory for gay men. Find parks, bars, trails, and spots where you and your dog are always welcome.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-6">
           <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>

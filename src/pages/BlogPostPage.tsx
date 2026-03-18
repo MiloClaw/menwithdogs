@@ -108,7 +108,7 @@ const BlogPostPage = () => {
   return (
     <PageLayout>
       <Helmet>
-        <title>{post.title} | ThickTimber</title>
+        <title>{post.title} | Men With Dogs</title>
         <meta name="description" content={metaDescription} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt || metaDescription} />

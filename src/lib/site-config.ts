@@ -3,10 +3,10 @@
 
 export const SITE_CONFIG = {
   // Canonical domain - used for all SEO, OG, and sitemap URLs
-  canonicalDomain: 'https://thicktimber.com',
+  canonicalDomain: 'https://menwithdogs.com',
   
   // Site name for titles
-  siteName: 'ThickTimber',
+  siteName: 'Men With Dogs',
   
   // Default OG image path (relative to canonical domain)
   defaultOgImage: '/og-hero.jpg',
@@ -14,7 +14,7 @@ export const SITE_CONFIG = {
   // Build full canonical URL from path
   getCanonicalUrl: (path: string): string => {
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `https://thicktimber.com${cleanPath}`;
+    return `https://menwithdogs.com${cleanPath}`;
   },
   
   // Build full OG image URL
@@ -24,6 +24,6 @@ export const SITE_CONFIG = {
       return path;
     }
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `https://thicktimber.com${cleanPath}`;
+    return `https://menwithdogs.com${cleanPath}`;
   }
 } as const;

@@ -47,7 +47,7 @@ const ValueProposition = () => {
               className="space-y-6 md:pt-2 max-w-prose"
             >
               <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
-                ThickTimber is a personalized directory of hiking trails, campsites, beaches, and outdoor places where men with similar interests tend to spend time.
+                Men With Dogs is a personalized directory of hiking trails, campsites, beaches, and outdoor places where men with similar interests tend to spend time.
               </p>
 
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
@@ -59,7 +59,7 @@ const ValueProposition = () => {
               </p>
 
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                ThickTimber is designed as a tool, not a pastime. It works in the background, helping you understand where to go—so you can focus on actually being there.
+                Men With Dogs is designed as a tool, not a pastime. It works in the background, helping you understand where to go—so you can focus on actually being there.
               </p>
 
               <p className="text-muted-foreground/70 text-base md:text-lg font-medium">

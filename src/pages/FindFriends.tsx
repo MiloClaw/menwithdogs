@@ -85,7 +85,7 @@ const FindFriends = () => {
                 the same faces, returning to the same places, sharing experiences over time.
               </p>
               <p>
-                ThickTimber supports that by helping you understand where people with similar 
+                Men With Dogs supports that by helping you understand where people with similar 
                 interests tend to spend time. There's no pressure to introduce yourself, no 
                 expectation to perform—just better context for being in the right places.
               </p>

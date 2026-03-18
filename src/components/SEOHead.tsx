@@ -29,7 +29,7 @@ const SEOHead = ({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="application-name" content="ThickTimber – Place-Based Outdoor Directory" />
+      <meta name="application-name" content="Men With Dogs – Place-Based Outdoor Directory" />
       <link rel="canonical" href={canonicalUrl} />
       
       {/* Open Graph */}

@@ -113,8 +113,8 @@ const ResetPassword = () => {
   return (
     <>
       <SEOHead
-        title="Reset Password | ThickTimber"
-        description="Set a new password for your ThickTimber account."
+        title="Reset Password | Men With Dogs"
+        description="Set a new password for your Men With Dogs account."
         canonicalPath="/reset-password"
       />
       <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">

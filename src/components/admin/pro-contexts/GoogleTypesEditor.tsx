@@ -14,7 +14,7 @@ interface GoogleTypesEditorProps {
 }
 
 /**
- * Common outdoor-relevant Google Place types for ThickTimber
+ * Common outdoor-relevant Google Place types for Men With Dogs
  * Organized by category for quick reference
  */
 const COMMON_OUTDOOR_TYPES = {

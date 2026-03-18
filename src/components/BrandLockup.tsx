@@ -64,7 +64,7 @@ const BrandLockup = ({
         sizes.wordmark,
         colors.wordmark
       )}>
-        ThickTimber
+        Men With Dogs
       </span>
       {showSubtitle && (
         <span className={cn(

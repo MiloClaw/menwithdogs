@@ -24,7 +24,7 @@ const ACKNOWLEDGEMENT_ITEMS = [
   },
   {
     key: 'noPromotionRequired' as const,
-    label: 'Participation does not require promoting ThickTimber',
+    label: 'Participation does not require promoting Men With Dogs',
   },
 ];
 

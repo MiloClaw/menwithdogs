@@ -115,7 +115,7 @@ const Outdoors = () => {
               className="prose prose-lg text-foreground/80"
             >
               <p>
-                ThickTimber highlights outdoor places that matter—hiking trails, campsites, 
+                Men With Dogs highlights outdoor places that matter—hiking trails, campsites, 
                 beaches, swimming holes, and group activities—based on where people actually 
                 go and return to.
               </p>

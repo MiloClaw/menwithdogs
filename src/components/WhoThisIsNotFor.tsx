@@ -53,7 +53,7 @@ const WhoThisIsNotFor = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg md:text-xl text-primary-foreground/80 text-center mb-10 max-w-2xl mx-auto text-balance"
           >
-            ThickTimber is designed for men who enjoy outdoor and active lifestyles and are curious about connecting more organically through shared interests and places.
+            Men With Dogs is designed for men who enjoy outdoor and active lifestyles and are curious about connecting more organically through shared interests and places.
           </motion.p>
 
           {/* Checklist label */}
@@ -111,7 +111,7 @@ const WhoThisIsNotFor = () => {
             transition={{ duration: 0.6, delay: 0.9 }}
             className="text-primary-foreground/60 text-base text-center max-w-xl mx-auto text-balance"
           >
-            ThickTimber isn't built around browsing people or chasing attention.
+            Men With Dogs isn't built around browsing people or chasing attention.
             It's built around places—and what happens when people keep returning to them.
           </motion.p>
         </div>

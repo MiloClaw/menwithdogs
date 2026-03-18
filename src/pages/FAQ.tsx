@@ -24,9 +24,9 @@ const faqSections: FAQSection[] = [
     title: "The Directory",
     items: [
       {
-        question: "What is ThickTimber, exactly?",
+        question: "What is Men With Dogs, exactly?",
         answer: [
-          "ThickTimber is a place-based directory designed to help men connect more organically through shared interests, outdoor activities, and the real places where their community gathers.",
+          "Men With Dogs is a place-based directory designed to help men connect more organically through shared interests, outdoor activities, and the real places where their community gathers.",
           "Instead of centering interaction around profiles or feeds, the directory highlights trails, campsites, beaches, and outdoor spaces based on where people actually go and return to over time."
         ]
       },
@@ -40,7 +40,7 @@ const faqSections: FAQSection[] = [
       {
         question: "Is this a social network or dating app?",
         answer: [
-          "No. ThickTimber is designed as a real-world discovery tool.",
+          "No. Men With Dogs is designed as a real-world discovery tool.",
           "While it can support connection by helping you understand where your community gathers, it doesn't revolve around browsing people, feeds, or public profiles. Interaction is optional and centered around places, not performance."
         ]
       }
@@ -86,7 +86,7 @@ const faqSections: FAQSection[] = [
       {
         question: "Do you sell or share my data?",
         answer: [
-          "No. ThickTimber does not sell user data, share it with ad networks, or use it for targeted advertising.",
+          "No. Men With Dogs does not sell user data, share it with ad networks, or use it for targeted advertising.",
           "The platform is designed to operate without social metrics or surveillance-based incentives."
         ]
       },
@@ -103,9 +103,9 @@ const faqSections: FAQSection[] = [
     title: "Community & Inclusion",
     items: [
       {
-        question: "Who is ThickTimber designed for?",
+        question: "Who is Men With Dogs designed for?",
         answer: [
-          "ThickTimber is currently designed specifically for gay men who enjoy outdoor and active lifestyles.",
+          "Men With Dogs is currently designed specifically for gay men who enjoy outdoor and active lifestyles.",
           "This focus allows the directory, language, and intelligence to reflect the needs, experiences, and cultural context of that community."
         ]
       },
@@ -119,7 +119,7 @@ const faqSections: FAQSection[] = [
       {
         question: "Is this a hookup or dating platform?",
         answer: [
-          "No. ThickTimber doesn't facilitate dating or sexual interaction.",
+          "No. Men With Dogs doesn't facilitate dating or sexual interaction.",
           "It's built to support real-world discovery and organic connection through shared interests and places. What happens offline is always up to the individuals involved."
         ]
       },
@@ -127,7 +127,7 @@ const faqSections: FAQSection[] = [
         question: "Why focus specifically on gay men?",
         answer: [
           "Community forms differently across cultures and identities.",
-          "By focusing on gay men, ThickTimber can be intentional about language, privacy expectations, safety, and the types of places highlighted—rather than trying to be everything to everyone.",
+          "By focusing on gay men, Men With Dogs can be intentional about language, privacy expectations, safety, and the types of places highlighted—rather than trying to be everything to everyone.",
           "This focus allows the platform to work better for the people it's designed for."
         ]
       },
@@ -135,7 +135,7 @@ const faqSections: FAQSection[] = [
         question: "Will you expand to other communities in the future?",
         answer: [
           "Possibly.",
-          "If ThickTimber expands, it will do so intentionally—designing each version around the specific needs, values, and contexts of that community, rather than applying a one-size-fits-all approach."
+          "If Men With Dogs expands, it will do so intentionally—designing each version around the specific needs, values, and contexts of that community, rather than applying a one-size-fits-all approach."
         ]
       }
     ]
@@ -170,8 +170,8 @@ const FAQ = () => {
   return (
     <PageLayout>
       <SEOHead
-        title="Frequently Asked Questions | ThickTimber Directory"
-        description="Answers about how the directory works, personalization, privacy, and what makes ThickTimber different from social or profile-based platforms."
+        title="Frequently Asked Questions | Men With Dogs Directory"
+        description="Answers about how the directory works, personalization, privacy, and what makes Men With Dogs different from social or profile-based platforms."
         keywords="FAQ, questions, directory help, personalization, privacy"
         canonicalPath="/faq"
         schema={faqSchema}
@@ -279,7 +279,7 @@ const FAQ = () => {
               We're happy to help. Reach out anytime.
             </p>
             <a 
-              href="mailto:hello@thicktimber.com" 
+              href="mailto:hello@menwithdogs.com" 
               className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
             >
               Contact Us

@@ -18,7 +18,7 @@ const NotFound = () => {
     <>
       <SEOHead
         title="Page Not Found"
-        description="The page you're looking for doesn't exist. Explore outdoor places shaped by shared interests on ThickTimber."
+        description="The page you're looking for doesn't exist. Explore outdoor places shaped by shared interests on Men With Dogs."
         canonicalPath="/404"
       />
       <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">

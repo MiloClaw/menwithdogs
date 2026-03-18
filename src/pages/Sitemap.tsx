@@ -65,12 +65,12 @@ const Sitemap = () => {
     <PageLayout>
       <SEOHead
         title="Sitemap"
-        description="Navigate all pages on ThickTimber - the outdoor places directory for gay men."
+        description="Navigate all pages on Men With Dogs - the outdoor places directory for gay men."
         canonicalPath="/sitemap"
       />
       <PageHeader
         title="Sitemap"
-        subtitle="All pages on ThickTimber"
+        subtitle="All pages on Men With Dogs"
       />
 
       <div className="container py-8 md:py-12 lg:py-16">

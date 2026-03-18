@@ -48,7 +48,7 @@ const TagPage = () => {
     return (
       <PageLayout>
         <SEOHead 
-          title="Tag Not Found - ThickTimber"
+          title="Tag Not Found - Men With Dogs"
           description="This tag page could not be found."
           canonicalPath={`/tags/${slug || ''}`}
         />
@@ -71,8 +71,8 @@ const TagPage = () => {
   return (
     <PageLayout>
       <SEOHead 
-        title={tagPage.seo_title || `${tagPage.title} - ThickTimber`}
-        description={tagPage.seo_description || tagPage.subtitle || `Learn about the ${tagPage.title} tag on ThickTimber.`}
+        title={tagPage.seo_title || `${tagPage.title} - Men With Dogs`}
+        description={tagPage.seo_description || tagPage.subtitle || `Learn about the ${tagPage.title} tag on Men With Dogs.`}
         canonicalPath={`/tags/${slug}`}
       />
       

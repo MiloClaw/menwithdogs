@@ -135,7 +135,7 @@ const PlaceDetailModal = ({ place, open, onOpenChange }: PlaceDetailModalProps) 
     const shareUrl = `${window.location.origin}/love/${place.id}`;
     const shareData = {
       title: place.name,
-      text: `Check out ${place.name} on ThickTimber`,
+      text: `Check out ${place.name} on Men With Dogs`,
       url: shareUrl,
     };
 

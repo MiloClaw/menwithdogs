@@ -66,7 +66,7 @@ const Footer = () => {
             </h4>
             <nav className="flex flex-col gap-2.5">
               <Link to="/about" className={linkClasses}>
-                Why ThickTimber
+                Why Men With Dogs
               </Link>
               <Link to="/ambassadors" className={linkClasses}>
                 Trail Blazers
@@ -99,7 +99,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-16 md:mt-20 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} ThickTimber. All rights reserved.
+            © {new Date().getFullYear()} Men With Dogs. All rights reserved.
           </p>
           <Link to="/sitemap" className="text-sm text-primary-foreground/40 hover:text-primary-foreground/60 transition-colors">
             Sitemap

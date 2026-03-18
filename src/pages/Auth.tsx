@@ -208,7 +208,7 @@ toast({
   }
   return <>
     <SEOHead
-      title="Join the ThickTimber Directory"
+      title="Join the Men With Dogs Directory"
       description="Create a private account to explore outdoor places, save favorites, and personalize your directory experience over time."
       keywords="sign up, join directory, create account, outdoor places"
       canonicalPath="/auth"

@@ -82,7 +82,7 @@ const Community = () => {
             <div className="prose prose-lg prose-invert max-w-none text-primary-foreground/90">
               <p>
                 Instead of centering connection around profiles or constant interaction, 
-                ThickTimber focuses on places. Trails, campsites, beaches, and outdoor spaces 
+                Men With Dogs focuses on places. Trails, campsites, beaches, and outdoor spaces 
                 where shared interests quietly bring people together.
               </p>
               <p>

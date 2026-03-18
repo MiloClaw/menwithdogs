@@ -131,7 +131,7 @@ const LovePlace = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <header className="p-4">
           <Link to="/" className="text-xl font-serif font-semibold text-primary">
-            ThickTimber
+            Men With Dogs
           </Link>
         </header>
         <main className="flex-1 flex flex-col items-center justify-center px-4 text-center">
@@ -160,7 +160,7 @@ const LovePlace = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title={place.name}
-        description={`Discover ${place.name}${location ? ` in ${location}` : ''} - ${place.primary_category} on ThickTimber.`}
+        description={`Discover ${place.name}${location ? ` in ${location}` : ''} - ${place.primary_category} on Men With Dogs.`}
         canonicalPath={`/love/${place.id}`}
         ogImage={photoUrl || undefined}
       />
@@ -190,7 +190,7 @@ const LovePlace = () => {
         {/* Brand */}
         <div className="absolute top-4 right-4">
           <Link to="/" className="text-lg font-serif font-semibold text-foreground bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full">
-            ThickTimber
+            Men With Dogs
           </Link>
         </div>
       </div>

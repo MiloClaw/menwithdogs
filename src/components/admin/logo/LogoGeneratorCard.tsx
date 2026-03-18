@@ -12,15 +12,15 @@ interface LogoGeneratorCardProps {
 const PRESET_PROMPTS = [
   {
     label: "Clean Serif Text",
-    prompt: "Redesign this logo with cleaner, more readable text using a classic serif font similar to Libre Baskerville or Playfair Display. Keep the text 'ThickTimber' prominent and easy to read. Simplify the background - keep only essential mountain silhouettes and the central pine tree. Use clean lines and good contrast. Maintain the outdoor/nature theme with a refined, editorial aesthetic."
+    prompt: "Redesign this logo with cleaner, more readable text using a classic serif font similar to Libre Baskerville or Playfair Display. Keep the text 'Men With Dogs' prominent and easy to read. Simplify the background - keep only essential mountain silhouettes and the central pine tree. Use clean lines and good contrast. Maintain the outdoor/nature theme with a refined, editorial aesthetic."
   },
   {
     label: "Minimal Icon + Text",
-    prompt: "Create a minimal version of this logo with just the pine tree icon and the text 'ThickTimber' in a clean serif font. Remove all background elements. The pine tree should be a simple, iconic silhouette. Text should be highly legible at small sizes. Use a horizontal layout suitable for a navbar."
+    prompt: "Create a minimal version of this logo with just the pine tree icon and the text 'Men With Dogs' in a clean serif font. Remove all background elements. The pine tree should be a simple, iconic silhouette. Text should be highly legible at small sizes. Use a horizontal layout suitable for a navbar."
   },
   {
     label: "Badge Style",
-    prompt: "Redesign this logo as a contained badge or emblem style. Include 'ThickTimber' text in a clean serif font within or below the badge. Simplify the mountain and tree imagery. Make it work well at both large and small sizes. Keep the outdoor adventure theme but with cleaner, more geometric shapes."
+    prompt: "Redesign this logo as a contained badge or emblem style. Include 'Men With Dogs' text in a clean serif font within or below the badge. Simplify the mountain and tree imagery. Make it work well at both large and small sizes. Keep the outdoor adventure theme but with cleaner, more geometric shapes."
   }
 ];
 

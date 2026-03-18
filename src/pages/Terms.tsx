@@ -16,7 +16,7 @@ const Terms = () => {
               1. Acceptance of Terms
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              By accessing or using ThickTimber (the "Service"), you agree to be bound by these 
+              By accessing or using Men With Dogs (the "Service"), you agree to be bound by these 
               Terms of Service ("Terms"). If you do not agree to these Terms, please do not access 
               or use the Service.
             </p>
@@ -31,12 +31,12 @@ const Terms = () => {
               2. Nature of the Platform
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber is a place-based discovery platform that provides information and 
+              Men With Dogs is a place-based discovery platform that provides information and 
               tools to help users explore real-world locations and experiences. The platform 
               is designed specifically for gay men who enjoy outdoor and active lifestyles.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber does not:
+              Men With Dogs does not:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
               <li>Arrange, organize, or facilitate meetings between users</li>
@@ -46,7 +46,7 @@ const Terms = () => {
             </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               Any interaction between users—online or offline—is entirely voluntary and 
-              occurs at the users' sole discretion. ThickTimber is not responsible for 
+              occurs at the users' sole discretion. Men With Dogs is not responsible for 
               the conduct of any user, whether on or off the platform.
             </p>
           </section>
@@ -56,7 +56,7 @@ const Terms = () => {
               3. Eligibility
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              By using ThickTimber, you represent and warrant that:
+              By using Men With Dogs, you represent and warrant that:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4">
               <li>You are at least 18 years of age</li>
@@ -83,11 +83,11 @@ const Terms = () => {
                 damage, or other harm</li>
               <li>You are responsible for evaluating the safety and suitability of any 
                 location, activity, or interaction</li>
-              <li>ThickTimber does not screen, verify, or guarantee the safety of any 
+              <li>Men With Dogs does not screen, verify, or guarantee the safety of any 
                 place, event, or user</li>
             </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              By using ThickTimber, you voluntarily assume all such risks.
+              By using Men With Dogs, you voluntarily assume all such risks.
             </p>
           </section>
 
@@ -122,7 +122,7 @@ const Terms = () => {
               and may include mature discussions or user-generated content.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber does not create, endorse, moderate in real-time, or verify 
+              Men With Dogs does not create, endorse, moderate in real-time, or verify 
               user-submitted content and is not responsible for interactions that occur 
               within or outside these areas.
             </p>
@@ -137,7 +137,7 @@ const Terms = () => {
               7. No Professional Advice
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              Information provided on ThickTimber—including place descriptions, trail 
+              Information provided on Men With Dogs—including place descriptions, trail 
               conditions, event details, and user contributions—is for general 
               informational purposes only.
             </p>
@@ -154,7 +154,7 @@ const Terms = () => {
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               Your use of the Service is subject to our Privacy Policy, which describes 
-              how we collect, use, and protect your information. By using ThickTimber, 
+              how we collect, use, and protect your information. By using Men With Dogs, 
               you consent to the practices described in the Privacy Policy.
             </p>
           </section>
@@ -164,8 +164,8 @@ const Terms = () => {
               9. User-Generated Content
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              You retain ownership of content you submit to ThickTimber. By submitting 
-              content, you grant ThickTimber a non-exclusive, royalty-free, worldwide 
+              You retain ownership of content you submit to Men With Dogs. By submitting 
+              content, you grant Men With Dogs a non-exclusive, royalty-free, worldwide 
               license to use, display, and distribute that content in connection with 
               the Service.
             </p>
@@ -174,7 +174,7 @@ const Terms = () => {
               and that such content does not violate any third-party rights.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              ThickTimber does not guarantee the accuracy of user-generated content and 
+              Men With Dogs does not guarantee the accuracy of user-generated content and 
               is not liable for content submitted by users.
             </p>
           </section>
@@ -185,7 +185,7 @@ const Terms = () => {
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
               The Service and its original content, features, and functionality are owned by 
-              ThickTimber and are protected by international copyright, trademark, patent, 
+              Men With Dogs and are protected by international copyright, trademark, patent, 
               trade secret, and other intellectual property laws.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
@@ -203,7 +203,7 @@ const Terms = () => {
               warranties of any kind, whether express, implied, or statutory.
             </p>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber expressly disclaims all warranties, including but not limited to:
+              Men With Dogs expressly disclaims all warranties, including but not limited to:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
               <li>Merchantability and fitness for a particular purpose</li>
@@ -222,7 +222,7 @@ const Terms = () => {
               12. Limitation of Liability
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 uppercase font-medium">
-              To the fullest extent permitted by law, ThickTimber, its directors, 
+              To the fullest extent permitted by law, Men With Dogs, its directors, 
               employees, partners, and affiliates shall not be liable for:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
@@ -235,8 +235,8 @@ const Terms = () => {
                 Service or any offline interactions</li>
             </ul>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              In no event shall ThickTimber's total liability exceed the amount you have 
-              paid to ThickTimber in the twelve (12) months preceding the claim.
+              In no event shall Men With Dogs's total liability exceed the amount you have 
+              paid to Men With Dogs in the twelve (12) months preceding the claim.
             </p>
           </section>
 
@@ -245,7 +245,7 @@ const Terms = () => {
               13. Indemnification
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              You agree to indemnify, defend, and hold harmless ThickTimber and its 
+              You agree to indemnify, defend, and hold harmless Men With Dogs and its 
               officers, directors, employees, and agents from any claims, damages, 
               losses, liabilities, costs, or expenses (including reasonable attorneys' 
               fees) arising from:
@@ -265,7 +265,7 @@ const Terms = () => {
               14. Platform Rights
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-              ThickTimber reserves the right, at its sole discretion, to:
+              Men With Dogs reserves the right, at its sole discretion, to:
             </p>
             <ul className="list-disc list-inside text-sm md:text-base text-muted-foreground leading-relaxed space-y-2 ml-4 mb-4">
               <li>Modify, suspend, or discontinue the Service at any time</li>
@@ -311,8 +311,8 @@ const Terms = () => {
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               If you have any questions about these Terms of Service, please contact us at{" "}
-              <a href="mailto:support@thicktimber.com" className="text-primary hover:underline">
-                support@thicktimber.com
+              <a href="mailto:support@menwithdogs.com" className="text-primary hover:underline">
+                support@menwithdogs.com
               </a>.
             </p>
           </section>
