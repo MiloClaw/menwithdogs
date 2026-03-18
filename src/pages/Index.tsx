@@ -29,9 +29,9 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Outdoor Places Directory for Gay Men"
-        description="A place-based directory highlighting outdoor spaces, active lifestyles, and shared interests. Discover trails, campsites, and community gathering spots."
-        keywords="outdoor directory, gay hiking, gay camping, LGBTQ outdoors, gay men trails, active lifestyle, outdoor community, place-based discovery"
+        title="Dog-Friendly Places for Gay Men | Men With Dogs"
+        description="A curated directory of dog-friendly parks, trails, bars, and outdoor spaces — contributed by gay men, for gay men. Discover where you and your dog are always welcome."
+        keywords="dog friendly places gay men, gay dog owner directory, LGBTQ dog friendly, gay men with dogs, dog friendly parks, dog friendly bars, gay outdoor community"
         canonicalPath="/"
         schema={homepageSchema}
       />

@@ -35,7 +35,7 @@ const ValueProposition = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight leading-[1.1] text-balance"
             >
-              A place-based directory built around shared interests and the outdoors.
+              Dog-friendly places, found by gay men who actually go there.
             </motion.h2>
 
             {/* Right: Supporting text */}
@@ -47,15 +47,15 @@ const ValueProposition = () => {
               className="space-y-6 md:pt-2 max-w-prose"
             >
               <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
-                Men With Dogs is a personalized directory of hiking trails, campsites, beaches, and outdoor places where men with similar interests tend to spend time.
+                Men With Dogs is a curated directory of dog-friendly parks, trails, bars, beaches, and outdoor spaces — contributed by gay men, for gay men.
               </p>
 
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                Instead of focusing on profiles or constant interaction, the directory is shaped by the places people genuinely enjoy and return to. Members privately save their favorite spots, share hidden gems, and contribute to a growing picture of where community naturally forms in the real world.
+                No profiles. No swiping. Just great places where you and your dog are genuinely welcome — and where community forms naturally around shared routines and real-world time together.
               </p>
 
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                Over time, patterns emerge. The directory quietly highlights places where men who value similar activities, routines, and outdoor experiences tend to gather—making it easier to plan a day out, discover new areas, and increase the chances of organic connection.
+                Save spots you love. Discover ones you haven't found yet. The more people contribute, the better the map gets — revealing where men with dogs actually gather.
               </p>
 
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed">

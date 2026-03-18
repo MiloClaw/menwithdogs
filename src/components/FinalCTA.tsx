@@ -51,7 +51,7 @@ const FinalCTA = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-10 md:mb-12 text-balance"
           >
-            Ready to find your trail?
+            Find your next adventure. Dogs welcome.
           </motion.h2>
 
           {/* CTA buttons */}
@@ -66,19 +66,19 @@ const FinalCTA = () => {
               variant="accent"
               size="lg"
               className="w-full sm:w-auto text-base px-8"
-              onClick={() => navigate('/auth?mode=signup')}
+              onClick={() => navigate('/places')}
             >
-              Create Free Account
+              <MapPin className="w-4 h-4 mr-2" />
+              Explore Dog-Friendly Places
             </Button>
 
             <Button
               variant="ghost"
               size="lg"
               className="w-full sm:w-auto text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={() => navigate('/places')}
+              onClick={() => navigate('/auth?mode=signup')}
             >
-              <MapPin className="w-4 h-4 mr-2" />
-              Explore Outdoors
+              Create Free Account
             </Button>
           </motion.div>
         </div>

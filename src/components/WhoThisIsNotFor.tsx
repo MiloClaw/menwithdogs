@@ -3,11 +3,11 @@ import { useRef } from "react";
 import { Check } from "lucide-react";
 
 const traits = [
-  "Spend time hiking, camping, running, cycling, or being active outdoors",
-  "Enjoy discovering new places and revisiting the ones that feel right",
-  "Prefer low-pressure ways to meet people in the real world",
-  "Value privacy and don't want your interests or routines on public display",
-  "Like the idea of a tool that supports real-world experiences without demanding constant attention"
+  "Have a dog (or love being around them) and want places where they're genuinely welcome",
+  "Spend time hiking, camping, running, or just exploring your city with your dog",
+  "Enjoy discovering new spots and returning to the ones that feel right",
+  "Prefer low-pressure ways to meet people — in real life, through shared routines",
+  "Value a tool that supports real-world experiences without demanding constant attention"
 ];
 
 const WhoThisIsNotFor = () => {
@@ -53,7 +53,7 @@ const WhoThisIsNotFor = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg md:text-xl text-primary-foreground/80 text-center mb-10 max-w-2xl mx-auto text-balance"
           >
-            Men With Dogs is designed for men who enjoy outdoor and active lifestyles and are curious about connecting more organically through shared interests and places.
+            Men With Dogs is for gay men who have dogs — and want a better way to discover the places worth showing up to.
           </motion.p>
 
           {/* Checklist label */}

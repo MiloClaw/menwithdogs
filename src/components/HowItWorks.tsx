@@ -6,18 +6,18 @@ import { Button } from "@/components/ui/button";
 const steps = [{
   number: "01",
   icon: MapPin,
-  title: "Explore and Contribute",
-  description: "Browse trails, campsites, beaches, and outdoor places in the directory.\nKnow a spot that belongs here? Add it and help others discover places worth returning to."
+  title: "Find Dog-Friendly Places",
+  description: "Browse parks, trails, bars, and outdoor spaces where dogs are genuinely welcome.\nEvery listing is contributed by gay men who've been there — not pulled from a generic database."
 }, {
   number: "02",
   icon: Bookmark,
-  title: "Save What You Enjoy",
-  description: "Save places you genuinely like and would visit again.\nYour saved spots shape what you see—quietly refining recommendations around your interests and routines."
+  title: "Save Your Favorites",
+  description: "Save spots you love and want to return to.\nYour saved places shape your experience — surfacing more of what fits your lifestyle and your dog's energy."
 }, {
   number: "03",
   icon: RotateCcw,
-  title: "Better Over Time",
-  description: "As more men use the directory and share places they enjoy, patterns begin to form.\nThe directory highlights places where men with similar interests tend to gather—often revealing opportunities you wouldn't notice otherwise."
+  title: "Better as It Grows",
+  description: "Every new contribution makes the directory more useful.\nOver time, the map reveals where men with dogs actually gather — creating real opportunities for organic connection."
 }];
 const HowItWorks = () => {
   const navigate = useNavigate();

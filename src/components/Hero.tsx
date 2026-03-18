@@ -48,9 +48,9 @@ const Hero = () => {
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center pb-12 md:pb-16 px-[20px]">
           <h1 className={`font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 [text-shadow:_0_2px_4px_rgba(0,0,0,0.3)] ${!prefersReducedMotion ? 'animate-fade-in' : ''}`}>
-            Real places.<br />
-            Shared interests.<br />
-            Real-world connection.
+            The best places<br />
+            are more fun<br />
+            with your dog.
           </h1>
           
         </div>
@@ -60,15 +60,15 @@ const Hero = () => {
       <div className="py-8 bg-background">
         <BrandStripe size="md" className="mb-8" />
         <p className="text-muted-foreground text-center max-w-xl mx-auto mb-6 px-4 text-pretty">
-          The dog-friendly places directory for gay men. Find parks, bars, trails, and spots where you and your dog are always welcome.
+          A dog-friendly places directory for gay men. Discover parks, trails, bars, and community spots where you and your dog are always welcome.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-6">
-          <Button variant="accent" size="lg" onClick={() => navigate('/auth?mode=signup')}>
-            Join Free
-          </Button>
-          <Button variant="outline" size="lg" onClick={() => navigate('/places')}>
+          <Button variant="accent" size="lg" onClick={() => navigate('/places')}>
             <MapPin className="w-4 h-4 mr-2" />
-            Explore Places
+            Find Dog-Friendly Places
+          </Button>
+          <Button variant="outline" size="lg" onClick={() => navigate('/auth?mode=signup')}>
+            Join Free
           </Button>
         </div>
         
